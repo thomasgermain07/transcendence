@@ -1,17 +1,19 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <Home msg="Hello Vue 3 + TypeScript + Vite" />
+  <div class="app">
+    <NavigationBar />
+    <router-view></router-view>
+  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Home from './components/Home.vue'
+import NavigationBar from './components/NavigationBar.vue'
 
 export default defineComponent({
   name: 'App',
   components: {
-    Home
-  }
+    NavigationBar,
+  },
 })
 </script>
 
