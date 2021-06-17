@@ -1,0 +1,45 @@
+version: '3'
+services:
+  # ----------------------------------------------------------------------------
+  # Database (Postgres)
+  # ----------------------------------------------------------------------------
+  db:
+    image: postgres:12.1-alpine
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
+
+  # ----------------------------------------------------------------------------
+  # Server (NestJS)
+  # ----------------------------------------------------------------------------
+  server:
+    build: ./docker/server
+    volumes:
+      - ./www/server:/workspace
+      - ./www/server/node_modules:/workspace/node_modules
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  # ----------------------------------------------------------------------------
+  # Client (VueJS / Vite)
+  # ----------------------------------------------------------------------------
+  client:
+    build: ./docker/client
+    volumes:
+      - ./www/client:/workspace
+      - ./www/client/node_modules:/workspace/node_modules
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server

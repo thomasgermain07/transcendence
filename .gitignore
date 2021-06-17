@@ -1,0 +1,8 @@
+# Database
+/db
+
+# VSCode
+/.vscode
+
+# Env (contains API secret)
+/.env

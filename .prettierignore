@@ -1,0 +1,10 @@
+
+*.json
+*.lock
+*.yaml
+*.yml
+*.sh
+Dockerfile
+
+babel.config.js
+README.md
