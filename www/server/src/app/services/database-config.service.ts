@@ -1,21 +1,28 @@
-import { Injectable } from '@nestjs/common'
-import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm'
+import { Injectable }            from '@nestjs/common'
+import { TypeOrmModuleOptions }  from '@nestjs/typeorm'
+import { TypeOrmOptionsFactory } from '@nestjs/typeorm'
 
 @Injectable()
-export class DatabaseConfigService implements TypeOrmOptionsFactory {
-  createTypeOrmOptions(): TypeOrmModuleOptions {
-    return {
-      type: 'postgres',
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT),
+export class DatabaseConfigService
+	implements TypeOrmOptionsFactory
+{
 
-      username: process.env.DB_USER,
-      password: process.env.DB_PASS,
-      database: process.env.DB_NAME,
+	createTypeOrmOptions()
+		: TypeOrmModuleOptions
+	{
+		return {
+			type: 'postgres',
+			host: process.env.DB_HOST,
+			port: parseInt(process.env.DB_PORT),
 
-      synchronize: true,
-      autoLoadEntities: true,
-      logging: true,
-    }
-  }
+			username: process.env.DB_USER,
+			password: process.env.DB_PASS,
+			database: process.env.DB_NAME,
+
+			synchronize: true,
+			autoLoadEntities: true,
+			logging: true,
+		}
+	}
+
 }
