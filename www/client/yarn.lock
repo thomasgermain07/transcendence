@@ -729,7 +729,6 @@ vue@^3.0.5:
     "@vue/runtime-dom" "3.1.1"
     "@vue/shared" "3.1.1"
 
-vuex-module-decorators@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/vuex-module-decorators/-/vuex-module-decorators-1.0.1.tgz#d34dafb5428a3636f1c26d3d014c15fc9659ccd0"
   integrity sha512-FLWZsXV5XAtl/bcKUyQFpnSBtpc3wK/7zSdy9oKbyp71mZd4ut5y2zSd219wWW9OG7WUOlVwac4rXFFDVnq7ug==
@@ -742,8 +741,6 @@ vuex@^4.0.2:
     "@vue/devtools-api" "^6.0.0-beta.11"
 
 wrappy@1:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha1-tSQ9jz7BqjXxNkYFvA0QNuMKtp8=
 
 ws@~7.4.2:
