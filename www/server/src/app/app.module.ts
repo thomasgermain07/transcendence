@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { AuthModule }  from 'src/auth/auth.module'
 import { UsersModule } from 'src/users/users.module'
+import { ChatModule }  from 'src/chat/chat.modules'
 
 import { DatabaseConfigService } from './services/database-config.service'
 
@@ -15,6 +16,7 @@ import { DatabaseConfigService } from './services/database-config.service'
     // Api Modules
     AuthModule,
     UsersModule,
+    ChatModule
   ],
   controllers: [],
   providers: [],
