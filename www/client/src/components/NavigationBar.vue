@@ -4,9 +4,9 @@
       <li class="section">
         <router-link to="/" class="link">Home</router-link>
       </li>
-      <li class="section">
+      <!-- <li class="section">
         <router-link to="/game" class="link">Game</router-link>
-      </li>
+      </li> -->
       <li class="section">
         <router-link to="/user" class="link">User</router-link>
       </li>
