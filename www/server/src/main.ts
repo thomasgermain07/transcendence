@@ -1,15 +1,17 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core'
+import { AppModule } from './app/app.module'
+import * as cookieParser from 'cookie-parser'
+import { ValidationPipe } from '@nestjs/common'
 
-import { AppModule } from './app/app.module';
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule)
 
-async function bootstrap()
-{
-  const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('api')
+  app.enableCors()
+  app.useGlobalPipes(new ValidationPipe())
+  app.use(cookieParser())
 
-  app.setGlobalPrefix('api');
-  app.enableCors();
-
-  await app.listen(8080);
+  await app.listen(8080)
 }
 
-bootstrap();
+bootstrap()
