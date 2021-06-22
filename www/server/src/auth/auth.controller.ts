@@ -44,6 +44,7 @@ export class AuthController {
     await this.usersService.setCurrentRefreshToken(refreshToken, user.id)
 
     request.res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie])
+
     return user
   }
 

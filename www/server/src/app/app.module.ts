@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { UsersModule } from 'src/users/users.module'
+import { AuthModule } from 'src/auth/auth.module'
 
 import { DatabaseConfigService } from './services/database-config.service'
-
 import { ConfigModule } from '@nestjs/config'
-import { AuthModule } from 'src/auth/auth.module'
 
 @Module({
   imports: [
