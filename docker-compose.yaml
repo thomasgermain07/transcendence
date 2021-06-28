@@ -23,6 +23,7 @@ services:
     build: ./docker/server
     volumes:
       - ./www/server:/workspace
+      - /workspace/node_modules
       # - ./www/server/node_modules:/workspace/node_modules
     env_file:
       - .env
@@ -38,6 +39,7 @@ services:
     build: ./docker/client
     volumes:
       - ./www/client:/workspace
+      - /workspace/node_modules
       # - ./www/client/node_modules:/workspace/node_modules
     env_file:
       - .env

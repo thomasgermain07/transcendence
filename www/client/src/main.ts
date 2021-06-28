@@ -1,23 +1,20 @@
 import { createApp } from 'vue'
 
-import axios    from 'axios'
+import axios from 'axios'
 import VueAxios from 'vue-axios'
 
-import App    from './App.vue'
-import router from "./routers/router";
+import App from './App.vue'
+import router from './routers/router'
+import { store } from './store'
+
+import initAxios from './shared/axios.config'
 
 // -----------------------------------------------------------------------------
 // Axios Config
 // -----------------------------------------------------------------------------
-// Url
-axios.defaults.baseURL = 'http://localhost:8080/api/';
-// HTTP Headers
-axios.defaults.headers.common['Content-type'] = "application/json";
+initAxios()
 
 // -----------------------------------------------------------------------------
 // Start Application
 // -----------------------------------------------------------------------------
-createApp(App)
-	.use(VueAxios, axios)
-	.use(router)
-	.mount('#app')
+createApp(App).use(VueAxios, axios).use(router).use(store).mount('#app')

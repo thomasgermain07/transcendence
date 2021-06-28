@@ -71,7 +71,7 @@ export class AuthService {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       expiresIn: `${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME}s`,
     })
-    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME}`
+    return `Authentication=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME}`
   }
 
   public getCookieWithJwtRefreshToken(userId: number) {
@@ -80,7 +80,7 @@ export class AuthService {
       secret: process.env.JWT_REFRESH_TOKEN_SECRET,
       expiresIn: `${process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME}s`,
     })
-    const cookie = `Refresh=${token}; HttpOnly; Path=/; Max-Age=${process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME}`
+    const cookie = `Refresh=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME}`
     return {
       cookie,
       token,
@@ -89,8 +89,8 @@ export class AuthService {
 
   public getCookieForLogOut() {
     return [
-      'Authentication=; HttpOnly; Path=/; Max-Age=0',
-      'Refresh=; HttpOnly; Path=/; Max-Age=0',
+      'Authentication=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0',
+      'Refresh=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0',
     ]
   }
 }

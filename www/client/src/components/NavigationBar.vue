@@ -10,12 +10,29 @@
       <li class="section">
         <router-link to="/user" class="link">User</router-link>
       </li>
+      <li class="section">
+        <div class="link" @click="logout">Logout</div>
+      </li>
     </ul>
   </div>
 </template>
 
-<script>
-export default {}
+<script lang="ts">
+import { defineComponent } from '@vue/runtime-core'
+import { useStore } from 'vuex'
+
+export default defineComponent({
+  name: 'NavigationBar',
+  setup() {
+    const store = useStore()
+
+    const logout = () => {
+      // console.log("in logout");
+      store.dispatch('logout')
+    }
+    return { logout }
+  },
+})
 </script>
 
 <style>

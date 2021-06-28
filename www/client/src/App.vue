@@ -1,18 +1,33 @@
 <template>
-  <div class="app">
-    <NavigationBar />
-    <router-view></router-view>
+  <div id="app">
+    <NavigationBar
+      v-if="!unprotectedRoutes.includes(route.path)"
+    ></NavigationBar>
   </div>
+  <router-view />
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, onBeforeMount } from 'vue'
+import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
 import NavigationBar from './components/NavigationBar.vue'
 
 export default defineComponent({
   name: 'App',
   components: {
     NavigationBar,
+  },
+  setup() {
+    const route = useRoute()
+    const store = useStore()
+    const unprotectedRoutes = ['/login', '/register']
+
+    onBeforeMount(() => {
+      store.dispatch('checkAuth')
+    })
+
+    return { route, unprotectedRoutes }
   },
 })
 </script>
