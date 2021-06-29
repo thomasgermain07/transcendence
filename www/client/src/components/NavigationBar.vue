@@ -1,14 +1,30 @@
 <template>
   <div>
     <ul class="navigation">
-      <li class="section">
-        <router-link to="/" class="link">Home</router-link>
+      <li class="left-section">
+        <router-link to="/" class="link">
+          <i class="fas fa-home"></i>
+        </router-link>
       </li>
-      <!-- <li class="section">
-        <router-link to="/game" class="link">Game</router-link>
-      </li> -->
-      <li class="section">
-        <router-link to="/user" class="link">User</router-link>
+      <li class="left-section">
+        <router-link to="/game" class="link">
+          <i class="fas fa-gamepad"></i>
+        </router-link>
+      </li>
+      <li class="left-section">
+        <router-link to="/users" class="link">
+          <i class="fas fa-users"></i>
+        </router-link>
+      </li>
+      <li class="right-section">
+        <router-link to="/logout" class="link">
+          <i class="fas fa-sign-out-alt"></i>
+        </router-link>
+      </li>
+      <li class="right-section">
+        <router-link to="/profile" class="link">
+          <i class="fas fa-user"></i>
+        </router-link>
       </li>
     </ul>
   </div>
@@ -29,9 +45,12 @@ export default {}
   padding: 0;
   background-color: grey;
 }
-
-.section {
+.left-section {
   float: left;
+}
+
+.right-section {
+  float: right;
 }
 
 .link {
@@ -39,7 +58,7 @@ export default {}
   color: white;
   padding: 8px;
   text-align: center;
-  padding: 14px 16px;
+  padding: 14px 23px;
   text-decoration: none;
 }
 

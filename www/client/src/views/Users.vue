@@ -1,28 +1,34 @@
 <template>
   <div class="users-view">
     <h1>Users List</h1>
-    <button @click="printUsers">PrintUsers</button>
+
+    <p v-if="loading">Loading content ...</p>
+
     <ul class="users-list">
       <li v-for="user in users" :key="user">
-        {{ user.first_name }} - {{ user.last_name }} - {{ user.phone_number }}
+        <router-link :to="{ name: 'UserProfile', params: { id: user.id } }">
+          {{ user.nickname }}
+        </router-link>
       </li>
     </ul>
   </div>
 </template>
 
-// https://random-data-api.com/api/users/random_user?size=
 <script lang="ts">
 import axios from 'axios'
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 
 export default {
   setup() {
     let users = ref([])
+    let loading = ref(true)
+
     const getUsers = async () => {
       axios
-        .get('https://random-data-api.com/api/users/random_user?size=3') // TODO : Change to our api
+        .get('https://60d5fd1b943aa60017768d55.mockapi.io/api/users') // TODO : Link api
         .then((res) => {
           users.value = res.data
+          loading.value = false
         })
     }
 
@@ -30,6 +36,7 @@ export default {
 
     return {
       users,
+      loading,
       getUsers,
     }
   },
@@ -39,5 +46,6 @@ export default {
 <style>
 .users-list {
   list-style-type: none;
+  align-items: center;
 }
 </style>

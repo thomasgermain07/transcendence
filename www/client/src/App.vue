@@ -2,19 +2,21 @@
   <div class="app">
     <NavigationBar />
     <router-view></router-view>
+    <FriendList />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
 import NavigationBar from './components/NavigationBar.vue'
+import FriendList from './components/FriendWindow.vue'
 
-export default defineComponent({
+export default {
   name: 'App',
   components: {
     NavigationBar,
+    FriendList,
   },
-})
+}
 </script>
 
 <style>
@@ -25,5 +27,6 @@ export default defineComponent({
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+  position: relative;
 }
 </style>
