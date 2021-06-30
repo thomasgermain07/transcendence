@@ -1,18 +1,21 @@
 <template>
-  <div id="component">
-    <a v-if="!open" @click="toggle_window">
-      <i class="fas fa-bars fa-2x"></i>
-    </a>
-    <div v-if="open" id="window">
-      <div id="top-bar">
-        <a @click="toggle_window">
-          <i class="far fa-times-circle"></i>
-        </a>
-      </div>
-      <ul id="friend-list">
-        <li class="friend" v-for="friend in friends" :key="friend">
-          <span>{{ friend.nickname }}</span>
-          <!-- <i class="fas fa-circle friend-status"></i> -->
+  <a class="open-button" v-if="!open" @click="toggle_window">
+    <i class="fas fa-bars fa-2x"></i>
+  </a>
+  <div v-if="open" class="window">
+    <header class="top-bar">
+      <a @click="toggle_window">
+        <i class="far fa-times-circle"></i>
+      </a>
+    </header>
+    <div class="friend-list">
+      <ul>
+        <li v-for="friend in sortedFriends" :key="friend">
+          <div class="friend">
+            {{ friend.nickname }}
+            <i v-if="friend.connected" class="fas fa-circle connected"></i>
+            <i v-if="!friend.connected" class="fas fa-circle disconnected"></i>
+          </div>
         </li>
       </ul>
     </div>
@@ -21,11 +24,15 @@
 
 <script lang="ts">
 import axios from 'axios'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+
+interface Friend {
+  connected: boolean
+}
 
 export default {
   setup() {
-    let friends = ref([])
+    let friends = ref<Friend[]>()
     let loading = ref(true)
     let open = ref(false)
 
@@ -38,6 +45,10 @@ export default {
         })
     }
 
+    const sortedFriends = computed(() => {
+      return friends.value?.filter((friend) => friend.connected)
+    })
+
     onMounted(getFriends)
 
     return {
@@ -45,6 +56,7 @@ export default {
       loading,
       open,
       getFriends,
+      sortedFriends,
     }
   },
   methods: {
@@ -55,50 +67,64 @@ export default {
 }
 </script>
 
-<style>
-#component {
+<style scoped>
+.open-button {
   position: fixed;
   bottom: 0;
-  right: 0;
-  padding: 0px 15px;
+  right: 10px;
 }
 
-#top-bar {
+.window {
+  width: 180px;
   position: fixed;
-  height: 25px;
-  width: 190px;
-  background-color: black;
-}
-
-#window {
-  height: 300px;
-  width: 190px;
+  bottom: 0;
+  right: 10px;
   background-color: grey;
-  bottom: 0;
+}
+
+.top-bar {
+  padding: 4px 4px;
+  background-color: black;
+  text-align: left;
+}
+
+.friend-list {
+  height: 275px;
   overflow-y: scroll;
   overflow-x: hidden;
 }
 
-#friend-list {
+.friend-list ul {
   list-style-type: none;
   text-align: left;
   padding: 0.5em;
   margin: 0;
 }
 
-#friend-list li {
+.friend-list li {
   padding: 0.15em;
 }
 
+.friend {
+  position: relative;
+}
+
 .fa-times-circle {
-  position: absolute;
-  left: 0;
-  margin: 0.3rem;
   color: whitesmoke;
 }
 
-.friend .friend-status {
-  position: fixed;
-  right: 0;
+.fa-circle {
+  position: absolute;
+  /* right: 0; */
+  padding: 0.5em;
+  font-size: 0.7em;
+}
+
+.connected {
+  color: green;
+}
+
+.disconnected {
+  color: red;
 }
 </style>
