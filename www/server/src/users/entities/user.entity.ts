@@ -1,24 +1,36 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity }         from 'typeorm'
+import { PrimaryGeneratedColumn } from 'typeorm'
+
 import { Exclude } from 'class-transformer'
 
 @Entity()
-class User {
-  @PrimaryGeneratedColumn()
-  public id: number
+export class User
+{
+	// -------------------------------------------------------------------------
+	// Attributes
+	// -------------------------------------------------------------------------
+	@PrimaryGeneratedColumn()
+	public id : number;
 
-  @Column({ unique: true })
-  public email: string
+	@Column({ unique: true })
+	public email : string;
 
-  @Column()
-  public name: string
+	@Column({ unique: true })
+	public name : string;
 
-  @Column()
-  @Exclude()
-  public password: string
+	// -------------------------------------------------------------------------
+	// Authentication
+	// -------------------------------------------------------------------------
+	@Column()
+	@Exclude()
+	public password : string;
 
-  @Column({ nullable: true })
-  @Exclude()
-  public currentHashedRefreshToken?: string
+	@Column({ nullable: true })
+	@Exclude()
+	public refreshToken? : string;
+
+	// -------------------------------------------------------------------------
+	// Relations
+	// -------------------------------------------------------------------------
+
 }
-
-export default User

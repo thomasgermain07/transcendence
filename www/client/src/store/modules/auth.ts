@@ -103,7 +103,7 @@ export default class AuthModule extends VuexModule implements IAuthState {
   async logout(): Promise<void> {
     const payload = {}
     // this.context.commit("SET_LOADING", true);
-    const response = await axios.post(`auth/logout`, payload).catch(() => {
+    const response = await axios.delete(`auth/logout`, payload).catch(() => {
       console.log('IN LOGOUT ERROR')
       // console.log(err);
     })

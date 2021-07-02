@@ -1,16 +1,31 @@
-import { Module } from '@nestjs/common'
-import { AuthService } from './auth.service'
-import { UsersModule } from '../users/users.module'
-import { AuthController } from './auth.controller'
+import { Module }         from '@nestjs/common'
 import { PassportModule } from '@nestjs/passport'
-import { LocalStrategy } from './local.strategy'
-import { JwtModule } from '@nestjs/jwt'
-import { JwtStrategy } from './jwt-auth.strategy'
-import { JwtRefreshTokenStrategy } from './jwt-refresh-token.strategy'
+import { JwtModule }      from '@nestjs/jwt'
+
+import { UsersModule } from 'src/users/users.module'
+
+import { AuthService }             from './services/auth.service'
+import { CookiesService }          from './services/cookies.service'
+import { LocalStrategy }           from './strategies/local.strategy'
+import { JwtStrategy }             from './strategies/jwt-auth.strategy'
+import { JwtRefreshTokenStrategy } from './strategies/jwt-refresh-token.strategy'
+import { AuthController }          from './controllers/auth.controller'
 
 @Module({
-  imports: [UsersModule, PassportModule, JwtModule.register({})],
-  providers: [AuthService, LocalStrategy, JwtStrategy, JwtRefreshTokenStrategy],
-  controllers: [AuthController],
+  imports: [
+    PassportModule,
+    JwtModule.register({}),
+    UsersModule,
+  ],
+  controllers: [
+    AuthController,
+  ],
+  providers: [
+    LocalStrategy,
+    JwtStrategy,
+    JwtRefreshTokenStrategy,
+    AuthService,
+    CookiesService,
+  ],
 })
 export class AuthModule {}
