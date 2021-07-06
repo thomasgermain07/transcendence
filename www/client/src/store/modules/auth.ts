@@ -3,23 +3,23 @@ import axios, { AxiosResponse } from 'axios'
 import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
 import { IUserState } from './user'
 
+enum LoginState {
+  verifying = 'verifying',
+  loggedIn = 'loggedIn',
+  error = 'error',
+}
+
 // Auth Module Interface
 export interface IAuthState {
   loading: boolean
-  authenticated: boolean
-  // oauth2Client?: null,
-  // error: null,
+  marvinAuthState: LoginState
 }
 
 // ADD namespace?
 @Module
 export default class AuthModule extends VuexModule implements IAuthState {
   loading = true
-  authenticated = false
-
-  get isAuthenticated(): boolean {
-    return this.isAuthenticated
-  }
+  marvinAuthState = LoginState.verifying
 
   @Mutation
   SET_LOADING(value: boolean): void {
@@ -27,14 +27,14 @@ export default class AuthModule extends VuexModule implements IAuthState {
   }
 
   @Mutation
-  SET_AUTH(value: boolean): void {
-    this.authenticated = value
+  SET_OAUTH(state: LoginState): void {
+    this.marvinAuthState = state
   }
 
   //   @Action({ rawError: true })
   @Action
   async login(payload: IUserState): Promise<void> {
-    // this.context.commit("SET_LOADING", true);
+    this.context.commit('SET_LOADING', true)
     const response = await axios
       .post(`auth/login`, payload)
       .catch((err: AxiosResponse) => {
@@ -45,11 +45,28 @@ export default class AuthModule extends VuexModule implements IAuthState {
     if (response) {
       // console.log(response);
       this.context.commit('SET_LOADING', false)
-      this.context.commit('SET_AUTH', true)
       this.context.commit('SET_USER', response.data)
+      localStorage.setItem('auth', 'true')
       router.push('/')
     }
-    // return { response };
+  }
+
+  @Action
+  async loginWith42(code: string): Promise<void> {
+    this.context.commit('SET_LOADING', true)
+    const response = await axios
+      .get(`auth/marvin?code=${code}`)
+      .catch((err: AxiosResponse) => {
+        this.context.commit('SET_OAUTH', LoginState.error)
+        router.push('/login')
+      })
+    if (response) {
+      this.context.commit('SET_LOADING', false)
+      this.context.commit('SET_OAUTH', LoginState.loggedIn)
+      this.context.commit('SET_USER', response.data)
+      localStorage.setItem('auth', 'true')
+      router.push('/')
+    }
   }
 
   @Action
@@ -72,14 +89,12 @@ export default class AuthModule extends VuexModule implements IAuthState {
   @Action
   async checkAuth(): Promise<void> {
     const response = await axios.get(`auth`).catch(() => {
-      this.context.commit('SET_AUTH', false)
-      router.replace('/login')
+      alert('Your session has expired')
+      // router.replace('/login')
     })
     if (response) {
       this.context.commit('SET_LOADING', false)
-      this.context.commit('SET_AUTH', true)
       this.context.commit('SET_USER', response.data)
-      router.replace('/')
     }
   }
 
@@ -87,15 +102,13 @@ export default class AuthModule extends VuexModule implements IAuthState {
   async refreshTokens(): Promise<void> {
     const response = await axios.get(`auth/refresh`).catch((error) => {
       console.log('Refresh token expired, request rejected')
-      this.context.commit('SET_AUTH', false)
+      localStorage.removeItem('auth')
       router.replace('/login')
       return Promise.reject(error)
     })
     if (response) {
       this.context.commit('SET_LOADING', false)
-      this.context.commit('SET_AUTH', true)
       this.context.commit('SET_USER', response.data)
-      //   router.push("/");
     }
   }
 
@@ -104,15 +117,14 @@ export default class AuthModule extends VuexModule implements IAuthState {
     const payload = {}
     // this.context.commit("SET_LOADING", true);
     const response = await axios.delete(`auth/logout`, payload).catch(() => {
-      console.log('IN LOGOUT ERROR')
-      // console.log(err);
+      localStorage.removeItem('auth')
     })
     if (response) {
       // this.context.commit("SET_LOADING", false);
       console.log('Logging out')
-      this.context.commit('SET_AUTH', false)
       this.context.commit('SET_USER', <IUserState>{})
-      router.replace('/login')
+      localStorage.removeItem('auth')
     }
+    router.replace('/login')
   }
 }

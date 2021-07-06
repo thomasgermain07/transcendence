@@ -8,9 +8,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeMount } from 'vue'
+import { defineComponent } from 'vue'
 import { useRoute } from 'vue-router'
-import { useStore } from 'vuex'
 import NavigationBar from './components/NavigationBar.vue'
 
 export default defineComponent({
@@ -20,12 +19,7 @@ export default defineComponent({
   },
   setup() {
     const route = useRoute()
-    const store = useStore()
-    const unprotectedRoutes = ['/login', '/register']
-
-    onBeforeMount(() => {
-      store.dispatch('checkAuth')
-    })
+    const unprotectedRoutes = ['/login', '/register', '/auth/marvin/callback']
 
     return { route, unprotectedRoutes }
   },

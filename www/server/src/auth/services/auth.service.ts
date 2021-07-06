@@ -5,6 +5,8 @@ import * as bcrypt             from 'bcrypt'
 import { CreateUserDto } from 'src/users/dto/create-user.dto'
 import { User }          from 'src/users/entities/user.entity'
 import { UsersService }  from 'src/users/services/users.service'
+import { MarvinLoginDto } from '../dto/marvin-login.dto'
+import { RegisterDto }	 from '../dto/register.dto'
 
 @Injectable()
 export class AuthService
@@ -23,13 +25,27 @@ export class AuthService
 	// Public methods
 	// -------------------------------------------------------------------------
 	public async register(
-		create_user_dto : CreateUserDto
+		registrationData: RegisterDto
 	)
 		: Promise<User>
 	{
-		create_user_dto.password = await this.hashSecure(create_user_dto.password);
+		registrationData.password = await this.hashSecure(registrationData.password);
 
-		return this.usersService.create(create_user_dto);
+		return this.usersService.create(registrationData);
+	}
+
+	public async findOrCreateAuthMarvinUser(data: MarvinLoginDto) {
+		let user = {}
+		try {
+		  user = await this.usersService.findOneOrThrow(data)
+		} catch (error) {
+		  if (error?.status === 404) {
+			user = await this.usersService.create({
+			  ...data,
+			})
+		  }
+		}
+		return user
 	}
 
 	public async authenticateByCredentials(

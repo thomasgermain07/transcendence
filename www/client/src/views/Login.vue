@@ -1,6 +1,13 @@
 <template>
   <div class="login">
-    <h1>Login with email and password</h1>
+    <h1>TRANSCENDENCE</h1>
+    <br />
+    <div>
+      <a class="marvin" :href="url">Signin with 42</a>
+    </div>
+    <br />
+    <h1>OR</h1>
+    <h3>Login with email and password</h3>
     <div class="login-view">
       <form>
         <input type="text" placeholder="Email" v-model="user.email" />
@@ -17,18 +24,33 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from 'vue'
+import { defineComponent, reactive, ref } from 'vue'
 import { useStore } from 'vuex'
 
 export default defineComponent({
   setup() {
+    const store = useStore()
+
+    const query = {
+      client_id: import.meta.env.VITE_FT_ID,
+      redirect_uri: import.meta.env.VITE_FT_CALLBACK_URL,
+      response_type: 'code',
+      scope: 'public',
+    }
+
+    const url = ref(
+      'https://api.intra.42.fr/oauth/authorize?' +
+        Object.entries(query)
+          .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+          .join('&'),
+    )
+
+    // For email/password login
     let user = reactive({
       id: 0,
       email: '',
       password: '',
     })
-
-    const store = useStore()
 
     const login = () => {
       const payload = {
@@ -37,7 +59,7 @@ export default defineComponent({
       store.dispatch('login', payload)
     }
 
-    return { login, user }
+    return { login, user, url }
   },
 })
 </script>
@@ -51,5 +73,17 @@ export default defineComponent({
 }
 .form {
   width: 450px;
+}
+
+a.marvin {
+  font-size: 1rem;
+  background-color: #2c3e50;
+  color: white;
+  padding: 1em 1.5em;
+  text-decoration: none;
+}
+a.marvin:hover {
+  background-color: rgb(179, 178, 178);
+  cursor: pointer;
 }
 </style>

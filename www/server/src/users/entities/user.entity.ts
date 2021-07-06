@@ -18,10 +18,16 @@ export class User
 	@Column({ unique: true })
 	public name : string;
 
+	@Column({ unique: true, nullable: true })
+	public marvinId: number
+  
+	@Column({ nullable: true })
+	public avatar: string
+
 	// -------------------------------------------------------------------------
 	// Authentication
 	// -------------------------------------------------------------------------
-	@Column()
+	@Column({ nullable: true })
 	@Exclude()
 	public password : string;
 
