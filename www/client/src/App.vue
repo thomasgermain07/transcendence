@@ -2,19 +2,19 @@
   <div class="app">
     <NavigationBar />
     <router-view></router-view>
-    <FriendList />
+    <Menu />
   </div>
 </template>
 
 <script lang="ts">
 import NavigationBar from './components/NavigationBar.vue'
-import FriendList from './components/FriendWindow.vue'
+import Menu from './components/Menu/MenuWindow.vue'
 
 export default {
   name: 'App',
   components: {
     NavigationBar,
-    FriendList,
+    Menu,
   },
 }
 </script>
