@@ -13,6 +13,8 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASS}
       - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "53000:5432"
 
   # ----------------------------------------------------------------------------
   # Server (NestJS)
@@ -21,7 +23,7 @@ services:
     build: ./docker/server
     volumes:
       - ./www/server:/workspace
-      - ./www/server/node_modules:/workspace/node_modules
+      #- ./www/server/node_modules:/workspace/node_modules
     env_file:
       - .env
     ports:
@@ -36,7 +38,7 @@ services:
     build: ./docker/client
     volumes:
       - ./www/client:/workspace
-      - ./www/client/node_modules:/workspace/node_modules
+      #- ./www/client/node_modules:/workspace/node_modules
     env_file:
       - .env
     ports:

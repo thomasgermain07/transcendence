@@ -1,22 +1,47 @@
 <template>
   <div class="app">
     <NavigationBar />
+    <p>{{route.path}}</p>
     <router-view></router-view>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, onBeforeMount } from 'vue'
 import NavigationBar from './components/NavigationBar.vue'
-
+import {useRoute, useRouter} from 'vue-router';
+import axios from 'axios';
 export default defineComponent({
   name: 'App',
   components: {
     NavigationBar,
   },
-})
-</script>
+  setup() {
+    const route = useRoute()
+    const router = useRouter()
+    onBeforeMount(() => {
+      // check if user is loggedin
+      axios
+        .get(`auth`, {
+          withCredentials: true,
+          credentials: 'include',
+        })
+        .then((response) => {
+          console.log('User is logged in')
+          console.log(response)
+          router.replace('/')
+        })
+        .catch((err) => {
+          console.log(err.response.data)
 
+          console.log('User is not logged in')
+          router.replace('login')
+        })
+    })
+    return {route}
+  }
+});
+</script>
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;

@@ -1,31 +1,22 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core'
+import { AppModule } from './app/app.module'
+import * as cookieParser from 'cookie-parser'
+import { ValidationPipe } from '@nestjs/common'
+import { SocketIoAdapter } from './app/adapters/socket-io.adapter'
 
-import { AppModule } from './app/app.module';
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule)
 
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+  app.setGlobalPrefix('api')
+  app.enableCors({
+    credentials: true,
+    origin: 'http://localhost:3000',
+  })
+  app.useGlobalPipes(new ValidationPipe())
+  app.use(cookieParser())
+  app.useWebSocketAdapter(new SocketIoAdapter(app));
 
-
-
-async function bootstrap()
-{
-  const app = await NestFactory.create(AppModule, {
-    // logger: new MyLogger(),
-    // logger: false,
-  });
-
-  // app.useLogger(app.get(MyLogger));
-  app.setGlobalPrefix('api');
-  app.enableCors();
-  const config = new DocumentBuilder()
-    .setTitle('Auth example')
-    .setDescription('The users API description')
-    .setVersion('1.0')
-    .addTag('users')
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
-
-  await app.listen(8080);
+  await app.listen(8080)
 }
 
-bootstrap();
+bootstrap()

@@ -1,66 +1,95 @@
 <template>
-   <div>
-     <div class="user" >
-        <div class="col-md-12 form-wrapper">
-          <h2> Create User </h2>
-          <form id="create-post-form" @submit.prevent="User">
-               <div class="form-group col-md-12">
-                <label for="title"> Name </label>
-                <input type="text" id="user_name" v-model="name" name="title" class="form-control" placeholder="Enter Name">
-               </div>
-                <div class="form-group col-md-12">
-                    <label for="title"> Email </label>
-                    <input type="text" id="user_email" v-model="email" name="title" class="form-control" placeholder="Enter email">
-                </div>
-                    <div class="form-group col-md-12">
-                    <label for="title"> Password </label>
-                    <input type="text" id="user_password" v-model="password" name="title" class="form-control" placeholder="Enter Password">
-                </div>
-              <div class="form-group col-md-4 pull-right">
-                  <button class="btn btn-success" type="submit"> login </button>
-              </div>           </form>
+  <div class="User">User View
+    <div class="container-fluid">
+      <div class="text-center">
+        <h1>Profile</h1>
+       <!-- <div v-if="users.length === 0">
+            <h2> No Users found at the moment </h2>
         </div>
+      </div> -->
+        <div class="">
+            <table class="table table-bordered">
+              <thead class="thead-dark">
+                <tr>
+                  <th scope="col">Name</th>
+                </tr>
+              </thead>
+              <tbody>
+                 <div v-if="user" class="content">
+                  <td>{{ this.user.name }}</td>
+                 </div>
+              </tbody>
+            </table>
+          </div>
+      </div>
     </div>
   </div>
 </template>
-
 <script>
+import { defineComponent, onBeforeMount } from 'vue';
 import axios from "axios";
-import router from "../routers/router";
+import { useRoute, useRouter } from 'vue-router';
+
+// import authHeader from '../auth/auth-header';
+
+// function authHeader() {
+//   let user = JSON.parse(localStorage.getItem('usertoken'));
+//   if (user) {
+//     console.log(user);
+//     return { Authorization: 'Bearer ' + user };
+//   } else {
+//     return {};
+//   }
+// }
 export default {
   data() {
     return {
-      name: "",
-      email: "",
-      password: "",
+      user: []
     };
   },
+  created() {
+    const route = useRoute()
+    const router = useRouter()
+    onBeforeMount(() => {
+      // check if user is loggedin
+      axios
+        .get(`auth`, {
+          withCredentials: true,
+          credentials: 'include',
+        })
+        .then((response) => {
+          console.log('User is logged in')
+          console.log(response)
+          this.fetchUsers();
+        })
+        .catch((err) => {
+          console.log(err.response.data)
+          
+          console.log('User is not logged in')
+          router.replace('login')
+        })
+    })
+  },
   methods: {
-    User() {
-      let customerData = {
-        name: this.name,
-        email: this.email,
-        password: this.password
-      };
-      this.__submitToServer(customerData);
+    fetchUsers() {
+      axios
+        .get(`http://localhost:8080/api/auth`, {
+          withCredentials: true,
+          credentials: 'include',
+          })
+        .then(resp => {
+          console.log(resp);
+          this.user = resp.data;
+        });
     },
-    __submitToServer(data) {
-      axios.defaults.headers.common = {
-        "Content-Type": "application/json"
-      }
-      // console.log(data);
-      axios.post(`/auth/login`, data ).then(data => {
-        if (data.data) {
-          localStorage.setItem('usertoken', JSON.stringify(data.data["access_token"]));
-        }
-        // axios.defaults.headers.common['Authorization'] = data.data;
-        console.log(data);
-        // console.log(data.data.headers);
-        // console.log(axios.defaults.headers.common['Authorization']);
-        // router.push({ path: "/" });
-      });
-    }
+    // deleteUser(id) {
+    //   axios
+    //     .delete(`http://localhost:3000/customer/delete?customerID=${id}`)
+    //     .then(data => {
+    //       console.log(data);
+    //       window.location.reload();
+    //     });
+    // }
   }
 };
 </script>
-

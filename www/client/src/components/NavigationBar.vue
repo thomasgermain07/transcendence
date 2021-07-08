@@ -4,21 +4,42 @@
       <li class="section">
         <router-link to="/" class="link">Home</router-link>
       </li>
+      <!-- <li class="section">
+        <router-link to="/login" class="link">Login</router-link>
+      </li> -->
       <li class="section">
-        <router-link to="/game" class="link">Game</router-link>
+        <router-link  to="/game" class="link" >Game</router-link>
       </li>
       <li class="section">
-        <router-link to="/user" class="link">User</router-link>
+        <router-link  to="/user" class="link" >User</router-link>
       </li>
-      <li class="section">
-        <router-link to="/profile" class="link">Profile</router-link>
+       <li class="section">
+        <router-link  to="/logout" class="link" >Logout</router-link>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
-export default {}
+export default {
+  data () {
+    return {
+      isLogged: this.checkIfIsLogged()
+    };
+  },
+
+  methods: {
+    checkIfIsLogged () {
+      let token = localStorage.getItem('user');
+      console.log(token);
+      if (token) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+}
 </script>
 
 <style>
