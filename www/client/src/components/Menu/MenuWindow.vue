@@ -17,9 +17,9 @@
         <a @click="close_chat">
           <i class="far fa-times-circle top-bar__close"></i>
         </a>
-        <div class="top-bar__name">Chat {{ current_room }}</div>
+        <div class="top-bar__name">Chat - {{ current_room }}</div>
       </header>
-      <ChatWindow />
+      <ChatWindow @set_current_room="set_current_room" />
     </div>
   </div>
 </template>
@@ -51,8 +51,8 @@ export default {
     close_chat() {
       this.chat_open = false
     },
-    set_current_room(new_name: String) {
-      this.current_room = '- ' + new_name
+    set_current_room(new_name: string) {
+      this.current_room = new_name
     },
   },
 }
