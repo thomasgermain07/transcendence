@@ -64,7 +64,7 @@ export default defineComponent({
 			yspeed: 0, 
 		};
 
-		console.log("SetUp");
+		// console.log("SetUp");
 		// const store = useStore();
 		// console.log(store)
 
@@ -98,22 +98,29 @@ export default defineComponent({
 									credentials: 'include',
 								})
 								.then(resp => {
-									console.log(resp.data.name);
+									// console.log(resp.data.name);
 									room = resp.data.name;
 									ctx = canvas.value.getContext("2d");
+									// socket.connect();
 									// socket.on('connect', () => {
+										console.log("Connect");
 									socket.emit('joinRoom', resp.data.name );
 									// })
 									socket.on('joinedRoom', () => {
-										console.log("HAVE JOIN THE ROOM");
+										// console.log("HAVE JOIN THE ROOM");
 									})
 									// socket.emit('joinRoom', resp.data.name );
 									if (resp.data.players[0] && resp.data.players[1]) {
+										// console.log("----------------IF--------------------");
 										socket.emit('init', { data: resp.data.players[0], room: resp.data.name });
 										socket.emit('init', { data: resp.data.players[1], room: resp.data.name });
 										socket.off('init');
-										socket.on('initClient', (data) => { 
-											console.log(data);
+										socket.on('initClient', (data) => {
+											// console.log("------------------------------------");
+											// console.log(user_id);
+											// console.log(data);
+											// console.log("------------------------------------");
+
 											if (data.player_left.id != 0) {
 												player_left = data.player_left;
 											}
@@ -121,15 +128,15 @@ export default defineComponent({
 												player_right = data.player_right;
 											}
 											ball = data.ball;
-											// console.log(player_left);
-											// console.log(player_right);
-											// console.log(ball);
+											console.log(player_left);
+											console.log(player_right);
+											console.log(ball);
 											if ( player_left.is_ready && player_right.is_ready ) {
-												console.log("IS_READY");
-												console.log(player_left.is_ready);
-												console.log(player_right.is_ready);
+												// console.log("IS_READY");
+												// console.log(player_left.is_ready);
+												// console.log(player_right.is_ready);
 												// ctx = canvas.value.getContext("2d");
-												console.log(ctx)
+												// console.log(ctx)
 												// ctx.fillStyle = "#FFFFFF";
 												socket.emit('begin', { begin: true, id: user_id, ctx: ctx, room: data.room});
 											}
@@ -138,139 +145,17 @@ export default defineComponent({
 								})
 
 						}
-						// getPlayer();
-						// async function getPlayer() {
-						// 	await axios
-						// 		.get(`http://localhost:8080/api/players/` + response.data.id, {
-						// 			withCredentials: true,
-						// 			credentials: 'include',
-						// 		})
-						// 		.then(resp => {
-						// 			console.log(resp.data);
-						// 			if (!resp.data[0]["room"])
-						// 			{
-						// 				console.log("NOT TRUE");
-						// 				// getRoom();
-						// 				// async function getRoom() {
-						// 				// await axios
-						// 				// 	.get(`http://localhost:8080/api/rooms/`, {
-						// 				// 		withCredentials: true,
-						// 				// 		credentials: 'include',
-						// 				// 	})
-						// 				// 	.then(resp => {
-						// 				// 		console.log(resp.data);
-						// 				// 	})
-
-						// 				// }
-						// 			}
-						// 			socket.emit('init', { data: resp.data});
-						// 			socket.off('init');
-						// 			socket.on('init', (data) => { 
-						// 				console.log(data);
-						// 				if (data.player_left.id != 0) {
-						// 					player_left = data.player_left;
-						// 				}
-						// 				if (data.player_right.id != 0) {
-						// 					player_right = data.player_right;
-						// 				}
-						// 				ball = data.ball;
-						// 				// console.log(player_left);
-						// 				// console.log(player_right);
-						// 				// console.log(ball);
-						// 				if ( player_left.is_ready && player_right.is_ready ) {
-						// 					console.log("IS_READY");
-						// 					console.log(player_left.is_ready);
-						// 					console.log(player_right.is_ready);
-						// 					ctx = canvas.value.getContext("2d");
-						// 					ctx.fillStyle = "#FFFFFF";
-						// 					socket.emit('begin', { begin: true, id: user_id });
-						// 				}
-						// 			});
-						// 		})
-						// }
 					})
 					.catch((err) => {
-						console.log(err.response.data)
+						// console.log(err.response.data)
 						
-						console.log('User is not logged in')
+						// console.log('User is not logged in')
 					})
 			}
 		})
-		// onBeforeMount(() => {
-		// 	// check if user is loggedin
-		// 	console.log("Beffore Mounted");
-		// 	getUser();
-		// 	async function getUser() {
-		// 		await axios
-		// 			.get(`auth`, {
-		// 				withCredentials: true,
-		// 				credentials: 'include',
-		// 			})
-		// 			.then((response) => {
-		// 				console.log('User is logged in')
-		// 				console.log(response)
-		// 				user_id = response.data.id;
-		// 				getPlayer();
-		// 				async function getPlayer() {
-		// 					await axios
-		// 						.get(`http://localhost:8080/api/players/` + response.data.id, {
-		// 							withCredentials: true,
-		// 							credentials: 'include',
-		// 						})
-		// 						.then(resp => {
-		// 							console.log(resp.data);
-		// 							if (!resp.data[0]["room"])
-		// 							{
-		// 								console.log("NOT TRUE");
-		// 								getRoom();
-		// 								async function getRoom() {
-		// 								await axios
-		// 									.get(`http://localhost:8080/api/rooms/`, {
-		// 										withCredentials: true,
-		// 										credentials: 'include',
-		// 									})
-		// 									.then(resp => {
-		// 										console.log(resp.data);
-		// 									})
-
-		// 								}
-		// 							}
-		// 							socket.emit('init', { data: resp.data});
-		// 							socket.off('init');
-		// 							socket.on('init', (data) => { 
-		// 								console.log(data);
-		// 								if (data.player_left.id != 0) {
-		// 									player_left = data.player_left;
-		// 								}
-		// 								if (data.player_right.id != 0) {
-		// 									player_right = data.player_right;
-		// 								}
-		// 								ball = data.ball;
-		// 								// console.log(player_left);
-		// 								// console.log(player_right);
-		// 								// console.log(ball);
-		// 								if ( player_left.is_ready && player_right.is_ready ) {
-		// 									console.log("IS_READY");
-		// 									console.log(player_left.is_ready);
-		// 									console.log(player_right.is_ready);
-		// 									ctx = canvas.value.getContext("2d");
-		// 									ctx.fillStyle = "#FFFFFF";
-		// 									socket.emit('begin', { begin: true, id: user_id });
-		// 								}
-		// 							});
-		// 						})
-		// 				}
-		// 			})
-		// 			.catch((err) => {
-		// 				console.log(err.response.data)
-						
-		// 				console.log('User is not logged in')
-		// 			})
-		// 	}
-		// })
 		
 		onMounted(() => {
-			console.log("OnMounted");
+			// console.log("OnMounted");
 			// ctx = canvas.value.getContext("2d");
 			window.addEventListener("keydown", keydown);
 			window.addEventListener("keyup", keyup);
@@ -278,7 +163,7 @@ export default defineComponent({
 		})
 		
 		onUnmounted(() => {
-			console.log("ON Unmounted");
+			// console.log("ON Unmounted");
 			window.removeEventListener("keydown", keydown);
 			window.removeEventListener("keyup", keyup);
 			window.removeEventListener("resize", resizeCanvas, false);
@@ -292,7 +177,12 @@ export default defineComponent({
 		// })
 
 		socket.on('begin', (data) => {
-			console.log(data);
+			// console.log("------------------------------------");
+			// console.log(user_id);
+			// console.log(data.player_left["user_id"]);
+			// console.log(data.player_right["user_id"]);
+			// console.log("------------------------------------");
+
 			player_left = data.player_left;
 			player_right = data.player_right;
 			// ctx = data.ctx;
@@ -314,7 +204,7 @@ export default defineComponent({
 
 		function resizeCanvas() {
 			if (screen) {
-				console.log(window.innerWidth);
+				// console.log(window.innerWidth);
 				canvas.value.width = window.innerWidth;
 				canvas.value.height = canvas.value.width / 2;
 				redraw();
@@ -329,14 +219,14 @@ export default defineComponent({
 		}
 
 		function keydown(event: KeyboardEvent) {
-			// console.log("KEY PRESS");
+			console.log("KEY PRESS");
       		if (event.key === "ArrowUp") {
 				socket.emit('move', { move: "up", user_id: user_id, room: room });
-				// console.log("KEY UP");
+				console.log("KEY UP");
 			}
 			else if (event.key === "ArrowDown") {
 				socket.emit('move', { move: "down",  user_id: user_id, room: room });
-					// console.log("KEY Down");
+					console.log("KEY Down");
 			}
 			socket.off('move');
 		}
@@ -344,18 +234,18 @@ export default defineComponent({
 		function keyup(event: KeyboardEvent) {
 			if (event.key === "ArrowUp") {
 				socket.emit('move', { move: "not", user_id: user_id, room: room});
-				// console.log("KEY UP");
+				console.log("KEY UP");
 			}
 			else if (event.key === "ArrowDown") {
 				socket.emit('move', { move: "not",  user_id: user_id, room: room});
-					// console.log("KEY Down");
+					console.log("KEY Down");
 			}
 			socket.off('move');
 
 		}
 
 		function draw() {
-			// console.log("DRAW");
+			console.log("DRAW");
 			drawMidleLine();
 			drawPaddle();
 			drawBall();
@@ -410,138 +300,6 @@ export default defineComponent({
 
 		return { canvas }
 	},
-
-
-
-// export default defineComponent({
-// 	name: 'Game',
-
-// 	// created() {
-// 	// 	const socket = io('http://localhost:8080/game');
-// 	// },
-
-//   setup() {
-// 		console.log("SetUp");
-// 		const store = useStore();
-// 		console.log(store)
-
-// 		// const playersStore = computed(() => PlayerModule.GetPlayer)
-
-// 		const canvas = ref(null);
-// 		const socket = io('http://localhost:8080/game');
-// 		onBeforeMount(() => {
-// 			// check if user is loggedin
-// 			console.log("Beffore Mounted");
-// 			getUser();
-// 			async function getUser() {
-// 				await axios
-// 					.get(`auth`, {
-// 						withCredentials: true,
-// 						credentials: 'include',
-// 					})
-// 					.then((response) => {
-// 						console.log('User is logged in')
-// 						console.log(response)
-// 						getPlayer();
-// 						async function getPlayer() {
-// 							await axios
-// 								.get(`http://localhost:8080/api/players/` + response.data.id, {
-// 									withCredentials: true,
-// 									credentials: 'include',
-// 								})
-// 								.then(resp => {
-// 									console.log(resp.data);
-// 									PlayerModule.SetPlayer(resp.data[0]);
-// 									PlayerModule.SetContext(canvas.value.getContext("2d"));
-// 									PlayerModule.GetCtx.fillStyle = "#FFFFFF";
-// 									PlayerModule.GetCtx.fillRect(0, 0, canvas.value.width, canvas.value.height);
-// 									PlayerModule.GetCtx.fillStyle = "#000000";
-// 									PlayerModule.GetCtx.fillRect(PlayerModule.GetPosX, PlayerModule.GetPosY, 600/80, 80);
-// 									PlayerModule.GetCtx.fillRect(PlayerModule.GetOpponentPosX, PlayerModule.GetOpponentPosY, 600/80, 80);
-// 								});
-// 						}
-// 					})
-// 					.catch((err) => {
-// 						console.log(err.response.data)
-						
-// 						console.log('User is not logged in')
-// 					})
-// 			}
-// 		})
-
-// 		// onUpdated(() => {
-// 		// 	console.log("ON UPDATED");
-// 		// 	PlayerModule.SetContext(canvas.value.getContext("2d"));
-// 		// 	PlayerModule.GetCtx.fillStyle = "#FFFFFF";
-// 		// 	PlayerModule.GetCtx.fillRect(0, 0, canvas.value.width, canvas.value.height);
-// 		// 	PlayerModule.GetCtx.fillStyle = "#000000";
-// 		// 	PlayerModule.GetCtx.fillRect(PlayerModule.GetPosX, PlayerModule.GetPosY, 600/80, 80);
-// 		// 	PlayerModule.GetCtx.fillRect(PlayerModule.GetOpponentPosX, PlayerModule.GetOpponentPosY, 600/80, 80);
-// 		// })
-		
-// 		onMounted(() => {
-// 			console.log("OnMounted");
-// 			window.addEventListener("keydown", escapeListener);
-// 		})
-		
-// 		onUnmounted(() => {
-// 			console.log("ON Unmounted");
-// 			window.removeEventListener("keydown", escapeListener);
-// 			socket.off('message');
-// 		})
-
-// 		function escapeListener(event: KeyboardEvent) {
-// 			console.log("KEY PRESS");
-// 			console.log(PlayerModule);
-//       if (event.key === "ArrowUp") {
-// 				PlayerModule.SetMove("up");
-// 				console.log("KEY UP");
-// 			}
-// 			else if (event.key === "ArrowDown") {
-// 				PlayerModule.SetMove("down");
-// 					console.log("KEY Down");
-// 			}
-
-// 			PlayerModule.SetContext(canvas.value.getContext("2d"));
-// 			console.log( "Ready to emit");
-// 			console.log(PlayerModule.GetCtx);
-// 			const tmp = PlayerModule.GetMoveAndPos;
-// 			socket.emit('message', { position: tmp });
-// 			socket.off('message');
-// 			socket.on('message', ({position}) => { 
-// 				console.log(position);
-// 				// PlayerModule.SetPosition(position.y)
-// 				PlayerModule.GetCtx.clearRect(0, 0, canvas.value.width, canvas.value.height);
-// 				if (position.position == PlayerModule.GetPosition)
-// 					PlayerModule.SetPosition(position.y)
-// 				else
-// 					PlayerModule.SetOpponentPosition(position.y)
-// 				PlayerModule.GetCtx.fillStyle = "#FFFFFF";
-// 				PlayerModule.GetCtx.fillRect(0, 0, canvas.value.width, canvas.value.height);
-// 				PlayerModule.GetCtx.fillStyle = "#000000";
-// 				PlayerModule.GetCtx.fillRect(PlayerModule.GetPosX, PlayerModule.GetPosY, 600/80, 80);
-// 				PlayerModule.GetCtx.fillRect(PlayerModule.GetOpponentPosX, PlayerModule.GetOpponentPosY, 600/80, 80);
-// 				// socket.off('message');
-// 			})
-			
-// 			// move();
-// 		}
-// 		return { canvas, ...toRefs(store.state) }
-// 	},
-	
-	// methods: {
-  //   fetchPlayers() {
-  //     axios
-  //       .get(`http://localhost:8080/api/players`, {
-  //         withCredentials: true,
-  //         credentials: 'include',
-  //         })
-  //       .then(resp => {
-  //         console.log(resp);
-  //         this.players = resp.data;
-  //       });
-	// 	},
-	// }
 })
 </script>
 
