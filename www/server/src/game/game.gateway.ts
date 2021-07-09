@@ -319,8 +319,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection
         //     this.game[data["room"]] = {player_left: this.player_left, player_right: this.player_right, ball: this.ball, server: this.server};
         // }
 
-        console.log(this.game[data["room"]]);
-        console.log(this.game["hello"]);
+        // console.log(this.game[data["room"]]);
+        // console.log(this.game["hello"]);
         // console.log(this.player_right);
         if ( data["data"]["position"] == "left" ) {
             // console.log("IF IF IF IF IF");
