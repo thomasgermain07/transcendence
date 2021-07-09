@@ -1,0 +1,74 @@
+import { Injectable }                   from "@nestjs/common";
+import { registerDecorator }            from "class-validator";
+import { ValidationOptions }            from "class-validator";
+import { ValidationArguments }          from "class-validator";
+import { ValidatorConstraint }          from "class-validator";
+import { ValidatorConstraintInterface } from "class-validator";
+
+import { UsersService } from "../services/users.service";
+
+@ValidatorConstraint({ async: true })
+@Injectable()
+export class IsUniqueConstraint
+	implements ValidatorConstraintInterface
+{
+
+	// -------------------------------------------------------------------------
+	// Constructor
+	// -------------------------------------------------------------------------
+	constructor(
+		private readonly usersService: UsersService
+	)
+	{
+
+	}
+
+	// -------------------------------------------------------------------------
+	// Public methods
+	// -------------------------------------------------------------------------
+	async validate(
+		value: any,
+		args: ValidationArguments
+	)
+		: Promise<boolean>
+	{
+		const [attribute] = args.constraints;
+
+		return !(await this.usersService.findOne({ [attribute]: value }));
+	}
+
+	defaultMessage(
+		args: ValidationArguments
+	)
+		: string
+	{
+		const [attribute] = args.constraints;
+
+		return `User ${attribute} is already used.`;
+	}
+
+}
+
+// -----------------------------------------------------------------------------
+// Decorator
+// -----------------------------------------------------------------------------
+export function IsUnique(
+	attribute: string,
+	validationOptions?: ValidationOptions
+)
+{
+	return function (
+		object: Object,
+		propertyName: string
+	)
+	{
+		registerDecorator({
+			name: 'isUnique',
+			target: object.constructor,
+			propertyName: propertyName,
+			options: validationOptions,
+			constraints: [attribute],
+			validator: IsUniqueConstraint,
+		});
+	};
+}
