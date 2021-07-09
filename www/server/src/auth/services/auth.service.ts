@@ -7,6 +7,7 @@ import { User }          from 'src/users/entities/user.entity'
 import { UsersService }  from 'src/users/services/users.service'
 import { MarvinLoginDto } from '../dto/marvin-login.dto'
 import { RegisterDto }	 from '../dto/register.dto'
+import { AuthenticationPayload } from '../interfaces/authentication-payload.interface'
 
 @Injectable()
 export class AuthService
@@ -15,7 +16,7 @@ export class AuthService
 	// Constructor
 	// -------------------------------------------------------------------------
 	constructor(
-		private readonly usersService: UsersService,
+		private readonly users_svc: UsersService,
 	)
 	{
 
@@ -31,78 +32,63 @@ export class AuthService
 	{
 		registrationData.password = await this.hashSecure(registrationData.password);
 
-		return this.usersService.create(registrationData);
+		return this.users_svc.create(registrationData);
 	}
 
 	public async findOrCreateAuthMarvinUser(data: MarvinLoginDto) {
-		let user = {}
-		try {
-		  user = await this.usersService.findOneOrThrow(data)
-		} catch (error) {
-		  if (error?.status === 404) {
-			user = await this.usersService.create({
-			  ...data,
-			})
-		  }
-		}
+		let user: User = await this.users_svc.findOne(data);
+
+		if (!user)
+			user = await this.users_svc.create({ ...data });
+
 		return user
 	}
 
-	public async authenticateByCredentials(
-		email : string,
-		password : string,
+	async authenticate(
+		data: AuthenticationPayload,
 	)
 		: Promise<User>
 	{
-		const user : User = await this.usersService.findOne({ email: email });
+		const credentials = {};
+		data.id    ? credentials['id']    = data.id    : null;
+		data.email ? credentials['email'] = data.email : null;
 
-		if (!user || !await this.hashVerify(password, user.password))
-			throw new BadRequestException('Wrong credentials provided');
+		const user: User = await this.users_svc.findOne(credentials);
+
+		if (!user)
+			return undefined;
+
+		if (data.password && !await this.hashVerify(data.password, user.password))
+			return undefined;
+
+		if (data.token && !await this.hashVerify(data.token, user.refreshToken))
+			return undefined;
 
 		return user;
 	}
 
-	public async authenticateById(
-		user_id : number,
-	)
-		: Promise<User>
-	{
-		return this.usersService.findOneOrThrow(user_id);
-	}
-
-	public async authenticateByRefreshToken(
-		user_id : number,
-		token : string,
-	)
-		: Promise<User>
-	{
-		const user = await this.usersService.findOneOrThrow(user_id);
-
-		return await this.hashVerify(token, user.refreshToken) ? user : undefined;
-	}
-
-	public async refresh(
-		user : User,
-		token : string,
+	async refresh(
+		user: User,
+		token: string,
 	)
 		: Promise<void>
 	{
-		await this.usersService.setRefreshToken(user, await this.hashSecure(token));
+		await this.users_svc.setRefreshToken(user, await this.hashSecure(token));
 	}
 
-	public async logout(
-		user : User,
+	async logout(
+		user: User,
 	)
 		: Promise<void>
 	{
-		return this.usersService.setRefreshToken(user, null);
+		return this.users_svc.setRefreshToken(user, null);
 	}
 
 	// -------------------------------------------------------------------------
 	// Private methods
 	// -------------------------------------------------------------------------
 	private async hashSecure(
-		data : string,
+		data: string,
 	)
 		: Promise<string>
 	{

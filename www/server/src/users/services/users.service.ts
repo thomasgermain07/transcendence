@@ -1,8 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
-import { InjectRepository }              from '@nestjs/typeorm'
-import { Repository }                    from 'typeorm'
+import { Injectable }        from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
+import { InjectRepository }  from '@nestjs/typeorm';
+import { Repository }        from 'typeorm';
 
-import { CreateUserDto } from '../dto/create-user.dto'
+import { CreateUserDto } from '../dto/create-user.dto';
+import { UpdateUserDto } from '../dto/update-user.dto';
 import { User }          from '../entities/user.entity'
 
 @Injectable()
@@ -13,7 +15,7 @@ export class UsersService
 	// -------------------------------------------------------------------------
 	constructor(
 		@InjectRepository(User)
-		private usersRepository: Repository<User>,
+		private readonly user_repo: Repository<User>,
 	)
 	{
 
@@ -22,44 +24,57 @@ export class UsersService
 	// -------------------------------------------------------------------------
 	// Public methods
 	// -------------------------------------------------------------------------
-	public async create(
-		createUserDto: CreateUserDto
+	async create(
+		create_dto: CreateUserDto,
 	)
 		: Promise<User>
 	{
-		await this.usersRepository.insert(createUserDto);
+		const user: User = this.user_repo.create(create_dto);
 
-		return this.findOne({ email: createUserDto.email });
+		return this.user_repo.save(user);
 	}
 
-	public async findOne(
-		data : Object
+	async findAll()
+		: Promise<User[]>
+	{
+		return this.user_repo.find();
+	}
+
+	async findOne(
+		data: Object,
 	)
 		: Promise<User>
 	{
-		return this.usersRepository.findOne(data);
+		return this.user_repo.findOne(data);
 	}
 
-	public async findOneOrThrow(
-		data : Object
+	async update(
+		user: User,
+		update_dto: UpdateUserDto,
 	)
 		: Promise<User>
 	{
-		const user : User = await this.usersRepository.findOne(data);
+		const user_update: User = this.user_repo.create(user);
+		Object.assign(user_update, update_dto);
 
-		if (!user)
-			throw new NotFoundException('User not found.');
-
-		return user;
+		return this.user_repo.save(user_update);
 	}
 
-	public async setRefreshToken(
-		user : User,
-		token : string,
+	async setRefreshToken(
+		user: User,
+		token: string,
 	)
 		: Promise<void>
 	{
-		this.usersRepository.update(user.id, { refreshToken: token })
+		this.user_repo.update(user.id, { refreshToken: token });
+	}
+
+	async remove(
+		user: User,
+	)
+		: Promise<void>
+	{
+		this.user_repo.remove(user);
 	}
 
 }

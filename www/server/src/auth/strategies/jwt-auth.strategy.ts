@@ -1,4 +1,4 @@
-import { Injectable }           from '@nestjs/common'
+import { Injectable, UnauthorizedException }           from '@nestjs/common'
 import { PassportStrategy }     from '@nestjs/passport'
 import { Request }              from 'express'
 import { ExtractJwt, Strategy } from 'passport-jwt'
@@ -16,13 +16,13 @@ export class JwtStrategy
 	// Constructor
 	// -------------------------------------------------------------------------
 	constructor(
-		private readonly authService: AuthService
+		private readonly authService: AuthService,
 	)
 	{
 		super({
 			jwtFromRequest: ExtractJwt.fromExtractors([
 				(request: Request) => {
-					return request?.cookies?.Authentication
+					return request.cookies?.Authentication
 				},
 			]),
 			secretOrKey: process.env.JWT_ACCESS_TOKEN_SECRET,
@@ -33,11 +33,18 @@ export class JwtStrategy
 	// Public methods
 	// -------------------------------------------------------------------------
 	async validate(
-		payload: TokenPayload
+		payload: TokenPayload,
 	)
 		: Promise<User>
 	{
-		return this.authService.authenticateById(payload.user_id);
+		const user: User = await this.authService.authenticate({
+			id: payload.user_id
+		});
+
+		if (!user)
+			throw new UnauthorizedException("Invalid User ID.");
+
+		return user;
 	}
 
 }

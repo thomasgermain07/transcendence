@@ -4,7 +4,7 @@ import { UseGuards, UseInterceptors } from '@nestjs/common'
 import { ClassSerializerInterceptor } from '@nestjs/common'
 import { Request }                    from 'express'
 
-// import { CreateUserDto } from 'src/users/dto/create-user.dto'
+import { CreateUserDto } from 'src/users/dto/create-user.dto'
 import { User }          from 'src/users/entities/user.entity'
 import { RegisterDto } 	 from '../dto/register.dto'
 
@@ -25,8 +25,8 @@ export class AuthController
 	// Constructor
 	// -------------------------------------------------------------------------
 	constructor(
-		private readonly authService : AuthService,
-		private readonly cookiesService : CookiesService,
+		private readonly authService: AuthService,
+		private readonly cookiesService: CookiesService,
 	)
 	{
 
@@ -36,22 +36,22 @@ export class AuthController
 	// Public methods
 	// -------------------------------------------------------------------------
 	@Post('register')
-	public async register(
-		@Body() registrationData: RegisterDto,
+	async register(
+		@Body() create_user_dto: RegisterDto,
 	)
 		: Promise<User>
 	{
-		return this.authService.register(registrationData);
+		return this.authService.register(create_user_dto);
 	}
 
 	// @HttpCode(200)
 	@UseGuards(LocalAuthGuard)
 	@Post('login')
-	public login(
-		@AuthUser() user : User,
-		@Req() request : Request,
+	async login(
+		@AuthUser() user: User,
+		@Req() request: Request,
 	)
-		: User
+		: Promise<User>
 	{
 		const auth    = this.cookiesService.getJwtTokenCookie(user, CookieType.AUTHENTICATION);
 		const refresh = this.cookiesService.getJwtTokenCookie(user, CookieType.REFRESH);
@@ -89,11 +89,11 @@ export class AuthController
 
 	@UseGuards(JwtRefreshGuard)
 	@Get('refresh')
-	public refresh(
-		@AuthUser() user : User,
-		@Req() request : Request,
+	async refresh(
+		@AuthUser() user: User,
+		@Req() request: Request,
 	)
-		: User
+		: Promise<User>
 	{
 		const auth = this.cookiesService.getJwtTokenCookie(user, CookieType.AUTHENTICATION);
 
@@ -104,11 +104,11 @@ export class AuthController
 
 	@UseGuards(JwtAuthGuard)
 	@Delete('logout')
-	public logout(
-		@AuthUser() user : User,
+	async logout(
+		@AuthUser() user: User,
 		@Req() request: Request,
 	)
-		: void
+		: Promise<void>
 	{
 		this.authService.logout(user)
 

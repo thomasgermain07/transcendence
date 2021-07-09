@@ -44,7 +44,7 @@ docker-compose exec [client, server] sh
 
 ### Server
 - Authentication: https://github.com/jaredhanson/passport
-- CRUD : https://github.com/nestjsx/crud
+- CRUD: https://github.com/nestjsx/crud
 
 ---
 ## Helper

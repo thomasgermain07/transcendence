@@ -1,14 +1,16 @@
-import { Module }        from '@nestjs/common'
-import { TypeOrmModule } from '@nestjs/typeorm'
+import { Module }        from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { User }               from './entities/user.entity'
-import { UsersService }       from './services/users.service'
-import { UsersController }    from './controllers/users.controller'
-import { IsUniqueConstraint } from './decorators/is-unique.decorator'
+import { User }               from './entities/user.entity';
+import { UsersService }       from './services/users.service';
+import { IsUniqueUserConstraint } from './decorators/is-unique.decorator';
+import { ExistsUserConstraint }   from './decorators/exists.decorator';
+import { UsersController }    from './controllers/users.controller';
 
 @Module({
 	imports: [
-		TypeOrmModule.forFeature([User])
+		// Database
+		TypeOrmModule.forFeature([User]),
 	],
 	controllers: [
 		UsersController
@@ -17,10 +19,15 @@ import { IsUniqueConstraint } from './decorators/is-unique.decorator'
 		// Services
 		UsersService,
 		// Decorators
-		IsUniqueConstraint,
+		IsUniqueUserConstraint,
+		ExistsUserConstraint,
 	],
 	exports: [
+		// Services
 		UsersService,
+		// Decorators
+		IsUniqueUserConstraint,
+		ExistsUserConstraint,
 	],
 })
 export class UsersModule {}

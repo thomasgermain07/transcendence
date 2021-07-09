@@ -1,4 +1,4 @@
-import { Injectable }           from '@nestjs/common'
+import { Injectable, UnauthorizedException }           from '@nestjs/common'
 import { PassportStrategy }     from '@nestjs/passport'
 import { Request }              from 'express'
 import { ExtractJwt, Strategy } from 'passport-jwt'
@@ -16,7 +16,7 @@ export class JwtRefreshTokenStrategy
 	// Constructor
 	// -------------------------------------------------------------------------
 	constructor(
-		private readonly authService: AuthService
+		private readonly auth_svc: AuthService,
 	)
 	{
 		super({
@@ -35,14 +35,19 @@ export class JwtRefreshTokenStrategy
 	// -------------------------------------------------------------------------
 	async validate(
 		request: Request,
-		payload: TokenPayload
+		payload: TokenPayload,
 	)
 		: Promise<User>
 	{
-		return this.authService.authenticateByRefreshToken(
-			payload.user_id,
-			request.cookies?.Refresh,
-		)
+		const user: User = await this.auth_svc.authenticate({
+			id: payload.user_id,
+			token: request.cookies?.Refresh,
+		});
+
+		if (!user)
+			throw new UnauthorizedException("Invalid Refresh Token.");
+
+		return user;
 	}
 
 }

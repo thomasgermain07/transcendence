@@ -11,12 +11,12 @@
 
     setup()
     {
-      const socket = io('http://localhost:8080/chat');
+      const socket = io('ws://localhost:8080/chat');
 
       // Send to server
       socket.emit('message', { message: "Socket.io works!" });
       // Received from server
-      socket.on('message', ({message}) => { console.log(message); })
+      socket.on('message', (data) => { console.log(data); });
     },
 
   })

@@ -9,6 +9,7 @@ import { CookiesService }          from './services/cookies.service'
 import { LocalStrategy }           from './strategies/local.strategy'
 import { JwtStrategy }             from './strategies/jwt-auth.strategy'
 import { JwtRefreshTokenStrategy } from './strategies/jwt-refresh-token.strategy'
+import { WsJwtStrategy }           from './strategies/ws-jwt.strategy'
 import { AuthController }          from './controllers/auth.controller'
 import { MarvinAuthStrategy }      from './strategies/marvin-auth.strategy'
 
@@ -23,6 +24,10 @@ import { MarvinAuthStrategy }      from './strategies/marvin-auth.strategy'
     AuthController,
   ],
   providers: [
+    // Services
+    AuthService,
+    CookiesService,
+    // Strategies
     LocalStrategy,
     JwtStrategy,
     JwtRefreshTokenStrategy,
@@ -30,5 +35,6 @@ import { MarvinAuthStrategy }      from './strategies/marvin-auth.strategy'
     AuthService,
     CookiesService,
   ],
+  exports: []
 })
 export class AuthModule {}

@@ -11,6 +11,9 @@
         <router-link to="/user" class="link">User</router-link>
       </li>
       <li class="section">
+        <router-link to="/chat" class="link">Chat</router-link>
+      </li>
+      <li class="section">
         <div class="link" @click="logout">Logout</div>
       </li>
     </ul>

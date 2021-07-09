@@ -99,7 +99,7 @@ export class SocketIoAdapter
 			const size = payload.length - 1;
 
 			return {
-				data: size === 1 ? payload[0] : payload.slice(0, size),
+				data: size === 1 ? payload[0]: payload.slice(0, size),
 				ack: lastElement,
 			};
 		}

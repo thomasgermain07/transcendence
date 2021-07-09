@@ -17,7 +17,7 @@ export class CookiesService
 	// Constructor
 	// -------------------------------------------------------------------------
 	constructor(
-		private readonly jwtService : JwtService,
+		private readonly jwtService: JwtService,
 	)
 	{
 
@@ -26,11 +26,11 @@ export class CookiesService
 	// -------------------------------------------------------------------------
 	// Public methods
 	// -------------------------------------------------------------------------
-	public getJwtTokenCookie(
-		user : User,
-		type : CookieType,
+	getJwtTokenCookie(
+		user: User,
+		type: CookieType,
 	)
-		: { token : string, cookie : string }
+		: { token: string, cookie: string }
 	{
 		const secret = type === CookieType.AUTHENTICATION
 			? process.env.JWT_ACCESS_TOKEN_SECRET
@@ -39,7 +39,7 @@ export class CookiesService
 			? process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME
 			: process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME;
 
-		const payload : TokenPayload = { user_id: user.id };
+		const payload: TokenPayload = { user_id: user.id };
 
 		const token  = this.getJwtToken(payload, secret, lifetime);
 		const cookie = this.getJwtCookie(type, token, lifetime);
@@ -47,7 +47,7 @@ export class CookiesService
 		return { token: token, cookie: cookie };
 	}
 
-	public getJwtClearCookies()
+	getJwtClearCookies()
 		: string[]
 	{
 		return [
@@ -60,9 +60,9 @@ export class CookiesService
 	// Private methods
 	// -------------------------------------------------------------------------
 	private getJwtToken(
-		payload : string | object,
-		secret : string,
-		lifetime : string,
+		payload: string | object,
+		secret: string,
+		lifetime: string,
 	)
 		: string
 	{
@@ -73,9 +73,9 @@ export class CookiesService
 	}
 
 	private getJwtCookie(
-		type : string,
-		token : string,
-		lifetime : string,
+		type: string,
+		token: string,
+		lifetime: string,
 	)
 		: string
 	{
