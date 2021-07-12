@@ -1,22 +1,24 @@
 <template>
-  <div>
-    <ul class="navigation">
-      <li class="section">
-        <router-link to="/" class="link">Home</router-link>
-      </li>
-      <li class="section">
-        <router-link to="/game" class="link">Game</router-link>
-      </li>
-      <li class="section">
-        <router-link to="/user" class="link">User</router-link>
-      </li>
-      <li class="section">
-        <router-link to="/chat" class="link">Chat</router-link>
-      </li>
-      <li class="section">
-        <div class="link" @click="logout">Logout</div>
-      </li>
-    </ul>
+  <div class="topbar">
+    <div class="navigation">
+      <router-link to="/" class="link">
+        <i class="fas fa-home"></i>
+      </router-link>
+      <router-link to="/game" class="link">
+        <i class="fas fa-gamepad"></i>
+      </router-link>
+      <router-link to="/users" class="link">
+        <i class="fas fa-users"></i>
+      </router-link>
+    </div>
+    <div class="navigation">
+      <router-link to="/profile" class="link">
+        <i class="fas fa-user"></i>
+      </router-link>
+      <router-link to="/logout" class="link">
+        <i class="fas fa-sign-out-alt"></i>
+      </router-link>
+    </div>
   </div>
 </template>
 
@@ -39,27 +41,25 @@ export default defineComponent({
 </script>
 
 <style>
-.navigation {
+.topbar {
+  display: flex;
+  justify-content: space-between;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
   background-color: grey;
 }
 
-.section {
-  float: left;
+.navigation {
+  display: flex;
 }
 
 .link {
-  display: block;
   color: white;
   padding: 8px;
   text-align: center;
-  padding: 14px 16px;
+  padding: 14px 23px;
   text-decoration: none;
 }
 

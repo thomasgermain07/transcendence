@@ -1,10 +1,10 @@
 import { createApp } from 'vue'
 
-import axios    from 'axios'
+import axios from 'axios'
 import VueAxios from 'vue-axios'
 
-import App       from './App.vue'
-import router    from './routers/router'
+import App from './App.vue'
+import router from './routers/router'
 import initAxios from './shared/axios.config'
 import { store } from './store'
 

@@ -3,7 +3,7 @@ import Home from '../views/Home.vue'
 import User from '../views/User.vue'
 import Game from '../views/Game.vue'
 import Login from '../views/Login.vue'
-import Chat     from '../views/Chat.vue'
+import Chat from '../views/Chat.vue'
 import Register from '../views/Register.vue'
 import Marvin from '../views/MarvinAuth.vue'
 import { store } from '../store'
@@ -25,11 +25,11 @@ const routes: Array<RouteRecordRaw> = [
     component: Game,
     meta: { requiresAuth: true },
   },
-	{
-		path: '/chat',
-		component: Chat,
-		meta: { requiresAuth: true },
-	},
+  {
+    path: '/chat',
+    component: Chat,
+    meta: { requiresAuth: true },
+  },
   {
     path: '/login',
     name: 'Login',
