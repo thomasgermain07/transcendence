@@ -12,7 +12,10 @@
       </router-link>
     </div>
     <div class="navigation">
-      <router-link to="/profile" class="link">
+      <router-link
+        :to="{ name: 'UserProfile', params: { id: currentUser.id } }"
+        class="link"
+      >
         <i class="fas fa-user"></i>
       </router-link>
       <router-link to="/logout" class="link">
@@ -23,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from '@vue/runtime-core'
+import { computed, defineComponent } from '@vue/runtime-core'
 import { useStore } from 'vuex'
 
 export default defineComponent({
@@ -31,11 +34,13 @@ export default defineComponent({
   setup() {
     const store = useStore()
 
+    const currentUser = computed(() => store.state.user)
+
     const logout = () => {
       // console.log("in logout");
       store.dispatch('logout')
     }
-    return { logout }
+    return { currentUser, logout }
   },
 })
 </script>

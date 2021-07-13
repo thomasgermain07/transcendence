@@ -2,15 +2,13 @@
   <div class="users-view">
     <h1>Users List</h1>
 
-    <p v-if="loading">Loading content ...</p>
+    <div v-if="loading">Loading content ...</div>
 
-    <ul class="users-list">
-      <li v-for="user in users" :key="user">
-        <router-link :to="{ name: 'UserProfile', params: { id: user.id } }">
-          {{ user.nickname }}
-        </router-link>
-      </li>
-    </ul>
+    <div class="users-list">
+      <div class="users-item" v-for="user in users" :key="user">
+        {{ user.name }}
+      </div>
+    </div>
   </div>
 </template>
 
@@ -24,12 +22,9 @@ export default {
     let loading = ref(true)
 
     const getUsers = async () => {
-      axios
-        .get('https://60d5fd1b943aa60017768d55.mockapi.io/api/users') // TODO : Link api
-        .then((res) => {
-          users.value = res.data
-          loading.value = false
-        })
+      const { data } = await axios.get('users')
+      users.value = data
+      loading.value = false
     }
 
     onMounted(getUsers)

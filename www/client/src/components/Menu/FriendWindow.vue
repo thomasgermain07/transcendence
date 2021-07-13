@@ -67,20 +67,18 @@
 import axios from 'axios'
 import { computed, onMounted, ref } from 'vue'
 
-interface Friend {
-  connected: boolean
+interface IFriend {
+  connected: true
   nickname: string
 }
 
 export default {
   setup() {
-    let friends = ref<Friend[]>()
+    let friends = ref<IFriend[]>()
     let searchValue = ref()
 
     const getFriends = async () => {
-      const { data } = await axios.get(
-        'https://60d5fd1b943aa60017768d55.mockapi.io/api/users',
-      )
+      const { data } = await axios.get('users')
       friends.value = data
     }
     const resetValue = () => {
@@ -100,7 +98,7 @@ export default {
       let offlineFriendsSearch = offlineFriends.value?.filter((friend) =>
         friend.nickname.toLowerCase().includes(searchValue.value.toLowerCase()),
       )
-      return onlineFriendsSearch?.concat(offlineFriendsSearch as Friend[])
+      return onlineFriendsSearch?.concat(offlineFriendsSearch as IFriend[])
     })
 
     onMounted(getFriends)

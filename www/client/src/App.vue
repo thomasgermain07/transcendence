@@ -3,11 +3,12 @@
     <NavigationBar
       v-if="!unprotectedRoutes.includes(route.path)"
     ></NavigationBar>
+    <router-view></router-view>
+    <Menu v-if="!unprotectedRoutes.includes(route.path)" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
 import { useRoute } from 'vue-router'
 import NavigationBar from './components/NavigationBar.vue'
 import Menu from './components/Menu/MenuWindow.vue'

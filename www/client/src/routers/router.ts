@@ -1,11 +1,12 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import Home from '../views/Home.vue'
-import User from '../views/User.vue'
+import Users from '../views/Users.vue'
+import UserProfile from '../views/UserProfile.vue'
 import Game from '../views/Game.vue'
 import Login from '../views/Login.vue'
-import Chat from '../views/Chat.vue'
 import Register from '../views/Register.vue'
 import Marvin from '../views/MarvinAuth.vue'
+import ErrorPage from '../components/ErrorPage.vue'
 import { store } from '../store'
 
 const routes: Array<RouteRecordRaw> = [
@@ -16,8 +17,14 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true },
   },
   {
-    path: '/user',
-    component: User,
+    path: '/users',
+    component: Users,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/users/:id/profile',
+    name: 'UserProfile',
+    component: UserProfile,
     meta: { requiresAuth: true },
   },
   {
@@ -26,21 +33,14 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true },
   },
   {
-    path: '/chat',
-    component: Chat,
-    meta: { requiresAuth: true },
-  },
-  {
     path: '/login',
     name: 'Login',
     component: Login,
-    // component: () => import("../views/Login.vue"),
   },
   {
     path: '/auth/marvin/callback',
     name: 'Marvin',
     component: Marvin,
-    // component: () => import("../views/Login.vue"),
   },
   {
     path: '/register',
@@ -49,12 +49,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/:catchAll(.*)',
-    redirect: '/',
-    // name: "NotFound",
-    // component: PageNotFound,
-    // meta: {
-    //   requiresAuth: false
-    // }
+    component: ErrorPage,
   },
 ]
 
