@@ -38,7 +38,7 @@ export default {
       loading.value = false
     }
 
-    onMounted(getRooms)
+    // onMounted(getRooms)
 
     return {
       rooms,

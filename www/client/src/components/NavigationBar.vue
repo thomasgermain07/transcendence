@@ -18,9 +18,9 @@
       >
         <i class="fas fa-user"></i>
       </router-link>
-      <router-link to="/logout" class="link">
+      <div class="link" @click="logout">
         <i class="fas fa-sign-out-alt"></i>
-      </router-link>
+      </div>
     </div>
   </div>
 </template>
@@ -37,7 +37,6 @@ export default defineComponent({
     const currentUser = computed(() => store.state.user)
 
     const logout = () => {
-      // console.log("in logout");
       store.dispatch('logout')
     }
     return { currentUser, logout }

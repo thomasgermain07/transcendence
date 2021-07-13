@@ -6,33 +6,28 @@
 
     <div class="users-list">
       <div class="users-item" v-for="user in users" :key="user">
-        {{ user.name }}
+        <router-link :to="{ name: 'UserProfile', params: { id: user.id } }">
+          {{ user.name }}
+        </router-link>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import axios from 'axios'
 import { onMounted, ref } from 'vue'
+import { fetchUsers } from '../composables/Users/fetchUsers'
 
 export default {
   setup() {
-    let users = ref([])
     let loading = ref(true)
-
-    const getUsers = async () => {
-      const { data } = await axios.get('users')
-      users.value = data
-      loading.value = false
-    }
+    let { users, getUsers } = fetchUsers(loading)
 
     onMounted(getUsers)
 
     return {
       users,
       loading,
-      getUsers,
     }
   },
 }

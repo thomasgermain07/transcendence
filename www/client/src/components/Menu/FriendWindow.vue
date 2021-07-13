@@ -2,13 +2,18 @@
   <div class="friend-window" name="Rechercher">
     <form class="search-bar-container">
       <i class="fas fa-search search-icon"></i>
-      <input v-model="searchValue" class="search-bar" placeholder="Search" />
+      <input v-model="searchQuery" class="search-bar" placeholder="Search" />
       <i class="fas fa-times search-reset" @click="resetValue"></i>
     </form>
 
-    <div class="search-container" v-if="searchValue">
-      <div class="friend-item" v-for="friend in searchFriends" :key="friend">
-        {{ friend.nickname }}
+    <div class="search-container" v-if="searchQuery">
+      <div
+        class="friend-item"
+        v-for="friend in friendsByName"
+        :key="friend"
+        @click="$emit('open_chat', friend)"
+      >
+        {{ friend.name }}
         <i
           v-if="friend.connected"
           class="fas fa-circle status status--connected"
@@ -18,7 +23,7 @@
     </div>
 
     <a
-      v-if="!searchValue"
+      v-if="!searchQuery"
       class="roll-menu"
       :class="{ 'roll-menu--open': showOnline }"
       @click="toggle_online"
@@ -27,20 +32,20 @@
       <i class="far fa-arrow-alt-circle-down arrow"></i>
     </a>
 
-    <div class="friend-container" v-if="showOnline && !searchValue">
+    <div class="friend-container" v-if="showOnline && !searchQuery">
       <div
         class="friend-item"
         v-for="friend in onlineFriends"
         :key="friend"
         @click="$emit('open_chat', friend)"
       >
-        {{ friend.nickname }}
+        {{ friend.name }}
         <i class="fas fa-circle status status--connected"></i>
       </div>
     </div>
 
     <a
-      v-if="!searchValue"
+      v-if="!searchQuery"
       class="roll-menu"
       :class="{ 'roll-menu--open': showOffline }"
       @click="toggle_offline"
@@ -49,14 +54,14 @@
       <i class="far fa-arrow-alt-circle-down arrow"></i>
     </a>
 
-    <div class="friend-container" v-if="showOffline && !searchValue">
+    <div class="friend-container" v-if="showOffline && !searchQuery">
       <div
         class="friend-item"
         v-for="friend in offlineFriends"
         :key="friend"
         @click="$emit('open_chat', friend)"
       >
-        {{ friend.nickname }}
+        {{ friend.name }}
         <i class="fas fa-circle status status--disconnected"></i>
       </div>
     </div>
@@ -64,68 +69,50 @@
 </template>
 
 <script lang="ts">
-import axios from 'axios'
-import { computed, onMounted, ref } from 'vue'
-
-interface IFriend {
-  connected: true
-  nickname: string
-}
+import { onMounted, ref } from 'vue'
+import {
+  fetchFriends,
+  getFriendsByStatus,
+} from '../../composables/Friends/fetchFriends'
+import searchFriendsByName from '../../composables/Friends/searchFriends'
 
 export default {
+  emits: ['open_chat'],
   setup() {
-    let friends = ref<IFriend[]>()
-    let searchValue = ref()
+    let showOnline = ref(true)
+    let showOffline = ref(false)
 
-    const getFriends = async () => {
-      const { data } = await axios.get('users')
-      friends.value = data
-    }
+    let { friends, getFriends } = fetchFriends()
+    let { searchQuery, friendsByName } = searchFriendsByName(friends)
+    const { onlineFriends, offlineFriends } = getFriendsByStatus(friends)
+
     const resetValue = () => {
-      searchValue.value = ''
+      searchQuery.value = ''
     }
-
-    const onlineFriends = computed(() => {
-      return friends.value?.filter((friend) => friend.connected)
-    })
-    const offlineFriends = computed(() => {
-      return friends.value?.filter((friend) => !friend.connected)
-    })
-    const searchFriends = computed(() => {
-      let onlineFriendsSearch = onlineFriends.value?.filter((friend) =>
-        friend.nickname.toLowerCase().includes(searchValue.value.toLowerCase()),
-      )
-      let offlineFriendsSearch = offlineFriends.value?.filter((friend) =>
-        friend.nickname.toLowerCase().includes(searchValue.value.toLowerCase()),
-      )
-      return onlineFriendsSearch?.concat(offlineFriendsSearch as IFriend[])
-    })
+    const toggle_online = () => {
+      showOnline.value = !showOnline.value
+    }
+    const toggle_offline = () => {
+      showOffline.value = !showOffline.value
+    }
 
     onMounted(getFriends)
 
     return {
-      searchValue,
+      // Variables
+      searchQuery,
+      showOnline,
+      showOffline,
+      // Methods
       getFriends,
       resetValue,
+      toggle_online,
+      toggle_offline,
+      // Computed
       onlineFriends,
       offlineFriends,
-      searchFriends,
+      friendsByName,
     }
-  },
-  data() {
-    return {
-      showOnline: true,
-      showOffline: false,
-    }
-  },
-  emits: ['open_chat'],
-  methods: {
-    toggle_online() {
-      this.showOnline = !this.showOnline
-    },
-    toggle_offline() {
-      this.showOffline = !this.showOffline
-    },
   },
 }
 </script>

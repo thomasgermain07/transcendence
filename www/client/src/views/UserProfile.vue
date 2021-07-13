@@ -10,24 +10,23 @@
     <img v-bind:src="user.profile_picture" class="profile_picture" />
   </div>
 
-  <button @click="add_friend">add friend</button>
+  <button @click="addFriend">add friend</button>
 </template>
 
 <script lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import axios from 'axios'
+import { fetchUser } from '../composables/User/fetchUser'
 
 export default {
   setup() {
     let route = useRoute()
-    let user = ref()
     let loading = ref(true)
 
-    const getUser = async () => {
-      const { data } = await axios.get(`users/${route.params.id}`)
-      user.value = data
-      loading.value = false
+    const { user, getUser } = fetchUser(route.params.id as string, loading)
+
+    const addFriend = () => {
+      console.log('sending friend request')
     }
 
     onMounted(getUser)
@@ -36,13 +35,8 @@ export default {
       user,
       loading,
       getUser,
+      addFriend,
     }
-  },
-  methods: {
-    add_friend() {
-      // TODO : send request to api
-      console.log('sending friend request')
-    },
   },
 }
 </script>
