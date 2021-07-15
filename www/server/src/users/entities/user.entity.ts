@@ -8,6 +8,7 @@ import { Room } from 'src/chat/rooms/entities/room.entity'
 import { Message } from 'src/chat/messages/entities/message.entity'
 import { Permission } from 'src/chat/permissions/entities/permission.entity'
 import { Subscription } from 'src/chat/subscriptions/entities/subscription.entity'
+import { Player } from 'src/game/players/entities/player.entity';
 
 @Entity()
 export class User {
@@ -86,4 +87,10 @@ export class User {
     lazy: true,
   })
   public chat_permissions: Promise<Permission[]>
+
+	// -------------------------------------------------------------------------
+	// Game
+	// -------------------------------------------------------------------------
+	@OneToMany(() => Player, player => player.user)
+	players: Player[];
 }
