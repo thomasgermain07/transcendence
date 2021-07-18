@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { Ref, ref } from 'vue'
 
-export function fetchUsers(loading: Ref) {
+export default function fetchUsers(loading: Ref) {
   let users = ref()
 
   const getUsers = async () => {

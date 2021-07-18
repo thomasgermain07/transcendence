@@ -70,11 +70,11 @@
 
 <script lang="ts">
 import { onMounted, ref } from 'vue'
+import fetchFriends from '../../composables/Friends/fetchFriends'
 import {
-  fetchFriends,
+  getFriendsByName,
   getFriendsByStatus,
-} from '../../composables/Friends/fetchFriends'
-import searchFriendsByName from '../../composables/Friends/searchFriends'
+} from '../../composables/Friends/getFriendsByFilters'
 
 export default {
   emits: ['open_chat'],
@@ -83,7 +83,7 @@ export default {
     let showOffline = ref(false)
 
     let { friends, getFriends } = fetchFriends()
-    let { searchQuery, friendsByName } = searchFriendsByName(friends)
+    let { searchQuery, friendsByName } = getFriendsByName(friends)
     const { onlineFriends, offlineFriends } = getFriendsByStatus(friends)
 
     const resetValue = () => {

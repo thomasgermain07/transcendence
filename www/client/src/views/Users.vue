@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { onMounted, ref } from 'vue'
-import { fetchUsers } from '../composables/Users/fetchUsers'
+import fetchUsers from '../composables/Users/fetchUsers'
 
 export default {
   setup() {

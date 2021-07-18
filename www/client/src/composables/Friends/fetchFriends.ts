@@ -1,12 +1,12 @@
 import { computed, ref, Ref } from 'vue'
 import axios from 'axios'
 
-interface IFriend {
+export interface IFriend {
   connected: true
   name: string
 }
 
-export function fetchFriends() {
+export default function fetchFriends() {
   let friends = ref([])
 
   const getFriends = async () => {
@@ -16,15 +16,4 @@ export function fetchFriends() {
   }
 
   return { friends, getFriends }
-}
-
-export function getFriendsByStatus(friends: Ref) {
-  const onlineFriends = computed(() => {
-    return friends.value?.filter((friend: IFriend) => friend.connected)
-  })
-  const offlineFriends = computed(() => {
-    return friends.value?.filter((friend: IFriend) => !friend.connected)
-  })
-
-  return { onlineFriends, offlineFriends }
 }

@@ -50,6 +50,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/:catchAll(.*)',
     component: ErrorPage,
+    name: 'ErrorPage',
   },
 ]
 
