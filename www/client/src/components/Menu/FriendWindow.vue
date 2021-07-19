@@ -75,14 +75,16 @@ import {
   getFriendsByName,
   getFriendsByStatus,
 } from '../../composables/Friends/getFriendsByFilters'
+import requestStatus from '../../composables/requestStatus'
 
 export default {
   emits: ['open_chat'],
   setup() {
     let showOnline = ref(true)
     let showOffline = ref(false)
+    let status = ref(requestStatus.loading)
 
-    let { friends, getFriends } = fetchFriends()
+    let { friends, getFriends } = fetchFriends(status)
     let { searchQuery, friendsByName } = getFriendsByName(friends)
     const { onlineFriends, offlineFriends } = getFriendsByStatus(friends)
 
@@ -103,6 +105,7 @@ export default {
       searchQuery,
       showOnline,
       showOffline,
+      status, // TODO : Handle status error in templates
       // Methods
       getFriends,
       resetValue,
@@ -125,6 +128,7 @@ export default {
 }
 
 .search-bar-container {
+  padding: 2px;
   display: flex;
   justify-content: space-around;
   height: 25px;
@@ -132,6 +136,7 @@ export default {
 }
 
 .search-bar {
+  width: 75%;
   border: 1px solid black;
   border-radius: 5px;
   background-color: lightgray;
@@ -177,7 +182,7 @@ export default {
 .friend-item {
   display: flex;
   justify-content: space-between;
-  padding: 4px;
+  padding: 6px;
   border-bottom: 1px solid darkgray;
   cursor: pointer;
 }
@@ -193,15 +198,5 @@ export default {
 
 .status--disconnected {
   color: red;
-}
-
-@keyframes slidein {
-  from {
-    transform: translateY(-100%);
-  }
-
-  to {
-    transform: translateY(0%);
-  }
 }
 </style>

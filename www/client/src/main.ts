@@ -8,6 +8,8 @@ import router from './routers/router'
 import initAxios from './shared/axios.config'
 import { store } from './store'
 
+import './assets/reset.css'
+
 // -----------------------------------------------------------------------------
 // Axios Config
 // -----------------------------------------------------------------------------

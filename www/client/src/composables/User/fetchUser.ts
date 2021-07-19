@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { Ref, ref } from 'vue'
-import fetchStatus from '../fetchStatus'
+import requestStatus from '../requestStatus'
 
 export default function fetchUser(status: Ref) {
   let user = ref()
@@ -9,9 +9,9 @@ export default function fetchUser(status: Ref) {
     try {
       const { data } = await axios.get(`users/${id}`)
       user.value = data
-      status.value = fetchStatus.success
+      status.value = requestStatus.success
     } catch (e) {
-      status.value = fetchStatus.error
+      status.value = requestStatus.error
     }
   }
 

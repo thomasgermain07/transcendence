@@ -44,6 +44,10 @@ export default {
     toggle_window() {
       this.open = !this.open
     },
+    open_chat_test() {
+      this.chat_open = true
+      this.set_current_room('Postman')
+    },
     open_chat(user: any) {
       this.chat_open = true
       this.set_current_room(user.nickname)
@@ -67,7 +71,7 @@ export default {
 }
 
 .window {
-  width: 200px;
+  width: 180px;
   position: fixed;
   bottom: 0;
   right: 10px;
@@ -81,7 +85,7 @@ export default {
 }
 
 .window-friend {
-  flex-basis: 200px;
+  flex-basis: 180px;
 }
 
 .window-chat {

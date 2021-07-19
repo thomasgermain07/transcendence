@@ -31,7 +31,7 @@ import { ref, computed, watchEffect } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import fetchUser from '../composables/User/fetchUser'
-import fetchStatus from '../composables/fetchStatus'
+import requestStatus from '../composables/requestStatus'
 import { addFriend, removeFriend } from '../composables/User/userInteraction'
 
 export default {
@@ -41,7 +41,7 @@ export default {
   setup() {
     const route = useRoute()
     const store = useStore()
-    let status = ref(fetchStatus.loading)
+    let status = ref(requestStatus.loading)
 
     const { user, getUser } = fetchUser(status)
     const isCurrentUser = computed(() => {
