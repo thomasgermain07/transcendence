@@ -1,4 +1,4 @@
-import { GameMode } from "../entities/room.entity";
+import { GameMode, GameState } from "../entities/room.entity";
 import { IsEnum, IsBoolean, IsOptional } from 'class-validator';
 
 export class UpdateRoomDto {
@@ -11,6 +11,9 @@ export class UpdateRoomDto {
 	locked?: boolean
 
     //state
+    @IsOptional()
+    @IsEnum(GameState)
+	state?: GameState
 }
 
 export default UpdateRoomDto;

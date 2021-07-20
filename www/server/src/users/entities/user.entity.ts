@@ -91,6 +91,9 @@ export class User {
 	// -------------------------------------------------------------------------
 	// Game
 	// -------------------------------------------------------------------------
-	@OneToMany(() => Player, player => player.user)
+	@Column({ default: 5 })
+	ladderLevel : number;
+
+  @OneToMany(() => Player, player => player.user)
 	players: Player[];
 }

@@ -9,7 +9,11 @@ export class CreateRoomDto {
 
     @IsNotEmpty()
     @IsEnum(GameMode)
-	mode: GameMode
+    mode: GameMode
+    
+    // @IsNotEmpty()
+    // @IsEnum(GameState)
+	// state: GameState
 
     @ValidateNested()
     @Type(() => CreateOptionDto)

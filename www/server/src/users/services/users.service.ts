@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 
@@ -47,4 +47,28 @@ export class UsersService {
   async remove(user: User): Promise<void> {
     this.users_repo.remove(user)
   }
+
+  public async findOneLadderLevel(
+  	userId : number,
+  )
+  	: Promise<number>
+  {
+  	const user : User = await this.users_repo.findOne(userId, {
+  		relations: ["players"]
+  	});  
+  	if (!user)
+  		throw new NotFoundException('User not found.');  
+  	return user.ladderLevel;
+  }
+
+  public async updateLadderLevel(
+  	userId : number,
+  	level : number,
+  )
+  	: Promise<User>
+  {
+  	await this.users_repo.update(userId, { ladderLevel: level })
+  	return await this.users_repo.findOne(userId);
+  }
+
 }

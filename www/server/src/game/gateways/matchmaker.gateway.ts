@@ -49,7 +49,7 @@ export class MatchmakerGateway
     // Get current user - @GetCurrentUser
     const user: User = await this.userService.findOne(data.userId)
     // Find room that matches the game mode and options 
-    const room = await this.roomsService.findMatchOrCreate(data.mode, data.options)
+    const room = await this.roomsService.findMatchOrCreate(data.mode, data.options, user)
     // Create and Add player
     const player = await this.playerService.create(room, user)
 

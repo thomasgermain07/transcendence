@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository }       from 'typeorm';
 
 import { Room, GameMode }                   from '../entities/room.entity';
+import { User }                   from '../../../users/entities/user.entity';
 import { Option, MapType, DifficultyLevel } from '../entities/option.entity';
 
 import CreateRoomDto   from '../dto/create-room.dto';
@@ -81,48 +82,61 @@ export class RoomsService {
   }
 
   async findMatchOrCreate(
-      mode: GameMode,
-      options: CreateOptionDto
-  ): Promise<Room> {
-
-    let room = await this.findByModeAndOptions(mode, options)
-    
-    if(!room) {
-        console.log('NO CORRESPONDING ROOM FOUND - CREATING NEW')
-        let roomDto: CreateRoomDto = { mode }
-        if (options) {
-            roomDto.option = { ...options }
-        }
-        console.log(roomDto)
-        room = await this.create(roomDto)
-    }
-
-    return room 
+    mode: GameMode,
+    options: CreateOptionDto,
+    user: User
+): Promise<Room> {
+  let room = await this.findByModeAndOptions(mode, user, options)
+  if(!room) {
+      console.log('NO CORRESPONDING ROOM FOUND - CREATING NEW')
+      let roomDto: CreateRoomDto = { mode }
+      if (options) {
+          roomDto.option = { ...options }
+      }
+      console.log(roomDto)
+      room = await this.create(roomDto)
   }
+  return room 
+}
 
-  async findByModeAndOptions(mode: GameMode, options?: CreateOptionDto): Promise<Room> {
-    const optionsDefault: CreateOptionDto = {
-        map: MapType.DEFAULT,
-        difficulty: DifficultyLevel.EASY,
-        powerUps: false
-    }
+async findByModeAndOptions(
+  mode: GameMode,
+  user: User,
+  options?: CreateOptionDto,
+  ): Promise<Room> {
+  const optionsDefault: CreateOptionDto = {
+      map: MapType.DEFAULT,
+      difficulty: DifficultyLevel.EASY,
+      powerUps: false
+  }
+  let room = null;
+  if (mode === GameMode.LADDER) {
+    room = await this.roomsRepository.createQueryBuilder("room")
+    .leftJoinAndSelect("room.players", "players")
+    .leftJoinAndSelect("players.user", "users")
+    .where("room.mode = :mode", { mode: mode })
+    .andWhere("room.locked = :locked", { locked: false })
+    .andWhere(`"users"."ladderLevel" BETWEEN :begin AND :end`, {
+      begin: user.ladderLevel - 1, end: user.ladderLevel + 1} )
+    .getOne();
+  } else {
+    // else find match for Duel:
     if (!options) {
-        console.log('IN FIND -> NO OPTIONS')
+      console.log('IN FIND -> NO OPTIONS')
     }
     const optionDto = options || optionsDefault
-
-    let room = await this.roomsRepository.createQueryBuilder("room")
-      .leftJoinAndSelect("room.option", "option")
-      .leftJoinAndSelect("room.players", "players")
-      .where("room.mode = :mode", { mode: mode })
-      .andWhere("room.locked = :locked", { locked: false })
-      .andWhere("option.map = :map", { map: optionDto.map })
-      .andWhere("option.difficulty = :diff", { diff: optionDto.difficulty })
-      .andWhere("option.powerUps = :pow", { pow: optionDto.powerUps })
-      .getOne();
-
-    return room
+    room = await this.roomsRepository.createQueryBuilder("room")
+    .leftJoinAndSelect("room.option", "option")
+    .leftJoinAndSelect("room.players", "players")
+    .where("room.mode = :mode", { mode: mode })
+    .andWhere("room.locked = :locked", { locked: false })
+    .andWhere("option.map = :map", { map: optionDto.map })
+    .andWhere("option.difficulty = :diff", { diff: optionDto.difficulty })
+    .andWhere("option.powerUps = :pow", { pow: optionDto.powerUps })
+    .getOne();
   }
+  return room
+}
 
   public async update(id: number, roomDto: UpdateRoomDto): Promise<Room> {
     const room = await this.roomsRepository.save({
