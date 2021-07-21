@@ -27,7 +27,7 @@
         </select>
         <button>Play Duel</button>
       </form>
-      <hr>
+      <hr />
       <h2>Ladder Game</h2>
       <button @click="onPlayLadder">Play Ladder</button>
       <WatchRooms :rooms="rooms" />
@@ -47,12 +47,13 @@ import {
   GameOptions,
   MapType,
 } from '../types/game/gameOptions'
-import { GameMode } from '../types/game/gameRoom'
+import { GameMode, Room } from '../types/game/gameRoom'
 import WatchRooms from '../components/Game/WatchRooms.vue'
 
-import axios from 'axios'
-import { GameState, Room } from '../types/game/gameRoom'
-import  useAllGameRoom  from '../composables/Game/useAllGameRoom'
+// import axios from 'axios'
+// import { GameState, Room } from '../types/game/gameRoom'
+import useAllGameRoom from '../composables/Game/useAllGameRoom'
+import { Player } from '../types/game/player'
 const socket = io('ws://localhost:8080/matchmaker')
 const gameRoomsSocket = io('ws://localhost:8080/game-rooms')
 
@@ -65,8 +66,8 @@ export default defineComponent({
     const store = useStore()
     const currentUser = store.state.user
 
-    const {rooms, loadGameRooms} = useAllGameRoom()
-    loadGameRooms();
+    const { rooms, loadGameRooms } = useAllGameRoom()
+    loadGameRooms()
 
     const updateWatchRooms = (updatedRoom: Room[]): void => {
       rooms.value = { ...updatedRoom }
@@ -96,22 +97,15 @@ export default defineComponent({
     }
 
     const playGame = (mode: GameMode, options: GameOptions | null): void => {
-      if (checkInGame.inGame === true) {
-        alert('User already in Game')
-        return
-      }
-      console.log('Play ' + mode)
-      console.log(options)
       socket.emit(
         'searchMatch',
         {
-          userId: currentUser.id,
+          user: currentUser,
           mode: mode,
           options: options,
         },
-        (player) => {
-          console.log(player)
-          // alert('Matchmaking')
+        (player: Player) => {
+          alert(`${player.user.name} already in Game`)
         },
       )
     }
@@ -126,6 +120,10 @@ export default defineComponent({
     })
     socket.on('disconnect', () => {
       console.log(`disconnected`)
+    })
+    socket.on('exception', (err) => {
+      console.log('IN EXCEPTION')
+      console.log(err)
     })
 
     socket.on('redirect-to-room', (roomId) => {

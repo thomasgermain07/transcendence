@@ -5,6 +5,7 @@
       <div class="player-info" v-if="playerLeft">
         <p>Player id: {{ playerLeft?.id }}</p>
         <p>User name: {{ playerLeft?.user.name }}</p>
+        <p>User level: {{ playerLeft?.user.ladderLevel }}</p>
         <p>Player score: {{ playerLeft?.score }}</p>
         <p>Winner: {{ playerLeft?.winner }}</p>
         <p>Ready: {{ playerLeft?.isReady }}</p>
@@ -16,6 +17,7 @@
       <div class="player-info" v-if="playerRight">
         <p>Player id: {{ playerRight?.id }}</p>
         <p>User name: {{ playerRight?.user.name }}</p>
+        <p>User level: {{ playerRight?.user.ladderLevel }}</p>
         <p>Player score: {{ playerRight?.score }}</p>
         <p>Winner: {{ playerRight?.winner }}</p>
         <p>Ready: {{ playerRight?.isReady }}</p>

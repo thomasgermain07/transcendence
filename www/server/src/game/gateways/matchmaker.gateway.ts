@@ -1,16 +1,18 @@
 import { WebSocketGateway, WebSocketServer, ConnectedSocket } from '@nestjs/websockets';
-import { SubscribeMessage, MessageBody }     from "@nestjs/websockets";
+import { SubscribeMessage, MessageBody, WsException }     from "@nestjs/websockets";
 
 import { Server, Socket } from 'socket.io';
 
 import { UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
+import { ValidationPipe, UsePipes } from '@nestjs/common';
 
-import { UsersService } from '../../users/services/users.service';
 import { RoomsService } from '../rooms/services/rooms.service';
 import { PlayersService } from '../players/services/players.service';
 
 import { User } from '../../users/entities/user.entity';
 import { Player } from '../players/entities/player.entity';
+
+import MatchmakerDto from './dto/matchmaker.dto';
 
 
 type InGameType = {
@@ -33,49 +35,46 @@ export class MatchmakerGateway
 	server: Server;
 
   constructor(
-    private userService: UsersService,
     private roomsService: RoomsService,
     private playerService: PlayersService,
 
   ) { }
 
+  @UsePipes(new ValidationPipe())
   @SubscribeMessage('searchMatch')
   async matchmaking(
-    @MessageBody() data, // update interface
+    @MessageBody() data: MatchmakerDto, // user, mode, options
     @ConnectedSocket() client: Socket,
-  ): Promise<Player> {
+  ): Promise<Player | void> {
 
     console.log('IN MATCHMAKING')
-    // Get current user - @GetCurrentUser
-    const user: User = await this.userService.findOne(data.userId)
-    // Find room that matches the game mode and options 
-    const room = await this.roomsService.findMatchOrCreate(data.mode, data.options, user)
-    // Create and Add player
-    const player = await this.playerService.create(room, user)
 
-    client.emit('redirect-to-room', room.id);
+    // Check if user is already in a game room
+    const inGame = await this.playerService.checkIfInGame(data.user)
+    if (inGame) {
+      return inGame
+    }
+
+    // Find room that matches the game mode and options 
+    const room = await this.roomsService.findMatchOrCreate(data.mode, data.options, data.user)
     
-    return player
+    // Create and Add player
+    await this.playerService.create(room, data.user)
+    
+    client.emit('redirect-to-room', room.id);
+
   }
 
+  @UsePipes(new ValidationPipe())
   @SubscribeMessage('checkInGame')
   async checkIfInGame(
-    @MessageBody() userId: number
+    @MessageBody() user: User
   ): Promise<InGameType> {
 
-    try {
-      const user = await this.userService.findOneWithPlayers(userId)
-      if (user.players) {
-        const activePlayer: Player = user.players.find(player => player.winner === null)
-        if (!activePlayer) {
-          return {inGame: false, roomRoute: ''}
-        }
-        const roomId: number = await this.playerService.findRoomNumber(activePlayer.id)
-        return {inGame: true, roomRoute: `/game/room/${roomId}`}
-      }
-    } catch (error) {
-      console.log(error.message)
-      return {inGame: false, roomRoute: ''}
+    const player = await this.playerService.checkIfInGame(user)
+    if (player) {
+      return {inGame: true, roomRoute: `/game/room/${player.room.id}`}
     }
+    return {inGame: false, roomRoute: ''}
   }
 }

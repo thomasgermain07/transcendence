@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 
 import { Player } from '../entities/player.entity';
 import { Room } from '../../rooms/entities/room.entity';
@@ -12,10 +12,19 @@ import UpdatePlayerDto from '../dto/update-player.dto';
 
 @Injectable()
 export class PlayersService {
+
+  // -------------------------------------------------------------------------
+	// Constructor
+	// -------------------------------------------------------------------------
+
   constructor(
     @InjectRepository(Player)
     private playersRepository: Repository<Player>,
   ) {}
+
+  // -------------------------------------------------------------------------
+	// Public methods
+	// -------------------------------------------------------------------------
 
   public async create(
     // createPlayerDto: CreatePlayerDto
@@ -36,6 +45,67 @@ export class PlayersService {
     return player;
   }
 
+  public findAll(): Promise<Player[]> {
+    return this.playersRepository.find({
+        relations: ["user", "room"]
+    });
+  }
+
+  public async findOne(id: number): Promise<Player> {
+    const player = await this.playersRepository.findOne(id, {
+        relations: ["user", "room"]
+    });
+    if (!player) {
+        throw new NotFoundException('Player not found.');
+    }
+    return player
+  }
+
+  public async findRoomNumber(playerId: number): Promise<number> {
+    const player = await this.playersRepository.findOne(playerId, {
+        relations: ["room"]
+    });
+    if (!player) {
+        throw new NotFoundException('Player not found.');
+    }
+    return player.room.id
+  }
+
+  public async checkIfInGame(
+		user : User
+	)
+		: Promise<Player>
+	{
+    const player = await this.playersRepository.findOne({
+      relations: ["user", "room"],
+      where: { winner: IsNull(), user: user }
+    })
+
+		return player;
+	}
+
+
+  public async update(id: number, playerDto: UpdatePlayerDto): Promise<Player> {
+    const player = await this.playersRepository.save({
+        id,
+        ...playerDto
+    })
+    return this.findOne(player.id)
+  }
+
+  public async remove(id: number): Promise<void> {
+    try {
+        const player = await this.findOne(id)
+        await this.playersRepository.remove(player);
+    } catch (error) {
+        throw new NotFoundException('Player not found.');
+    }
+  }
+
+  // -------------------------------------------------------------------------
+	// Private methods
+	// -------------------------------------------------------------------------
+
   private async addPlayer(
     room: Room,
     user: User,
@@ -55,50 +125,5 @@ export class PlayersService {
     await this.playersRepository.save(player)
 
     return player
-  }
-
-  findAll(): Promise<Player[]> {
-    return this.playersRepository.find({
-        relations: ["user", "room"]
-    });
-  }
-
-  async findOne(id: number): Promise<Player> {
-    const player = await this.playersRepository.findOne(id, {
-        relations: ["user", "room"]
-    });
-    if (!player) {
-        throw new NotFoundException('Player not found.');
-    }
-    return player
-  }
-
-  async findRoomNumber(playerId: number): Promise<number> {
-    const player = await this.playersRepository.findOne(playerId, {
-        relations: ["room"]
-    });
-    if (!player) {
-        throw new NotFoundException('Player not found.');
-    }
-    return player.room.id
-  }
-
-  async remove(id: number): Promise<void> {
-    try {
-        const player = await this.findOne(id)
-        await this.playersRepository.remove(player);
-    } catch (error) {
-        throw new NotFoundException('Player not found.');
-    }
-    // await this.playersRepository.delete(id);
-  }
-
-
-  public async update(id: number, playerDto: UpdatePlayerDto): Promise<Player> {
-    const player = await this.playersRepository.save({
-        id,
-        ...playerDto
-    })
-    return this.findOne(player.id)
   }
 }
