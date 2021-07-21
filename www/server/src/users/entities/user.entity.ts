@@ -2,7 +2,8 @@ import { Column, Entity } from 'typeorm'
 import { PrimaryGeneratedColumn } from 'typeorm'
 import { OneToMany } from 'typeorm'
 
-import { Exclude } from 'class-transformer'
+import { Exclude } 		   from 'class-transformer'
+import { Min, Max, IsInt } from 'class-validator';
 
 import { Room } from 'src/chat/rooms/entities/room.entity'
 import { Message } from 'src/chat/messages/entities/message.entity'
@@ -92,6 +93,8 @@ export class User {
 	// Game
 	// -------------------------------------------------------------------------
 	@Column({ default: 5 })
+	@IsInt()
+  @Min(1)
 	ladderLevel : number;
 
   @OneToMany(() => Player, player => player.user)

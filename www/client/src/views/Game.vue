@@ -140,7 +140,7 @@ export default defineComponent({
     onMounted(() => {
       console.log('In mount matchmaker')
       console.log(socket.id)
-      socket.emit('checkInGame', currentUser.id, (message: InGameType) => {
+      socket.emit('checkInGame', currentUser, (message: InGameType) => {
         console.log(message)
         checkInGame.inGame = message.inGame
         checkInGame.roomRoute = message.roomRoute

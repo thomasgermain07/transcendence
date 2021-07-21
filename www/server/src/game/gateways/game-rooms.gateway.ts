@@ -813,18 +813,12 @@ export class GameRoomsGateway
 
         console.log("----------LADDER RIGHT-----------")
         console.log(ladder_right)
-
-        if (game.player_left.winner && ladder_left > ladder_right) {
-          if (ladder_left > 1)
-            await userService.updateLadderLevel(game.player_left.user_id, ladder_left - 1)
-          if (ladder_right < 5)
-            await userService.updateLadderLevel(game.player_right.user_id, ladder_right + 1)
-        }
-        else if (game.player_right.winner && ladder_right > ladder_left) {
-          if (ladder_right > 1)
-            await userService.updateLadderLevel(game.player_right.user_id, ladder_right - 1)
-          if (ladder_left < 5)
-            await userService.updateLadderLevel(game.player_left.user_id, ladder_left + 1)
+        
+        if (game.player_left.winner && ladder_left > ladder_right
+          || game.player_right.winner && ladder_right > ladder_left) {
+          console.log("----------UPDATING LADDER LEVELS-----------")
+          await userService.updateLadderLevel(game.player_left.user_id, ladder_right)
+          await userService.updateLadderLevel(game.player_right.user_id, ladder_left)
         }
       }
       const rooms: Room[] = await roomsService.findAllByMode()
