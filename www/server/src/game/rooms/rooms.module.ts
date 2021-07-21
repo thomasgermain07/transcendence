@@ -5,6 +5,7 @@ import { Room }   from './entities/room.entity';
 import { Option } from './entities/option.entity';
 
 import { RoomsService }    from './services/rooms.service';
+import { PurgeService }    from './services/purge.service';
 import { RoomsController } from './controllers/rooms.controller';
 
 
@@ -13,7 +14,10 @@ import { RoomsController } from './controllers/rooms.controller';
   imports: [
     TypeOrmModule.forFeature([Room, Option]),
   ],
-  providers: [RoomsService],
+  providers: [
+    RoomsService,
+    PurgeService,
+  ],
   controllers: [RoomsController],
   exports: [RoomsService]
 })

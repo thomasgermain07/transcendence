@@ -40,10 +40,10 @@ export class RoomsController {
         return this.roomsService.findOne(id)
     }
 
-    @Post()
-    create(@Body() roomDto: CreateRoomDto): Promise<Room> {
-        return this.roomsService.create(roomDto)
-    }
+    // @Post()
+    // create(@Body() roomDto: CreateRoomDto): Promise<Room> {
+    //     return this.roomsService.create(roomDto)
+    // }
 
     // @Put(':id')
     // update(@Param('id', ParseIntPipe) id: number, @Body() roomDto: UpdateRoomDto): Promise<Room> {
