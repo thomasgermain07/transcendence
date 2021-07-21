@@ -4,7 +4,7 @@ import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository }       from 'typeorm';
 
-import { Room, GameMode }                   from '../entities/room.entity';
+import { Room, GameMode, GameState }                   from '../entities/room.entity';
 import { User }                   from '../../../users/entities/user.entity';
 import { Option, MapType, DifficultyLevel } from '../entities/option.entity';
 
@@ -136,6 +136,20 @@ async findByModeAndOptions(
     .getOne();
   }
   return room
+}
+
+async findAllByMode(
+): Promise<Room[]> {
+
+  let rooms = null;
+  rooms = await this.roomsRepository.createQueryBuilder("room")
+  .leftJoinAndSelect("room.players", "players")
+  .leftJoinAndSelect("players.user", "users")
+  .where("room.mode IN (:...modes)", { modes: [GameMode.DUEL, GameMode.LADDER] })
+  .andWhere("room.state = :state", { state: GameState.PLAYING })
+  .getMany()
+
+  return rooms;
 }
 
   public async update(id: number, roomDto: UpdateRoomDto): Promise<Room> {

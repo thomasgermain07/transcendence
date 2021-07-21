@@ -31,7 +31,7 @@ const useGameRoom = () => {
       state.currentPlayer = response.data.players.find(
         (player: Player) => player.user.id === currentUser.id,
       )
-      if (state.currentPlayer.isReady === true) {
+      if (state.currentPlayer && state.currentPlayer.isReady === true) {
         state.isActive = true
       }
       state.isLoading = false

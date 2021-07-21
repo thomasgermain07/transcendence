@@ -27,9 +27,10 @@
         </select>
         <button>Play Duel</button>
       </form>
-      <hr />
+      <hr>
       <h2>Ladder Game</h2>
       <button @click="onPlayLadder">Play Ladder</button>
+      <WatchRooms :rooms="rooms" />
     </div>
   </div>
 </template>
@@ -47,16 +48,26 @@ import {
   MapType,
 } from '../types/game/gameOptions'
 import { GameMode } from '../types/game/gameRoom'
+import WatchRooms from '../components/Game/WatchRooms.vue'
 
+import axios from 'axios'
+import { GameState, Room } from '../types/game/gameRoom'
+import  useAllGameRoom  from '../composables/Game/useAllGameRoom'
 const socket = io('ws://localhost:8080/matchmaker')
 
 export default defineComponent({
   name: 'Game',
+  components: { WatchRooms },
 
   setup() {
     const router = useRouter()
     const store = useStore()
     const currentUser = store.state.user
+
+    const {rooms, loadGameRooms} = useAllGameRoom()
+    loadGameRooms();
+    // console.log(tmp);
+    // console.log(rooms.value);
 
     // check if user is already in Game Room
     const checkInGame: InGameType = reactive({
@@ -133,7 +144,7 @@ export default defineComponent({
       socket.off()
     })
 
-    return { checkInGame, duelOptions, onPlayDuel, onPlayLadder }
+    return { checkInGame, duelOptions, onPlayDuel, onPlayLadder, rooms }
   },
 })
 </script>
@@ -172,7 +183,7 @@ select {
 
 button {
   display: block;
-  background: #161616;
+  background: #0a0a0a;
   border: none;
   margin: 20px auto 0;
   padding: 0.7em;

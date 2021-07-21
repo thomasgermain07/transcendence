@@ -2,63 +2,94 @@
   <div class="watch">
     <div class="watch-duel">
       <h3>Duel Stream</h3>
-      <div class="duel-info" v-if="playerLeft">
-        <p>Player id: {{ playerLeft?.id }}</p>
-        <p>User name: {{ playerLeft?.user.name }}</p>
-        <p>Player score: {{ playerLeft?.score }}</p>
-        <p>Winner: {{ playerLeft?.winner }}</p>
-        <p>Ready: {{ playerLeft?.isReady }}</p>
-      </div>
-      <div v-else>Waiting for Player to join</div>
+			<div class="duel-stream" v-if="duelRooms.length > 0">
+				<div class="duel-info" v-for="duel in duelRooms" v-bind:key="duel.id">
+						<p> DUEL: {{ duel.players[0].user.name }} VS {{ duel.players[1].user.name }}</p>
+							<button @click="onWatch(duel.id)">Watch Game</button>
+				</div>
+			</div>
+      <div v-else>No Duel To Watch</div>
     </div>
     <div class="watch-ladder">
-      <h3>Player right</h3>
-      <div class="player-info" v-if="playerRight">
-        <p>Player id: {{ playerRight?.id }}</p>
-        <p>User name: {{ playerRight?.user.name }}</p>
-        <p>Player score: {{ playerRight?.score }}</p>
-        <p>Winner: {{ playerRight?.winner }}</p>
-        <p>Ready: {{ playerRight?.isReady }}</p>
-      </div>
-      <div v-else>Waiting for Player to join</div>
-    </div>
-  </div>
+      <h3>Ladder Stream</h3>
+      <div class="ladder-stream" v-if="ladderRooms.length > 0">
+				<div class="ladder-info" v-for="ladder in ladderRooms" v-bind:key="ladder.id">
+					<p>LADDER: {{ ladder.players[0].user.name }} VS {{ ladder.players[1].user.name }}</p>
+						<button @click="onWatch(ladder.id)">Watch Game</button>
+				</div>
+			</div>
+      <div v-else>No Ladder To Watch</div>
+  	</div>
+	</div>
 </template>
 
 <script lang="ts">
 import { defineComponent, computed } from 'vue'
+import { GameState, Room } from '../types/game/gameRoom'
+import { useRouter } from 'vue-router'
+
 
 export default defineComponent({
   name: 'WatchRooms',
-  props: ['players'],
+  props: ['rooms'],
 
   setup(props) {
-    const playerLeft = computed(() => {
-      return props.players.find((player) => player.position === 'left')
+		let itemRefsDuel = []
+		let itemRefsLadder = []
+		const router = useRouter()
+
+
+    const duelRooms = computed(() => {
+			for (let key in props.rooms) {
+				if (props.rooms[key].mode == 'duel') {
+					itemRefsDuel.push(props.rooms[key])
+				}
+			}
+			return itemRefsDuel
     })
 
-    const playerRight = computed(() => {
-      return props.players.find((player) => player.position === 'right')
-    })
+    const ladderRooms = computed(() => {
+			for (let key in props.rooms) {
+				if (props.rooms[key].mode == 'ladder') {
+					itemRefsLadder.push(props.rooms[key])
+				}
+			}
+			return itemRefsLadder
+		})
+		
+		const onWatch = (roomId: number): void => {
+			console.log(roomId);
+			router.push(`/game/room/${roomId}`)
+		}
 
     return {
-      playerLeft,
-      playerRight,
+      duelRooms,
+			ladderRooms,
+			onWatch,
     }
   },
 })
 </script>
 
 <style>
-.players {
-  display: flex;
+
+.duel-info {
+  flex: auto;
+	font-size: 1.4rem;
+	text-align: center;
+}
+button {
+  display: block;
+  background: #a03939;
+  border: none;
+  margin: 20px auto 0;
+  padding: 1em;
+  color: #862f2f;
 }
 
-.player-left {
+.ladder-info {
   flex: auto;
-}
-
-.player-right {
-  flex: auto;
+	font-size: 1.4rem;
+	text-align: center;
 }
 </style>

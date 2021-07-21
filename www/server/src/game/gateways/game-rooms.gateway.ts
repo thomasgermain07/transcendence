@@ -35,7 +35,7 @@ export enum GameState {
   WAITING = "waiting",
   PLAYING = "playing",
   CANCELLED = "cancelled",
-  OVER = "over"
+  OVER = "over",
 }
 enum Maps {
   Def = "default",
@@ -63,6 +63,7 @@ export interface IGameState {
   addons: boolean
   begin: boolean
   map: string
+  count: number
 
 }
 
@@ -251,6 +252,20 @@ export class GameRoomsGateway
     return 'Player ' + data.playerId + ' go back';
   }
 
+  @SubscribeMessage('leaveStream')
+  async leaveStream(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: SocketRoomInfo
+  ): Promise<string> {
+
+    // const roomId = await this.playerService.findRoomNumber(data.playerId)
+    console.log("----------GO BACK-----------------")
+    // remove socket from room
+    client.leave(data.room);
+    return 'Watcher Leave Stream';
+  }
+
+
   @SubscribeMessage('getReady')
   async getReady(
     @ConnectedSocket() client: Socket,
@@ -350,11 +365,12 @@ export class GameRoomsGateway
         addons: true,
         begin: true,
         map: Maps.Mape1,
+        count: 3,
       };
       // let map_paddle = new Array<IMapPaddleState>();
       // console.log(this.player_right);
       // console.log(this.player_left);
-      this.userService.updateLadderLevel(1, 5 - 1)
+      // this.userService.updateLadderLevel(1, 5 - 1)
       if (!this.game[data["socketRoomName"]]) {
           let map_paddle = new Array<IMapPaddleState>();
           this.game[data["socketRoomName"]] = new Game(player_left, player_right, ball, info, map_paddle, addon_ball);
@@ -435,9 +451,29 @@ export class GameRoomsGateway
           this.game[data["socketRoomName"]].player_right.paddle.speed = 9;
           break;
       }
+
       start(this.game[data["socketRoomName"]], data["socketRoomName"], this.server, this.playerService, this.roomsService, this.userService);
 
       async function start(game: IGameInfoState, room: string, server: Server, playerService: PlayersService, roomsService: RoomsService, userService: UsersService): Promise<void> {
+        let player_left = game.player_left;
+        let player_right = game.player_right;
+        let ball = game.ball;
+        let map_paddle = game.map_paddle;
+        const info = game.info;
+
+        let addon_ball = game.addon_ball;
+
+        if (info.count >= 0) {
+          server.to(room).emit('begin', {player_left: player_left, player_right: player_right, ball: ball, info: info, map_paddle: map_paddle, addon_ball: addon_ball});
+          setTimeout(function() {start(game, room, server, playerService, roomsService, userService)}, 1000)
+          game.info.count -= 1
+        }
+        else {
+          game_loop(game, room, server, playerService, roomsService, userService)
+        }
+      }
+      
+      async function game_loop(game: IGameInfoState, room: string, server: Server, playerService: PlayersService, roomsService: RoomsService, userService: UsersService): Promise<void> {
         let player_left = game.player_left;
         let player_right = game.player_right;
         let ball = game.ball;
@@ -572,7 +608,7 @@ export class GameRoomsGateway
         // console.log(game.info.status);
         if (game.player_right.score != 6 && game.player_left.score != 6 && (game.info.status == GameState.PLAYING)){
           server.to(room).emit('begin', {player_left: player_left, player_right: player_right, ball: ball, info: info, map_paddle: map_paddle, addon_ball: addon_ball});
-          myVar = setTimeout(function() {start(game, room, server, playerService, roomsService, userService)}, 1000/60)
+          myVar = setTimeout(function() {game_loop(game, room, server, playerService, roomsService, userService)}, 1000/60)
         }
         else {
           clearTimeout(myVar);
