@@ -12,6 +12,7 @@ import { Player }         from '../players/entities/player.entity';
 import { Room }           from '../rooms/entities/room.entity';
 import UpdateRoomDto      from '../rooms/dto/update-room.dto';
 import { UsersService } from 'src/users/services/users.service';
+import { MapType } from '../rooms/entities/option.entity';
 
 
 type SocketRoomInfo = {
@@ -71,6 +72,7 @@ export interface IBallState {
   x: number
   y: number
   rayon: number
+  speed: number
   xspeed: number
   yspeed: number
   last_touch_id: number
@@ -221,6 +223,7 @@ export class GameRoomsGateway
     room = await this.roomsService.update(roomId, {state: GameState.OVER})
     this.server.to(data.room).emit('updateRoomInClient',
       {room: room} )
+    
   
     return 'Player ' + data.playerId + ' give up';
   }
@@ -287,7 +290,8 @@ export class GameRoomsGateway
   ): Promise<void> {
 
       const room: Room = await this.roomsService.update(data.roomId, data.dto)
-
+      const rooms: Room[] = await this.roomsService.findAllByMode()
+      this.server.emit('updateWatchRoomInClient', {rooms: rooms})
       this.server.to(data.socketRoomName).emit('updateRoomInClient', 
         {room: room} )
   }
@@ -335,9 +339,10 @@ export class GameRoomsGateway
       };
 
       const ball: IBallState = {
-          x: 0,
-          y: 0,
-          rayon: 0,
+          x:  600/2,
+          y: 400/2,
+          rayon: 5,
+          speed: 0,
           xspeed: 0,
           yspeed: 0,
           last_touch_id: 0,
@@ -350,6 +355,7 @@ export class GameRoomsGateway
           x: 0,
           y: 0,
           rayon: 0,
+          speed: 0,
           xspeed: 0,
           yspeed: 0,
           last_touch_id: 0,
@@ -367,10 +373,7 @@ export class GameRoomsGateway
         map: Maps.Mape1,
         count: 3,
       };
-      // let map_paddle = new Array<IMapPaddleState>();
-      // console.log(this.player_right);
-      // console.log(this.player_left);
-      // this.userService.updateLadderLevel(1, 5 - 1)
+      
       if (!this.game[data["socketRoomName"]]) {
           let map_paddle = new Array<IMapPaddleState>();
           this.game[data["socketRoomName"]] = new Game(player_left, player_right, ball, info, map_paddle, addon_ball);
@@ -380,35 +383,20 @@ export class GameRoomsGateway
         if ( player.position == 'left' ) {
           this.game[data["socketRoomName"]].player_left.id = player.id;
           this.game[data["socketRoomName"]].player_left.user_id = player.user.id;
-          // this.game[data["socketRoomName"]].player_left.position = "left";
           this.game[data["socketRoomName"]].player_left.score = 0;
           this.game[data["socketRoomName"]].player_left.winner = null;
           this.game[data["socketRoomName"]].player_left.is_ready = true;
-          // this.game[data["socketRoomName"]].player_left.paddle.x = 600/10;
-          // this.game[data["socketRoomName"]].player_left.paddle.y = 400/2 - 40;
-          // this.game[data["socketRoomName"]].player_left.paddle.height = 5;
-          // this.game[data["socketRoomName"]].player_left.paddle.speed = 7;
-          // this.game[data["socketRoomName"]].player_left.paddle.move = "";
         }
         else {
           this.game[data["socketRoomName"]].player_right.id = player.id;
           this.game[data["socketRoomName"]].player_right.user_id = player.user.id;
-          // this.game[data["socketRoomName"]].player_right.position = "right";
           this.game[data["socketRoomName"]].player_right.score = 0;
           this.game[data["socketRoomName"]].player_right.winner = null;
           this.game[data["socketRoomName"]].player_right.is_ready = true;
-          // this.game[data["socketRoomName"]].player_right.paddle.x = 600/1.1;
-          // this.game[data["socketRoomName"]].player_right.paddle.y = 400/2 - 40;
-          // this.game[data["socketRoomName"]].player_right.paddle.height = 5;
-          // this.game[data["socketRoomName"]].player_right.paddle.speed = 7;
-          // this.game[data["socketRoomName"]].player_right.paddle.move = "";
         }
 
 
       });
-      console.log("------------------------");
-      console.log(data['room']);
-      // this.game[data["socketRoomName"]].info.status = data['room'].state;
       this.game[data["socketRoomName"]].info.map = data['room'].option.map;
       this.game[data["socketRoomName"]].info.difficulty = data['room'].option.difficulty;
       this.game[data["socketRoomName"]].info.mode = data['room'].mode;
@@ -422,29 +410,30 @@ export class GameRoomsGateway
           this.game[data["socketRoomName"]].map_paddle = [];
           this.game[data["socketRoomName"]].map_paddle.push({x: 600/10 + 100, y: 400/2 - 40, height: 5, move: Direction.Up, speed: 5}, {x: 600/1.1 - 100, y: 400/2 - 40, height: 5, move: Direction.Down, speed: 5});
         }
-        console.log(this.game[data["socketRoomName"]].map_paddle);
       }
       if ( this.game[data["socketRoomName"]].info.addons ) {
-          this.game[data["socketRoomName"]].addon_ball = {x:  Math.random() * (400 - 200) + 200 , y: Math.random() * (200 - 100) + 100, rayon: 5, xspeed: 3 * ([1,-1][Math.round(Math.random())]), yspeed: 3 * ([1,-1][Math.round(Math.random())]), last_touch_id: 0, exist: true, time: Date.now(), is_addon: true};
+          this.game[data["socketRoomName"]].addon_ball = {x:  Math.random() * (400 - 200) + 200 , y: Math.random() * (200 - 100) + 100, rayon: 5, speed: 7, xspeed: 3 * ([1,-1][Math.round(Math.random())]), yspeed: 3 * ([1,-1][Math.round(Math.random())]), last_touch_id: 0, exist: true, time: Date.now(), is_addon: true};
       }
-      this.game[data["socketRoomName"]].ball.x = 600/2;
-      this.game[data["socketRoomName"]].ball.y = 400/2;
-      this.game[data["socketRoomName"]].ball.rayon = 5;
-
+ 
       switch (this.game[data["socketRoomName"]].info.difficulty) {
         case Difficulty.Easy:
+          this.game[data["socketRoomName"]].ball.speed = 5;
           this.game[data["socketRoomName"]].ball.xspeed = 3;
           this.game[data["socketRoomName"]].ball.yspeed = 3;
           this.game[data["socketRoomName"]].player_left.paddle.speed = 7;
           this.game[data["socketRoomName"]].player_right.paddle.speed = 7;
           break;
         case Difficulty.Medium:
-          this.game[data["socketRoomName"]].ball.xspeed = 5;
-          this.game[data["socketRoomName"]].ball.yspeed = 5;
+          this.game[data["socketRoomName"]].ball.speed = 9;
+
+          this.game[data["socketRoomName"]].ball.xspeed = 6;
+          this.game[data["socketRoomName"]].ball.yspeed = 6;
           this.game[data["socketRoomName"]].player_left.paddle.speed = 8;
           this.game[data["socketRoomName"]].player_right.paddle.speed = 8;
           break;
         case Difficulty.Hard:
+          this.game[data["socketRoomName"]].ball.speed = 11;
+
           this.game[data["socketRoomName"]].ball.xspeed = 7;
           this.game[data["socketRoomName"]].ball.yspeed = 7;
           this.game[data["socketRoomName"]].player_left.paddle.speed = 9;
@@ -496,25 +485,41 @@ export class GameRoomsGateway
             }
         }
 
-        ball.x += ball.xspeed;
-        ball.y += ball.yspeed;
-
         const topY = ball.y + ball.rayon;
         const botY = ball.y - ball.rayon;
         
-        if ( botY < 0 ) {
-            ball.y = ball.rayon;
+        if ( botY <= 0 || topY >= 400) {
             ball.yspeed *= -1;
         }
-        else if ( topY > 400 ) {
-            ball.y = 400 - ball.rayon;
-            ball.yspeed *= -1;
+        if ( ball.x + ball.rayon <= 0 || ball.x - ball.rayon >= 600 ) {
+          if ( ball.x <= 0 ) {
+              player_right.score += 1;
+          }
+          else {
+              player_left.score += 1;
+          }
+          init_match(player_left, player_right, ball, map_paddle, info, room, server, playerService);
         }
-        player_ball_collision(ball, player_left.paddle, player_left.id);
-        player_ball_collision(ball, player_right.paddle, player_right.id);
+        
+        ball.x += ball.xspeed;
+        ball.y += ball.yspeed;
+
+        // const topY = ball.y + ball.rayon;
+        // const botY = ball.y - ball.rayon;
+        
+        // if ( botY < 0 ) {
+        //     ball.y = ball.rayon;
+        //     ball.yspeed *= -1;
+        // }
+        // else if ( topY > 400 ) {
+        //     ball.y = 400 - ball.rayon;
+        //     ball.yspeed *= -1;
+        // }
+        player_ball_collision(ball, player_left.paddle, info.map, player_left.id);
+        player_ball_collision(ball, player_right.paddle, info.map, player_right.id);
 
         for (var paddle of map_paddle) {
-            player_ball_collision(ball, paddle, 0);
+            player_ball_collision(ball, paddle, info.map, 0);
         }
 
         if ( info.addons )
@@ -554,11 +559,11 @@ export class GameRoomsGateway
                     addon_ball.yspeed *= -1;
                 }
 
-                player_ball_collision(addon_ball, player_left.paddle, player_left.id);
-                player_ball_collision(addon_ball, player_right.paddle, player_right.id);
+                player_ball_collision(addon_ball, player_left.paddle, info.map, player_left.id);
+                player_ball_collision(addon_ball, player_right.paddle, info.map, player_right.id);
 
                 for (var paddle of map_paddle) {
-                    player_ball_collision(addon_ball, paddle, 0);
+                    player_ball_collision(addon_ball, paddle, info.map, 0);
                 }
             }
         }
@@ -587,15 +592,15 @@ export class GameRoomsGateway
             player_right.paddle.height = 5;
         }
 
-        if ( ball.x + ball.rayon <= 0 || ball.x - ball.rayon >= 600 ) {
-            if ( ball.x <= 0 ) {
-                player_right.score += 1;
-            }
-            else {
-                player_left.score += 1;
-            }
-            init_match(player_left, player_right, ball, map_paddle, info, room, server, playerService);
-        }
+        // if ( ball.x + ball.rayon <= 0 || ball.x - ball.rayon >= 600 ) {
+        //     if ( ball.x <= 0 ) {
+        //         player_right.score += 1;
+        //     }
+        //     else {
+        //         player_left.score += 1;
+        //     }
+        //     init_match(player_left, player_right, ball, map_paddle, info, room, server, playerService);
+        // }
 
         // server.to(room).emit('begin', {player_left: player_left, player_right: player_right, ball: ball, info: info, map_paddle: map_paddle, addon_ball: addon_ball});
         game.player_left = player_left;
@@ -606,17 +611,17 @@ export class GameRoomsGateway
         game.addon_ball = addon_ball;
         // game[room].server = server;
         // console.log(game.info.status);
-        if (game.player_right.score != 6 && game.player_left.score != 6 && (game.info.status == GameState.PLAYING)){
+        if (game.player_right.score != 16 && game.player_left.score != 16 && (game.info.status == GameState.PLAYING)){
           server.to(room).emit('begin', {player_left: player_left, player_right: player_right, ball: ball, info: info, map_paddle: map_paddle, addon_ball: addon_ball});
           myVar = setTimeout(function() {game_loop(game, room, server, playerService, roomsService, userService)}, 1000/60)
         }
         else {
           clearTimeout(myVar);
-          if (game.info.status == GameState.PLAYING && game.player_left.score == 6) {
+          if (game.info.status == GameState.PLAYING && game.player_left.score == 16) {
             game.player_left.winner = true;
             game.player_right.winner = false;
           }
-          else if (game.info.status == GameState.PLAYING && game.player_right.score == 6 ) {
+          else if (game.info.status == GameState.PLAYING && game.player_right.score == 16 ) {
             game.player_right.winner = true;
             game.player_left.winner = false;
 
@@ -648,28 +653,71 @@ export class GameRoomsGateway
         }
     }
 
-    function player_ball_collision(ball: IBallState, paddle: IMapPaddleState, id: number) : void {
+    function player_ball_collision(ball: IBallState, paddle: IMapPaddleState, map: string, id: number) : void {
         const topX = ball.x + ball.rayon;
         const topY = ball.y + ball.rayon;
         const botX = ball.x - ball.rayon;
         const botY = ball.y - ball.rayon;
 
-        if ( topX + ball.xspeed > paddle.x && botX + ball.xspeed < paddle.x + 600/80 && topY > paddle.y && botY < paddle.y + (400 / paddle.height)) {
+        const paddelTop = paddle.y;
+        const paddleRight = paddle.x + 600/80;
+        const paddleBot = paddle.y + (400 / paddle.height);
+        const paddleLeft = paddle.x;
+        let angle = 0;
+
+        if (botX < paddleRight && botY < paddleBot && topX > paddleLeft && topY > paddelTop)
+        {
+          let collidePoint = ball.y - (paddle.y + ((400 / paddle.height)/2));
+
+          collidePoint = collidePoint / ((400 / paddle.height) / 2);
+
+          angle = collidePoint * Math.PI/4;
+
+          let direction = ball.x < 600/2 ? 1 : -1;
           ball.last_touch_id = id;
-          ball.xspeed *= -1;
-          ball.xspeed += 0.4;
-          ball.x += ball.xspeed
-          // const offset = (topY - paddle.y) / ((400/paddle.height) + ball.rayon)
-          // const phi = 0.25 * Math.PI * (2 * offset - 1)
-          // ball.xspeed *= -1;
-          // ball.yspeed = ball.yspeed * Math.sin(phi);
+          if (id == 0 && map == MapType.MAP1) {
+            // direction = ball.x <= 400/2 ? -1 : 1;
+            ball.xspeed *= direction 
+            ball.yspeed = ball.speed * Math.sin(angle);
+            console.log(ball.x)
+            console.log(direction)
+          }
+
+
+          // if (ball.y > paddle.y +  (400 / paddle.height)/2){
+          //   angle = -1 * Math.PI / 4;
+          // }
+          // else if (ball.y < paddle.y + ((400 / paddle.height))/2) {
+          //   angle = Math.PI / 4;
+          // }
+          else {
+            ball.xspeed = direction * ball.speed * Math.cos(angle);
+            ball.yspeed = ball.speed * Math.sin(angle);
+          }
+          // if (paddle.x < 600/2)
+          //   ball.xspeed = (1) * ball.speed * Math.cos(angle);
+          // else
+          //   ball.xspeed = (-1) * ball.speed * Math.cos(angle);
+
+          // ball.yspeed = ball.speed * Math.sin(angle);
+          ball.speed += 0.1;
         }
-        if ( topX > paddle.x && botX < paddle.x + 600/80 && topY + ball.yspeed > paddle.y && botY + ball.yspeed < paddle.y +  (400 / paddle.height)) {
-          ball.last_touch_id = id;
-          ball.yspeed *= -1;
-          ball.yspeed += 0.6;
-          ball.y += ball.yspeed;
-        }
+        // if ( topX + ball.xspeed > paddle.x && botX + ball.xspeed < paddle.x + 600/80 && topY > paddle.y && botY < paddle.y + (400 / paddle.height)) {
+        //   ball.last_touch_id = id;
+        //   ball.xspeed *= -1;
+        //   ball.xspeed += 0.4;
+        //   ball.x += ball.xspeed
+        //   // const offset = (topY - paddle.y) / ((400/paddle.height) + ball.rayon)
+        //   // const phi = 0.25 * Math.PI * (2 * offset - 1)
+        //   // ball.xspeed *= -1;
+        //   // ball.yspeed = ball.yspeed * Math.sin(phi);
+        // }
+        // if ( topX > paddle.x && botX < paddle.x + 600/80 && topY + ball.yspeed > paddle.y && botY + ball.yspeed < paddle.y +  (400 / paddle.height)) {
+        //   ball.last_touch_id = id;
+        //   ball.yspeed *= -1;
+        //   ball.yspeed += 0.6;
+        //   ball.y += ball.yspeed;
+        // }
 
     }
 
@@ -698,14 +746,17 @@ export class GameRoomsGateway
         ball.y = 400/2;
         switch (info.difficulty) {
           case Difficulty.Easy:
+            ball.speed = 5;
             ball.xspeed = 3;
             ball.yspeed = 3;
             break;
           case Difficulty.Medium:
-            ball.xspeed = 5;
-            ball.yspeed = 5;
+            ball.speed = 9;
+            ball.xspeed = 6;
+            ball.yspeed = 6;
             break;
           case Difficulty.Hard:
+            ball.speed = 11;
             ball.xspeed = 7;
             ball.yspeed = 7;
             break;
@@ -776,6 +827,8 @@ export class GameRoomsGateway
             await userService.updateLadderLevel(game.player_left.user_id, ladder_left + 1)
         }
       }
+      const rooms: Room[] = await roomsService.findAllByMode()
+      server.emit('updateWatchRoomInClient', {rooms: rooms})
     }
   }
 

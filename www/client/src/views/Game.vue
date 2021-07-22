@@ -54,6 +54,7 @@ import axios from 'axios'
 import { GameState, Room } from '../types/game/gameRoom'
 import  useAllGameRoom  from '../composables/Game/useAllGameRoom'
 const socket = io('ws://localhost:8080/matchmaker')
+const gameRoomsSocket = io('ws://localhost:8080/game-rooms')
 
 export default defineComponent({
   name: 'Game',
@@ -66,6 +67,10 @@ export default defineComponent({
 
     const {rooms, loadGameRooms} = useAllGameRoom()
     loadGameRooms();
+
+    const updateWatchRooms = (updatedRoom: Room[]): void => {
+      rooms.value = { ...updatedRoom }
+    }
     // console.log(tmp);
     // console.log(rooms.value);
 
@@ -126,6 +131,11 @@ export default defineComponent({
     socket.on('redirect-to-room', (roomId) => {
       console.log(`Redirection to room ${roomId}`)
       router.push(`/game/room/${roomId}`)
+    })
+
+    gameRoomsSocket.on('updateWatchRoomInClient', ({ rooms }) => {
+      console.log(`in update Watch room`)
+      updateWatchRooms(rooms)
     })
 
     // --- LIFEHCYCLE HOOKS ---

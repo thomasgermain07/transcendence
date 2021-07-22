@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue'
+import { defineComponent, computed, watch } from 'vue'
 import { GameState, Room } from '../types/game/gameRoom'
 import { useRouter } from 'vue-router'
 
@@ -45,6 +45,7 @@ export default defineComponent({
 					itemRefsDuel.push(props.rooms[key])
 				}
 			}
+			console.log(itemRefsDuel);
 			return itemRefsDuel
     })
 
@@ -61,6 +62,14 @@ export default defineComponent({
 			console.log(roomId);
 			router.push(`/game/room/${roomId}`)
 		}
+
+		watch(() => props.rooms, () => {
+			itemRefsDuel = []
+			itemRefsLadder = []
+			
+		})
+
+	
 
     return {
       duelRooms,
