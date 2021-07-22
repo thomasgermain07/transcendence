@@ -1,33 +1,42 @@
 import axios from 'axios'
-import { Ref, ref, watch } from 'vue'
+import { Ref, ref, watch, computed } from 'vue'
 import requestStatus from '../../requestStatus'
 
 export function getRoomInputs() {
   let name_f = ref('')
   let password_f = ref('')
   let visible_f = ref(true)
-  let name_v = ref(true)
-  let password_v = ref(true)
+  let name_e = ref('')
+  let password_e = ref('')
 
   watch(name_f, (new_value) => {
     if (new_value.length >= 3) {
-      name_v.value = true
+      name_e.value = ''
     } else {
-      name_v.value = false
+      name_e.value = 'room name should be at least 3 chars'
     }
   })
 
   watch(password_f, (new_value) => {
     if (new_value.length == 0 || new_value.length >= 6) {
-      password_v.value = true
+      password_e.value = ''
     } else {
-      password_v.value = false
+      password_e.value =
+        "let this field empty if you don't want a password or it should be at least 6 char"
     }
+  })
+
+  const sendable = computed(() => {
+    if (!name_f.value.length) {
+      return 1
+    }
+    return name_e.value.length || password_e.value.length
   })
 
   return {
     fields: { name: name_f, password: password_f, visible: visible_f },
-    validators: { name: name_v, password: password_v },
+    errors: { name: name_e, password: password_e },
+    sendable,
   }
 }
 
@@ -39,9 +48,10 @@ export async function createRoom(fields: any, status: Ref) {
     params.password = fields.password.value
   }
 
-  const res = await axios.post('chat/rooms', params).catch((err) => {
-    console.log(err)
-  })
+  const res = await axios.post('chat/rooms', params)
+  if (res.status == 201) {
+    status.value = requestStatus.success
+  }
   return res
 }
 

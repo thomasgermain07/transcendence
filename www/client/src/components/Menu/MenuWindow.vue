@@ -19,7 +19,7 @@
         </a>
         <div class="top-bar__name">Chat - {{ current_room }}</div>
       </header>
-      <ChatWindow @set_current_room="set_current_room" />
+      <ChatWindow />
     </div>
   </div>
 </template>
@@ -44,19 +44,11 @@ export default {
     toggle_window() {
       this.open = !this.open
     },
-    open_chat_test() {
-      this.chat_open = true
-      this.set_current_room('Postman')
-    },
     open_chat(user: any) {
       this.chat_open = true
-      this.set_current_room(user.nickname)
     },
     close_chat() {
       this.chat_open = false
-    },
-    set_current_room(new_name: string) {
-      this.current_room = new_name
     },
   },
 }

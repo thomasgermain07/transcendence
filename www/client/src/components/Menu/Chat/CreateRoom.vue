@@ -6,30 +6,30 @@
       <input
         v-model="fields.name.value"
         class="field-input"
-        :class="{ 'field-input--invalid': !validators.name.value }"
+        :class="{ 'field-input--invalid': errors.name.value.length }"
         placeholder="name (minimum 3 characters)"
       />
       <p
         class="field__error-msg"
-        :class="{ 'field__error-msg--visible': !validators.name.value }"
+        :class="{ 'field__error-msg--visible': errors.name.value.length }"
       >
-        name should be at least 3 char
+        {{ errors.name.value }}
       </p>
     </div>
     <div class="field-ctn">
       <p>Give it a password too (or not)</p>
       <input
+        type="password"
         v-model="fields.password.value"
         class="field-input"
-        :class="{ 'field-input--invalid': !validators.password.value }"
+        :class="{ 'field-input--invalid': errors.password.value.length }"
         placeholder="password (optionnal)"
       />
       <p
         class="field__error-msg"
-        :class="{ 'field__error-msg--visible': !validators.password.value }"
+        :class="{ 'field__error-msg--visible': errors.password.value.length }"
       >
-        let this field empty if you don't want a password or it should be at
-        least 6 char
+        {{ errors.password.value }}
       </p>
     </div>
     <div class="field-ctn">
@@ -52,8 +52,19 @@
       </div>
     </div>
     <div class="action-ctn">
-      <button class="action__button" @click="sendData">Create</button>
-      <button class="action__button">Cancel</button>
+      <button
+        class="action__button"
+        :class="{ 'action__button--invalid': sendable }"
+        @click="sendData"
+      >
+        Create
+      </button>
+      <button
+        class="action__button"
+        @click="$emit('toggle_create_window', 'close')"
+      >
+        Cancel
+      </button>
     </div>
     <p v-if="status == 'sending'">sending ...</p>
   </div>
@@ -68,22 +79,32 @@ import {
 import requestStatus from '../../../composables/requestStatus'
 
 export default {
-  setup() {
-    let { fields, validators } = getRoomInputs()
+  setup(props, { attrs, slots, emit }) {
+    let { fields, errors, sendable } = getRoomInputs()
 
     let status = ref(requestStatus.default)
 
     const sendData = () => {
       createRoom(fields, status)
+        .then(() => {
+          emit('refresh_rooms')
+          emit('toggle_create_window', 'close')
+        })
+        .catch((e) => {
+          status.value = requestStatus.error
+          errors.name.value = e.response.data.message[0]
+        })
     }
 
     return {
       fields,
-      validators,
+      errors,
       status,
       sendData,
+      sendable,
     }
   },
+  emits: ['toggle_create_window', 'refresh_rooms'],
 }
 </script>
 
@@ -173,5 +194,13 @@ export default {
 
 .action__button:hover {
   background-color: white;
+}
+
+.action__button--invalid {
+  pointer-events: none;
+}
+
+.action__button--invalid:hover {
+  background-color: darkgray;
 }
 </style>

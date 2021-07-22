@@ -1,6 +1,9 @@
 <template>
   <div class="rooms-interaction-ctn">
-    <div class="rooms-interaction" @click="$emit('toggle_create_window')">
+    <div
+      class="rooms-interaction"
+      @click="$emit('toggle_create_window', 'open')"
+    >
       Create
     </div>
     <div class="rooms-interaction" @click="join">Join</div>
@@ -10,12 +13,7 @@
 
   <div class="rooms__list">
     <p v-if="!rooms.length">No rooms registered</p>
-    <div
-      v-for="room in rooms"
-      :key="room"
-      class="rooms__item"
-      @click="$emit('set_current_room', room.name)"
-    >
+    <div v-for="room in rooms" :key="room" class="rooms__item">
       {{ room.name }}
       <div class="rooms__item-notification">
         <i class="fas fa-bell"></i>
@@ -40,6 +38,7 @@ export default {
     return {
       rooms,
       status,
+      getRooms,
     }
   },
   emits: ['toggle_create_window'],
