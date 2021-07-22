@@ -6,6 +6,7 @@ import { UsersService } from './services/users.service'
 import { UsersController } from './controllers/users.controller'
 import { IsUniqueUserConstraint } from './decorators/is-unique.decorator'
 import { ExistsUserConstraint } from './decorators/exists.decorator'
+import { UsersSubscriber } from './subscribers/users.subscribers';
 
 @Module({
   imports: [
@@ -22,6 +23,8 @@ import { ExistsUserConstraint } from './decorators/exists.decorator'
     // Decorators
     IsUniqueUserConstraint,
     ExistsUserConstraint,
+    // Subscribers
+		UsersSubscriber,
   ],
   exports: [
     // Services

@@ -146,13 +146,15 @@ export class RoomsService {
     user: User,
   ) : Promise<Room> {
 
+    const matchingRange = 3;
+
     const room = await this.roomsRepository.createQueryBuilder("room")
       .leftJoinAndSelect("room.players", "players")
       .leftJoinAndSelect("players.user", "users")
       .where("room.mode = :mode", { mode: mode })
       .andWhere("room.locked = :locked", { locked: false })
       .andWhere(`"users"."ladderLevel" BETWEEN :begin AND :end`, {
-        begin: user.ladderLevel - 1, end: user.ladderLevel + 1} )
+        begin: user.ladderLevel - matchingRange, end: user.ladderLevel + matchingRange} )
       .getOne();
 
     return room
