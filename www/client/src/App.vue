@@ -3,8 +3,8 @@
     <NavigationBar
       v-if="!unprotectedRoutes.includes(route.path)"
     ></NavigationBar>
+    <router-view />
   </div>
-  <router-view />
 </template>
 
 <script lang="ts">

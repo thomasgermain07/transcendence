@@ -55,7 +55,7 @@ export default class AuthModule extends VuexModule implements IAuthState {
   async loginWith42(code: string): Promise<void> {
     this.context.commit('SET_LOADING', true)
     const response = await axios
-      .get(`auth/marvin?code=${code}`)
+      .post(`auth/marvin?code=${code}`)
       .catch((err: AxiosResponse) => {
         this.context.commit('SET_OAUTH', LoginState.error)
         router.push('/login')
@@ -88,7 +88,7 @@ export default class AuthModule extends VuexModule implements IAuthState {
 
   @Action
   async checkAuth(): Promise<void> {
-    const response = await axios.get(`auth`).catch(() => {
+    const response = await axios.get(`users/me`).catch(() => {
       alert('Your session has expired')
       // router.replace('/login')
     })
@@ -100,7 +100,7 @@ export default class AuthModule extends VuexModule implements IAuthState {
 
   @Action
   async refreshTokens(): Promise<void> {
-    const response = await axios.get(`auth/refresh`).catch((error) => {
+    const response = await axios.post(`auth/refresh`).catch((error) => {
       console.log('Refresh token expired, request rejected')
       localStorage.removeItem('auth')
       router.replace('/login')

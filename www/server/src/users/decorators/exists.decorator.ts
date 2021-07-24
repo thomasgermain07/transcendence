@@ -9,10 +9,9 @@ import { UsersService } from "../services/users.service";
 
 @ValidatorConstraint({ async: true })
 @Injectable()
-export class IsUniqueUserConstraint
+export class ExistsUserConstraint
 	implements ValidatorConstraintInterface
 {
-
 	// -------------------------------------------------------------------------
 	// Constructor
 	// -------------------------------------------------------------------------
@@ -27,14 +26,11 @@ export class IsUniqueUserConstraint
 	// Public methods
 	// -------------------------------------------------------------------------
 	async validate(
-		value: any,
-		args: ValidationArguments,
+		id: number,
 	)
 		: Promise<boolean>
 	{
-		const [attribute] = args.constraints;
-
-		return !(await this.users_svc.findOne({ [attribute]: value }));
+		return !!(await this.users_svc.findOne({ id: id }));
 	}
 
 	defaultMessage(
@@ -42,9 +38,7 @@ export class IsUniqueUserConstraint
 	)
 		: string
 	{
-		const [attribute] = args.constraints;
-
-		return `User ${attribute} is already used.`;
+		return `User does not exist.`;
 	}
 
 }
@@ -52,8 +46,7 @@ export class IsUniqueUserConstraint
 // -----------------------------------------------------------------------------
 // Decorator
 // -----------------------------------------------------------------------------
-export function IsUnique(
-	attribute: string,
+export function Exists(
 	validationOptions?: ValidationOptions,
 )
 {
@@ -66,8 +59,8 @@ export function IsUnique(
 			target: object.constructor,
 			propertyName: propertyName,
 			options: validationOptions,
-			constraints: [attribute],
-			validator: IsUniqueUserConstraint,
+			constraints: [],
+			validator: ExistsUserConstraint,
 		});
 	};
 }

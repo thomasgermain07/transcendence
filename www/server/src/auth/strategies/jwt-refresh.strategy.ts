@@ -10,11 +10,11 @@ import { User }         from "src/users/entities/user.entity";
 import { AuthService }  from "../services/auth.service";
 import { TokenPayload } from "../interfaces/token-payload.interface";
 
-const ACCESS_SECRET: string = process.env.JWT_ACCESS_TOKEN_SECRET;
+const REFRESH_SECRET: string = process.env.JWT_REFRESH_TOKEN_SECRET;
 
 @Injectable()
-export class JwtAuthStrategy
-	extends PassportStrategy(Strategy, 'jwt-auth')
+export class JwtRefreshStrategy
+	extends PassportStrategy(Strategy, 'jwt-refresh')
 {
 	// -------------------------------------------------------------------------
 	// Constructor
@@ -26,10 +26,11 @@ export class JwtAuthStrategy
 		super({
 			jwtFromRequest: ExtractJwt.fromExtractors([
 				(request: Request) => {
-					return request.cookies?.Authentication
+					return request.cookies?.Refresh
 				},
 			]),
-			secretOrKey: ACCESS_SECRET,
+			secretOrKey: REFRESH_SECRET,
+			passReqToCallback: true,
 		})
 	}
 
@@ -37,16 +38,18 @@ export class JwtAuthStrategy
 	// Public methods
 	// -------------------------------------------------------------------------
 	async validate(
+		request: Request,
 		payload: TokenPayload
 	)
 		: Promise<User>
 	{
 		const user: User = await this.auth_svc.authenticate({
 			id: payload.user_id,
+			refresh_token: request.cookies?.Refresh,
 		});
 
 		if (!user)
-			throw new UnauthorizedException("Jwt Authentication failed.");
+			throw new UnauthorizedException("Jwt Authentication Refresh failed.");
 
 		return user;
 	}

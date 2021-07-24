@@ -25,7 +25,7 @@ const initAxios = (): void => {
     async function (error) {
       // Any status codes that falls outside the range of 2xx cause this function to trigger
       // Do something with response error
-      if (error.response.status === 401 && error.config.url != 'auth/refresh') {
+      if (error.response.status === 401 && !['auth/refresh', 'auth/login'].includes(error.config.url)) {
         console.log('Attempting to get new access with refresh tokens')
         await store.dispatch('refreshTokens')
         return new Promise((resolve, reject) => {

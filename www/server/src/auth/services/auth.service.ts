@@ -1,12 +1,11 @@
-import { Injectable }          from '@nestjs/common'
-import { BadRequestException } from '@nestjs/common'
-import * as bcrypt             from 'bcrypt'
+import { Injectable } from "@nestjs/common";
+import * as bcrypt    from "bcrypt";
 
-import { CreateUserDto } from 'src/users/dto/create-user.dto'
-import { User }          from 'src/users/entities/user.entity'
-import { UsersService }  from 'src/users/services/users.service'
-import { MarvinLoginDto } from '../dto/marvin-login.dto'
-import { RegisterDto }	 from '../dto/register.dto'
+import { CreateUserDto } from "src/users/dto/create-user.dto";
+import { User }          from "src/users/entities/user.entity";
+import { UsersService }  from "src/users/services/users.service";
+
+import { AuthenticationPayload } from "../interfaces/authentication-payload.interface";
 
 @Injectable()
 export class AuthService
@@ -15,7 +14,7 @@ export class AuthService
 	// Constructor
 	// -------------------------------------------------------------------------
 	constructor(
-		private readonly usersService: UsersService,
+		private readonly users_svc: UsersService,
 	)
 	{
 
@@ -24,85 +23,64 @@ export class AuthService
 	// -------------------------------------------------------------------------
 	// Public methods
 	// -------------------------------------------------------------------------
-	public async register(
-		registrationData: RegisterDto
+	async register(
+		create_dto: CreateUserDto,
 	)
 		: Promise<User>
 	{
-		registrationData.password = await this.hashSecure(registrationData.password);
+		if (create_dto.password)
+			create_dto.password = await this.hashSecure(create_dto.password);
 
-		return this.usersService.create(registrationData);
+		return this.users_svc.create(create_dto);
 	}
 
-	public async findOrCreateAuthMarvinUser(data: MarvinLoginDto) {
-		let user = {}
-		try {
-		  user = await this.usersService.findOneOrThrow(data)
-		} catch (error) {
-		  if (error?.status === 404) {
-			user = await this.usersService.create({
-			  ...data,
-			})
-		  }
-		}
-		return user
-	}
-
-	public async authenticateByCredentials(
-		email : string,
-		password : string,
+	// Todo: Verify empty args (password / token)
+	async authenticate(
+		data: AuthenticationPayload,
 	)
 		: Promise<User>
 	{
-		const user : User = await this.usersService.findOne({ email: email });
+		const credentials = {};
+		data.id        ? credentials['id']        = data.id        : null;
+		data.email     ? credentials['email']     = data.email     : null;
+		data.marvin_id ? credentials['marvin_id'] = data.marvin_id : null;
 
-		if (!user || !await this.hashVerify(password, user.password))
-			throw new BadRequestException('Wrong credentials provided');
+		const user: User = await this.users_svc.findOne(credentials);
+
+		if (!user)
+			return undefined;
+
+		if (data.password && !await this.hashVerify(data.password, user.password))
+			return undefined;
+
+		if (data.refresh_token && !await this.hashVerify(data.refresh_token, user.refresh_token))
+			return undefined;
 
 		return user;
 	}
 
-	public async authenticateById(
-		user_id : number,
-	)
-		: Promise<User>
-	{
-		return this.usersService.findOneOrThrow(user_id);
-	}
-
-	public async authenticateByRefreshToken(
-		user_id : number,
-		token : string,
-	)
-		: Promise<User>
-	{
-		const user = await this.usersService.findOneOrThrow(user_id);
-
-		return await this.hashVerify(token, user.refreshToken) ? user : undefined;
-	}
-
-	public async refresh(
-		user : User,
-		token : string,
+	async refresh(
+		user: User,
+		token: string,
 	)
 		: Promise<void>
 	{
-		await this.usersService.setRefreshToken(user, await this.hashSecure(token));
+		await this.users_svc.setRefreshToken(user, await this.hashSecure(token));
 	}
 
-	public async logout(
-		user : User,
+	async logout(
+		user: User,
 	)
 		: Promise<void>
 	{
-		return this.usersService.setRefreshToken(user, null);
+		return this.users_svc.setRefreshToken(user, null);
 	}
 
 	// -------------------------------------------------------------------------
 	// Private methods
 	// -------------------------------------------------------------------------
 	private async hashSecure(
-		data : string,
+		data: string,
 	)
 		: Promise<string>
 	{
@@ -110,11 +88,14 @@ export class AuthService
 	}
 
 	private async hashVerify(
-		data : string,
-		hashed_data : string,
+		data: string,
+		hashed_data: string,
 	)
 		: Promise<boolean>
 	{
+		if (!data || !hashed_data)
+			return false;
+
 		return bcrypt.compare(data, hashed_data);
 	}
 

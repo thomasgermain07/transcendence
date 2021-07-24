@@ -1,9 +1,9 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { PartialType } from "@nestjs/mapped-types";
 
-import { CreateUserDto } from './create-user.dto';
+import { CreateUserDto } from "./create-user.dto";
 
 export class UpdateUserDto
 	extends PartialType(CreateUserDto)
 {
-
+	// Todo: Exclude `marvin_id` / `email / password ...`
 }
