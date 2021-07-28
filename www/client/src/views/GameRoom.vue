@@ -2,69 +2,89 @@
   <div>
     <div v-if="state.isLoading">Loading ...</div>
     <div v-else-if="state.error">
-      {{ state.error.response.data.message }}
+      {{ state.error }}
     </div>
     <div v-else>
-      <h1>Game Room {{ route.params.id }}</h1>
-      <p>Current user: {{ currentUser }}</p>
-      <div class="game-info" v-if="room">
-        <h3>Game Info</h3>
-        <p>
-          Mode: {{ room.mode }} - State: {{ room.state }} - Locked:
-          {{ room.locked }}
-        </p>
-        <p>
-          Options: {{ room.option.map }} - {{ room.option.difficulty }} -
-          {{ room.option.powerUps }}
-        </p>
-      </div>
-      <PlayersDisplay :players="room.players" />
-      <div class="game-ready" v-if="isPlayer">
-        <button
-          class="btn"
-          v-bind:class="{ active: state.isActive }"
-          @click="onReady"
-        >
-          Ready
-        </button>
-        <div class="success" v-bind:class="{ active: state.isActive }">
-          <p>Match will start once both players are ready</p>
-        </div>
-      </div>
-      <div class="game">
-        <div id="game-screen"></div>
-        <canvas id="canvas" width="600" height="300"></canvas>
-      </div>
+      <GameLobby
+        :room="room"
+        :isMatched="state.isMatched"
+        v-if="state.isModalVisible"
+        @close="closeModal"
+        @leaveLobby="onLeave('leaveRoom')"
+      >
+        <template v-slot:header> Hi {{ currentUser.name }} </template>
 
-      <button v-if="isPlayer" @click="onLeave">Leave Game Room</button>
-      <button v-if="isPlaying" @click="onGiveUp">Give Up</button>
-      <button v-if="isOver" @click="onGoBack">Go Back</button>
-      <button v-if="isWatching" @click="onLeaveStream">Leave Stream</button>
+        <!-- <template v-slot:body>
+          Looking for player 
+        </template> -->
+        <!-- 
+        <template v-slot:footer>
+          This is a new modal footer.
+        </template> -->
+      </GameLobby>
+
+      <div class="game-room" v-if="state.isRoomVisible">
+        <h1>Game Room {{ route.params.id }}</h1>
+        <p>Current user: {{ currentUser }}</p>
+        <div class="game-info" v-if="room">
+          <h3>Game Info</h3>
+          <p>
+            Mode: {{ room.mode }} - State: {{ room.state }} - Locked:
+            {{ room.locked }}
+          </p>
+          <p>
+            Options: {{ room.option.map }} - {{ room.option.difficulty }} -
+            {{ room.option.powerUps }}
+          </p>
+        </div>
+
+        <PlayersDisplay :players="room.players" />
+        <!-- @checkReady="onReady" -->
+        <div class="game-ready" v-if="isPlayerReady">
+          <button
+            class="btn"
+            v-bind:class="{ active: state.isActive }"
+            @click="onReady"
+          >
+            Ready
+          </button>
+          <div class="success" v-bind:class="{ active: state.isActive }">
+            <p>Match will start once both players are ready</p>
+          </div>
+        </div>
+
+        <GameBoard
+          v-if="room.state == 'playing'"
+          :roomName="roomName"
+          :isPlayer="!isWatching"
+        />
+
+        <button v-if="isPlayerReady" @click="onLeave('leaveRoom')">
+          Leave Game Room
+        </button>
+        <button v-if="isPlaying" @click="onLeave('giveUpRoom')">Give Up</button>
+        <button v-if="isOver" @click="onLeave('goBackRoom')">Go Back</button>
+        <button v-if="isWatching" @click="onLeave('leaveStream')">
+          Leave Stream
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  computed,
-  onMounted,
-  onUnmounted,
-  onBeforeMount,
-} from 'vue'
-import { ref } from 'vue'
+import { defineComponent, computed, onMounted, onUnmounted } from 'vue'
+
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import useSockets from '../store/sockets'
+import useGameRoom from '../composables/Game/useGameRoom'
 
 import PlayersDisplay from '../components/Game/PlayersDisplay.vue'
-import useGameRoom from '../composables/Game/useGameRoom'
+import GameLobby from '../components/Game/MatchmakingLobby.vue'
+import GameBoard from '../components/Game/GameBoard.vue'
+
 import { GameState, Room } from '../types/game/gameRoom'
-import { Player } from '../types/game/player'
-import { Ball } from '../types/game/ball'
-import { MapType } from '../types/game/gameOptions'
-import { IMapPaddleState } from '../types/game/paddle'
-import { GameOptions, DifficultyLevel } from '../types/game/gameOptions'
-import useSockets from '../store/socket'
 
 export interface IGameState {
   status: string
@@ -75,107 +95,43 @@ export interface IGameState {
   map: string
   count: number
 }
+export interface IBonusState {
+  x: number
+  y: number
+  rayon: number
+  exist: boolean
+}
 
 export default defineComponent({
   name: 'GameRoom',
-  components: { PlayersDisplay },
+  components: { PlayersDisplay, GameLobby, GameBoard },
 
   setup() {
-    let player_left: Player = {
-      id: 0,
-      user: null,
-      room: null,
-      position: '',
-      score: 0,
-      winner: false,
-      isReady: false,
-      paddle: {
-        x: 0,
-        y: 0,
-        height: 0,
-        move: '',
-      },
-    }
-
-    let player_right: Player = {
-      id: 0,
-      user: null,
-      room: null,
-      position: '',
-      score: 0,
-      winner: false,
-      isReady: false,
-      paddle: {
-        x: 0,
-        y: 0,
-        height: 0,
-        move: '',
-      },
-    }
-
-    let ball: Ball = {
-      x: 0,
-      y: 0,
-      rayon: 0,
-      xspeed: 0,
-      yspeed: 0,
-      exist: true,
-    }
-
-    let addon_ball: Ball = {
-      x: 0,
-      y: 0,
-      rayon: 0,
-      xspeed: 0,
-      yspeed: 0,
-      exist: false,
-    }
-
-    let option: IGameState = {
-      status: 'waiting',
-      mode: 'duel',
-      map: MapType.DEFAULT,
-      difficulty: DifficultyLevel.EASY,
-      powerUps: false,
-      begin: false,
-      count: 3,
-    }
-
-    let map_paddle = new Array<IMapPaddleState>()
-
-    let canvas = null
-    let screen = null
-    let ctx = null
-    // let ctx = computed(() => { canvas.getContext("2d") });
     const route = useRoute()
     const router = useRouter()
     const store = useStore()
     const { state, room, loadRoom } = useGameRoom()
-
     const currentUser = store.state.user
     const roomName = `room-${route.params.id}`
     const { gameRoomsSocket } = useSockets()
 
-
-    // Fetching game room
+    // --- FETCH ---
     loadRoom(route.params.id)
 
-    const isPlayer = computed(() => {
+    // --- COMPUTED ---
+    const isPlayerReady = computed(() => {
       if (room.value.state == GameState.WAITING)
         return state.currentPlayer ? true : false
       return false
     })
 
     const isPlaying = computed(() => {
-      console.log('-----------------------')
-      console.log(room.value.state)
       if (state.currentPlayer)
         return room.value.state == GameState.PLAYING ? true : false
       return false
     })
 
     const isWatching = computed(() => {
-      console.log(state.currentPlayer == null ? true : false)
       return state.currentPlayer == null ? true : false
     })
 
@@ -185,13 +141,12 @@ export default defineComponent({
       return false
     })
 
-    const initCanvas = (): void => {
-      canvas = document.getElementById('canvas')
-      screen = document.getElementById('game-screen') 
-      ctx = canvas.getContext('2d')
+    // --- EVENTS ACTIONS ---
+    const closeModal = () => {
+      state.isModalVisible = false
+      state.isRoomVisible = true
     }
 
-    // --- ACTIONS ---
     const onReady = (): void => {
       console.log(`Player ${state.currentPlayer.id} READY`)
       state.isActive = true
@@ -201,61 +156,13 @@ export default defineComponent({
       })
     }
 
-    const onLeave = (): void => {
-      console.log(
-        `User ${currentUser.id} - player ${state.currentPlayer.id} will leave game`,
-      )
+    const onLeave = (leaveType: string): void => {
+      console.log(`User ${currentUser.id} - will leave game`)
+      console.log(leaveType)
       gameRoomsSocket.emit(
-        'leaveRoom',
+        leaveType,
         {
-          playerId: state.currentPlayer.id,
-          room: roomName,
-        },
-        (message) => {
-          console.log(message)
-          router.push('/game')
-        },
-      )
-    }
-
-    const onGiveUp = (): void => {
-      console.log(
-        `User ${currentUser.id} - player ${state.currentPlayer.id} will give up`,
-      )
-      gameRoomsSocket.emit(
-        'giveUpRoom',
-        {
-          playerId: state.currentPlayer.id,
-          room: roomName,
-        },
-        (message) => {
-          console.log(message)
-          router.push('/game')
-        },
-      )
-    }
-
-    const onGoBack = (): void => {
-      console.log(
-        `User ${currentUser.id} - player ${state.currentPlayer.id} will go Back`,
-      )
-      gameRoomsSocket.emit(
-        'goBackRoom',
-        {
-          playerId: state.currentPlayer.id,
-          room: roomName,
-        },
-        (message) => {
-          console.log(message)
-          router.push('/game')
-        },
-      )
-    }
-
-    const onLeaveStream = (): void => {
-      gameRoomsSocket.emit(
-        'leaveStream',
-        {
+          playerId: state?.currentPlayer?.id,
           room: roomName,
         },
         (message) => {
@@ -268,13 +175,30 @@ export default defineComponent({
     // --- HELPER FUNCTIONS ---
     const joinRoom = (): void => {
       console.log('in join room function ')
-      gameRoomsSocket.emit('joinRoom', roomName, (message: string) =>
-        console.log(message),
+      // gameRoomsSocket.emit('joinRoom', roomName, (message: string) =>
+      gameRoomsSocket.emit(
+        'joinRoom',
+        parseInt(route.params.id),
+        (message: string) => console.log(message),
       )
     }
 
     const updateRoom = (updatedRoom: Room): void => {
       room.value = { ...updatedRoom }
+      // TODO: if state waiting and room not locked
+      // -> notif user that other player left room
+      // and remove user from room (call onLeave('leaveRoom'))
+      if (updatedRoom.locked === false) {
+        // console.log(updatedRoom.locked)
+        state.isMatched = false
+        state.isModalVisible = true
+        // isModalVisible.value = true
+      }
+    }
+
+    const updateState = (newState: boolean): void => {
+      console.log('updating matched state ' + newState)
+      state.isMatched = newState
     }
 
     // check if both players are ready
@@ -290,228 +214,12 @@ export default defineComponent({
         })
 
         // start game
-
         gameRoomsSocket.emit('init', {
           socketRoomName: roomName,
           room: room,
           players: room.players,
         })
       }
-    }
-
-    gameRoomsSocket.on('begin', (data) => {
-      if (state.error == null && state.isLoading == false) {
-        initCanvas()
-        player_left = data.player_left
-        player_right = data.player_right
-        ball = data.ball
-        option = data.info
-        map_paddle = data.map_paddle
-        addon_ball = data.addon_ball
-        drawMap()
-        if (option.begin) countdown()
-      }
-    })
-
-    function drawMap() {
-      ctx.fillStyle = '#000000'
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
-      if (option.map != MapType.MAP1) {
-        drawMidleLine()
-      }
-      for (var paddle of map_paddle) {
-        ctx.beginPath()
-        ctx.fillStyle = 'white'
-        var data = update(paddle.x, paddle.y)
-        if (option.map == MapType.MAP1) {
-          ctx.fillRect(data.x, data.y, canvas.width / 80, canvas.height / 2.5)
-        } else {
-          ctx.fillRect(data.x, data.y, canvas.width / 80, canvas.height / 5)
-        }
-
-        ctx.fill()
-        ctx.closePath()
-      }
-      draw()
-    }
-    function update(x: number, y: number) {
-      const update_data = {
-        x: x * (canvas.width / 600),
-        y: y * (canvas.height / 400),
-      }
-      return update_data
-    }
-
-    function resizeCanvas() {
-      if (screen) {
-        canvas.width = screen.offsetWidth;
-        canvas.height = canvas.width / 2;
-        redraw()
-      }
-    }
-
-    function redraw() {
-      drawMap()
-      draw()
-    }
-
-    function keydown(event: KeyboardEvent) {
-      console.log('KEY PRESS')
-      if (event.key === 'ArrowUp') {
-        gameRoomsSocket.emit('move', {
-          move: 'up',
-          user_id: currentUser.id,
-          room: roomName,
-        })
-        console.log('KEY UP')
-      } else if (event.key === 'ArrowDown') {
-        gameRoomsSocket.emit('move', {
-          move: 'down',
-          user_id: currentUser.id,
-          room: roomName,
-        })
-        console.log('KEY Down')
-      }
-      event.preventDefault()
-      gameRoomsSocket.off('move')
-    }
-
-    function keyup(event: KeyboardEvent) {
-      if (event.key === 'ArrowUp') {
-        gameRoomsSocket.emit('move', {
-          move: 'not',
-          user_id: currentUser.id,
-          room: roomName,
-        })
-        console.log('KEY UP')
-      } else if (event.key === 'ArrowDown') {
-        gameRoomsSocket.emit('move', {
-          move: 'not',
-          user_id: currentUser.id,
-          room: roomName,
-        })
-        console.log('KEY Down')
-      }
-      event.preventDefault()
-      gameRoomsSocket.off('move')
-    }
-
-    function draw() {
-      drawPaddle()
-      drawBall()
-      if (addon_ball.exist) {
-        drawAddon()
-      }
-      drawScore()
-    }
-
-    function countdown() {
-      ctx.fillStyle = 'white'
-      ctx.textAlign = 'center'
-      ctx.font = '4rem Courier New'
-      if (option.count > 0)
-        ctx.fillText(
-          option.count.toString(),
-          canvas.width / 2,
-          canvas.height / 2,
-        )
-      else if (option.count == 0)
-        ctx.fillText('GO', canvas.width / 2, canvas.height / 2)
-    }
-
-    function drawMidleLine() {
-      ctx.strokeStyle = 'white'
-      ctx.beginPath()
-      ctx.setLineDash([5, 15])
-      ctx.moveTo(canvas.width / 2, canvas.height - 50)
-      ctx.lineTo(canvas.width / 2, 50)
-      ctx.lineWidth = 5
-      ctx.stroke()
-
-      ctx.moveTo(
-        canvas.width * (canvas.width / 1088) - 600 / 80,
-        canvas.height * (canvas.height / 544) - 80,
-      ) // bottom left
-      ctx.lineTo(
-        canvas.width * (canvas.width / 1088) + 600 / 80,
-        canvas.height * (canvas.height / 544) - 80,
-      ) // bottom right
-      ctx.lineTo(
-        canvas.width * (canvas.width / 1088) + 600 / 80,
-        canvas.height * (canvas.height / 544) + 80,
-      ) // top right
-      ctx.lineTo(
-        canvas.width * (canvas.width / 1088) - 600 / 80,
-        canvas.height * (canvas.height / 544) + 80,
-      ) // top left
-      ctx.fill()
-      ctx.closePath()
-    }
-
-    function drawPaddle() {
-      ctx.beginPath()
-      ctx.fillStyle = 'white'
-      var data = update(player_left.paddle.x, player_left.paddle.y)
-      ctx.fillRect(
-        data.x,
-        data.y,
-        canvas.width / 80,
-        canvas.height / player_left.paddle.height,
-      )
-      data = update(player_right.paddle.x, player_right.paddle.y)
-      ctx.fillRect(
-        data.x,
-        data.y,
-        canvas.width / 80,
-        canvas.height / player_right.paddle.height,
-      )
-      ctx.fill()
-      ctx.closePath()
-    }
-
-    function drawBall() {
-      ctx.beginPath()
-      ctx.fillStyle = 'white'
-      var data = update(ball.x, ball.y)
-      ctx.arc(data.x, data.y, canvas.width / 100, 0, Math.PI * 2, false)
-      ctx.fill()
-      ctx.closePath()
-    }
-
-    function drawAddon() {
-      ctx.beginPath()
-      ctx.fillStyle = 'red'
-      var data = update(addon_ball.x, addon_ball.y)
-      ctx.arc(data.x, data.y, canvas.width / 100, 0, Math.PI * 2, false)
-      ctx.fill()
-      ctx.closePath()
-    }
-
-    function drawScore() {
-      ctx.font = '1rem Courier New'
-      ctx.textAlign = 'left'
-      ctx.fillText(
-        'Score1 : ',
-        canvas.width / 2 - canvas.width / 2.5,
-        canvas.width / 10,
-      )
-      ctx.fillText(
-        player_left.score.toString(),
-        canvas.width / 2 - canvas.width / 8,
-        canvas.width / 10,
-      )
-
-      ctx.fillText(
-        'Score2 :',
-        canvas.width / 2 + canvas.width / 10,
-        canvas.width / 10,
-      )
-      ctx.fillText(
-        player_right.score.toString(),
-        canvas.width / 2 + canvas.width / 2.5,
-        canvas.width / 10,
-      )
     }
 
     // --- SOCKETS ---
@@ -524,7 +232,8 @@ export default defineComponent({
       console.log('reconnected')
     })
     gameRoomsSocket.on('disconnect', () => {
-      console.log(`disconnected`)
+      console.log(`disconnected game-room`)
+      // gameRoomsSocket.off()
     })
 
     gameRoomsSocket.on('updateRoomInClient', ({ room }) => {
@@ -537,10 +246,10 @@ export default defineComponent({
       checkReady(room)
     })
 
-    gameRoomsSocket.on('roomJoined', () => {
+    gameRoomsSocket.on('roomJoined', (roomRet) => {
       console.log('someone joined the room ' + roomName)
-      console.log(state.currentPlayer)
-      if (room.value.state == GameState.WAITING) loadRoom(route.params.id)
+      updateRoom(roomRet)
+      updateState(true)
     })
 
     onMounted(() => {
@@ -549,21 +258,11 @@ export default defineComponent({
       if (gameRoomsSocket.id) {
         joinRoom()
       }
-
-      window.addEventListener('keydown', keydown)
-      window.addEventListener('keyup', keyup)
-      window.addEventListener('resize', resizeCanvas, false)
     })
 
     onUnmounted(() => {
       console.log('In unmount - gameRooms Socket.off')
       gameRoomsSocket.off()
-      window.removeEventListener('keydown', keydown)
-      window.removeEventListener('keyup', keyup)
-      window.removeEventListener('resize', resizeCanvas, false)
-      gameRoomsSocket.off('move')
-      gameRoomsSocket.off('init')
-      gameRoomsSocket.off('begin')
       // leave room ?
     })
 
@@ -572,19 +271,15 @@ export default defineComponent({
       store,
       state,
       room,
+      roomName,
       currentUser,
-      isPlayer,
+      isPlayerReady,
       isPlaying,
       isOver,
       isWatching,
       onReady,
       onLeave,
-      onGiveUp,
-      onGoBack,
-      onLeaveStream,
-      canvas,
-      ctx,
-      screen,
+      closeModal,
     }
   },
 })

@@ -76,15 +76,27 @@ export class GameRoomsGateway
   ) { }
 
   @SubscribeMessage('joinRoom')
-  handleRoomJoin(
-    @MessageBody() room: string,
+  async handleRoomJoin(
+    // @MessageBody() room: string,
+    @MessageBody() roomId: number,
     @ConnectedSocket() client: Socket,
-  ): string {
+  ): Promise<string> {
+  // ): string {
 
-    client.join(room);
+    const roomName = `room-${roomId}`
+    const room = await this.roomsService.findOne(roomId)
+    // console.log(room)
+
+
+    client.join(roomName);
+    // client.join(room);
+
+
     // emit to all clients in room except the sender
-    client.to(room).emit('roomJoined', room);
-    return 'Joined ' + room;
+    client.to(roomName).emit('roomJoined', room);
+    // client.to(room).emit('roomJoined', room);
+    // return 'Joined ' + room;
+    return 'Joined ' + roomName;
   }
 
   @SubscribeMessage('leaveRoom')
@@ -533,22 +545,22 @@ export class GameRoomsGateway
         game.ball = ball;
         game.info = info;
         game.map_paddle = map_paddle;
-        game.addon_ball = addon_ball;
-        // game[room].server = server;
-        // console.log(game.info.status);
-        if (game.player_right.score != 16 && game.player_left.score != 16 && (game.info.status == GameState.PLAYING)){
-          server.to(room).emit('begin', {player_left: player_left, player_right: player_right, ball: ball, info: info, map_paddle: map_paddle, addon_ball: addon_ball});
+        game.bonus = bonus;
+
+        const maxScore = 15
+        if (game.player_right.getScore() != maxScore && game.player_left.getScore() != maxScore && (game.info.status == GameState.PLAYING)){
+          server.to(room).emit('begin', {player_left: player_left, player_right: player_right, ball: ball, info: info, map_paddle: map_paddle, bonus: bonus});
           myVar = setTimeout(function() {game_loop(game, room, server, playerService, roomsService, userService)}, 1000/60)
         }
         else {
           clearTimeout(myVar);
-          if (game.info.status == GameState.PLAYING && game.player_left.score == 16) {
-            game.player_left.winner = true;
-            game.player_right.winner = false;
+          if (game.info.status == GameState.PLAYING && game.player_left.getScore() == maxScore) {
+            game.player_left.setWinner(true);
+            game.player_right.setWinner(false);
           }
-          else if (game.info.status == GameState.PLAYING && game.player_right.score == 16 ) {
-            game.player_right.winner = true;
-            game.player_left.winner = false;
+          else if (game.info.status == GameState.PLAYING && game.player_right.getScore() == maxScore ) {
+            game.player_right.setWinner(true);
+            game.player_left.setWinner(false);
 
           }
           end_game(game, room, server, playerService, roomsService, userService)
