@@ -2,7 +2,10 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import Home from '../views/Home.vue'
 import User from '../views/User.vue'
 import Game from '../views/Game.vue'
+import Duel from '../views/Duel.vue'
+import Ladder from '../views/Ladder.vue'
 import GameRoom from '../views/GameRoom.vue'
+
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Marvin from '../views/MarvinAuth.vue'
@@ -26,17 +29,22 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/game/duel',
+    component: Duel,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/game/ladder',
+    component: Ladder,
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/game/room/:id',
     component: GameRoom,
     // component: () => import("../views/Game.vue"),
     meta: { requiresAuth: true },
   },
-  {
-    path: '/game/room/watch',
-    component: Game,
-    // component: () => import("../views/Game.vue"),
-    meta: { requiresAuth: true },
-  },
+  
   {
     path: '/login',
     name: 'Login',

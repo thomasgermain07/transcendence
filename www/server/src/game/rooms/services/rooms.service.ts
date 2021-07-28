@@ -89,12 +89,12 @@ export class RoomsService {
     return room 
   }
 
-  public async findAllByMode() : Promise<Room[]> {
+  public async findAllByMode(mode: GameMode) : Promise<Room[]> {
 
     const rooms = await this.roomsRepository.createQueryBuilder("room")
       .leftJoinAndSelect("room.players", "players")
       .leftJoinAndSelect("players.user", "users")
-      .where("room.mode IN (:...modes)", { modes: [GameMode.DUEL, GameMode.LADDER] })
+      .where("room.mode = :mode", { mode: mode })
       .andWhere("room.state = :state", { state: GameState.PLAYING })
       .getMany()
 

@@ -32,8 +32,8 @@
         </div>
       </div>
       <div class="game">
-        <div ref="screen"></div>
-        <canvas id="canvas" width="600" height="400"></canvas>
+        <div id="game-screen"></div>
+        <canvas id="canvas" width="600" height="300"></canvas>
       </div>
 
       <button v-if="isPlayer" @click="onLeave">Leave Game Room</button>
@@ -55,7 +55,6 @@ import {
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { io } from 'socket.io-client'
 
 import PlayersDisplay from '../components/Game/PlayersDisplay.vue'
 import useGameRoom from '../composables/Game/useGameRoom'
@@ -65,6 +64,7 @@ import { Ball } from '../types/game/ball'
 import { MapType } from '../types/game/gameOptions'
 import { IMapPaddleState } from '../types/game/paddle'
 import { GameOptions, DifficultyLevel } from '../types/game/gameOptions'
+import useSockets from '../store/socket'
 
 export interface IGameState {
   status: string
@@ -75,8 +75,6 @@ export interface IGameState {
   map: string
   count: number
 }
-
-const gameRoomsSocket = io('ws://localhost:8080/game-rooms')
 
 export default defineComponent({
   name: 'GameRoom',
@@ -146,7 +144,7 @@ export default defineComponent({
     let map_paddle = new Array<IMapPaddleState>()
 
     let canvas = null
-    const screen = ref<HTMLCanvasElement | null>(null)
+    let screen = null
     let ctx = null
     // let ctx = computed(() => { canvas.getContext("2d") });
     const route = useRoute()
@@ -156,6 +154,8 @@ export default defineComponent({
 
     const currentUser = store.state.user
     const roomName = `room-${route.params.id}`
+    const { gameRoomsSocket } = useSockets()
+
 
     // Fetching game room
     loadRoom(route.params.id)
@@ -187,6 +187,7 @@ export default defineComponent({
 
     const initCanvas = (): void => {
       canvas = document.getElementById('canvas')
+      screen = document.getElementById('game-screen') 
       ctx = canvas.getContext('2d')
     }
 
@@ -344,8 +345,8 @@ export default defineComponent({
 
     function resizeCanvas() {
       if (screen) {
-        canvas.width = window.innerWidth
-        canvas.height = window.innerHeight
+        canvas.width = screen.offsetWidth;
+        canvas.height = canvas.width / 2;
         redraw()
       }
     }

@@ -12,119 +12,44 @@ import { Player }         from '../players/entities/player.entity';
 import { Room }           from '../rooms/entities/room.entity';
 import UpdateRoomDto      from '../rooms/dto/update-room.dto';
 import { UsersService } from 'src/users/services/users.service';
-import { MapType } from '../rooms/entities/option.entity';
+import { GameState, DifficultyLevel, MapType, Direction, GameMode } from '../enum/enum';
+import { SocketRoomInfo, UpdateRoomType, Move } from '../type/type';
+import { IGameInfoState, IBonusState, Game, IPlayerState, IMapPaddleState, IGameState, IBallState } from '../interface/interface';
+import { Ball } from './ball';
+import { Bonus } from './bonus';
+import { Paddle } from './paddle';
+import { GamePlayer } from './game_player';
 
 
-type SocketRoomInfo = {
-  playerId: number, // replace number by update player dto?
-  room: string,
-  roomId: number,
-}
+export const WIDTH = 300
+export const HEIGHT = 600
 
-type UpdateRoomType = {
-  socketRoomName: string,
-  roomId: number,
-  dto: UpdateRoomDto,
-}
-
-
-enum Direction {
-  Up = "up",
-  Down = "down",
-}
-export enum GameState {
-  WAITING = "waiting",
-  PLAYING = "playing",
-  CANCELLED = "cancelled",
-  OVER = "over",
-}
-enum Maps {
-  Def = "default",
-  Mape1 = "map1",
-  Mape2 = "map2",
-}
-enum Difficulty {
-  Easy = "easy",
-  Medium = "medium",
-  Hard = "hard",
-}
-
-export interface IMapPaddleState {
-  x: number
-  y: number
-  height: number
-  move: string
-  speed: number
-}
-
-export interface IGameState {
-  status: string
-  difficulty: string
-  mode: string
-  addons: boolean
-  begin: boolean
-  map: string
-  count: number
-
-}
-
-export interface IBallState {
-  x: number
-  y: number
-  rayon: number
-  speed: number
-  xspeed: number
-  yspeed: number
-  last_touch_id: number
-  exist: boolean
-  time: number
-  is_addon: boolean
-}
-
-export interface IPlayerState {
-  id: number
-  user_id: number
-  position: string
-  score: number
-  winner: boolean
-  is_ready: boolean
-  paddle: IMapPaddleState
-  addons_date: number,
-}
-
-export interface IGameInfoState{
-
-  player_left: IPlayerState,
-  player_right: IPlayerState,
-  ball: IBallState,
-  info: IGameState,
-  map_paddle: IMapPaddleState[],
-  addon_ball: IBallState,
-}
-
-type Move = {
-  room: string;
-  move: string;
-  user_id: number;
-}
-
-export class Game implements IGameInfoState {
-
-    player_left: IPlayerState;
-    player_right: IPlayerState;
-    ball: IBallState;
-    info: IGameState;
-    map_paddle: IMapPaddleState[];
-    addon_ball: IBallState;
-  constructor(player_left: IPlayerState, player_right: IPlayerState, ball: IBallState, info: IGameState, map: IMapPaddleState[], addon: IBallState) {
-    this.player_left = player_left;
-    this.player_right = player_right;
-    this.ball = ball;
-    this.info = info;
-    this.map_paddle = map;
-    this.addon_ball = addon;
-  }
-}
+// export interface IGameState {
+//   status: string
+//   readonly difficulty: string
+//   readonly mode: GameMode
+//   readonly addons: boolean
+//   begin: boolean
+//   map: string
+//   count: number
+//   constructor (
+//     status: string,
+//     difficulty: string,
+//     mode: GameMode,
+//     addons: boolean,
+//     begin: boolean,
+//     map: string,
+//     count: number,
+//   ) {
+//     this.status = status;
+//     this.difficulty = difficulty;
+//     this.mode = mode;
+//     this.addons = addons;
+//     this.begin = begin;
+//     this.map = map;
+//     this.count = count;
+//   }
+// }
 
 
 @UseInterceptors(ClassSerializerInterceptor)
@@ -290,7 +215,7 @@ export class GameRoomsGateway
   ): Promise<void> {
 
       const room: Room = await this.roomsService.update(data.roomId, data.dto)
-      const rooms: Room[] = await this.roomsService.findAllByMode()
+      const rooms: Room[] = await this.roomsService.findAllByMode(room.mode)
       this.server.emit('updateWatchRoomInClient', {rooms: rooms})
       this.server.to(data.socketRoomName).emit('updateRoomInClient', 
         {room: room} )
@@ -821,7 +746,7 @@ export class GameRoomsGateway
           await userService.updateLadderLevel(game.player_right.user_id, ladder_left)
         }
       }
-      const rooms: Room[] = await roomsService.findAllByMode()
+      const rooms: Room[] = await roomsService.findAllByMode(game.info.mode)
       server.emit('updateWatchRoomInClient', {rooms: rooms})
     }
   }

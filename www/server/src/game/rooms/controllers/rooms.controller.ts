@@ -28,13 +28,16 @@ export class RoomsController {
     findall(): Promise<Room[]> {
         return this.roomsService.findAll()
     }
-
-    @Get('/watch')
-    findAllByMode(): Promise<Room[]> {
-        return this.roomsService.findAllByMode()
+    @Get('/duel')
+    findAllDuel(): Promise<Room[]> {
+        return this.roomsService.findAllByMode(GameMode.DUEL)
         // return this.roomsService.findAll()
     }
-
+    @Get('/ladder')
+    findAllLadder(): Promise<Room[]> {
+        return this.roomsService.findAllByMode(GameMode.LADDER)
+        // return this.roomsService.findAll()
+    }
     @Get(':id')
     findone(@Param('id', ParseIntPipe) id: number): Promise<Room> {
         return this.roomsService.findOne(id)
