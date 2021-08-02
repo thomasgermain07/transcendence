@@ -1,19 +1,20 @@
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core'
-import { Module } from '@nestjs/common'
-import { ClassSerializerInterceptor } from '@nestjs/common'
-import { TypeOrmModule } from '@nestjs/typeorm'
-import { ServeStaticModule } from '@nestjs/serve-static'
-import { join } from 'path'
-import { ScheduleModule } from '@nestjs/schedule';
+import { Module }                      from '@nestjs/common'
+import { ClassSerializerInterceptor }  from '@nestjs/common'
+import { TypeOrmModule }               from '@nestjs/typeorm'
+import { ServeStaticModule }           from '@nestjs/serve-static'
+import { ScheduleModule }              from '@nestjs/schedule';
+import { join }                        from 'path'
 
-import { AuthModule } from 'src/auth/auth.module'
+import { AuthModule }  from 'src/auth/auth.module'
 import { UsersModule } from 'src/users/users.module'
-import { ChatModule } from 'src/chat/chat.module'
+import { ChatModule }  from 'src/chat/chat.module'
 import { GameModule }  from 'src/game/game.module'
+import { DMModule }    from "src/direct_message/dm.module";
 
 import { GlobalExceptionFilter } from './filters/global-exception.filter'
 import { DatabaseConfigService } from './services/database-config.service'
-import { AppController } from './controllers/app.controller'
+import { AppController }         from './controllers/app.controller'
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { AppController } from './controllers/app.controller'
     UsersModule,
     ChatModule,
     GameModule,
+	DMModule,
   ],
   controllers: [AppController],
   providers: [
