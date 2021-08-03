@@ -19,7 +19,7 @@
         </a>
         <div class="top-bar__name">Chat - {{ current_room }}</div>
       </header>
-      <ChatWindow />
+      <ChatWindow @set_page_title="set_page_title" />
     </div>
   </div>
 </template>
@@ -49,6 +49,9 @@ export default {
     },
     close_chat() {
       this.chat_open = false
+    },
+    set_page_title(title: string) {
+      this.current_room = title
     },
   },
 }

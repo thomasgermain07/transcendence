@@ -13,11 +13,13 @@
 
   <div class="rooms__list">
     <p v-if="!rooms.length">No rooms registered</p>
-    <div v-for="room in rooms" :key="room" class="rooms__item">
+    <div
+      v-for="room in rooms"
+      :key="room"
+      class="rooms__item"
+      @click="$emit('open_room', room.id, room.name)"
+    >
       {{ room.name }}
-      <div class="rooms__item-notification">
-        <i class="fas fa-bell"></i>
-      </div>
     </div>
   </div>
 </template>
@@ -41,7 +43,7 @@ export default {
       getRooms,
     }
   },
-  emits: ['toggle_create_window'],
+  emits: ['toggle_create_window', 'open_room'],
 }
 </script>
 

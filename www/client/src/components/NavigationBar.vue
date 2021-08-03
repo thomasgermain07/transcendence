@@ -39,6 +39,7 @@ export default defineComponent({
     const logout = () => {
       store.dispatch('logout')
     }
+
     return { currentUser, logout }
   },
 })
