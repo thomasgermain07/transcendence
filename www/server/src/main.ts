@@ -4,7 +4,6 @@ import { useContainer }   from 'class-validator';
 import * as cookieParser  from 'cookie-parser'
 
 import { AppModule }       from 'src/app/app.module'
-import { SocketIoAdapter } from 'src/app/adapters/socket-io.adapter';
 
 async function bootstrap()
 {
@@ -17,8 +16,6 @@ async function bootstrap()
 		credentials: true,
 		origin: 'http://localhost:3000',
 	})
-	// See : https://docs.nestjs.com/websockets/adapter#advanced-custom-adapter
-	app.useWebSocketAdapter(new SocketIoAdapter(app));
 	// See : https://docs.nestjs.com/techniques/validation#transform-payload-objects
 	app.useGlobalPipes(new ValidationPipe())
 
