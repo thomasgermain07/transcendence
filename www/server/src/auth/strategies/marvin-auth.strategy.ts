@@ -1,9 +1,10 @@
 import { PassportStrategy } from '@nestjs/passport'
-import { HttpService, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common';
 import { Strategy } from 'passport-oauth2'
 import { stringify } from 'querystring'
 import { AuthService } from '../services/auth.service'
 import { MarvinLoginDto } from '../dto/marvin-login.dto'
+import { HttpService } from '@nestjs/axios'
 
 const clientID = process.env.VITE_FT_ID
 const clientSecret = process.env.VITE_FT_SECRET
