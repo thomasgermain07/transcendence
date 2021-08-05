@@ -1,9 +1,9 @@
 <template>
 	<div class="duel-game">
 		<div class="in-game" v-if="checkInGame.inGame">
-      <h4>Player is already in game</h4>
-      <router-link :to="checkInGame.roomRoute">Go to game room</router-link>
-    </div>
+    	<h4>Player is already in game</h4>
+    	<router-link :to="checkInGame.roomRoute">Go to game room</router-link>
+  	</div>
 		<div class="play-duel-game">
 			<h2>Duel Game</h2>
 			<form @submit.prevent="onPlayDuel">
@@ -24,6 +24,10 @@
 					<option :value="true">Yes</option>
 					<option :value="false">No</option>
 				</select>
+        <br/>
+        <img v-if="duelOptions.map == 'default'" src="../images/mapDefault.png">
+        <img v-else-if="duelOptions.map == 'map1'" src="../images/map1.png">
+        <img v-else-if="duelOptions.map == 'map2'" src="../images/map2.png">
 				<button>Play Duel</button>
 			</form>
 		</div>
@@ -63,6 +67,8 @@ export default defineComponent({
 
     const updateWatchRooms = (updatedRoom: Room[]): void => {
       rooms.value = { ...updatedRoom }
+      loadGameRooms();
+      console.log(rooms.value);
     }
 
     // check if user is already in Game Room
@@ -72,11 +78,16 @@ export default defineComponent({
     })
 
     // options can be changed for Duel only
-    const duelOptions: GameOptions = {
+    const duelOptions: GameOptions = reactive({
       map: MapType.DEFAULT,
       difficulty: DifficultyLevel.EASY,
       powerUps: false,
-    }
+    })
+
+    // const checkOptions = (map: MapType): void => {
+    //   duelOptions.map = map;
+    //   console.log(duelOptions.)
+    // }
 
     const onPlayDuel = (): void => {
       playGame(GameMode.DUEL, duelOptions)
@@ -120,6 +131,7 @@ export default defineComponent({
 
     gameRoomsSocket.on('updateWatchRoomInClient', ({ rooms }) => {
       console.log(`in update Watch room`)
+      console.log(rooms)
       updateWatchRooms(rooms)
     })
     // --- LIFEHCYCLE HOOKS ---
@@ -144,27 +156,63 @@ export default defineComponent({
 </script>
 
 <style>
+@import url('http://fonts.cdnfonts.com/css/pixelfaceonfire');
+@import url('http://fonts.cdnfonts.com/css/messing-lettern');
+@import url('http://fonts.cdnfonts.com/css/gun-metal');
+@import url('http://fonts.cdnfonts.com/css/karmatic-arcade');
+
+.duel-game {
+	
+	height: 100%;
+  /* width: max-content; */
+  min-width: fit-content;
+  font-size: 200%;
+  /* background-size: 30%; */
+	background-image: linear-gradient(to bottom, rgba(255,255,0,0.5), rgba(0,0,255,0.5)), url("../images/vs.png");
+  background-position: center;
+  background-size: 30%;
+  padding: 30px;
+  /* text-shadow: 1px 1px 2px pink; */
+	text-shadow: pink 0.1em 0.1em 0.2em;
+	/* font-family: 'PixelFaceOnFire', sans-serif; */
+	/* font-family: 'Messing Lettern', sans-serif; */
+	/* font-family: 'Gunmetal', sans-serif; */
+  color: #000000;
+
+  font-family: 'Karmatic Arcade', sans-serif;
+}
+
 .geme-mode a{
   margin: 50% auto;
 }
-form {
+
+.duel-game .play-duel-game form {
   max-width: 70%;
   margin: 30px auto;
-  background: #f1f1f1;
+  background: rgba(0,0,255,0.2);
   text-align: center;
   padding: 40px;
   border-radius: 10px;
 }
+.duel-game .play-duel-game img {
+  max-width: 70%;
+  margin: 30px auto;
+}
 
 label {
-  color: #a7a7a7;
+  /* color: #848482; */
+	color: #000000;
   display: inline-block;
   margin: 10px 0 15px;
   padding: 0 20px;
-  font-size: 0.8em;
+  font-size: 0.9em;
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: bold;
+	/* font-family: 'PixelFaceOnFire', sans-serif; */
+	/* font-family: 'Messing Lettern', sans-serif; */
+	/* font-family: 'Gunmetal', sans-serif; */
+  font-family: 'Karmatic Arcade', sans-serif;
 }
 
 select {
@@ -174,9 +222,11 @@ select {
   padding: 8px 4px;
   box-sizing: border-box;
   border: none;
-  border-bottom: 1px solid #ddd;
-  color: #555;
+  border-bottom: 0px solid #ddd;
+	color: #f1f1f1;	
+	background: #000000;
 }
+
 
 button {
   display: block;
@@ -185,39 +235,28 @@ button {
   margin: 20px auto 0;
   padding: 0.7em;
   color: #f1f1f1;
+	font-size: 0.8em;
+
+	/* font-family: 'PixelFaceOnFire', sans-serif; */
+	/* font-family: 'Messing Lettern', sans-serif; */
+	/* font-family: 'Gunmetal', sans-serif; */
+  font-family: 'Karmatic Arcade', sans-serif;
+	
 }
 
 button:hover {
   background: #aa6bdd;
 }
 
-hr {
+/* hr {
   width: 40%;
   margin: 50px auto;
-}
+	
+} */
 
 .in-game a {
   color: hotpink;
   font-size: 2rem;
-}
-
-.panel-v.left {
-  position: static;
-  float: left;
-  height: 100%;
-}
-.panel-v.right {
-  position: static;
-  float: right;
-  height: 100%;
-}
-
-.line-vertical {
-  border-left: 4px solid black; 
-  height: 300px; 
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 </style>

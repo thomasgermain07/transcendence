@@ -1,7 +1,7 @@
 <template>
   <div class="watch">
-		<div class="duel-stream" v-if="props.rooms.length > 0">
-			<div class="duel-info" v-for="match in props.rooms" v-bind:key="match.id">
+		<div class="game-stream" v-if="props.rooms.length > 0">
+			<div class="game-info" v-for="match in props.rooms" v-bind:key="match.id">
 				<p> {{ match.players[0].user.name }} VS {{ match.players[1].user.name }} </p>
 					<button @click="onWatch(match.id)">Watch Game</button>
 			</div>
@@ -28,6 +28,8 @@ export default defineComponent({
 		}
 
 		watch(() => props.rooms, () => {
+			console.log("WATCH WATTCH")
+			console.log(props.rooms);
 		})
 
     return {
@@ -41,23 +43,37 @@ export default defineComponent({
 
 <style>
 
-.duel-info {
-  flex: auto;
-	font-size: 1.4rem;
-	text-align: center;
-}
-button {
-  display: block;
-  background: #a03939;
-  border: none;
-  margin: 20px auto 0;
-  padding: 1em;
-  color: #862f2f;
+.watch {
+	text-shadow: pink 0.1em 0.1em 0.2em;
+	/* font-family: 'Gunmetal', sans-serif; */
+	font-family: 'Karmatic Arcade', sans-serif;
+
+	color: #000000;
 }
 
-.ladder-info {
+.game-info {
   flex: auto;
 	font-size: 1.4rem;
 	text-align: center;
+	text-shadow: pink 0.1em 0.1em 0.2em;
+	/* font-family: 'Gunmetal', sans-serif; */
+	font-family: 'Karmatic Arcade', sans-serif;
+
+
 }
+.watch button {
+  display: block;
+  /* background: #a03939; */
+  border: none;
+  margin: 20px auto 0; 
+	
+  /* padding: 1em;
+  color: #862f2f;*/
+}
+
+/* .ladder-info {
+  flex: auto;
+	font-size: 1.4rem;
+	text-align: center;
+} */
 </style>

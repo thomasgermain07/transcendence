@@ -3,6 +3,7 @@ import {
   EntitySubscriberInterface,
   EventSubscriber,
   InsertEvent,
+  UpdateEvent,
 } from 'typeorm';
 
 import { User } from '../entities/user.entity';
@@ -26,6 +27,7 @@ export class UsersSubscriber implements EntitySubscriberInterface<User> {
     const maxLadderLevel = await this.usersService.getMaxLadderLevel()
     console.log('MAX LADDER LEVEL: ' + maxLadderLevel)
     await this.usersService.updateLadderLevel(event.entity.id, maxLadderLevel + 1)
+    // await this.usersService.updateLadderLevel(event.entity.id, 50)
   }
 
 }

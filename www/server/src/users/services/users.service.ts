@@ -6,6 +6,21 @@ import { CreateUserDto } from '../dto/create-user.dto'
 import { UpdateUserDto } from '../dto/update-user.dto'
 import { User } from '../entities/user.entity'
 
+export enum Achievements {
+	DEFENSE_MASTER = "Defense Master Achievement: You wine a match without taking any goal !",
+	TEN_WINNE = "10 Games Winned Achievement: You have winned 10 games !",
+	THIRTY_WINNE = "30 Games Winned Achievement: You have winned 30 games !",
+	SEVENTY_WINNE = "70 Games Winned Achievement: You have winned 70 games !",
+	HUNDRED_WINNE = "100 Games Winned Achievement: You have winned 100 games !",
+	TWO_HUNDRED_WINNE = "200 Games Winned Achievement: You have winned 200 games !",
+	LADDER_WINNER = "Ladder Winner Achievement: You are Level 1 in Ladder mode !",
+	ALL_TERRAIN = "All Terrain Achievement: You played and winne in all 3 maps in duel mode!",
+	NOVICE = "Novice Achievement: You winned your first match !",
+	MIDDLE_PLAYER = "Player In The Middle Achievement: You winne a match with medium difficulty !",
+	HARD_MASTER = "Hardcore Player Achievement: You winne a match with Hard difficulty !",
+	DONE = "Done Achievement: You have completed all the acchievements Good Job !",
+}
+
 @Injectable()
 export class UsersService {
   // -------------------------------------------------------------------------
@@ -68,7 +83,28 @@ export class UsersService {
   	: Promise<User>
   {
   	await this.users_repo.update(userId, { ladderLevel: level })
+  	if (level == 1) {
+  		const user : User = await this.users_repo.findOne(userId)
+  		await this.updateAchievements(user, Achievements.LADDER_WINNER)
+  	}
   	return await this.users_repo.findOne(userId);
+  }
+
+  public async updateAchievements(
+  	user : User,
+  	achievement : Achievements,
+  )
+  	: Promise<User>
+  {
+  	if (!user.achievements) {
+  		user.achievements = [];
+  	}
+  	console.log(user);
+  	if (user.achievements && !user.achievements.find(element => element == achievement)) {
+  		user.achievements.push(achievement);
+  		await this.users_repo.update(user.id, { achievements: user.achievements })
+  	}
+  	return await this.users_repo.findOne(user.id);
   }
 
 }

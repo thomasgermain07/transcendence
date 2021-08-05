@@ -70,6 +70,13 @@ export class PlayersService {
     }
     return player.room.id
   }
+  // public async findOneWinner(roomId: number): Promise<Player> {
+  //   const player = await this.roomsRepository
+  //   if (!player) {
+  //       throw new NotFoundException('Player not found.');
+  //   }
+  //   return player.room.id
+  // }
 
   public async checkIfInGame(
 		user : User

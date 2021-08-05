@@ -21,7 +21,7 @@ import { Paddle } from './paddle';
 import { GamePlayer } from './game_player';
 
 
-export const WIDTH = 300
+export const WIDTH = 400
 export const HEIGHT = 600
 
 // export interface IGameState {
@@ -242,78 +242,54 @@ export class GameRoomsGateway
 	)
 		: void
 	{
-      const player_left: IPlayerState = {
-          id: 0 ,
-          user_id: 0,
-          position:  'left',
-          score:  0,
-          winner:  null,
-          is_ready:  false,
-          paddle: {
-              x:  600/10,
-              y:  400/2 - 40,
-              height: 5,
-              speed: 7,
-              move:  "not",
-          },
-          addons_date: 0,
-      };
-      const player_right: IPlayerState = {
-          id: 0 ,
-          user_id: 0,
-          position:  'right',
-          score:  0,
-          winner:  null,
-          is_ready:  false,
-          paddle: {
-              x:  600/1.1,
-              y:  400/2 - 40,
-              height: 5,
-              speed: 7,
-              move:  "not",
-          },
-          addons_date: 0,
-      };
+      let player_left: GamePlayer = null;
+      let player_right: GamePlayer = null;
+      let bonus: Bonus = null;
+      let paddle_left: Paddle = null;
+      let paddle_right: Paddle = null;
+      let ball: Ball = null;
+      let map_paddle = new Array<Paddle>();
 
-      const ball: IBallState = {
-          x:  600/2,
-          y: 400/2,
-          rayon: 5,
-          speed: 0,
-          xspeed: 0,
-          yspeed: 0,
-          last_touch_id: 0,
-          exist: true,
-          time: 0,
-          is_addon: false,
-      };
+      let info = new State(GameState.PLAYING, data['room'].option.difficulty, data['room'].mode, data['room'].option.powerUps, true, data['room'].option.map, 3);
 
-      const addon_ball: IBallState = {
-          x: 0,
-          y: 0,
-          rayon: 0,
-          speed: 0,
-          xspeed: 0,
-          yspeed: 0,
-          last_touch_id: 0,
-          exist: true,
-          time: 0,
-          is_addon: true,
-      };
+      if ( info.map != MapType.DEFAULT ) {
+        if ( info.map == MapType.MAP1 ) {
+          map_paddle = [];
+          let map1_paddle1 = new Paddle(HEIGHT/2, 0, 2.5, Direction.NOT, 0);
+          let map1_paddle2 = new Paddle(HEIGHT/2,  WIDTH - 160, 2.5, Direction.NOT, 0);
+          map_paddle.push(map1_paddle1, map1_paddle2);
+        }
+        else if ( info.map == MapType.MAP2 ) {
+          map_paddle = [];
+          let map2_paddle1 = new Paddle(HEIGHT/10 + 100, WIDTH/2 - 40, 5, Direction.UP, 5);
+          let map2_paddle2 = new Paddle(HEIGHT/1.1 - 100,  WIDTH/2 - 40, 5, Direction.DOWN, 5);
+          map_paddle.push(map2_paddle1, map2_paddle2);
+        }
+      }
+      if ( info.addons ) {
+        bonus = new Bonus(Math.random() * (WIDTH - 200) + 200, Math.random() * (200 - 100) + 100, 8, 0, true, Date.now());
+      }
+      else {
+        bonus = new Bonus(0, 0, 0, 0, false, 0);
+      }
 
-      const info: IGameState = {
-        status: GameState.PLAYING,
-        difficulty: Difficulty.Easy,
-        mode: "duel",
-        addons: true,
-        begin: true,
-        map: Maps.Mape1,
-        count: 3,
-      };
-      
-      if (!this.game[data["socketRoomName"]]) {
-          let map_paddle = new Array<IMapPaddleState>();
-          this.game[data["socketRoomName"]] = new Game(player_left, player_right, ball, info, map_paddle, addon_ball);
+      switch ( info.difficulty ) {
+
+        case DifficultyLevel.EASY:
+          ball = new Ball(5, 3, 3);
+          paddle_left = new Paddle(HEIGHT/10, WIDTH/2 - 40, 5, Direction.NOT, 7);
+          paddle_right = new Paddle(HEIGHT/1.1, WIDTH/2 - 40, 5, Direction.NOT, 7);
+          break;
+        case DifficultyLevel.MEDIUM:
+          ball = new Ball(9, 6, 6);
+          paddle_left = new Paddle(HEIGHT/10, WIDTH/2 - 40, 5, Direction.NOT, 8);
+          paddle_right = new Paddle(HEIGHT/1.1, WIDTH/2 - 40, 5, Direction.NOT, 8);
+          break;
+        case DifficultyLevel.HARD:
+          ball = new Ball(11, 7, 7);
+          paddle_left = new Paddle(HEIGHT/10, WIDTH/2 - 40, 5, Direction.NOT, 9);
+          paddle_right = new Paddle(HEIGHT/1.1, WIDTH/2 - 40, 5, Direction.NOT, 9);
+          break;
       }
       data['players'].forEach(player => {
         
@@ -461,9 +437,9 @@ export class GameRoomsGateway
 
         if ( info.addons )
         {
-            if (!addon_ball.exist && (Date.now() - addon_ball.time) >= 30000) {
-                start_addons(player_left, player_right, ball, map_paddle, info, addon_ball);
-            }
+          if (!bonus.exist && (Date.now() - bonus.time) >= 3000) {
+            bonus.startBonus();
+          }
         }
 
         if ( addon_ball.exist ) {
@@ -608,36 +584,27 @@ export class GameRoomsGateway
 
           collidePoint = collidePoint / ((400 / paddle.height) / 2);
 
-          angle = collidePoint * Math.PI/4;
-
-          let direction = ball.x < 600/2 ? 1 : -1;
-          ball.last_touch_id = id;
-          if (id == 0 && map == MapType.MAP1) {
-            // direction = ball.x <= 400/2 ? -1 : 1;
+        let direction = ball.x < HEIGHT/2 ? 1 : -1;
+        ball.last_touch_id = id;
+        if (id == 0) {
+          if (map == MapType.MAP1) {
             ball.xspeed *= direction 
             ball.yspeed = ball.speed * Math.sin(angle);
-            console.log(ball.x)
-            console.log(direction)
           }
-
-
-          // if (ball.y > paddle.y +  (400 / paddle.height)/2){
-          //   angle = -1 * Math.PI / 4;
-          // }
-          // else if (ball.y < paddle.y + ((400 / paddle.height))/2) {
-          //   angle = Math.PI / 4;
-          // }
           else {
-            ball.xspeed = direction * ball.speed * Math.cos(angle);
-            ball.yspeed = ball.speed * Math.sin(angle);
+            if (ball.x <= paddle.x) {
+              ball.xspeed = -1 * ball.speed * Math.cos(angle);
+              ball.yspeed = ball.speed * Math.sin(angle);
+            }
+            else {
+              ball.xspeed = ball.speed * Math.cos(angle);
+              ball.yspeed = ball.speed * Math.sin(angle);
+            }
           }
-          // if (paddle.x < 600/2)
-          //   ball.xspeed = (1) * ball.speed * Math.cos(angle);
-          // else
-          //   ball.xspeed = (-1) * ball.speed * Math.cos(angle);
-
-          // ball.yspeed = ball.speed * Math.sin(angle);
-          ball.speed += 0.1;
+        }
+        else {
+          ball.xspeed = direction * ball.speed * Math.cos(angle);
+          ball.yspeed = ball.speed * Math.sin(angle);
         }
         // if ( topX + ball.xspeed > paddle.x && botX + ball.xspeed < paddle.x + 600/80 && topY > paddle.y && botY < paddle.y + (400 / paddle.height)) {
         //   ball.last_touch_id = id;
@@ -750,6 +717,7 @@ export class GameRoomsGateway
 
         console.log("----------LADDER RIGHT-----------")
         console.log(ladder_right)
+        console.log(game.player_right.getWinner());
         
         if (game.player_left.winner && ladder_left > ladder_right
           || game.player_right.winner && ladder_right > ladder_left) {

@@ -1,9 +1,7 @@
 <template>
   <div class="game-board">
-    <div class="game">
-      <div ref="screen"></div>
+      <div id="screen"></div>
       <canvas id="canvas" width="600" height="400"></canvas>
-    </div>
   </div>
 </template>
 
@@ -77,7 +75,7 @@ export default defineComponent({
     let map_paddle = new Array<IMapPaddleState>()
     let canvas = null
     let ctx = null
-    const screen = ref<HTMLCanvasElement | null>(null)
+    let screen = null
 
     const { gameRoomsSocket } = useSockets()
     const store = useStore()
@@ -87,6 +85,7 @@ export default defineComponent({
 
     const initCanvas = (): void => {
       canvas = document.getElementById('canvas')
+      screen = document.getElementById('screen')
       ctx = canvas.getContext('2d')
     }
 
@@ -120,8 +119,8 @@ export default defineComponent({
     }
     function resizeCanvas() {
       if (screen) {
-        canvas.width = window.innerWidth
-        canvas.height = window.innerHeight
+        canvas.width = screen.offsetWidth;
+        canvas.height = canvas.width / 2;
         redraw()
       }
     }
@@ -300,4 +299,9 @@ export default defineComponent({
 })
 </script>
 
-<style></style>
+<style>
+#screen {
+  max-width: 600px;
+  max-height: 400px; 
+}
+</style>

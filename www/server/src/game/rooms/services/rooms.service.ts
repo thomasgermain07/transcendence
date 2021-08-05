@@ -7,6 +7,7 @@ import { Room, GameMode, GameState }        from '../entities/room.entity';
 import { Option, MapType, DifficultyLevel } from '../entities/option.entity';
 import { User }                             from 'src/users/entities/user.entity';
 
+
 import CreateRoomDto   from '../dto/create-room.dto';
 import UpdateRoomDto   from '../dto/update-room.dto';
 import CreateOptionDto from '../dto/create-option.dto';
@@ -50,6 +51,7 @@ export class RoomsService {
 
   public async findOneByPlayerId(playerId: number): Promise<Room> {
     const room = await this.roomsRepository.createQueryBuilder("room")
+      .leftJoinAndSelect("room.option", "option")
       .leftJoinAndSelect("room.players", "players")
       .where("players.id = :id", { id: playerId })
       .getOne();
@@ -89,6 +91,7 @@ export class RoomsService {
     return room 
   }
 
+
   public async findAllByMode(mode: GameMode) : Promise<Room[]> {
 
     const rooms = await this.roomsRepository.createQueryBuilder("room")
@@ -100,6 +103,57 @@ export class RoomsService {
 
     return rooms;
   }
+
+  public async findAllWinneByUser(user: User) : Promise<Room[]> {
+
+    const rooms = await this.roomsRepository.createQueryBuilder("room")
+      .leftJoinAndSelect("room.option", "option")
+      .leftJoinAndSelect("room.players", "players")
+      .leftJoinAndSelect("players.user", "users")
+      .where("players.user.id = :userId", {userId: user.id})
+      .andWhere("players.winner = :winner", { winner: true })
+      .getMany()
+
+    return rooms;
+  }
+
+
+  public async findWinneByUserInMapDuel(user: User) : Promise<Room[]> {
+    const room_default = await this.roomsRepository.createQueryBuilder("room")
+      .leftJoinAndSelect("room.option", "option")
+      .leftJoinAndSelect("room.players", "players")
+      .leftJoinAndSelect("players.user", "users")
+      .where("room.mode = :mode", { mode: GameMode.DUEL })
+      .andWhere("option.map = :map", { map: MapType.DEFAULT})
+      .andWhere("players.user.id = :userId", {userId: user.id})
+      .andWhere("players.winner = :winner", { winner: true })
+      .getOne()
+
+    const room_map1 = await this.roomsRepository.createQueryBuilder("room")
+      .leftJoinAndSelect("room.option", "option")
+      .leftJoinAndSelect("room.players", "players")
+      .leftJoinAndSelect("players.user", "users")
+      .where("room.mode = :mode", { mode: GameMode.DUEL })
+      .andWhere("option.map = :map", { map: MapType.MAP1})
+      .andWhere("players.user.id = :userId", {userId: user.id})
+      .andWhere("players.winner = :winner", { winner: true })
+      .getOne()
+
+    const room_map2 = await this.roomsRepository.createQueryBuilder("room")
+      .leftJoinAndSelect("room.option", "option")
+      .leftJoinAndSelect("room.players", "players")
+      .leftJoinAndSelect("players.user", "users")
+      .where("room.mode = :mode", { mode: GameMode.DUEL })
+      .andWhere("option.map = :map", { map: MapType.MAP2})
+      .andWhere("players.user.id = :userId", {userId: user.id})
+      .andWhere("players.winner = :winner", { winner: true })
+      .getOne()
+    const rooms: Room[] = [];
+    if (room_default && room_map1 && room_map2 )
+      rooms.push(room_default, room_map1, room_map2)
+    return rooms;
+  }
+
 
   public async update(id: number, roomDto: UpdateRoomDto): Promise<Room> {
     const room = await this.roomsRepository.save({

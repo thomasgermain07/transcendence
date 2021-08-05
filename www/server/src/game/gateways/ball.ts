@@ -1,6 +1,6 @@
 import { IBallState } from "../interface/interface";
 
-export const WIDTH = 300
+export const WIDTH = 400
 export const HEIGHT = 600
 
 export class Ball implements IBallState {

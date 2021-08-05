@@ -1,10 +1,13 @@
 <template>
   <div class="ladder-game">
+		<h2>Ladder Game</h2>
+		<figure class="circle"><p>LEVEL {{currentUser.ladderLevel}}</p></figure>
 		<div class="in-game" v-if="checkInGame.inGame">
       <h4>Player is already in game</h4>
       <router-link :to="checkInGame.roomRoute">Go to game room</router-link>
     </div>
     <div class="play-ladder-game">
+      <img src="../images/mapDefault.png">
       <button @click="onPlayLadder">Play Ladder</button>  
     </div>
 		<h3>Ladder Stream</h3>
@@ -111,7 +114,7 @@ export default defineComponent({
       matchmakingSocket.off()
     })
 
-    return { checkInGame, onPlayLadder, rooms, GameMode }
+    return { checkInGame, onPlayLadder, rooms, GameMode, currentUser }
   },
 })
 </script>
@@ -120,42 +123,55 @@ export default defineComponent({
 .geme-mode a{
   margin: 50% auto;
 }
-form {
-  max-width: 70%;
-  margin: 30px auto;
-  background: #f1f1f1;
+figure {
+	display: inline-block;
+	border-radius: 50%;
+	height: 300px;
+	width: 300px;
+  max-width: 100%;
+	background: radial-gradient(circle at 100px 100px, #5cabff, #000);
+	/* font-size: 300%; */
   text-align: center;
-  padding: 40px;
-  border-radius: 10px;
+	color: #000000;
+	margin: 0px;
 }
-
-label {
-  color: #a7a7a7;
-  display: inline-block;
-  margin: 10px 0 15px;
-  padding: 0 20px;
-  font-size: 0.8em;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: bold;
-}
-
-select {
-  display: inline-block;
-  margin: auto;
+figure p {
+  font-size: 100%;
   text-align: center;
-  padding: 8px 4px;
-  box-sizing: border-box;
-  border: none;
-  border-bottom: 1px solid #ddd;
-  color: #555;
+  margin-top: 3em;
+}
+.ladder-game {
+  /* width: 100%; */
+  min-width: fit-content;
+  font-size: 200%;
+  /* background-size: 30%; */
+	background-image: linear-gradient(to bottom, rgba(255,255,0,0.5), rgba(0,0,255,0.5)), url("../images/levelUp.png");
+  background-position: center;
+  /* background-size: cover; */
+  background-size: 30%;
+  padding: 30px;
+  /* text-shadow: 1px 1px 2px pink; */
+	text-shadow: pink 0.1em 0.1em 0.2em;
+	/* font-family: 'PixelFaceOnFire', sans-serif; */
+	/* font-family: 'Messing Lettern', sans-serif; */
+	/* font-family: 'Gunmetal', sans-serif; */
+  font-family: 'Karmatic Arcade', sans-serif;
+
+	color: #000000;
+
+}
+.play-ladder-game img{
+  /* width: %; */
+  height: auto;
+  max-width: 50%;
+  margin-top: 20px;
 }
 
 button {
   display: block;
   background: #0a0a0a;
   border: none;
-  margin: 20px auto 0;
+  margin: 70px auto 0;
   padding: 0.7em;
   color: #f1f1f1;
 }
@@ -164,33 +180,8 @@ button:hover {
   background: #aa6bdd;
 }
 
-hr {
-  width: 40%;
-  margin: 50px auto;
-}
-
 .in-game a {
   color: hotpink;
   font-size: 2rem;
 }
-
-.panel-v.left {
-  position: static;
-  float: left;
-  height: 100%;
-}
-.panel-v.right {
-  position: static;
-  float: right;
-  height: 100%;
-}
-
-.line-vertical {
-  border-left: 4px solid black; 
-  height: 300px; 
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
 </style>
