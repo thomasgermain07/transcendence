@@ -107,9 +107,7 @@ export class User {
 	// -------------------------------------------------------------------------
 	// Game
 	// -------------------------------------------------------------------------
-	@Column({ default: 5 })
-	@IsInt()
-  @Min(1)
+	@Column({ default: 50 })
 	ladderLevel : number;
 	
 	@Column('text', { nullable: true, array: true })

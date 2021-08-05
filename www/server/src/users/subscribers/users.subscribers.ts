@@ -21,13 +21,4 @@ export class UsersSubscriber implements EntitySubscriberInterface<User> {
   listenTo() {
     return User;
   }
-
-  async afterInsert(event: InsertEvent<any>) {
-    console.log(`AFTER ENTITY INSERTED: `, event.entity);
-    const maxLadderLevel = await this.usersService.getMaxLadderLevel()
-    console.log('MAX LADDER LEVEL: ' + maxLadderLevel)
-    await this.usersService.updateLadderLevel(event.entity.id, maxLadderLevel + 1)
-    // await this.usersService.updateLadderLevel(event.entity.id, 50)
-  }
-
 }
