@@ -53,18 +53,13 @@
     </div>
     <div class="action-ctn">
       <button
-        class="action__button"
-        :class="{ 'action__button--invalid': sendable }"
+        class="action__btn"
+        :class="{ 'action__btn--invalid': sendable }"
         @click="sendData"
       >
         Create
       </button>
-      <button
-        class="action__button"
-        @click="$emit('toggle_create_window', 'close')"
-      >
-        Cancel
-      </button>
+      <button class="action__btn" @click="$emit('close')">Cancel</button>
     </div>
     <p v-if="status == 'sending'">sending ...</p>
   </div>
@@ -75,11 +70,11 @@ import { ref } from 'vue'
 import {
   getRoomInputs,
   createRoom,
-} from '../../../composables/Chat/Rooms/createRoom'
+} from '../../../composables/Chat/Room/createRoom'
 import requestStatus from '../../../composables/requestStatus'
 
 export default {
-  setup(props, { attrs, slots, emit }) {
+  setup(props, { emit }) {
     let { fields, errors, sendable } = getRoomInputs()
 
     let status = ref(requestStatus.default)
@@ -88,7 +83,7 @@ export default {
       createRoom(fields, status)
         .then(() => {
           emit('refresh_rooms')
-          emit('toggle_create_window', 'close')
+          emit('close')
         })
         .catch((e) => {
           status.value = requestStatus.error
@@ -104,18 +99,18 @@ export default {
       sendable,
     }
   },
-  emits: ['toggle_create_window', 'refresh_rooms'],
+  emits: ['close', 'refresh_rooms'],
 }
 </script>
 
 <style scoped>
 .create-room-ctn {
-  /* width: 100%; */
   display: flex;
   flex-direction: column;
 }
 
 .window-title {
+  flex-basis: 25px;
   font-weight: bold;
   font-size: x-large;
 }
@@ -182,7 +177,7 @@ export default {
   margin-top: 15px;
 }
 
-.action__button {
+.action__btn {
   padding: 10px;
   margin: 0 5px 0 5px;
   border-radius: 2px;
@@ -192,15 +187,15 @@ export default {
   border-radius: 10px;
 }
 
-.action__button:hover {
+.action__btn:hover {
   background-color: white;
 }
 
-.action__button--invalid {
+.action__btn--invalid {
   pointer-events: none;
 }
 
-.action__button--invalid:hover {
+.action__btn--invalid:hover {
   background-color: darkgray;
 }
 </style>

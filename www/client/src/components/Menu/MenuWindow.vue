@@ -44,7 +44,7 @@ export default {
     toggle_window() {
       this.open = !this.open
     },
-    open_chat(user: any) {
+    open_chat() {
       this.chat_open = true
     },
     close_chat() {
@@ -67,6 +67,7 @@ export default {
 
 .window {
   width: 180px;
+  height: 400px;
   position: fixed;
   bottom: 0;
   right: 10px;

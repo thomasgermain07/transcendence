@@ -5,10 +5,10 @@ import requestStatus from '../../requestStatus'
 export default function fetchRooms(status: Ref) {
   let rooms = ref([])
 
-  const getRooms = async () => {
+  const getRooms = async (related: boolean) => {
     try {
       const { data } = await axios.get('chat/rooms', {
-        params: { related: true },
+        params: { related: related },
       })
       rooms.value = data
       status.value = requestStatus.success

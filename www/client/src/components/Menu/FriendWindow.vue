@@ -1,5 +1,5 @@
 <template>
-  <div class="friend-window" name="Rechercher">
+  <div class="friend-window">
     <form class="search-bar-container">
       <i class="fas fa-search search-icon"></i>
       <input v-model="searchQuery" class="search-bar" placeholder="Search" />
@@ -37,7 +37,7 @@
         class="friend-item"
         v-for="friend in onlineFriends"
         :key="friend"
-        @click="$emit('open_chat', friend)"
+        @click="$emit('open_chat')"
       >
         {{ friend.name }}
         <i class="fas fa-circle status status--connected"></i>
@@ -59,7 +59,7 @@
         class="friend-item"
         v-for="friend in offlineFriends"
         :key="friend"
-        @click="$emit('open_chat', friend)"
+        @click="$emit('open_chat')"
       >
         {{ friend.name }}
         <i class="fas fa-circle status status--disconnected"></i>
@@ -78,7 +78,6 @@ import {
 import requestStatus from '../../composables/requestStatus'
 
 export default {
-  emits: ['open_chat'],
   setup() {
     let showOnline = ref(true)
     let showOffline = ref(false)
@@ -117,12 +116,12 @@ export default {
       friendsByName,
     }
   },
+  emits: ['open_chat'],
 }
 </script>
 
 <style scoped>
 .friend-window {
-  height: 400px;
   overflow-y: auto;
   overflow-x: hidden;
 }

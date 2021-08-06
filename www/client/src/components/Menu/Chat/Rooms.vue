@@ -1,12 +1,7 @@
 <template>
   <div class="rooms-interaction-ctn">
-    <div
-      class="rooms-interaction"
-      @click="$emit('toggle_create_window', 'open')"
-    >
-      Create
-    </div>
-    <div class="rooms-interaction" @click="join">Join</div>
+    <div class="rooms-interaction" @click="$emit('open', 'create')">Create</div>
+    <div class="rooms-interaction" @click="$emit('open', 'join')">Join</div>
   </div>
 
   <div v-if="status == 'loading'">Loading...</div>
@@ -17,7 +12,7 @@
       v-for="room in rooms"
       :key="room"
       class="rooms__item"
-      @click="$emit('open_room', room.id, room.name)"
+      @click="$emit('open', 'room', { id: room.id, name: room.name })"
     >
       {{ room.name }}
     </div>
@@ -35,7 +30,7 @@ export default {
 
     let { rooms, getRooms } = fetchRooms(status)
 
-    onMounted(getRooms)
+    onMounted(() => getRooms(true))
 
     return {
       rooms,
@@ -43,7 +38,7 @@ export default {
       getRooms,
     }
   },
-  emits: ['toggle_create_window', 'open_room'],
+  emits: ['open'],
 }
 </script>
 
