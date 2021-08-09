@@ -6,32 +6,16 @@
       {{ state.error }}
     </div>
     <div v-else>
-      <!-- <div class="game-room" v-if="state.isRoomVisible"> -->
       <div class="game-room">
-        <h1>Game Room {{ route.params.id }}</h1>
-        <p>Current user: {{ currentUser }}</p>
-        <div class="game-info" v-if="room">
-          <h3>Game Info</h3>
-          <p>
-            Mode: {{ room.mode }} - State: {{ room.state }} - Locked:
-            {{ room.locked }}
-          </p>
-          <p>
-            Options: {{ room.option.map }} - {{ room.option.difficulty }} -
-            {{ room.option.powerUps }}
-          </p>
-        </div>
-
-        <PlayersDisplay :players="room.players" />
+        <PlayersDisplay :players="room.players" :roomState="room.state" />
         <!-- @checkReady="onReady" -->
         <div class="game-ready" v-if="isPlayerReady">
-          <button
-            class="btn"
+          <GameButton
             v-bind:class="{ active: state.isActive }"
             @click="onReady"
+            :colorStyle="'#6ded8a'"
+            >Ready</GameButton
           >
-            Ready
-          </button>
           <div class="success" v-bind:class="{ active: state.isActive }">
             <p>Match will start once both players are ready</p>
           </div>
@@ -43,14 +27,38 @@
           :isPlayer="!isWatching"
         />
 
-        <button v-if="isPlayerReady" @click="onLeave('leaveRoom')">
+        <GameButton
+          v-if="isPlayerReady"
+          @click="onLeave('leaveRoom')"
+          :colorStyle="'#ed3833'"
+          >Quit</GameButton
+        >
+        <GameButton
+          v-if="isPlaying"
+          @click="onLeave('giveUpRoom')"
+          :colorStyle="'#ed3833'"
+          >Give Up</GameButton
+        >
+        <GameButton
+          v-if="isOver"
+          @click="onLeave('goBackRoom')"
+          :colorStyle="'#ed3833'"
+          >Go Back</GameButton
+        >
+        <GameButton
+          v-if="isWatching"
+          @click="onLeave('leaveStream')"
+          :colorStyle="'#1645f5'"
+          >Leave Stream</GameButton
+        >
+        <!-- <button v-if="isPlayerReady" @click="onLeave('leaveRoom')">
           Leave Game Room
         </button>
         <button v-if="isPlaying" @click="onLeave('giveUpRoom')">Give Up</button>
         <button v-if="isOver" @click="onLeave('goBackRoom')">Go Back</button>
         <button v-if="isWatching" @click="onLeave('leaveStream')">
           Leave Stream
-        </button>
+        </button> -->
       </div>
     </div>
   </div>
@@ -65,8 +73,8 @@ import useSockets from '../store/sockets'
 import useGameRoom from '../composables/Game/useGameRoom'
 
 import PlayersDisplay from '../components/Game/PlayersDisplay.vue'
-import GameLobby from '../components/Game/MatchmakingLobby.vue'
 import GameBoard from '../components/Game/GameBoard.vue'
+import GameButton from '../components/Game/GameButton.vue'
 
 import { GameState, Room } from '../types/game/gameRoom'
 
@@ -88,7 +96,7 @@ export interface IBonusState {
 
 export default defineComponent({
   name: 'GameRoom',
-  components: { PlayersDisplay, GameLobby, GameBoard },
+  components: { PlayersDisplay, GameButton, GameBoard },
 
   setup() {
     const route = useRoute()
@@ -124,12 +132,6 @@ export default defineComponent({
         return room.value.state == GameState.OVER ? true : false
       return false
     })
-
-    // --- EVENTS ACTIONS ---
-    // const closeModal = () => {
-    //   state.isModalVisible = false
-    //   state.isRoomVisible = true
-    // }
 
     const onReady = (): void => {
       console.log(`Player ${state.currentPlayer.id} READY`)
@@ -169,20 +171,6 @@ export default defineComponent({
 
     const updateRoom = (updatedRoom: Room): void => {
       room.value = { ...updatedRoom }
-      // TODO: if state waiting and room not locked
-      // -> notif user that other player left room
-      // and remove user from room (call onLeave('leaveRoom'))
-      if (updatedRoom.locked === false) {
-        // console.log(updatedRoom.locked)
-        state.isMatched = false
-        // state.isModalVisible = true
-        // isModalVisible.value = true
-      }
-    }
-
-    const updateState = (newState: boolean): void => {
-      console.log('updating matched state ' + newState)
-      state.isMatched = newState
     }
 
     // check if both players are ready
@@ -233,7 +221,15 @@ export default defineComponent({
     gameRoomsSocket.on('roomJoined', (roomRet) => {
       console.log('someone joined the room ' + roomName)
       updateRoom(roomRet)
-      updateState(true)
+    })
+
+    gameRoomsSocket.on('opponentLeaving', () => {
+      console.log('someone left the room')
+      // TODO: change alert to custom notif toast
+      alert(
+        'The other player left the game room - you will be redirected to the game view',
+      )
+      onLeave('leaveRoom')
     })
 
     onMounted(() => {
@@ -263,7 +259,6 @@ export default defineComponent({
       isWatching,
       onReady,
       onLeave,
-      // closeModal,
     }
   },
 })

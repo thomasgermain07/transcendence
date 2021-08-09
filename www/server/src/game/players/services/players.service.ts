@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, IsNull } from 'typeorm';
+import { Repository, IsNull, MoreThan } from 'typeorm';
 
 import { Player } from '../entities/player.entity';
 import { Room } from '../../rooms/entities/room.entity';
@@ -107,6 +107,20 @@ export class PlayersService {
     } catch (error) {
         throw new NotFoundException('Player not found.');
     }
+  }
+
+  public async getInactive(): Promise<Player[]> {
+    console.log('IN GET INACTIVE SERVICE')
+
+    // get list of players that are in unlocked rooms and created more that 10 minutes ago
+    const inactivePlayers = await this.playersRepository.createQueryBuilder("player")
+      .leftJoinAndSelect("player.room", "room")
+      .where("player.createdAt < now() - interval '10 minutes'")
+      .andWhere("room.locked = :locked", { locked: false})
+      .getMany()
+    console.log(inactivePlayers)
+
+    return inactivePlayers
   }
 
   // -------------------------------------------------------------------------

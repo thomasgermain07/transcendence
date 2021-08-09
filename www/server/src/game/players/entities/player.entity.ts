@@ -1,4 +1,4 @@
-import { Entity, Column }                    from 'typeorm';
+import { Entity, Column, CreateDateColumn }  from 'typeorm';
 import { PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 
 import { User } from '../../../users/entities/user.entity';
@@ -23,8 +23,8 @@ export class Player {
   @Column({ default: false })
   isReady: boolean;
 
-  // @Column()
-  // createdAt: Date
+  @CreateDateColumn()
+  createdAt: Date;
 
   @ManyToOne(() => User, (user: User) => user.players, {
       nullable: false,

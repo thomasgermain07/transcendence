@@ -53,7 +53,7 @@ export default defineComponent({
       }
 
       const defaultTimerCount = 3
-      
+
       let searchRange = 3 // same as in server
       const rangeIncrease = 10
       const waitTimeBefIncrease = 30 * 1000
@@ -105,8 +105,6 @@ export default defineComponent({
         console.log('Leaving lobby component')
         context.emit('close')
       }
-
-      // onBeforeRouteLeave....
   
       watch(
         () => props.matchFound,

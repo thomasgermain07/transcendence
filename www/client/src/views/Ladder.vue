@@ -37,14 +37,10 @@ import {
   ref,
   computed,
 } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useStore } from 'vuex'
 import { InGameType, LobbyType } from '../types/game/game'
-import {
-  DifficultyLevel,
-  GameOptions,
-  MapType,
-} from '../types/game/gameOptions'
+import { GameOptions } from '../types/game/gameOptions'
 import { GameMode, Room } from '../types/game/gameRoom'
 import useAllGameRoom from '../composables/Game/useAllGameRoom'
 import { Player } from '../types/game/player'
@@ -113,11 +109,6 @@ export default defineComponent({
       updateWatchRooms(rooms)
     })
 
-    // matchmakingSocket.on('redirect-to-room', (roomId) => {
-    //   console.log(`Redirection to room ${roomId}`)
-    //   router.push(`/game/room/${roomId}`)
-    // })
-
     const lobby: LobbyType = reactive({
       visible: false,
       matched: false,
@@ -126,7 +117,6 @@ export default defineComponent({
 
     const roomName = computed(() => {
       return `lobby-${lobby.player.room.id}`
-      // return `lobby-${lobby.roomId}`
     })
 
     // open modal
@@ -219,6 +209,20 @@ export default defineComponent({
     matchmakingSocket.on('matchFound', () => {
       console.log('Match found')
       updateMatchedState(true)
+    })
+
+    onBeforeRouteLeave((to, from) => {
+      if (lobby.visible) {
+        const answer = window.confirm(
+          'Do you really want to leave? You will be removed from the queue!',
+        )
+        // cancel the navigation and stay on the same page
+        if (!answer) {
+          return false
+        } else {
+          leaveLobby()
+        }
+      }
     })
 
     // --- LIFEHCYCLE HOOKS ---

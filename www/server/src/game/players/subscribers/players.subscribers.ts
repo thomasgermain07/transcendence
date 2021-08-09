@@ -40,7 +40,7 @@ import { UsersService, Achievements } from 'src/users/services/users.service';
   
     async afterRemove(event: RemoveEvent<Player>) {
       console.log(`AFT ENTITY WITH ID ${event.entityId} REMOVED: `, event.entity);
-      if (event.entity.room.state === GameState.WAITING) {
+      if (event.entity?.room?.state === GameState.WAITING) {
         await this.roomsService.update(event.entity.room.id, {locked: false})
       }
     }

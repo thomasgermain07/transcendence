@@ -81,21 +81,16 @@ export class GameRoomsGateway
     @MessageBody() roomId: number,
     @ConnectedSocket() client: Socket,
   ): Promise<string> {
-  // ): string {
 
     const roomName = `room-${roomId}`
     const room = await this.roomsService.findOne(roomId)
     // console.log(room)
 
-
     client.join(roomName);
-    // client.join(room);
-
 
     // emit to all clients in room except the sender
     client.to(roomName).emit('roomJoined', room);
-    // client.to(room).emit('roomJoined', room);
-    // return 'Joined ' + room;
+
     return 'Joined ' + roomName;
   }
 
@@ -105,20 +100,12 @@ export class GameRoomsGateway
     @MessageBody() data: SocketRoomInfo
   ): Promise<string> {
 
-    const roomId = await this.playerService.findRoomNumber(data.playerId)
     // delete player from db
     await this.playerService.remove(data.playerId)
     // remove socket from room
     client.leave(data.room);
-
-    // Update game room for opponent
-    const room = await this.roomsService.findOne(roomId)
-  
-    // TODO: update game room state depending of the situation
-  
-
-    this.server.to(data.room).emit('updateRoomInClient', 
-      {room: room} )
+    // notify other player that someone left the room
+    this.server.to(data.room).emit('opponentLeaving')
   
     return 'Player ' + data.playerId + ' deleted';
   }
@@ -754,7 +741,7 @@ export class GameRoomsGateway
             await userService.updateLadderLevel(game.player_left.getUserId(), newlader_left)
             await userService.updateLadderLevel(game.player_right.getUserId(), newlader_right)
         }
-        
+
         // if (game.player_left.getWinner() && ladder_left > ladder_right
         //   || game.player_right.getWinner() && ladder_right > ladder_left) {
         //   console.log("----------UPDATING LADDER LEVELS-----------")

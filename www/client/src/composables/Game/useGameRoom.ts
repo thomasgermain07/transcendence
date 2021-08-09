@@ -14,9 +14,6 @@ const useGameRoom = () => {
     error: null,
     currentPlayer: null,
     isActive: false,
-    isModalVisible: false,
-    isRoomVisible: true,
-    isMatched: false,
   })
 
   const room = ref({})
@@ -26,40 +23,30 @@ const useGameRoom = () => {
     const response = await axios
       .get(`game/rooms/${routeId}`)
       .catch((error: any) => {
-        // state.error = error
         state.error = error.response.data.message
-        // state.isModalVisible = false
         state.isLoading = false
       })
     if (response) {
-      // console.log('User id: ' + store.state.user.id)
-
+      // transfer data into room
       room.value = response.data
 
+      // find if current user is a player of the room
       state.currentPlayer = response.data.players.find(
         (player: Player) => player.user.id === currentUser.id,
       )
 
-      if (!state.currentPlayer && response.data.state === GameState.WAITING) {
-        console.log('NOT A PLAYER')
+      // protect room access according to state
+      if ((!state.currentPlayer && response.data.state === GameState.WAITING)
+        || (state.currentPlayer && response.data.locked === false)) {
+        console.log('NOT A PLAYER or ROOM INCOMPLETE')
         state.error = 'Not authorized'
       }
 
-      // For Lobby matchmaking
-      if (state.currentPlayer && response.data.state === GameState.WAITING) {
-        // console.log('Room state waiting')
-        state.isModalVisible = true
-        state.isRoomVisible = false
-      }
-      if (state.currentPlayer && response.data.locked === true) {
-        // console.log('Room locked')
-        // state.isModalVisible = false
-        state.isMatched = true
-      }
-
+      // for ready button
       if (state.currentPlayer && state.currentPlayer.isReady === true) {
         state.isActive = true
       }
+      
       state.isLoading = false
     }
   }

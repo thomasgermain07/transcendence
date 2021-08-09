@@ -105,7 +105,7 @@ export default defineComponent({
 })
 </script>
 
-<style>
+<style scoped>
 .game {
   height: 1000px;
   width: 100%;

@@ -64,7 +64,7 @@ import {
   ref,
   computed,
 } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useStore } from 'vuex'
 import { InGameType, LobbyType } from '../types/game/game'
 import {
@@ -190,11 +190,9 @@ export default defineComponent({
 
     const joinLobby = (player: Player): void => {
       console.log('Join lobby from client')
-      // lobby.roomId = player.room.id
-      // lobby.playerId = player.id
       lobby.player = player
-      console.log('Room id: ' + lobby.player.room.id)
-      console.log('Room name: ' + roomName.value)
+      // console.log('Room id: ' + lobby.player.room.id)
+      // console.log('Room name: ' + roomName.value)
       matchmakingSocket.emit(
         'joinLobbyInServer',
         {
@@ -209,12 +207,9 @@ export default defineComponent({
 
     const leaveLobby = () => {
       console.log('In leave lobby Duel view')
-      // lobbyVisible.value = false
       closeLobby()
       matchmakingSocket.emit('leaveLobbyInServer', {
         roomName: roomName.value,
-        // roomId: roomId.value,
-        // playerId: lobby.playerId,
         playerId: lobby.player.id,
       })
     }
@@ -256,6 +251,27 @@ export default defineComponent({
       updateMatchedState(true)
     })
 
+    matchmakingSocket.on('closeLobbyModal', () => {
+      closeLobby()
+    })
+
+    // onBeforeRouteLeave(async (to, from) => {
+    onBeforeRouteLeave((to, from) => {
+      if (lobby.visible) {
+        const answer = window.confirm(
+          'Do you really want to leave? You will be removed from the queue!',
+        )
+        // cancel the navigation and stay on the same page
+        if (!answer) {
+          return false
+        } else {
+          console.log('IN ELSE')
+          leaveLobby()
+          // await leaveLobby()
+        }
+      }
+    })
+
     // --- LIFECYCLE HOOKS ---
     onMounted(() => {
       console.log('In mount matchmaker')
@@ -276,9 +292,6 @@ export default defineComponent({
       rooms,
       currentMode,
       currentUser,
-      // GameMode,
-      // lobbyVisible,
-      // isMatched,
       lobby,
       leaveLobby,
       goToRoom,

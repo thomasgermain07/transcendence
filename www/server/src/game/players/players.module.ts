@@ -9,6 +9,7 @@ import { Player } from './entities/player.entity';
 import { PlayersController } from './controllers/players.controller';
 import { PlayerSubscriber }  from './subscribers/players.subscribers';
 import { PlayersService }    from './services/players.service';
+import { RemoveInactiveService } from './services/remove-inactive.service';
 
 
 @Module({
@@ -18,7 +19,11 @@ import { PlayersService }    from './services/players.service';
     UsersModule
   ],
   controllers: [PlayersController],
-  providers: [PlayersService, PlayerSubscriber],
+  providers: [
+    PlayersService,
+    PlayerSubscriber,
+    RemoveInactiveService,
+  ],
   exports: [PlayersService]
 })
 export class PlayersModule {}
