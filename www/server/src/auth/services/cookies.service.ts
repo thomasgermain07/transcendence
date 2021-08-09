@@ -33,11 +33,11 @@ export class CookiesService
 		: { token: string, cookie: string }
 	{
 		const secret = type === CookieType.AUTHENTICATION
-			? process.env.JWT_ACCESS_TOKEN_SECRET
-			: process.env.JWT_REFRESH_TOKEN_SECRET;
+			? process.env.JWT_ACCESS_SECRET
+			: process.env.JWT_REFRESH_SECRET;
 		const lifetime = type === CookieType.AUTHENTICATION
-			? process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME
-			: process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME;
+			? process.env.VITE_JWT_ACCESS_LIFETIME
+			: process.env.VITE_JWT_REFRESH_LIFETIME;
 
 		const payload: TokenPayload = { user_id: user.id };
 

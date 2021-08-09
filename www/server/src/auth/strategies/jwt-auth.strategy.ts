@@ -1,5 +1,4 @@
 import { Injectable }            from "@nestjs/common";
-import { UnauthorizedException } from "@nestjs/common";
 import { PassportStrategy }      from "@nestjs/passport";
 import { Request }               from "express";
 import { Strategy }              from "passport-jwt";
@@ -10,7 +9,7 @@ import { User }         from "src/users/entities/user.entity";
 import { AuthService }  from "../services/auth.service";
 import { TokenPayload } from "../interfaces/token-payload.interface";
 
-const ACCESS_SECRET: string = process.env.JWT_ACCESS_TOKEN_SECRET;
+const ACCESS_SECRET: string = process.env.JWT_ACCESS_SECRET;
 
 @Injectable()
 export class JwtAuthStrategy
@@ -41,14 +40,9 @@ export class JwtAuthStrategy
 	)
 		: Promise<User>
 	{
-		const user: User = await this.auth_svc.authenticate({
+		return this.auth_svc.authenticate({
 			id: payload.user_id,
 		});
-
-		if (!user)
-			throw new UnauthorizedException("Jwt Authentication failed.");
-
-		return user;
 	}
 
 }

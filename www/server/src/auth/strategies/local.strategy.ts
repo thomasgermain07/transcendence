@@ -1,5 +1,4 @@
 import { Injectable }            from "@nestjs/common";
-import { UnauthorizedException } from "@nestjs/common";
 import { PassportStrategy }      from "@nestjs/passport";
 import { Strategy }              from "passport-local";
 
@@ -34,15 +33,10 @@ export class LocalStrategy
 	)
 		: Promise<User>
 	{
-		const user: User = await this.auth_svc.authenticate({
+		return this.auth_svc.authenticate({
 			email: email,
 			password: password,
-		});
-
-		if (!user)
-			throw new UnauthorizedException("Invalid credentials.");
-
-		return user;
+		});;
 	}
 
 }

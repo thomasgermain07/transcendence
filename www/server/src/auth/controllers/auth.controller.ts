@@ -1,5 +1,5 @@
 import { Body, Req, Controller } from "@nestjs/common";
-import { Get, Post, Delete }     from "@nestjs/common";
+import { Post, Delete }          from "@nestjs/common";
 import { UseGuards }             from "@nestjs/common";
 import { Request }               from "express";
 
@@ -14,6 +14,10 @@ import { AuthService }      from "../services/auth.service";
 import { CookieType }       from "../services/cookies.service";
 import { CookiesService }   from "../services/cookies.service";
 import { AuthUser }         from "../decorators/auth-user.decorator";
+
+type LoginResponseType = {
+	two_factor_enabled: boolean;
+};
 
 @Controller('auth')
 export class AuthController
@@ -47,7 +51,7 @@ export class AuthController
 		@AuthUser() user: User,
 		@Req() request: Request,
 	)
-		: Promise<User>
+		: Promise<LoginResponseType>
 	{
 		const auth    = this.cookies_svc.getJwtTokenCookie(user, CookieType.AUTHENTICATION);
 		const refresh = this.cookies_svc.getJwtTokenCookie(user, CookieType.REFRESH);
@@ -56,7 +60,9 @@ export class AuthController
 
 		request.res.setHeader('Set-Cookie', [auth.cookie, refresh.cookie]);
 
-		return user;
+		return {
+			two_factor_enabled: false,
+		};
 	}
 
 	@UseGuards(OAuthMarvinGuard)
@@ -65,11 +71,10 @@ export class AuthController
 		@AuthUser() user: User,
 		@Req() request: Request,
 	)
-		: Promise<User>
+		: Promise<LoginResponseType>
 	{
-		this.login(user, request);
+		return this.login(user, request);
 
-		return user;
 	}
 
 	@UseGuards(JwtRefreshGuard)
@@ -78,13 +83,13 @@ export class AuthController
 		@AuthUser() user: User,
 		@Req() request: Request,
 	)
-		: Promise<User>
+		: Promise<void>
 	{
 		const auth = this.cookies_svc.getJwtTokenCookie(user, CookieType.AUTHENTICATION);
 
 		request.res.setHeader('Set-Cookie', auth.cookie);
 
-		return user;
+		return ;
 	}
 
 	@UseGuards(JwtAuthGuard)
@@ -98,6 +103,8 @@ export class AuthController
 		this.auth_svc.logout(user);
 
 		request.res.setHeader('Set-Cookie', this.cookies_svc.getJwtClearCookies());
+
+		return ;
 	}
 
 }

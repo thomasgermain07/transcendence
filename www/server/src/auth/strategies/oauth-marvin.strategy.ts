@@ -1,5 +1,5 @@
 import { Injectable }       from "@nestjs/common";
-import { HttpService }      from "@nestjs/common";
+import { HttpService }      from "@nestjs/axios";
 import { PassportStrategy } from "@nestjs/passport";
 import { stringify }        from "querystring";
 import { Strategy }         from "passport-oauth2";

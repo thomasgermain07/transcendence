@@ -2,6 +2,7 @@ import { NestFactory }    from "@nestjs/core";
 import { ValidationPipe } from "@nestjs/common";
 import { useContainer }   from "class-validator";
 import * as cookieParser  from "cookie-parser";
+import * as csurf         from "csurf";
 
 import { AppModule } from 'src/app/app.module'
 
@@ -27,6 +28,10 @@ async function bootstrap()
 	// Facilitate `cookies` usage
 	// See: https://docs.nestjs.com/techniques/cookies
 	app.use(cookieParser());
+
+	// CSRF Protection
+	// See: https://docs.nestjs.com/security/csrf
+	app.use(csurf({ cookie: { sameSite: true, httpOnly: true } }));
 
 	// Allow `class-validator` to use `NestJS` Dependency Injection
 	useContainer(app.select(AppModule), { fallbackOnErrors: true });

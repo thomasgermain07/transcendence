@@ -1,5 +1,4 @@
 import { Injectable }            from "@nestjs/common";
-import { UnauthorizedException } from "@nestjs/common";
 import { PassportStrategy }      from "@nestjs/passport";
 import { Request }               from "express";
 import { Strategy }              from "passport-jwt";
@@ -10,7 +9,7 @@ import { User }         from "src/users/entities/user.entity";
 import { AuthService }  from "../services/auth.service";
 import { TokenPayload } from "../interfaces/token-payload.interface";
 
-const REFRESH_SECRET: string = process.env.JWT_REFRESH_TOKEN_SECRET;
+const REFRESH_SECRET: string = process.env.JWT_REFRESH_SECRET;
 
 @Injectable()
 export class JwtRefreshStrategy
@@ -43,15 +42,10 @@ export class JwtRefreshStrategy
 	)
 		: Promise<User>
 	{
-		const user: User = await this.auth_svc.authenticate({
+		return this.auth_svc.authenticate({
 			id: payload.user_id,
 			refresh_token: request.cookies?.Refresh,
 		});
-
-		if (!user)
-			throw new UnauthorizedException("Jwt Authentication Refresh failed.");
-
-		return user;
 	}
 
 }
