@@ -23,6 +23,9 @@ export class Player {
   @Column({ default: false })
   isReady: boolean;
 
+  // @Column()
+  // createdAt: Date
+
   @ManyToOne(() => User, (user: User) => user.players, {
       nullable: false,
       eager: true,

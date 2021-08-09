@@ -2,28 +2,12 @@
   <div>
     <div v-if="state.isLoading">Loading ...</div>
     <div v-else-if="state.error">
+      <p></p>
       {{ state.error }}
     </div>
     <div v-else>
-      <GameLobby
-        :room="room"
-        :isMatched="state.isMatched"
-        v-if="state.isModalVisible"
-        @close="closeModal"
-        @leaveLobby="onLeave('leaveRoom')"
-      >
-        <template v-slot:header> Hi {{ currentUser.name }} </template>
-
-        <!-- <template v-slot:body>
-          Looking for player 
-        </template> -->
-        <!-- 
-        <template v-slot:footer>
-          This is a new modal footer.
-        </template> -->
-      </GameLobby>
-
-      <div class="game-room" v-if="state.isRoomVisible">
+      <!-- <div class="game-room" v-if="state.isRoomVisible"> -->
+      <div class="game-room">
         <h1>Game Room {{ route.params.id }}</h1>
         <p>Current user: {{ currentUser }}</p>
         <div class="game-info" v-if="room">
@@ -142,10 +126,10 @@ export default defineComponent({
     })
 
     // --- EVENTS ACTIONS ---
-    const closeModal = () => {
-      state.isModalVisible = false
-      state.isRoomVisible = true
-    }
+    // const closeModal = () => {
+    //   state.isModalVisible = false
+    //   state.isRoomVisible = true
+    // }
 
     const onReady = (): void => {
       console.log(`Player ${state.currentPlayer.id} READY`)
@@ -191,7 +175,7 @@ export default defineComponent({
       if (updatedRoom.locked === false) {
         // console.log(updatedRoom.locked)
         state.isMatched = false
-        state.isModalVisible = true
+        // state.isModalVisible = true
         // isModalVisible.value = true
       }
     }
@@ -279,7 +263,7 @@ export default defineComponent({
       isWatching,
       onReady,
       onLeave,
-      closeModal,
+      // closeModal,
     }
   },
 })

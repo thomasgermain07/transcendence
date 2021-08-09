@@ -23,13 +23,13 @@ export default defineComponent({
 		const router = useRouter()
 
 		const onWatch = (roomId: number): void => {
-			console.log(roomId);
+			// console.log(roomId);
 			router.push(`/game/room/${roomId}`)
 		}
 
 		watch(() => props.rooms, () => {
-			console.log("WATCH WATTCH")
-			console.log(props.rooms);
+			// console.log("WATCH WATTCH")
+			// console.log(props.rooms);
 		})
 
     return {

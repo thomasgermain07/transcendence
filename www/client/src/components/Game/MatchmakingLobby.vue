@@ -5,42 +5,29 @@
         <slot name="header">
           This is the default title!
         </slot>
-        <!-- <button
-          type="button"
-          class="btn-close"
-          @click="close"
-        >
-          x
-        </button> -->
       </header>
 
       <section class="modal-body">
         <slot name="body">
-          This is the default body!
+          This is the default body
           <h3>Room Options: </h3>
-          <p>Map : {{ room.option.map }}</p>
-          <p>Level: {{ room.option.difficulty }}</p>
-          <p>Addons: {{ room.option.powerUps }}</p>
+          <p>Map : {{ defaultOptions.map }}</p>
+          <p>Level: {{ defaultOptions.difficulty }}</p>
+          <p>Addons: {{ defaultOptions.powerUps }}</p>
         </slot>
        </section>
 
       <footer class="modal-footer">
         <slot name="footer">
-            <p>Has been matched? {{ matched }} </p>
-          {{ status }} (default)
+            <p>Has been matched? {{ props.matchFound }} </p>
+          {{ status }}
         </slot>
-        <!-- <button
-          type="button"
-          class="btn-green"
-          @click="close"
-        >
-          Close Modal
-        </button> -->
+
         <button
-          v-show="!matched"
+          v-show="!matchFound"
           type="button"
           class="btn-green"
-          @click="leaveLobby"
+          @click="onLeave"
         >
           Stop Waiting and Leave
         </button>
@@ -50,73 +37,117 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref, watch, onMounted } from 'vue';
+import { defineComponent, computed, ref, watch, onMounted, onUnmounted } from 'vue';
+import { DifficultyLevel, GameOptions, MapType } from '../../types/game/gameOptions';
 
 export default defineComponent({
     name: 'GameLobby',
-    props: ["room", "isMatched"],
-    emits: ["close", "leaveLobby"],
+    props: ["gameMode", "matchFound"],
+    emits: ["close", "renewSearch", "redirect-to-game-room"],
     setup(props, context) {
 
-        const room = props.room
-        
-        const matched = computed(() => {
-            return props.isMatched
-        })
+      const defaultOptions: GameOptions = {
+        map: MapType.DEFAULT,
+        difficulty: DifficultyLevel.EASY,
+        powerUps: false,
+      }
 
-        const timerCount = ref(4)
+      const defaultTimerCount = 3
+      
+      let searchRange = 3 // same as in server
+      const rangeIncrease = 10
+      const waitTimeBefIncrease = 30 * 1000
+      // const waitTimeBefIncrease = 2 * 60 * 1000
 
-        const status = computed(() => {
-            const foundMatch = `You will be redirected to the game in ${timerCount.value} seconds` // loading room
-            const searchMatch = 'Looking for a player to join...'
+      const timerCount = ref(defaultTimerCount)
+      let matchTimerId = null
+      let ladderTimerId = null
 
-            if (matched.value) {
-                return foundMatch
-            }
-            return searchMatch
-        })
-
-        const close = () => {
-            context.emit('close')
+      const status = computed(() => {
+        const foundMatch = `You will be redirected to the game in ${timerCount.value} seconds` // loading room
+        const searchMatch = 'Looking for a player to join...'
+        if (props.matchFound) {
+          return foundMatch
         }
+        return searchMatch
+      })
 
-        const leaveLobby = () => {
-            console.log('leave lobby')
-            context.emit('leaveLobby', true)
-        }
-        
-        const startTimer = () => {
-            console.log('Starting Timer')
-            timerCount.value--
-        }
-        watch(() => props.isMatched, () => {
-			console.log('In WATCHER - Matched changed')
+      const startTimer = () => {
+        // console.log('Starting Timer')
+        matchTimerId = setInterval(() => timerCount.value--, 1000)
+      }
+
+      const startLadderTimer = () => {
+        // console.log('Starting Timer')
+        console.log('Ladder timer on')
+        ladderTimerId = setInterval(() => {
+          expandRange()          
+        }, waitTimeBefIncrease)
+      }
+
+      const stopTimer = () => {
+        // console.log('Stopping Timer')
+        clearInterval(matchTimerId)
+        matchTimerId = null
+        timerCount.value = defaultTimerCount
+      }
+
+      const expandRange = () => {
+        console.log('Expending range fct in component')
+        searchRange += rangeIncrease
+        console.log('Search Range: ' + searchRange)
+        // context.emit('renewSearch', searchRange)
+        context.emit('renewSearch', searchRange)
+      }
+
+      const onLeave = () => {
+        // TODO: Are you sure window?
+        console.log('Leaving lobby component')
+        context.emit('close')
+      }
+
+      // onBeforeRouteLeave....
+  
+      watch(
+        () => props.matchFound,
+        () => {
+          console.log('In WATCHER - Matched changed')
+          if (props.matchFound === true) {
+            console.log('matched found')
             startTimer()
-            // matched = props.isMatched
-		})
+          }
+        },
+      )
 
-        watch(timerCount, (value) => {
-			// console.log('In WATCHER - Timer changed')
-			// console.log(value)
-            if (value > 0) {
-                setTimeout(() => {
-                    timerCount.value = value - 1;
-                }, 1000);
-            } else if (value == 0) {
-                console.log('TIME OUT')
-                close()
-            }
-        })
+      watch(timerCount, (value) => {
+        console.log('In WATCHER - Timer changed')
+        // console.log(value)
+        if (value == 0) {
+          console.log('TIME OUT')
+          stopTimer()
+          context.emit('redirect-to-game-room')
+          // router.push(`/game/room/${room.value.id}`)
+        }
+      })
 
-        onMounted(() => {
-            // console.log('LOBBY MOUNTED')
-            // console.log(matched.value)
-            if (matched.value === true) {
-                startTimer()
-            }
-        })
+      onMounted(() => {
+        console.log('LOBBY MOUNTED')
+        // console.log(matched.value)
+        console.log(props.gameMode)
+        if (props.gameMode === 'ladder') {
+          console.log('Lobby: in ladder mode')
+          startLadderTimer()
+        }
+      })
 
-        return { room, matched, status, close, leaveLobby }
+      onUnmounted(() => {
+        console.log('LOBBY UNMOUNT')
+        if (ladderTimerId) {
+          clearInterval(ladderTimerId)
+        }
+      })
+
+      return { props, status, defaultOptions, onLeave }
     },
 })
 </script>
@@ -133,6 +164,7 @@ export default defineComponent({
     display: flex;
     justify-content: center;
     align-items: center;
+    /* z position  */
   }
 
   .modal {
@@ -141,7 +173,10 @@ export default defineComponent({
     overflow-x: auto;
     display: flex;
     flex-direction: column;
-    width: 90%;
+    width: 80%;
+    max-height: 70%;
+    /* font-family: 'Courier New', Courier, monospace; */
+    font-size: 2vh;
   }
 
   .modal-header,
@@ -166,6 +201,7 @@ export default defineComponent({
   .modal-body {
     position: relative;
     padding: 20px 10px;
+    /* font-family: 'Courier New', Courier, monospace; */
   }
 
   .btn-close {

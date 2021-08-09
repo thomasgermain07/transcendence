@@ -173,6 +173,41 @@ export class RoomsService {
         .execute()
   }
 
+  public async checkIfMatchFound(id: number): Promise<boolean> {
+    console.log('IN CHECK LOCKED')
+    // TODO: transform to query which returns player count
+    const room = await this.roomsRepository.findOne(id)
+    console.log(room)
+    if (room.players.length == 2) {
+      console.log('in room service match found')
+      return true
+    }
+    return false
+  }
+
+  public async expandSearchLadder(
+    range: number,
+    user: User
+  ) : Promise<Room> {
+
+    console.log('IN EXPAND RANGE')
+
+    const matchingRange = range;
+    console.log('Matching range: ' + matchingRange)
+
+    const room = await this.roomsRepository.createQueryBuilder("room")
+      .leftJoinAndSelect("room.players", "players")
+      .leftJoinAndSelect("players.user", "users")
+      .where("room.mode = :mode", { mode: GameMode.LADDER })
+      .andWhere("room.locked = :locked", { locked: false })
+      .andWhere(`"users"."ladderLevel" BETWEEN :begin AND :end`, {
+        begin: user.ladderLevel - matchingRange, end: user.ladderLevel + matchingRange} )
+      .getOne();
+
+    console.log(room)
+    return room
+  }
+
   // -------------------------------------------------------------------------
 	// Private methods
 	// -------------------------------------------------------------------------

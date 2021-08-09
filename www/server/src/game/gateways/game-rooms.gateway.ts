@@ -719,12 +719,48 @@ export class GameRoomsGateway
         console.log(ladder_right)
         console.log(game.player_right.getWinner());
         
-        if (game.player_left.winner && ladder_left > ladder_right
-          || game.player_right.winner && ladder_right > ladder_left) {
-          console.log("----------UPDATING LADDER LEVELS-----------")
-          await userService.updateLadderLevel(game.player_left.user_id, ladder_right)
-          await userService.updateLadderLevel(game.player_right.user_id, ladder_left)
+        if (game.player_left.getWinner() && ladder_left >= ladder_right
+          || game.player_right.getWinner() && ladder_right >= ladder_left) {
+            let newlader_left = ladder_left;
+            let newlader_right = ladder_right;
+            if (game.player_left.getWinner()) {
+              const dif = ladder_left - ladder_right;
+              newlader_left += (3 - dif > 1) ? 3 - dif : 1;
+              newlader_right -= ((3 - dif)/2 > 1) ? Math.round((3 - (dif))/2) : 1;
+            }
+            else {
+              const dif = ladder_right - ladder_left;
+              newlader_right += (3 - dif > 1) ? 3 - dif : 1;
+              newlader_left -= ((3 - dif)/2 > 1) ? Math.round((3 - dif)/2) : 1;
+            }
+            await userService.updateLadderLevel(game.player_left.getUserId(), newlader_left)
+            await userService.updateLadderLevel(game.player_right.getUserId(), newlader_right)
         }
+        else if (game.player_left.getWinner() && ladder_left < ladder_right
+          || game.player_right.getWinner() && ladder_right < ladder_left) {
+
+            let newlader_left = ladder_left;
+            let newlader_right = ladder_right;
+            if (game.player_left.getWinner()) {
+              const dif = ladder_right - ladder_left;
+              newlader_left += ((dif) - ((dif) * 40 / 100) > 1) ? Math.round((dif) - ((dif) * 40 / 100)) : 3 - dif;
+              newlader_right -= ((dif) - ((dif) * 70 / 100) > 1) ? Math.round((dif) - ((dif) * 70 / 100)) : 3 - dif;
+            }
+            else {
+              const dif = ladder_left - ladder_right;
+              newlader_right += ((dif) - ((dif) * 40 / 100) > 1) ? Math.round((dif) - ((dif) * 40 / 100)) : 3 - dif;
+              newlader_left -= ((dif) - ((dif) * 70 / 100) > 1) ? Math.round((dif) - ((dif) * 70 / 100)) : 3 - dif;
+            }
+            await userService.updateLadderLevel(game.player_left.getUserId(), newlader_left)
+            await userService.updateLadderLevel(game.player_right.getUserId(), newlader_right)
+        }
+        
+        // if (game.player_left.getWinner() && ladder_left > ladder_right
+        //   || game.player_right.getWinner() && ladder_right > ladder_left) {
+        //   console.log("----------UPDATING LADDER LEVELS-----------")
+        //   await userService.updateLadderLevel(game.player_left.getUserId(), ladder_right)
+        //   await userService.updateLadderLevel(game.player_right.getUserId(), ladder_left)
+        // }
       }
       const rooms: Room[] = await roomsService.findAllByMode(game.info.mode)
       server.emit('updateWatchRoomInClient', {rooms: rooms})
