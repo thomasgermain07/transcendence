@@ -5,7 +5,7 @@ export default function getCreateSubscription() {
   let password_field = ref()
 
   const createSubscription = async (room: any) => {
-    let params: any = { room_id: room.id }
+    let params: any = { room_name: room.name }
     if (room.password) {
       params.password = password_field.value
     }
