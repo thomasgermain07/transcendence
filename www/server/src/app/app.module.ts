@@ -7,6 +7,7 @@ import { join }                        from "path";
 
 import { AuthModule }  from "src/auth/auth.module";
 import { UsersModule } from "src/users/users.module";
+import { ChatModule }  from "src/chat/chat.module";
 
 import { GlobalExceptionFilter } from "./filters/global-exception.filter";
 import { DatabaseConfigService } from "./services/database-config.service";
@@ -26,6 +27,7 @@ import { AppController }         from "./controllers/app.controller";
 		// Api Modules
 		AuthModule,
 		UsersModule,
+		ChatModule,
 	],
 	controllers: [
 		AppController,
