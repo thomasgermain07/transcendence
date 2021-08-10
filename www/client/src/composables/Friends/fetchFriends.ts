@@ -7,10 +7,10 @@ export interface IFriend {
   name: string
 }
 
-export default function fetchFriends(status: Ref) {
+export default function getFetchFriends(status: Ref) {
   let friends = ref([])
 
-  const getFriends = async () => {
+  const fetchFriends = async () => {
     try {
       const { data } = await axios.get('users') // TODO : Replace to get user's friends when done in api
       friends.value = data
@@ -21,5 +21,5 @@ export default function fetchFriends(status: Ref) {
     }
   }
 
-  return { friends, getFriends }
+  return { friends, fetchFriends }
 }

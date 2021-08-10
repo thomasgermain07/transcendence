@@ -6,6 +6,9 @@
     "build": "vue-tsc --noEmit && vite build",
     "serve": "vite preview"
   },
+  "exports": {
+    "@/": "./src/"
+  },
   "dependencies": {
     "axios": "^0.21.1",
     "socket.io-client": "^4.1.2",

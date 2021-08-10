@@ -70,34 +70,29 @@
 
 <script lang="ts">
 import { onMounted, ref } from 'vue'
-import fetchFriends from '../../composables/Friends/fetchFriends'
+import getFetchFriends from '@/composables/Friends/fetchFriends'
 import {
   getFriendsByName,
   getFriendsByStatus,
-} from '../../composables/Friends/getFriendsByFilters'
-import requestStatus from '../../composables/requestStatus'
+} from '@/composables/Friends/getFriendsByFilters'
+import requestStatus from '@/composables/requestStatus'
+import getFriendsWindowInteraction from '@/composables/Window/FriendsWindowInteraction'
 
 export default {
   setup() {
-    let showOnline = ref(true)
-    let showOffline = ref(false)
     let status = ref(requestStatus.loading)
 
-    let { friends, getFriends } = fetchFriends(status)
+    let { friends, fetchFriends } = getFetchFriends(status)
     let { searchQuery, friendsByName } = getFriendsByName(friends)
     const { onlineFriends, offlineFriends } = getFriendsByStatus(friends)
+    let { showOffline, showOnline, toggle_offline, toggle_online } =
+      getFriendsWindowInteraction()
 
     const resetValue = () => {
       searchQuery.value = ''
     }
-    const toggle_online = () => {
-      showOnline.value = !showOnline.value
-    }
-    const toggle_offline = () => {
-      showOffline.value = !showOffline.value
-    }
 
-    onMounted(getFriends)
+    onMounted(fetchFriends)
 
     return {
       // Variables
@@ -106,7 +101,7 @@ export default {
       showOffline,
       status, // TODO : Handle status error in templates
       // Methods
-      getFriends,
+      fetchFriends,
       resetValue,
       toggle_online,
       toggle_offline,
@@ -116,7 +111,6 @@ export default {
       friendsByName,
     }
   },
-  emits: ['open_chat'],
 }
 </script>
 

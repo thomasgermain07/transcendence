@@ -5,7 +5,7 @@
       <Rooms ref="rooms" @open="open" />
     </div>
     <div class="chat-ctn">
-      <Room v-if="openned == 'room'" />
+      <Room v-if="openned == 'room'" :room_id="room" />
       <CreateRoom
         v-if="openned == 'create'"
         @close="close"
@@ -21,12 +21,14 @@
 </template>
 
 <script lang="ts">
-import Rooms from './Chat/Rooms.vue'
-import CreateRoom from './Chat/CreateRoom.vue'
-import JoinRoom from './Chat/JoinRoom.vue'
-import Room from './Chat/Room.vue'
-import { getRoomsInteraction } from '../../composables/Chat/windowInteraction'
-import { ref } from '@vue/reactivity'
+import Rooms from './Chat/Rooms/Rooms.vue'
+import CreateRoom from './Chat/CreateRoom/CreateRoom.vue'
+import JoinRoom from './Chat/JoinRoom/JoinRoom.vue'
+import Room from './Chat/Room/Room.vue'
+import {
+  getChatWindowInteraction,
+  getRoomsInteraction,
+} from '@/composables/Chat/WindowInteraction/windowInteraction'
 
 export default {
   components: {
@@ -35,40 +37,16 @@ export default {
     CreateRoom,
     JoinRoom,
   },
-  setup(props, { attrs, slots, emit }) {
+  setup(props, { emit }) {
     let { rooms, refresh_rooms } = getRoomsInteraction()
-    let openned = ref('')
+    let { room, openned, open, close } = getChatWindowInteraction(
+      (title: String) => {
+        emit('set_page_title', title)
+      },
+    )
 
-    const open_room = (id: number, name: string) => {
-      emit('set_page_title', name)
-      console.log(`open chat id: ${id} (${name})`)
-      // TODO : open Room vue
-    }
-
-    const close = () => {
-      openned.value = ''
-    }
-
-    const open = (vue: string, params?: any) => {
-      if (vue == 'room') {
-        open_room(params.id, params.name)
-        openned.value = vue
-      } else if (vue == 'create') {
-        openned.value = vue
-      } else if (vue == 'join') {
-        openned.value = vue
-      }
-    }
-
-    return {
-      rooms,
-      openned,
-      open,
-      close,
-      refresh_rooms,
-    }
+    return { rooms, room, openned, open, close, refresh_rooms }
   },
-  emit: ['set_page_title'],
 }
 </script>
 
@@ -76,6 +54,7 @@ export default {
 .chat-window {
   display: flex;
   height: 100%;
+  flex-grow: 1;
   border-left: 2px solid black;
 }
 
@@ -95,5 +74,6 @@ export default {
 
 .chat-ctn {
   flex-grow: 1;
+  display: flex;
 }
 </style>

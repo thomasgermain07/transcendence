@@ -1,6 +1,10 @@
 <template>
   <div class="create-room-ctn">
-    <header class="window-title">Create new room</header>
+    <header class="window-bar">
+      <i class="fas fa-arrow-left" @click="$emit('close')"></i>
+      <p class="window-title">Create room</p>
+      <i class="fas fa-arrow-left window-bar__separator"></i>
+    </header>
     <div class="field-ctn">
       <p>Give your room a name</p>
       <input
@@ -67,11 +71,8 @@
 
 <script lang="ts">
 import { ref } from 'vue'
-import {
-  getRoomInputs,
-  createRoom,
-} from '../../../composables/Chat/Room/createRoom'
-import requestStatus from '../../../composables/requestStatus'
+import { getRoomInputs, createRoom } from '@/composables/Chat/Room/createRoom'
+import requestStatus from '@/composables/requestStatus'
 
 export default {
   setup(props, { emit }) {
@@ -91,15 +92,8 @@ export default {
         })
     }
 
-    return {
-      fields,
-      errors,
-      status,
-      sendData,
-      sendable,
-    }
+    return { fields, errors, status, sendData, sendable }
   },
-  emits: ['close', 'refresh_rooms'],
 }
 </script>
 
@@ -107,12 +101,30 @@ export default {
 .create-room-ctn {
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
+}
+
+.window-bar {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px solid black;
+  background-color: darkgray;
+}
+
+.window-bar__separator {
+  visibility: hidden;
 }
 
 .window-title {
-  flex-basis: 25px;
+  align-self: center;
   font-weight: bold;
   font-size: x-large;
+}
+
+.window-bar > i {
+  padding: 5px;
+  font-size: large;
+  cursor: pointer;
 }
 
 .field-ctn {

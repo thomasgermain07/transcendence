@@ -16,19 +16,16 @@
 
 <script lang="ts">
 import { onMounted, ref } from 'vue'
-import fetchUsers from '../composables/Users/fetchUsers'
+import getFetchUsers from '../composables/Users/fetchUsers'
 
 export default {
   setup() {
     let loading = ref(true)
-    let { users, getUsers } = fetchUsers(loading)
+    let { users, fetchUsers } = getFetchUsers(loading)
 
-    onMounted(getUsers)
+    onMounted(fetchUsers)
 
-    return {
-      users,
-      loading,
-    }
+    return { users, loading }
   },
 }
 </script>

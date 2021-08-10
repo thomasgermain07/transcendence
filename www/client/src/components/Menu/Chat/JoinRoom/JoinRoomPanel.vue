@@ -2,7 +2,7 @@
   <div class="panel-ctn">
     <div class="roll-menu__password">
       <input
-        type="text"
+        type="password"
         placeholder="password"
         class="field-input"
         v-if="room.password"
@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { ref } from '@vue/reactivity'
-import getCreateSubscription from './../../../composables/Chat/Subscriptions/createSubscriptions'
+import getCreateSubscription from '@/composables/Chat/Subscriptions/createSubscriptions'
 
 export default {
   props: {
@@ -31,20 +31,15 @@ export default {
     const join = () => {
       createSubscription(props.room)
         .then(() => {
-          emit('joinned')
+          emit('subCreate')
         })
         .catch((e) => {
           error.value = e.response.data.message
         })
     }
 
-    return {
-      error,
-      password_field,
-      join,
-    }
+    return { error, password_field, join }
   },
-  emits: ['joinned'],
 }
 </script>
 

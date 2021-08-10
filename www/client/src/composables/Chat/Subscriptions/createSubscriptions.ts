@@ -13,8 +13,5 @@ export default function getCreateSubscription() {
     return await axios.post('chat/subscriptions', params)
   }
 
-  return {
-    password_field,
-    createSubscription,
-  }
+  return { password_field, createSubscription }
 }

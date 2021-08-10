@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { Ref, ref, watch, computed } from 'vue'
-import requestStatus from '../../requestStatus'
+import requestStatus from '@/composables/requestStatus'
 
 export function getRoomInputs() {
   let name_f = ref('')

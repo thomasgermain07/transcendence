@@ -1,4 +1,4 @@
-import router from '../../routers/router'
+import router from '@/routers/router'
 import axios, { AxiosResponse } from 'axios'
 import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
 import { IUserState } from './user'

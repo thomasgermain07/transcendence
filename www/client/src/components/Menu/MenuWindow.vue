@@ -17,7 +17,7 @@
         <a @click="close_chat">
           <i class="far fa-times-circle top-bar__close"></i>
         </a>
-        <div class="top-bar__name">Chat - {{ current_room }}</div>
+        <div class="top-bar__name">Chat - {{ page_title }}</div>
       </header>
       <ChatWindow @set_page_title="set_page_title" />
     </div>
@@ -27,32 +27,40 @@
 <script lang="ts">
 import FriendWindow from './FriendWindow.vue'
 import ChatWindow from './ChatWindow.vue'
+import { ref } from '@vue/reactivity'
 
 export default {
   components: {
     FriendWindow,
     ChatWindow,
   },
-  data() {
-    return {
-      open: false,
-      chat_open: false,
-      current_room: '',
+  setup() {
+    let open = ref(false)
+    let chat_open = ref(false)
+    let page_title = ref('')
+
+    const toggle_window = () => {
+      open.value = !open.value
     }
-  },
-  methods: {
-    toggle_window() {
-      this.open = !this.open
-    },
-    open_chat() {
-      this.chat_open = true
-    },
-    close_chat() {
-      this.chat_open = false
-    },
-    set_page_title(title: string) {
-      this.current_room = title
-    },
+    const open_chat = () => {
+      chat_open.value = true
+    }
+    const close_chat = () => {
+      chat_open.value = false
+    }
+    const set_page_title = (title: string) => {
+      page_title.value = title
+    }
+
+    return {
+      open,
+      chat_open,
+      page_title,
+      toggle_window,
+      open_chat,
+      close_chat,
+      set_page_title,
+    }
   },
 }
 </script>
@@ -69,7 +77,7 @@ export default {
   width: 180px;
   height: 400px;
   position: fixed;
-  bottom: 0;
+  bottom: 0px;
   right: 10px;
   background-color: grey;
 }
@@ -86,6 +94,8 @@ export default {
 
 .window-chat {
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
   border-right: 2px solid lightgray;
 }
 

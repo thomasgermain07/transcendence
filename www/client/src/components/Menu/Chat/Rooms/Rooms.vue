@@ -21,21 +21,21 @@
 
 <script lang="ts">
 import { onMounted, ref } from 'vue'
-import fetchRooms from '../../../composables/Chat/Rooms/fetchRooms'
-import requestStatus from '../../../composables/requestStatus'
+import getFetchRooms from '@/composables/Chat/Rooms/fetchRooms'
+import requestStatus from '@/composables/requestStatus'
 
 export default {
   setup() {
     let status = ref(requestStatus.loading)
 
-    let { rooms, getRooms } = fetchRooms(status)
+    let { rooms, fetchRooms } = getFetchRooms(status)
 
-    onMounted(() => getRooms(true))
+    onMounted(() => fetchRooms(true))
 
     return {
       rooms,
       status,
-      getRooms,
+      fetchRooms,
     }
   },
   emits: ['open'],
