@@ -1,6 +1,6 @@
-import axios from 'axios'
 import { Ref, ref, watch, computed } from 'vue'
 import requestStatus from '@/composables/requestStatus'
+import { useAxios } from '@/composables/axios'
 
 export function getRoomInputs() {
   let name_f = ref('')
@@ -42,6 +42,7 @@ export function getRoomInputs() {
 
 export async function createRoom(fields: any, status: Ref) {
   status.value = requestStatus.sending
+  const { axios } = useAxios()
 
   let params: any = { name: fields.name.value, visible: fields.visible.value }
   if (fields.password.value.length) {

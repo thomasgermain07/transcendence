@@ -2,6 +2,7 @@
   <a class="open-button" v-if="!open" @click="toggle_window">
     <i class="fas fa-comments fa-2x"></i>
   </a>
+
   <div v-if="open" class="window" :class="{ 'window--chat-open': chat_open }">
     <div class="window-friend">
       <header class="top-bar">

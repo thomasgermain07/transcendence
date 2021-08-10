@@ -28,11 +28,11 @@
 <script lang="ts">
 import ErrorPage from '../components/ErrorPage.vue'
 import { ref, computed, watchEffect } from 'vue'
-import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import fetchUser from '../composables/User/fetchUser'
 import requestStatus from '../composables/requestStatus'
 import { addFriend, removeFriend } from '../composables/User/userInteraction'
+import { useAuth } from '@/composables/auth'
 
 export default {
   components: {
@@ -40,12 +40,11 @@ export default {
   },
   setup() {
     const route = useRoute()
-    const store = useStore()
     let status = ref(requestStatus.loading)
 
     const { user, getUser } = fetchUser(status)
     const isCurrentUser = computed(() => {
-      return user.value.id == store.state.user.id
+      return user.value.id == useAuth().user.id
     })
 
     watchEffect(() => {
@@ -66,7 +65,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .profile-ctn {
   display: flex;
   flex-direction: column;

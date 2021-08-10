@@ -30,7 +30,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .users-list {
   list-style-type: none;
   align-items: center;

@@ -1,107 +1,73 @@
-import { Injectable }          from '@nestjs/common'
-import { BadRequestException } from '@nestjs/common'
-import * as bcrypt             from 'bcrypt'
+import { Injectable } from '@nestjs/common'
+import * as bcrypt from 'bcrypt'
 
 import { CreateUserDto } from 'src/users/dto/create-user.dto'
-import { User }          from 'src/users/entities/user.entity'
-import { UsersService }  from 'src/users/services/users.service'
-import { MarvinLoginDto } from '../dto/marvin-login.dto'
-import { RegisterDto }	 from '../dto/register.dto'
+import { User } from 'src/users/entities/user.entity'
+import { UsersService } from 'src/users/services/users.service'
+
 import { AuthenticationPayload } from '../interfaces/authentication-payload.interface'
 
 @Injectable()
-export class AuthService
-{
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
-	constructor(
-		private readonly users_svc: UsersService,
-	)
-	{
+export class AuthService {
+  // -------------------------------------------------------------------------
+  // Constructor
+  // -------------------------------------------------------------------------
+  constructor(private readonly users_svc: UsersService) {}
 
-	}
+  // -------------------------------------------------------------------------
+  // Public methods
+  // -------------------------------------------------------------------------
+  async register(create_dto: CreateUserDto): Promise<User> {
+    if (create_dto.password)
+      create_dto.password = await this.hashSecure(create_dto.password)
 
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
-	public async register(
-		registrationData: RegisterDto
-	)
-		: Promise<User>
-	{
-		registrationData.password = await this.hashSecure(registrationData.password);
+    return this.users_svc.create(create_dto)
+  }
 
-		return this.users_svc.create(registrationData);
-	}
+  // Todo: Verify empty args (password / token)
+  async authenticate(data: AuthenticationPayload): Promise<User> {
+    const credentials = {}
+    data.id ? (credentials['id'] = data.id) : null
+    data.email ? (credentials['email'] = data.email) : null
+    data.marvin_id ? (credentials['marvin_id'] = data.marvin_id) : null
 
-	public async findOrCreateAuthMarvinUser(data: MarvinLoginDto) {
-		let user: User = await this.users_svc.findOne(data);
+    const user: User = await this.users_svc.findOne(credentials)
 
-		if (!user)
-			user = await this.users_svc.create({ ...data });
+    if (!user) return undefined
 
-		return user
-	}
+    if (data.password && !(await this.hashVerify(data.password, user.password)))
+      return undefined
 
-	async authenticate(
-		data: AuthenticationPayload,
-	)
-		: Promise<User>
-	{
-		const credentials = {};
-		data.id    ? credentials['id']    = data.id    : null;
-		data.email ? credentials['email'] = data.email : null;
+    if (
+      data.refresh_token &&
+      !(await this.hashVerify(data.refresh_token, user.refresh_token))
+    )
+      return undefined
 
-		const user: User = await this.users_svc.findOne(credentials);
+    return user
+  }
 
-		if (!user)
-			return undefined;
+  async refresh(user: User, token: string): Promise<void> {
+    await this.users_svc.setRefreshToken(user, await this.hashSecure(token))
+  }
 
-		if (data.password && !await this.hashVerify(data.password, user.password))
-			return undefined;
+  async logout(user: User): Promise<void> {
+    return this.users_svc.setRefreshToken(user, null)
+  }
 
-		if (data.token && !await this.hashVerify(data.token, user.refreshToken))
-			return undefined;
+  // -------------------------------------------------------------------------
+  // Private methods
+  // -------------------------------------------------------------------------
+  private async hashSecure(data: string): Promise<string> {
+    return bcrypt.hash(data, 10)
+  }
 
-		return user;
-	}
+  private async hashVerify(
+    data: string,
+    hashed_data: string,
+  ): Promise<boolean> {
+    if (!data || !hashed_data) return false
 
-	async refresh(
-		user: User,
-		token: string,
-	)
-		: Promise<void>
-	{
-		await this.users_svc.setRefreshToken(user, await this.hashSecure(token));
-	}
-
-	async logout(
-		user: User,
-	)
-		: Promise<void>
-	{
-		return this.users_svc.setRefreshToken(user, null);
-	}
-
-	// -------------------------------------------------------------------------
-	// Private methods
-	// -------------------------------------------------------------------------
-	private async hashSecure(
-		data: string,
-	)
-		: Promise<string>
-	{
-		return bcrypt.hash(data, 10);
-	}
-
-	private async hashVerify(
-		data : string,
-		hashed_data : string,
-	)
-		: Promise<boolean>
-	{
-		return bcrypt.compare(data, hashed_data);
-	}
-
+    return bcrypt.compare(data, hashed_data)
+  }
 }

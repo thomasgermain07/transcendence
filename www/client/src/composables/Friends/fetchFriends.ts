@@ -1,5 +1,5 @@
 import { Ref, ref } from 'vue'
-import axios from 'axios'
+import { useAxios } from '../axios'
 import requestStatus from '../requestStatus'
 
 export interface IFriend {
@@ -11,6 +11,7 @@ export default function getFetchFriends(status: Ref) {
   let friends = ref([])
 
   const fetchFriends = async () => {
+    const { axios } = useAxios()
     try {
       const { data } = await axios.get('users') // TODO : Replace to get user's friends when done in api
       friends.value = data

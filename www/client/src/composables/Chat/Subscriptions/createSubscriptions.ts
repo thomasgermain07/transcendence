@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { useAxios } from '@/composables/axios'
 import { ref } from 'vue'
 
 export default function getCreateSubscription() {
@@ -10,6 +10,7 @@ export default function getCreateSubscription() {
       params.password = password_field.value
     }
 
+    const { axios } = useAxios()
     return await axios.post('chat/subscriptions', params)
   }
 

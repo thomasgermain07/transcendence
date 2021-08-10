@@ -1,33 +1,36 @@
-import { IsEmail, IsString, MinLength, IsOptional, IsPositive } from 'class-validator'
+import { IsEmail, IsOptional } from 'class-validator'
+import { IsString, IsPositive } from 'class-validator'
+import { MinLength } from 'class-validator'
 
 import { IsUnique } from '../decorators/is-unique.decorator'
 
-export class CreateUserDto
-{
+export class CreateUserDto {
+  // -------------------------------------------------------------------------
+  // Attributes
+  // -------------------------------------------------------------------------
+  @IsUnique('email')
+  @IsEmail()
+  public email: string
 
-	@IsUnique('email')
-	@IsEmail()
-	email: string
+  @IsUnique('name')
+  @MinLength(3)
+  @IsString()
+  public name: string
 
-	@IsUnique('name')
-	@MinLength(3)
-	@IsString()
-	name: string
+  @IsString()
+  @IsOptional()
+  public avatar?: string
 
-	@MinLength(6)
-	@IsString()
-	@IsOptional()
-	password?: string
+  // -------------------------------------------------------------------------
+  // Authentication
+  // -------------------------------------------------------------------------
+  @MinLength(6)
+  @IsString()
+  @IsOptional()
+  public password?: string
 
-	@IsUnique('marvinId')
-	@IsPositive()
-	@IsOptional()
-	marvinId?: number
-
-	@IsString()
-	@IsOptional()
-	avatar?: string
-
+  @IsUnique('marvin_id')
+  @IsPositive()
+  @IsOptional()
+  public marvin_id?: number
 }
-
-export default CreateUserDto;
