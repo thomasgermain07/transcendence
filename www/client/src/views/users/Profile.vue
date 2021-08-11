@@ -20,19 +20,26 @@
     <div class="user-interaction">
       <button v-if="!isCurrentUser" @click="addFriend(user)">add friend</button>
     </div>
+    <div class="user-interaction">
+      <button v-if="!isCurrentUser" @click="removeFriend(user)">
+        remove friend
+      </button>
+    </div>
 
     <hr class="separator" />
   </div>
 </template>
 
 <script lang="ts">
-import ErrorPage from '../components/ErrorPage.vue'
 import { ref, computed, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
-import fetchUser from '../composables/User/fetchUser'
-import requestStatus from '../composables/requestStatus'
-import { addFriend, removeFriend } from '../composables/User/userInteraction'
 import { useAuth } from '@/composables/auth'
+
+import ErrorPage from '@/components/ErrorPage.vue'
+
+import getFetchUser from '@/composables/User/fetchUser'
+import requestStatus from '@/composables/requestStatus'
+import { addFriend, removeFriend } from '@/composables/User/userInteraction'
 
 export default {
   components: {
@@ -40,23 +47,25 @@ export default {
   },
   setup() {
     const route = useRoute()
-    let status = ref(requestStatus.loading)
 
-    const { user, getUser } = fetchUser(status)
+    let status = ref(requestStatus.loading)
+    const { user, fetchUser } = getFetchUser(status)
+
     const isCurrentUser = computed(() => {
       return user.value.id == useAuth().user.id
     })
 
     watchEffect(() => {
-      if (route.params.id != undefined) {
-        getUser(route.params.id)
+      if (route.params.id == undefined) {
+        fetchUser(useAuth().user.id)
+      } else {
+        fetchUser(route.params.id)
       }
     })
 
     return {
       user,
       status,
-      getUser,
       addFriend,
       removeFriend,
       isCurrentUser,

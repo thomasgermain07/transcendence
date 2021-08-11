@@ -2,11 +2,11 @@
   <div class="users-view">
     <h1>Users List</h1>
 
-    <div v-if="loading">Loading content ...</div>
+    <div v-if="status == 'loading'">Loading content ...</div>
 
     <div class="users-list">
       <div class="users-item" v-for="user in users" :key="user">
-        <router-link :to="{ name: 'UserProfile', params: { id: user.id } }">
+        <router-link :to="{ name: 'user-profile', params: { id: user.id } }">
           {{ user.name }}
         </router-link>
       </div>
@@ -16,16 +16,18 @@
 
 <script lang="ts">
 import { onMounted, ref } from 'vue'
-import getFetchUsers from '../composables/Users/fetchUsers'
+
+import getFetchUsers from '../../composables/Users/fetchUsers'
+import requestStatus from '@/composables/requestStatus'
 
 export default {
   setup() {
-    let loading = ref(true)
-    let { users, fetchUsers } = getFetchUsers(loading)
+    let status = ref(requestStatus.loading)
+    let { users, fetchUsers } = getFetchUsers(status)
 
     onMounted(fetchUsers)
 
-    return { users, loading }
+    return { users, status }
   },
 }
 </script>

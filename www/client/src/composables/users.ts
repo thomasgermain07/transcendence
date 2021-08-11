@@ -1,57 +1,49 @@
-import { ref, computed } from "vue";
+import { ref, computed } from 'vue'
 
-import { UsersService } from "@/services/users";
+import { UsersService } from '@/services/users'
 
-import { AxiosErrType } from "./axios";
+import { AxiosErrType } from './axios'
 
 // -----------------------------------------------------------------------------
 // Types
 // -----------------------------------------------------------------------------
 export type UserType = {
-	id: number;
-	name: string;
-	email: string;
-};
+  id: number
+  name: string
+  email: string
+}
 
 // -----------------------------------------------------------------------------
 // Composable
 // -----------------------------------------------------------------------------
-export function useUsers()
-{
-	// -------------------------------------------------------------------------
-	// Datas
-	// -------------------------------------------------------------------------
-	const users = ref();
+export function useUsers() {
+  // -------------------------------------------------------------------------
+  // Datas
+  // -------------------------------------------------------------------------
+  const users = ref()
 
-	// -------------------------------------------------------------------------
-	// Functions
-	// -------------------------------------------------------------------------
-	async function get(
-		id: number | undefined = undefined,
-	)
-		: Promise<void>
-	{
-		try
-		{
-			const res = await UsersService.get(id);
+  // -------------------------------------------------------------------------
+  // Functions
+  // -------------------------------------------------------------------------
+  async function get(id: number | undefined = undefined): Promise<void> {
+    try {
+      const res = await UsersService.get(id)
 
-			console.log("useUsers.get: Done.");
+      console.log('useUsers.get: Done.')
 
-			users.value = res.data;
-		}
-		catch (err: AxiosErrType)
-		{
-			console.log("useUsers.get: Fail.");
-		}
+      users.value = res.data
+    } catch (err: AxiosErrType) {
+      console.log('useUsers.get: Fail.')
+    }
 
-		return ;
-	}
+    return
+  }
 
-	return {
-		// Datas
-		users: computed(() => users.value),
+  return {
+    // Datas
+    users: computed(() => users.value),
 
-		// Functions
-		get,
-	};
-};
+    // Functions
+    get,
+  }
+}
