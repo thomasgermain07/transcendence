@@ -5,7 +5,7 @@
       :gameMode="'ladder'"
       :matchFound="lobby.matched"
       @close="leaveLobby"
-      @renewSearch="expandRange"
+      @renewSearchLadder="expandRange"
       @redirect-to-game-room="goToRoom"
     >
       <template v-slot:header> Hi {{ currentUser.name }} </template>
@@ -28,67 +28,51 @@
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  onMounted,
-  onUnmounted,
-  reactive,
-  watch,
-  ref,
-  computed,
-} from 'vue'
-import { useRouter, onBeforeRouteLeave } from 'vue-router'
+import { defineComponent, onMounted, onUnmounted } from 'vue'
+import { onBeforeRouteLeave } from 'vue-router'
 import { useStore } from 'vuex'
-import { InGameType, LobbyType } from '../types/game/game'
-import { GameOptions } from '../types/game/gameOptions'
+import useSockets from '../store/sockets'
 import { GameMode, Room } from '../types/game/gameRoom'
-import useAllGameRoom from '../composables/Game/useAllGameRoom'
 import { Player } from '../types/game/player'
 import WatchRooms from '../components/Game/WatchRooms.vue'
-import useSockets from '../store/sockets'
 import GameLobby from '../components/Game/MatchmakingLobby.vue'
+import useAllGameRoom from '../composables/Game/useAllGameRoom'
+import useMatchmaker from '../composables/Game/useMatchmaker'
 
 export default defineComponent({
   name: 'Ladder',
   components: { WatchRooms, GameLobby },
 
   setup() {
-    const router = useRouter()
     const store = useStore()
     const currentUser = store.state.user
     const { rooms, loadGameRooms } = useAllGameRoom('ladder')
     const { matchmakingSocket, gameRoomsSocket } = useSockets()
+    const {
+      lobby,
+      roomName,
+      checkInGame,
+      checkIfInGameOrQueue,
+      updateMatchedState,
+      joinLobby,
+      leaveLobby,
+      goToRoom,
+      expandRange,
+      playGame,
+    } = useMatchmaker()
 
     loadGameRooms()
 
     const updateWatchRooms = (updatedRoom: Room[]): void => {
+      loadGameRooms()
       rooms.value = { ...updatedRoom }
     }
-    // check if user is already in Game Room
-    const checkInGame: InGameType = reactive({
-      inGame: false,
-      roomRoute: '',
-    })
 
     const onPlayLadder = (): void => {
       playGame(GameMode.LADDER, null)
     }
 
-    const playGame = (mode: GameMode, options: GameOptions | null): void => {
-      matchmakingSocket.emit(
-        'searchMatch',
-        {
-          user: currentUser,
-          mode: mode,
-          options: options,
-        },
-        (player: Player) => {
-          alert(`${player.user.name} already in Game`)
-        },
-      )
-    }
-
-    // --- SOCKETS ---
+    // --- SOCKETS LISTENERS ---
     matchmakingSocket.on('connect', () => {
       console.log('connected')
       console.log(matchmakingSocket.id)
@@ -104,105 +88,8 @@ export default defineComponent({
       console.log(err)
     })
 
-    gameRoomsSocket.on('updateWatchRoomInClient', ({ rooms }) => {
-      console.log(`in update Watch room`)
-      updateWatchRooms(rooms)
-    })
-
-    const lobby: LobbyType = reactive({
-      visible: false,
-      matched: false,
-      player: null,
-    })
-
-    const roomName = computed(() => {
-      return `lobby-${lobby.player.room.id}`
-    })
-
-    // open modal
-    const showLobby = () => {
-      console.log('In Show Lobby')
-      lobby.visible = true
-    }
-
-    // close modal
-    const closeLobby = () => {
-      console.log('In Close Lobby')
-      lobby.visible = false
-    }
-
-    const joinLobby = (player: Player): void => {
-      console.log('Join lobby from client')
-      lobby.player = player
-      matchmakingSocket.emit(
-        'joinLobbyInServer',
-        {
-          roomName: roomName.value,
-          roomId: lobby.player.room.id,
-        },
-        (message) => {
-          console.log(message)
-        },
-      )
-    }
-
-    const leaveLobby = () => {
-      console.log('In leave lobby Duel view')
-      closeLobby()
-      matchmakingSocket.emit('leaveLobbyInServer', {
-        roomName: roomName.value,
-        playerId: lobby.player.id,
-      })
-    }
-
-    // !!! fct to be put only in ladder view
-    const expandRange = (range: number): void => {
-      console.log('in expand range in ladder view')
-      console.log('Received range: ' + range)
-      matchmakingSocket.emit(
-        'expandSearchRange',
-        {
-          user: currentUser,
-          player: lobby.player,
-          currentRoomName: roomName,
-          range: range,
-        },
-        (player) => {
-          console.log(player)
-          lobby.player = player
-        },
-      )
-    }
-
-    const updateMatchedState = (value: boolean) => {
-      console.log('in update matched state')
-      lobby.matched = value
-    }
-
-    const goToRoom = () => {
-      closeLobby()
-      console.log('Redirection to game room')
-      console.log(lobby.player.room.id)
-      router.push(`/game/room/${lobby.player.room.id}`)
-    }
-
-    const checkIfInGameOrQueue = () => {
-      matchmakingSocket.emit('checkInGame', currentUser, (data: InGameType) => {
-        console.log(data)
-        checkInGame.inGame = data.inGame
-        checkInGame.roomRoute = data.roomRoute
-        // show matchmaking window if player in unlocked game room
-        if (!checkInGame.inGame && checkInGame.roomRoute === 'matchmaking') {
-          showLobby()
-          joinLobby(data.player)
-        }
-      })
-    }
-
     matchmakingSocket.on('joinLobbyInClient', (player: Player) => {
       console.log('Joining lobby')
-      console.log(player)
-      showLobby()
       joinLobby(player)
     })
 
@@ -211,6 +98,12 @@ export default defineComponent({
       updateMatchedState(true)
     })
 
+    gameRoomsSocket.on('updateWatchRoomInClient', ({ rooms }) => {
+      console.log(`in update Watch room`)
+      updateWatchRooms(rooms)
+    })
+
+    // --- NAVIGATION GUARDS ---
     onBeforeRouteLeave((to, from) => {
       if (lobby.visible) {
         const answer = window.confirm(
@@ -234,6 +127,9 @@ export default defineComponent({
 
     onUnmounted(() => {
       console.log('In unmount - matchmaker matchmakingSocket.off')
+      matchmakingSocket.emit('leaveLobbyInServerTest', {
+        roomName: roomName.value,
+      })
       matchmakingSocket.off()
       // gameRoomsSocket.off() ????
     })
@@ -252,7 +148,7 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
+<style>
 .geme-mode a {
   margin: 50% auto;
 }

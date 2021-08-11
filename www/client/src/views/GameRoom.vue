@@ -9,7 +9,7 @@
       <div class="game-room">
         <PlayersDisplay :players="room.players" :roomState="room.state" />
         <!-- @checkReady="onReady" -->
-        <div class="game-ready" v-if="isPlayerReady">
+        <div class="game-ready" v-if="isPlayerWaiting">
           <GameButton
             v-bind:class="{ active: state.isActive }"
             @click="onReady"
@@ -28,7 +28,7 @@
         />
 
         <GameButton
-          v-if="isPlayerReady"
+          v-if="isPlayerWaiting"
           @click="onLeave('leaveRoom')"
           :colorStyle="'#ed3833'"
           >Quit</GameButton
@@ -51,14 +51,6 @@
           :colorStyle="'#1645f5'"
           >Leave Stream</GameButton
         >
-        <!-- <button v-if="isPlayerReady" @click="onLeave('leaveRoom')">
-          Leave Game Room
-        </button>
-        <button v-if="isPlaying" @click="onLeave('giveUpRoom')">Give Up</button>
-        <button v-if="isOver" @click="onLeave('goBackRoom')">Go Back</button>
-        <button v-if="isWatching" @click="onLeave('leaveStream')">
-          Leave Stream
-        </button> -->
       </div>
     </div>
   </div>
@@ -67,7 +59,7 @@
 <script lang="ts">
 import { defineComponent, computed, onMounted, onUnmounted } from 'vue'
 
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useStore } from 'vuex'
 import useSockets from '../store/sockets'
 import useGameRoom from '../composables/Game/useGameRoom'
@@ -111,7 +103,7 @@ export default defineComponent({
     loadRoom(route.params.id)
 
     // --- COMPUTED ---
-    const isPlayerReady = computed(() => {
+    const isPlayerWaiting = computed(() => {
       if (room.value.state == GameState.WAITING)
         return state.currentPlayer ? true : false
       return false
@@ -161,7 +153,6 @@ export default defineComponent({
     // --- HELPER FUNCTIONS ---
     const joinRoom = (): void => {
       console.log('in join room function ')
-      // gameRoomsSocket.emit('joinRoom', roomName, (message: string) =>
       gameRoomsSocket.emit(
         'joinRoom',
         parseInt(route.params.id),
@@ -210,6 +201,7 @@ export default defineComponent({
 
     gameRoomsSocket.on('updateRoomInClient', ({ room }) => {
       console.log(`in update room`)
+      console.log(room)
       updateRoom(room)
     })
 
@@ -229,7 +221,18 @@ export default defineComponent({
       alert(
         'The other player left the game room - you will be redirected to the game view',
       )
-      onLeave('leaveRoom')
+      // onLeave('leaveRoom') // router.push .. to put back in matchmaking queue
+      room.value.mode === 'duel'
+        ? router.push('/game/duel')
+        : router.push('/game/ladder')
+    })
+
+    onBeforeRouteLeave(() => {
+      if (state.currentPlayer && room.value.state == GameState.WAITING) {
+        gameRoomsSocket.emit('notReady', {
+          playerId: state.currentPlayer.id,
+        })
+      }
     })
 
     onMounted(() => {
@@ -253,7 +256,7 @@ export default defineComponent({
       room,
       roomName,
       currentUser,
-      isPlayerReady,
+      isPlayerWaiting,
       isPlaying,
       isOver,
       isWatching,

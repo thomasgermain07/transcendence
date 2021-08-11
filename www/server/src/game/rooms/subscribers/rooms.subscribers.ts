@@ -107,8 +107,8 @@ import {
 		}
 
 		private async allTerrainAchievements(player: Player): Promise<void> {
-			const rooms: Room[] = await this.roomsService.findWinneByUserInMapDuel(player.user)
-			if (rooms.length == 3) {
+			const achieved = await this.roomsService.findWinneByUserInMapDuel(player.user)
+			if (achieved) {
 				await this.usersService.updateAchievements(player.user, Achievements.ALL_TERRAIN)
 			}
 		}

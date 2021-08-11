@@ -15,6 +15,9 @@ export class MatchmakerDto {
     @IsOptional()
     @ValidateNested()
 	options: Option
+
+    @IsOptional()
+	range: number
 }
 
 export default MatchmakerDto;

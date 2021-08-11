@@ -73,10 +73,11 @@ export class RoomsService {
   public async findMatchOrCreate(
       mode: GameMode,
       options: CreateOptionDto,
-      user: User
+      user: User,
+      range: number,
   ): Promise<Room> {
 
-    let room = await this.findByModeAndOptions(mode, user, options)
+    let room = await this.findByModeAndOptions(mode, user, options, range)
     
     if(!room) {
         console.log('NO CORRESPONDING ROOM FOUND - CREATING NEW')
@@ -91,6 +92,68 @@ export class RoomsService {
     return room 
   }
 
+  public async findByModeAndOptions(
+    mode: GameMode,
+    user: User,
+    options?: CreateOptionDto,
+    range?: number,
+    ): Promise<Room> {
+
+    let room = null;
+
+    if (mode === GameMode.LADDER) {
+      room = await this.findMatchOnLadder(user, range)
+
+    } else {
+      room = await this.findMatchOnDuel(options)
+    }
+
+    return room
+  }
+
+  public async findMatchOnLadder(
+    user: User,
+    range: number,
+  ) : Promise<Room> {
+
+    const room = await this.roomsRepository.createQueryBuilder("room")
+      .leftJoinAndSelect("room.players", "players")
+      .leftJoinAndSelect("players.user", "users")
+      .where("room.mode = :mode", { mode: GameMode.LADDER })
+      .andWhere("room.locked = :locked", { locked: false })
+      .andWhere(`"users"."ladderLevel" BETWEEN :begin AND :end`, {
+        begin: user.ladderLevel - range, end: user.ladderLevel + range} )
+      .getOne();
+
+    return room
+  }
+
+  public async findMatchOnDuel(
+    // user: User,
+    options?: CreateOptionDto,
+  ) : Promise<Room> {
+
+    const optionsDefault: CreateOptionDto = {
+      map: MapType.DEFAULT,
+      difficulty: DifficultyLevel.EASY,
+      powerUps: false
+    }
+
+    const optionDto = options || optionsDefault
+
+    const room = await this.roomsRepository.createQueryBuilder("room")
+      .leftJoinAndSelect("room.option", "option")
+      .leftJoinAndSelect("room.players", "players")
+      .where("room.mode = :mode", { mode: GameMode.DUEL })
+      .andWhere("room.locked = :locked", { locked: false })
+      .andWhere("option.map = :map", { map: optionDto.map })
+      .andWhere("option.difficulty = :diff", { diff: optionDto.difficulty })
+      .andWhere("option.powerUps = :pow", { pow: optionDto.powerUps })
+      .orderBy("players")
+      .getOne();
+
+    return room
+  }
 
   public async findAllByMode(mode: GameMode) : Promise<Room[]> {
 
@@ -118,40 +181,21 @@ export class RoomsService {
   }
 
 
-  public async findWinneByUserInMapDuel(user: User) : Promise<Room[]> {
-    const room_default = await this.roomsRepository.createQueryBuilder("room")
+  public async findWinneByUserInMapDuel(user: User) : Promise<boolean> {
+    const totalWinsPerMap = await this.roomsRepository.createQueryBuilder("room")
       .leftJoinAndSelect("room.option", "option")
       .leftJoinAndSelect("room.players", "players")
       .leftJoinAndSelect("players.user", "users")
       .where("room.mode = :mode", { mode: GameMode.DUEL })
-      .andWhere("option.map = :map", { map: MapType.DEFAULT})
       .andWhere("players.user.id = :userId", {userId: user.id})
       .andWhere("players.winner = :winner", { winner: true })
-      .getOne()
+      .select("option.map")
+      .groupBy("option.map")
+      .getRawMany()
 
-    const room_map1 = await this.roomsRepository.createQueryBuilder("room")
-      .leftJoinAndSelect("room.option", "option")
-      .leftJoinAndSelect("room.players", "players")
-      .leftJoinAndSelect("players.user", "users")
-      .where("room.mode = :mode", { mode: GameMode.DUEL })
-      .andWhere("option.map = :map", { map: MapType.MAP1})
-      .andWhere("players.user.id = :userId", {userId: user.id})
-      .andWhere("players.winner = :winner", { winner: true })
-      .getOne()
-
-    const room_map2 = await this.roomsRepository.createQueryBuilder("room")
-      .leftJoinAndSelect("room.option", "option")
-      .leftJoinAndSelect("room.players", "players")
-      .leftJoinAndSelect("players.user", "users")
-      .where("room.mode = :mode", { mode: GameMode.DUEL })
-      .andWhere("option.map = :map", { map: MapType.MAP2})
-      .andWhere("players.user.id = :userId", {userId: user.id})
-      .andWhere("players.winner = :winner", { winner: true })
-      .getOne()
-    const rooms: Room[] = [];
-    if (room_default && room_map1 && room_map2 )
-      rooms.push(room_default, room_map1, room_map2)
-    return rooms;
+    if (totalWinsPerMap.length === 3 )
+      return true
+    return false;
   }
 
 
@@ -185,100 +229,9 @@ export class RoomsService {
     return false
   }
 
-  public async expandSearchLadder(
-    range: number,
-    user: User
-  ) : Promise<Room> {
-
-    console.log('IN EXPAND RANGE')
-
-    const matchingRange = range;
-    console.log('Matching range: ' + matchingRange)
-
-    const room = await this.roomsRepository.createQueryBuilder("room")
-      .leftJoinAndSelect("room.players", "players")
-      .leftJoinAndSelect("players.user", "users")
-      .where("room.mode = :mode", { mode: GameMode.LADDER })
-      .andWhere("room.locked = :locked", { locked: false })
-      .andWhere(`"users"."ladderLevel" BETWEEN :begin AND :end`, {
-        begin: user.ladderLevel - matchingRange, end: user.ladderLevel + matchingRange} )
-      .getOne();
-
-    console.log(room)
-    return room
-  }
-
   // -------------------------------------------------------------------------
 	// Private methods
 	// -------------------------------------------------------------------------
-
-  private async findByModeAndOptions(
-    mode: GameMode,
-    user: User,
-    options?: CreateOptionDto,
-    ): Promise<Room> {
-
-    let room = null;
-
-    if (mode === GameMode.LADDER) {
-      room = await this.findMatchOnLadder(mode, user)
-
-    } else {
-      room = await this.findMatchOnDuel(mode, user, options)
-    }
-
-    return room
-  }
-
-  private async findMatchOnLadder(
-    mode: GameMode,
-    user: User,
-  ) : Promise<Room> {
-
-    const matchingRange = 3;
-
-    const room = await this.roomsRepository.createQueryBuilder("room")
-      .leftJoinAndSelect("room.players", "players")
-      .leftJoinAndSelect("players.user", "users")
-      .where("room.mode = :mode", { mode: mode })
-      .andWhere("room.locked = :locked", { locked: false })
-      .andWhere(`"users"."ladderLevel" BETWEEN :begin AND :end`, {
-        begin: user.ladderLevel - matchingRange, end: user.ladderLevel + matchingRange} )
-      .getOne();
-
-    return room
-  }
-
-  private async findMatchOnDuel(
-    mode: GameMode,
-    user: User,
-    options?: CreateOptionDto,
-  ) : Promise<Room> {
-
-    // if (!options) {
-    //   console.log('IN FIND -> NO OPTIONS')
-    // }
-
-    const optionsDefault: CreateOptionDto = {
-      map: MapType.DEFAULT,
-      difficulty: DifficultyLevel.EASY,
-      powerUps: false
-    }
-
-    const optionDto = options || optionsDefault
-
-    const room = await this.roomsRepository.createQueryBuilder("room")
-      .leftJoinAndSelect("room.option", "option")
-      .leftJoinAndSelect("room.players", "players")
-      .where("room.mode = :mode", { mode: mode })
-      .andWhere("room.locked = :locked", { locked: false })
-      .andWhere("option.map = :map", { map: optionDto.map })
-      .andWhere("option.difficulty = :diff", { diff: optionDto.difficulty })
-      .andWhere("option.powerUps = :pow", { pow: optionDto.powerUps })
-      .getOne();
-
-    return room
-  }
 
   private async createEmpty(
     createRoomDto: CreateRoomDto,

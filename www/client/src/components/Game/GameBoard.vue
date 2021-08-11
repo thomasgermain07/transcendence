@@ -1,7 +1,7 @@
 <template>
   <div class="game-board">
-      <div id="screen"></div>
-      <canvas id="canvas" width="600" height="400"></canvas>
+    <div id="screen"></div>
+    <canvas id="canvas" width="600" height="400"></canvas>
   </div>
 </template>
 
@@ -119,8 +119,8 @@ export default defineComponent({
     }
     function resizeCanvas() {
       if (screen) {
-        canvas.width = screen.offsetWidth;
-        canvas.height = canvas.width / 2;
+        canvas.width = screen.offsetWidth
+        canvas.height = canvas.width / 2
         redraw()
       }
     }
@@ -177,7 +177,7 @@ export default defineComponent({
     function countdown() {
       ctx.fillStyle = 'white'
       ctx.textAlign = 'center'
-      ctx.font = '4rem Courier New'
+      ctx.font = '48px Courier New'
       if (option.count > 0)
         ctx.fillText(
           option.count.toString(),
@@ -302,6 +302,6 @@ export default defineComponent({
 <style>
 #screen {
   max-width: 600px;
-  max-height: 400px; 
+  max-height: 400px;
 }
 </style>

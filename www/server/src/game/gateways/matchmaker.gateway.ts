@@ -64,6 +64,8 @@ export class MatchmakerGateway
 
     console.log('IN MATCHMAKING')
 
+    const defaultRange = 3
+    
     // Check if user is already in a game room
     const inGame = await this.playerService.checkIfInGame(data.user)
     if (inGame) {
@@ -71,7 +73,7 @@ export class MatchmakerGateway
     }
 
     // Find room that matches the game mode and options 
-    const room = await this.roomsService.findMatchOrCreate(data.mode, data.options, data.user)
+    const room = await this.roomsService.findMatchOrCreate(data.mode, data.options, data.user, defaultRange)
     
     // Create and Add player
     const player = await this.playerService.create(room, data.user)
@@ -123,9 +125,26 @@ export class MatchmakerGateway
     if (matchFound) {
       console.log('MATCHMAKER ROOM LOCKED')
       this.server.to(data.roomName).emit('matchFound')
+      // client.to(data.roomName).emit('matchFound')
+      // return 'matchFound'
     }
 
-    return 'Joined ' + data.roomName;
+    return 'Joined ' + data.roomName; // match found
+  }
+
+  @SubscribeMessage('leaveLobbyInServerTest')
+  async handleLeaveLobbyTest(
+    @ConnectedSocket() client: Socket,
+    // @MessageBody() data: SocketRoomInfo,
+    @MessageBody() data: LobbyInfoType,
+  ): Promise<string> {
+
+    console.log('IN LEAVE LOBBY TEST')
+
+    // remove socket from room
+    client.leave(data.roomName);
+  
+    return 'Player ' + data.playerId + ' deleted';
   }
 
   @SubscribeMessage('leaveLobbyInServer')
@@ -146,6 +165,7 @@ export class MatchmakerGateway
 
     // send info to other player
     this.server.to(data.roomName).emit('opponentLeaving')
+    // client.to(data.roomName).emit('opponentLeaving')
   
     return 'Player ' + data.playerId + ' deleted';
   }
@@ -164,13 +184,46 @@ export class MatchmakerGateway
     let player = data.player
 
     // call new searchMatchOnLadder(range)
-    const room = await this.roomsService.expandSearchLadder(data.range, data.user)
+    // const room = await this.roomsService.expandSearchLadder(data.range, data.user)
+    const room = await this.roomsService.findMatchOnLadder(data.user, data.range)
     console.log(room)
 
     // if new room id != current room id : leave current room id + join new room id
     const currentRoomId = data.player.room.id
-    if (currentRoomId != room.id) {
+    if (room && currentRoomId != room.id) {
       console.log('IN EXPAND CHANGE LOBBY')
+      // leave room and del player from previous room
+      await this.playerService.remove(data.player.id)
+      client.leave(data.currentRoomName);
+      
+      // join new room and add player to new room
+      player = await this.playerService.create(room, data.user)
+      client.emit('joinLobbyInClient', player);
+    }
+
+    return player
+  }
+
+  @SubscribeMessage('renewSearchDuel')
+  async handleRenewSearchDuel(
+    @ConnectedSocket() client: Socket,
+    // @MessageBody() data: SocketRoomInfo,
+    @MessageBody() data: expandRangeType,
+  ) {
+  // ): Promise<string> {
+
+    console.log('IN RENEW SEARCH DUEL')
+    console.log(data)
+
+    let player = data.player
+
+    const room = await this.roomsService.findMatchOnDuel(player.room.option)
+    console.log(room)
+
+    // if new room id != current room id : leave current room id + join new room id
+    const currentRoomId = data.player.room.id
+    if (room && currentRoomId != room.id) {
+      console.log('IN CHANGE LOBBY')
       // leave room and del player from previous room
       await this.playerService.remove(data.player.id)
       client.leave(data.currentRoomName);

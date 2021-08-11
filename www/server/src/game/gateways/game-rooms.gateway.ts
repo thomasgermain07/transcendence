@@ -166,11 +166,6 @@ export class GameRoomsGateway
     const roomId = await this.playerService.findRoomNumber(data.playerId)
 
     let room = await this.roomsService.findOne(roomId)
-
-    // Update game room for opponent
-    // const room = await this.roomsService.findOne(roomId)
-  
-    // TODO: update game room state depending of the situation
   
 
     this.server.to(data.room).emit('updateRoomInClient', 
@@ -206,6 +201,15 @@ export class GameRoomsGateway
 
       client.to(data.room).emit('checkReady',
         {room: player.room} );
+  }
+
+  @SubscribeMessage('notReady')
+  async notReady(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: SocketRoomInfo
+  ): Promise<void> {
+
+    await this.playerService.update(data.playerId, { isReady: false })
   }
 
   @SubscribeMessage('updateRoomInServer')

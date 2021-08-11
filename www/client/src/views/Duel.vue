@@ -5,6 +5,7 @@
       :gameMode="'duel'"
       :matchFound="lobby.matched"
       @close="leaveLobby"
+      @renewSearchDuel="renewSearch"
       @redirect-to-game-room="goToRoom"
     >
       <template v-slot:header> Hi {{ currentUser.name }} </template>
@@ -55,54 +56,44 @@
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  onMounted,
-  onUnmounted,
-  reactive,
-  watch,
-  ref,
-  computed,
-} from 'vue'
-import { useRouter, onBeforeRouteLeave } from 'vue-router'
+import { defineComponent, onMounted, onUnmounted, reactive } from 'vue'
+import { onBeforeRouteLeave } from 'vue-router'
 import { useStore } from 'vuex'
-import { InGameType, LobbyType } from '../types/game/game'
+import useSockets from '../store/sockets'
 import {
   DifficultyLevel,
   GameOptions,
   MapType,
 } from '../types/game/gameOptions'
+import { Player } from '../types/game/player'
 import { GameMode, Room } from '../types/game/gameRoom'
+import GameLobby from '../components/Game/MatchmakingLobby.vue'
 import WatchRooms from '../components/Game/WatchRooms.vue'
 import useAllGameRoom from '../composables/Game/useAllGameRoom'
-import { Player } from '../types/game/player'
-import useSockets from '../store/sockets'
-import GameLobby from '../components/Game/MatchmakingLobby.vue'
+import useMatchmaker from '../composables/Game/useMatchmaker'
 
 export default defineComponent({
   name: 'Duel',
   components: { WatchRooms, GameLobby },
   setup() {
-    const router = useRouter()
     const store = useStore()
     const currentUser = store.state.user
-    let currentMode = ref(null)
     const { rooms, loadGameRooms } = useAllGameRoom('duel')
     const { matchmakingSocket, gameRoomsSocket } = useSockets()
+    const {
+      lobby,
+      roomName,
+      checkInGame,
+      checkIfInGameOrQueue,
+      updateMatchedState,
+      joinLobby,
+      leaveLobby,
+      goToRoom,
+      renewSearch,
+      playGame,
+    } = useMatchmaker()
 
     loadGameRooms()
-
-    const updateWatchRooms = (updatedRoom: Room[]): void => {
-      rooms.value = { ...updatedRoom }
-      loadGameRooms()
-      console.log(rooms.value)
-    }
-
-    // check if user is already in Game Room
-    const checkInGame: InGameType = reactive({
-      inGame: false,
-      roomRoute: '',
-    })
 
     // options can be changed for Duel only
     const duelOptions: GameOptions = reactive({
@@ -111,30 +102,16 @@ export default defineComponent({
       powerUps: false,
     })
 
-    // const checkOptions = (map: MapType): void => {
-    //   duelOptions.map = map;
-    //   console.log(duelOptions.)
-    // }
-
     const onPlayDuel = (): void => {
       playGame(GameMode.DUEL, duelOptions)
     }
 
-    const playGame = (mode: GameMode, options: GameOptions | null): void => {
-      matchmakingSocket.emit(
-        'searchMatch',
-        {
-          user: currentUser,
-          mode: mode,
-          options: options,
-        },
-        (player: Player) => {
-          alert(`${player.user.name} already in Game`)
-        },
-      )
+    const updateWatchRooms = (updatedRoom: Room[]): void => {
+      loadGameRooms()
+      rooms.value = { ...updatedRoom }
     }
 
-    // --- SOCKETS ---
+    // --- SOCKETS LISTENERS ---
     matchmakingSocket.on('connect', () => {
       console.log('connected')
       console.log(matchmakingSocket.id)
@@ -151,98 +128,8 @@ export default defineComponent({
       console.log(err)
     })
 
-    // gameRoomsSocket.on('updateWatchRoomInClient', ({ rooms }) => {
-    gameRoomsSocket.on('updateWatchRoomInClient', ({ rooms }) => {
-      console.log(`in update Watch room`)
-      console.log(rooms)
-      updateWatchRooms(rooms)
-    })
-
-    // matchmakingSocket.on('redirect-to-room', (roomId) => {
-    //   console.log(`Redirection to room ${roomId}`)
-    //   router.push(`/game/room/${roomId}`)
-    // })
-
-    const lobby: LobbyType = reactive({
-      visible: false,
-      matched: false,
-      player: null,
-      // roomId: 0,
-      // playerId: 0,
-    })
-
-    const roomName = computed(() => {
-      return `lobby-${lobby.player.room.id}`
-      // return `lobby-${lobby.roomId}`
-    })
-
-    // open modal
-    const showLobby = () => {
-      console.log('In Show Lobby')
-      lobby.visible = true
-    }
-
-    // close modal
-    const closeLobby = () => {
-      console.log('In Close Lobby')
-      lobby.visible = false
-    }
-
-    const joinLobby = (player: Player): void => {
-      console.log('Join lobby from client')
-      lobby.player = player
-      // console.log('Room id: ' + lobby.player.room.id)
-      // console.log('Room name: ' + roomName.value)
-      matchmakingSocket.emit(
-        'joinLobbyInServer',
-        {
-          roomName: roomName.value,
-          roomId: lobby.player.room.id,
-        },
-        (message) => {
-          console.log(message)
-        },
-      )
-    }
-
-    const leaveLobby = () => {
-      console.log('In leave lobby Duel view')
-      closeLobby()
-      matchmakingSocket.emit('leaveLobbyInServer', {
-        roomName: roomName.value,
-        playerId: lobby.player.id,
-      })
-    }
-
-    const updateMatchedState = (value: boolean) => {
-      console.log('in update matched state')
-      lobby.matched = value
-    }
-
-    const goToRoom = () => {
-      closeLobby()
-      console.log('Redirection to game room')
-      console.log(lobby.player.room.id)
-      router.push(`/game/room/${lobby.player.room.id}`)
-    }
-
-    const checkIfInGameOrQueue = () => {
-      matchmakingSocket.emit('checkInGame', currentUser, (data: InGameType) => {
-        console.log(data)
-        checkInGame.inGame = data.inGame
-        checkInGame.roomRoute = data.roomRoute
-        // show matchmaking window if player in unlocked game room
-        if (!checkInGame.inGame && checkInGame.roomRoute === 'matchmaking') {
-          showLobby()
-          joinLobby(data.player)
-        }
-      })
-    }
-
     matchmakingSocket.on('joinLobbyInClient', (player: Player) => {
       console.log('Joining lobby')
-      console.log(player)
-      showLobby()
       joinLobby(player)
     })
 
@@ -251,11 +138,18 @@ export default defineComponent({
       updateMatchedState(true)
     })
 
-    matchmakingSocket.on('closeLobbyModal', () => {
-      closeLobby()
+    // For inactive users
+    // matchmakingSocket.on('closeLobbyModal', () => {
+    //   closeLobby()
+    // })
+
+    gameRoomsSocket.on('updateWatchRoomInClient', ({ rooms }) => {
+      console.log(`in update Watch room`)
+      console.log(rooms)
+      updateWatchRooms(rooms)
     })
 
-    // onBeforeRouteLeave(async (to, from) => {
+    // --- NAVIGATION GUARDS ---
     onBeforeRouteLeave((to, from) => {
       if (lobby.visible) {
         const answer = window.confirm(
@@ -265,22 +159,24 @@ export default defineComponent({
         if (!answer) {
           return false
         } else {
-          console.log('IN ELSE')
           leaveLobby()
-          // await leaveLobby()
         }
       }
     })
 
     // --- LIFECYCLE HOOKS ---
     onMounted(() => {
-      console.log('In mount matchmaker')
-      console.log(matchmakingSocket.id)
+      console.log('In mount matchmaker - socket id: ' + matchmakingSocket.id)
       checkIfInGameOrQueue()
     })
 
     onUnmounted(() => {
       console.log('In unmount - matchmaker matchmakingSocket.off')
+      if (roomName.value) {
+        matchmakingSocket.emit('leaveLobbyInServerTest', {
+          roomName: roomName.value,
+        })
+      }
       matchmakingSocket.off() // -> could be problematic between vues
       // gameRoomsSocket.off() ????
     })
@@ -290,20 +186,20 @@ export default defineComponent({
       duelOptions,
       onPlayDuel,
       rooms,
-      currentMode,
       currentUser,
       lobby,
       leaveLobby,
       goToRoom,
+      renewSearch,
     }
   },
 })
 </script>
 
-<style scoped>
-@import url('http://fonts.cdnfonts.com/css/pixelfaceonfire');
+<style>
+/* @import url('http://fonts.cdnfonts.com/css/pixelfaceonfire');
 @import url('http://fonts.cdnfonts.com/css/messing-lettern');
-@import url('http://fonts.cdnfonts.com/css/gun-metal');
+@import url('http://fonts.cdnfonts.com/css/gun-metal'); */
 @import url('http://fonts.cdnfonts.com/css/karmatic-arcade');
 
 .duel-game {
