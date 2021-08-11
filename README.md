@@ -2,7 +2,7 @@
 
 ---
 ## Notes
-- Copy __.env__ file :
+- Copy __.env__ file:
 ```
 cp ./docker/.env.template .env
 ```
@@ -10,15 +10,15 @@ cp ./docker/.env.template .env
 
 ---
 ## Commands
-- Start project :
+- Start project:
 ```
 docker-compose up [--build]
 ```
-- Set permissions _(because docker runs as __root__)_ :
+- Set permissions _(because docker runs as __root__)_:
 ```
 sudo chown -R $USER:$USER www/
 ```
-- Open a terminal :
+- Open a terminal:
 ```
 docker-compose exec [client, server] sh
 ```
@@ -44,18 +44,18 @@ docker-compose exec [client, server] sh
 
 ### Server
 - Authentication: https://github.com/jaredhanson/passport
-- CRUD : https://github.com/nestjsx/crud
+- CRUD: https://github.com/nestjsx/crud
 
 ---
 ## Helper
 
 ---
 ## History
-- Reset projet :
+- Reset projet:
 ```
 sudo rm -rf db www/client/* www/server/*
 ```
-- Generate app :
+- Generate app:
 ```
 docker-compose run --no-deps server nest new server --skip-git
 docker-compose run --no-deps client yarn create @vitejs/app .

@@ -1,118 +1,95 @@
-import { Body, Req, Controller }      from '@nestjs/common'
-import { Get, Post, Delete }          from '@nestjs/common'
-import { UseGuards, UseInterceptors } from '@nestjs/common'
-import { ClassSerializerInterceptor } from '@nestjs/common'
-import { Request }                    from 'express'
+import { Body, Req, Controller } from '@nestjs/common'
+import { Post, Delete } from '@nestjs/common'
+import { UseGuards } from '@nestjs/common'
+import { Request } from 'express'
 
-// import { CreateUserDto } from 'src/users/dto/create-user.dto'
-import { User }          from 'src/users/entities/user.entity'
-import { RegisterDto } 	 from '../dto/register.dto'
+import { CreateUserDto } from 'src/users/dto/create-user.dto'
+import { User } from 'src/users/entities/user.entity'
 
-import { LocalAuthGuard }  from '../guards/local-auth.guard'
-import { JwtAuthGuard }    from '../guards/jwt-auth.guard'
-import { JwtRefreshGuard } from '../guards/jwt-refresh-token.guard'
-import { AuthService }     from '../services/auth.service'
-import { CookieType }      from '../services/cookies.service'
-import { CookiesService }  from '../services/cookies.service'
-import { AuthUser }        from '../decorators/auth-user.decorator'
-import MarvinAuthGuard from '../guards/marvin-auth.guard'
+import { LocalGuard } from '../guards/local.guard'
+import { JwtAuthGuard } from '../guards/jwt-auth.guard'
+import { JwtRefreshGuard } from '../guards/jwt-refresh.guard'
+import { OAuthMarvinGuard } from '../guards/oauth-marvin.guard'
+import { AuthService } from '../services/auth.service'
+import { CookieType } from '../services/cookies.service'
+import { CookiesService } from '../services/cookies.service'
+import { AuthUser } from '../decorators/auth-user.decorator'
+
+type LoginResponseType = {
+  two_factor_enabled: boolean
+}
 
 @Controller('auth')
-@UseInterceptors(ClassSerializerInterceptor)
-export class AuthController
-{
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
-	constructor(
-		private readonly authService : AuthService,
-		private readonly cookiesService : CookiesService,
-	)
-	{
+export class AuthController {
+  // -------------------------------------------------------------------------
+  // Constructor
+  // -------------------------------------------------------------------------
+  constructor(
+    private readonly auth_svc: AuthService,
+    private readonly cookies_svc: CookiesService,
+  ) {}
 
-	}
+  // -------------------------------------------------------------------------
+  // Public methods
+  // -------------------------------------------------------------------------
+  @Post('register')
+  async register(@Body() create_dto: CreateUserDto): Promise<User> {
+    return this.auth_svc.register(create_dto)
+  }
 
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
-	@Post('register')
-	public async register(
-		@Body() registrationData: RegisterDto,
-	)
-		: Promise<User>
-	{
-		return this.authService.register(registrationData);
-	}
+  @UseGuards(LocalGuard)
+  @Post('login')
+  async login(
+    @AuthUser() user: User,
+    @Req() request: Request,
+  ): Promise<LoginResponseType> {
+    const auth = this.cookies_svc.getJwtTokenCookie(
+      user,
+      CookieType.AUTHENTICATION,
+    )
+    const refresh = this.cookies_svc.getJwtTokenCookie(user, CookieType.REFRESH)
 
-	// @HttpCode(200)
-	@UseGuards(LocalAuthGuard)
-	@Post('login')
-	public login(
-		@AuthUser() user : User,
-		@Req() request : Request,
-	)
-		: User
-	{
-		const auth    = this.cookiesService.getJwtTokenCookie(user, CookieType.AUTHENTICATION);
-		const refresh = this.cookiesService.getJwtTokenCookie(user, CookieType.REFRESH);
+    this.auth_svc.refresh(user, refresh.token)
 
-		this.authService.refresh(user, refresh.token);
+    request.res.setHeader('Set-Cookie', [auth.cookie, refresh.cookie])
 
-		request.res.setHeader('Set-Cookie', [auth.cookie, refresh.cookie]);
+    return {
+      two_factor_enabled: false,
+    }
+  }
 
-		return user;
-	}
+  @UseGuards(OAuthMarvinGuard)
+  @Post('marvin')
+  async loginWithMarvin(
+    @AuthUser() user: User,
+    @Req() request: Request,
+  ): Promise<LoginResponseType> {
+    return this.login(user, request)
+  }
 
-	@UseGuards(MarvinAuthGuard)
-	@Get('marvin')
-	loginWithMarvin(
-		@AuthUser() user : User,
-		@Req() request : Request,
-	)
-		: User
-	{
-		this.login(user, request)
+  @UseGuards(JwtRefreshGuard)
+  @Post('refresh')
+  async refresh(
+    @AuthUser() user: User,
+    @Req() request: Request,
+  ): Promise<void> {
+    const auth = this.cookies_svc.getJwtTokenCookie(
+      user,
+      CookieType.AUTHENTICATION,
+    )
 
-		return user;
-	}
+    request.res.setHeader('Set-Cookie', auth.cookie)
 
-	// Endpoint to check auth and get current user on frontend
-	@UseGuards(JwtAuthGuard)
-	@Get()
-	authenticate(
-		@AuthUser() user : User,
-	)
-		: User
-	{
-	  return user
-	}
+    return
+  }
 
-	@UseGuards(JwtRefreshGuard)
-	@Get('refresh')
-	public refresh(
-		@AuthUser() user : User,
-		@Req() request : Request,
-	)
-		: User
-	{
-		const auth = this.cookiesService.getJwtTokenCookie(user, CookieType.AUTHENTICATION);
+  @UseGuards(JwtAuthGuard)
+  @Delete('logout')
+  async logout(@AuthUser() user: User, @Req() request: Request): Promise<void> {
+    this.auth_svc.logout(user)
 
-		request.res.setHeader('Set-Cookie', auth.cookie);
+    request.res.setHeader('Set-Cookie', this.cookies_svc.getJwtClearCookies())
 
-		return user;
-	}
-
-	@UseGuards(JwtAuthGuard)
-	@Delete('logout')
-	public logout(
-		@AuthUser() user : User,
-		@Req() request: Request,
-	)
-		: void
-	{
-		this.authService.logout(user)
-
-		request.res.setHeader('Set-Cookie', this.cookiesService.getJwtClearCookies())
-	}
-
+    return
+  }
 }

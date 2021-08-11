@@ -9,15 +9,14 @@ import { UsersService } from "../services/users.service";
 
 @ValidatorConstraint({ async: true })
 @Injectable()
-export class IsUniqueConstraint
+export class IsUniqueUserConstraint
 	implements ValidatorConstraintInterface
 {
-
 	// -------------------------------------------------------------------------
 	// Constructor
 	// -------------------------------------------------------------------------
 	constructor(
-		private readonly usersService: UsersService
+		private readonly users_svc: UsersService,
 	)
 	{
 
@@ -28,17 +27,17 @@ export class IsUniqueConstraint
 	// -------------------------------------------------------------------------
 	async validate(
 		value: any,
-		args: ValidationArguments
+		args: ValidationArguments,
 	)
 		: Promise<boolean>
 	{
 		const [attribute] = args.constraints;
 
-		return !(await this.usersService.findOne({ [attribute]: value }));
+		return !(await this.users_svc.findOne({ [attribute]: value }));
 	}
 
 	defaultMessage(
-		args: ValidationArguments
+		args: ValidationArguments,
 	)
 		: string
 	{
@@ -54,21 +53,20 @@ export class IsUniqueConstraint
 // -----------------------------------------------------------------------------
 export function IsUnique(
 	attribute: string,
-	validationOptions?: ValidationOptions
+	validationOptions?: ValidationOptions,
 )
 {
 	return function (
 		object: Object,
-		propertyName: string
+		propertyName: string,
 	)
 	{
 		registerDecorator({
-			name: 'isUnique',
 			target: object.constructor,
 			propertyName: propertyName,
 			options: validationOptions,
 			constraints: [attribute],
-			validator: IsUniqueConstraint,
+			validator: IsUniqueUserConstraint,
 		});
 	};
 }

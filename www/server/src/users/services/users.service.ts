@@ -1,65 +1,50 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
-import { InjectRepository }              from '@nestjs/typeorm'
-import { Repository }                    from 'typeorm'
+import { Injectable } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm'
 
 import { CreateUserDto } from '../dto/create-user.dto'
-import { User }          from '../entities/user.entity'
+import { UpdateUserDto } from '../dto/update-user.dto'
+import { User } from '../entities/user.entity'
 
 @Injectable()
-export class UsersService
-{
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
-	constructor(
-		@InjectRepository(User)
-		private usersRepository: Repository<User>,
-	)
-	{
+export class UsersService {
+  // -------------------------------------------------------------------------
+  // Constructor
+  // -------------------------------------------------------------------------
+  constructor(
+    @InjectRepository(User)
+    private readonly users_repo: Repository<User>,
+  ) {}
 
-	}
+  // -------------------------------------------------------------------------
+  // Public methods
+  // -------------------------------------------------------------------------
+  async create(create_dto: CreateUserDto): Promise<User> {
+    return this.users_repo.save(create_dto)
+  }
 
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
-	public async create(
-		createUserDto: CreateUserDto
-	)
-		: Promise<User>
-	{
-		await this.usersRepository.insert(createUserDto);
+  async findAll(): Promise<User[]> {
+    return this.users_repo.find()
+  }
 
-		return this.findOne({ email: createUserDto.email });
-	}
+  async findOne(data: Object): Promise<User> {
+    return this.users_repo.findOne(data)
+  }
 
-	public async findOne(
-		data : Object
-	)
-		: Promise<User>
-	{
-		return this.usersRepository.findOne(data);
-	}
+  async setRefreshToken(user: User, token: string): Promise<void> {
+    this.users_repo.update(user.id, {
+      refresh_token: token,
+    })
+  }
 
-	public async findOneOrThrow(
-		data : Object
-	)
-		: Promise<User>
-	{
-		const user : User = await this.usersRepository.findOne(data);
+  async update(user: User, update_dto: UpdateUserDto): Promise<User> {
+    const user_update: User = this.users_repo.create(user)
+    Object.assign(user_update, update_dto)
 
-		if (!user)
-			throw new NotFoundException('User not found.');
+    return this.users_repo.save(user_update)
+  }
 
-		return user;
-	}
-
-	public async setRefreshToken(
-		user : User,
-		token : string,
-	)
-		: Promise<void>
-	{
-		this.usersRepository.update(user.id, { refreshToken: token })
-	}
-
+  async remove(user: User): Promise<void> {
+    this.users_repo.remove(user)
+  }
 }

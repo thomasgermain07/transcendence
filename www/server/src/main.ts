@@ -1,30 +1,43 @@
-import { NestFactory }    from '@nestjs/core'
+import { NestFactory } from '@nestjs/core'
 import { ValidationPipe } from '@nestjs/common'
-import { useContainer }   from 'class-validator';
-import * as cookieParser  from 'cookie-parser'
+import { useContainer } from 'class-validator'
+import * as cookieParser from 'cookie-parser'
+import * as csurf from 'csurf'
 
-import { AppModule }       from 'src/app/app.module'
+import { AppModule } from 'src/app/app.module'
 
-async function bootstrap()
-{
-	const app = await NestFactory.create(AppModule)
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule)
 
-	// See : https://docs.nestjs.com/faq/global-prefix#global-prefix
-	app.setGlobalPrefix('api')
-	// See : https://docs.nestjs.com/security/cors#cors
-	app.enableCors({
-		credentials: true,
-		origin: 'http://localhost:3000',
-	})
-	// See : https://docs.nestjs.com/techniques/validation#transform-payload-objects
-	app.useGlobalPipes(new ValidationPipe())
+  // Add prefix to all `routes` (cosmetic)
+  // See: https://docs.nestjs.com/faq/global-prefix#global-prefix
+  app.setGlobalPrefix('api')
 
-	app.use(cookieParser())
+  // Allow `Cross-Origin Resource Sharing` with front-end
+  // See: https://docs.nestjs.com/security/cors#cors
+  app.enableCors({
+    credentials: true,
+    origin: 'http://localhost:3000',
+  })
 
-	// Allow `class-validator` to use `NestJS` Dependency Injection
-	useContainer(app.select(AppModule), { fallbackOnErrors: true });
+  // Convert controllers `args` to expected type
+  // See: https://docs.nestjs.com/techniques/validation#transform-payload-objects
+  app.useGlobalPipes(
+    new ValidationPipe({ stopAtFirstError: true, transform: true }),
+  )
 
-	await app.listen(8080)
+  // Facilitate `cookies` usage
+  // See: https://docs.nestjs.com/techniques/cookies
+  app.use(cookieParser())
+
+  // CSRF Protection
+  // See: https://docs.nestjs.com/security/csrf
+  app.use(csurf({ cookie: { sameSite: true, httpOnly: true } }))
+
+  // Allow `class-validator` to use `NestJS` Dependency Injection
+  useContainer(app.select(AppModule), { fallbackOnErrors: true })
+
+  await app.listen(8080)
 }
 
 bootstrap()
