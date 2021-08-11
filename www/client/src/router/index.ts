@@ -7,7 +7,7 @@ import { useAuth } from '@/composables/auth'
 
 import { routes as app_routes } from './modules/app.routes'
 import { routes as auth_routes } from './modules/auth.routes'
-import { routes as user_routes } from './modules/users.routes'
+import { routes as users_routes } from './modules/users.routes'
 import { routes as game_routes } from './modules/game.routes'
 import { routes as error_routes } from './modules/error.routes'
 
@@ -17,7 +17,7 @@ import { routes as error_routes } from './modules/error.routes'
 const routes: Array<RouteRecordRaw> = [
   ...app_routes,
   ...auth_routes,
-  ...user_routes,
+  ...users_routes,
   ...game_routes,
   ...error_routes,
 ]

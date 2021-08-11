@@ -123,7 +123,6 @@ export function useAuth() {
 
       setAuthenticated(true)
 
-      // router.replace({ name: 'index' });
     } catch (err: AxiosErrType) {
       console.log('useAuth.refresh: Fail.')
 
