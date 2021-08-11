@@ -32,11 +32,15 @@
 
 <script lang="ts">
 import { defineComponent } from '@vue/runtime-core'
+
 import { useAuth } from '@/composables/auth'
+
 export default defineComponent({
   name: 'navigation',
+
   setup() {
     const { is_authenticated } = useAuth()
+
     return { is_authenticated }
   },
 })
