@@ -4,10 +4,12 @@ import { ClassSerializerInterceptor } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { join } from 'path'
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { AuthModule } from 'src/auth/auth.module'
 import { UsersModule } from 'src/users/users.module'
 import { ChatModule } from 'src/chat/chat.module'
+import { GameModule }  from 'src/game/game.module'
 
 import { GlobalExceptionFilter } from './filters/global-exception.filter'
 import { DatabaseConfigService } from './services/database-config.service'
@@ -19,6 +21,7 @@ import { AppController } from './controllers/app.controller'
     TypeOrmModule.forRootAsync({
       useClass: DatabaseConfigService,
     }),
+    ScheduleModule.forRoot(),
     // Users' Avatars
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', 'public'),
@@ -28,6 +31,7 @@ import { AppController } from './controllers/app.controller'
     AuthModule,
     UsersModule,
     ChatModule,
+    GameModule,
   ],
   controllers: [AppController],
   providers: [

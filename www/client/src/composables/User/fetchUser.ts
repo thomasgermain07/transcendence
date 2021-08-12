@@ -2,11 +2,14 @@ import { Ref, ref } from 'vue'
 import { useAxios } from '../axios'
 import requestStatus from '../requestStatus'
 
-export default function fetchUser(status: Ref) {
+export default function getFetchUser(status: Ref) {
   let user = ref()
 
-  const getUser: any = async (id: string) => {
+  const fetchUser: any = async (id: number) => {
     const { axios } = useAxios()
+
+    console.log(`fetching user ${id}`)
+
     try {
       const { data } = await axios.get(`users/${id}`)
       user.value = data
@@ -16,5 +19,5 @@ export default function fetchUser(status: Ref) {
     }
   }
 
-  return { user, getUser }
+  return { user, fetchUser }
 }

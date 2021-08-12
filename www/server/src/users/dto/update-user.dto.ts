@@ -1,9 +1,19 @@
-import { PartialType } from "@nestjs/mapped-types";
+import { PartialType } from '@nestjs/mapped-types';
+import { IsOptional, IsInt, Min, Max } from 'class-validator';
 
 import { CreateUserDto } from "./create-user.dto";
 
 export class UpdateUserDto
 	extends PartialType(CreateUserDto)
 {
-	// Todo: Exclude `marvin_id` / `email / password ...`
+	@IsInt()
+	id: number
+	
+    @IsOptional()
+    @IsInt()
+	@Min(1)
+	ladderLevel?: number
+
+	// @IsOptional()
+	// achievements?: Achievements[];
 }

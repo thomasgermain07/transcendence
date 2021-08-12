@@ -1,9 +1,10 @@
 import { IsEmail, IsOptional } from 'class-validator'
 import { IsString, IsPositive } from 'class-validator'
 import { MinLength } from 'class-validator'
-
+import { ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 import { IsUnique } from '../decorators/is-unique.decorator'
-
+import CreateAchievementDto from "./create-achievement.dto";
 export class CreateUserDto {
   // -------------------------------------------------------------------------
   // Attributes
@@ -33,4 +34,8 @@ export class CreateUserDto {
   @IsPositive()
   @IsOptional()
   public marvin_id?: number
+
+  @ValidateNested()
+  @Type(() => CreateAchievementDto)
+  achievements?: CreateAchievementDto
 }

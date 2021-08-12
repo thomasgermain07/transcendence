@@ -4,6 +4,7 @@ import { UseGuards } from '@nestjs/common'
 import { ParseIntPipe } from '@nestjs/common'
 import { ForbiddenException } from '@nestjs/common'
 import { NotFoundException } from '@nestjs/common'
+import { UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common'
 
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
 import { AuthUser } from 'src/auth/decorators/auth-user.decorator'
@@ -13,6 +14,7 @@ import { User } from '../entities/user.entity'
 import { UsersService } from '../services/users.service'
 
 @UseGuards(JwtAuthGuard)
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller('users')
 export class UsersController {
   // ---------------------------------------------------------------------------

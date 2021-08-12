@@ -1,27 +1,23 @@
 <template>
-	<div class="game">
-		<h1>Game</h1>
+  <div class="game">
+    <h1>Game</h1>
 
-		<router-view />
+    <router-view />
   </div>
 </template>
 
-<script lang='ts'>
-	import { defineComponent } from "vue";
+<script lang="ts">
+import { defineComponent } from 'vue'
 
-	export default defineComponent({
-		name: 'game',
+export default defineComponent({
+  name: 'game',
 
-		setup()
-		{
-
-		},
-
-	});
+  setup() {},
+})
 </script>
 
 <style scoped>
-	.game {
-		background: rgb(184, 62, 184);
-	}
+.game {
+  background: rgb(184, 62, 184);
+}
 </style>

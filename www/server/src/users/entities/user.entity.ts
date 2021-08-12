@@ -1,13 +1,16 @@
 import { Column, Entity } from 'typeorm'
 import { PrimaryGeneratedColumn } from 'typeorm'
-import { OneToMany } from 'typeorm'
+import { OneToMany, ManyToMany, JoinTable } from 'typeorm'
 
-import { Exclude } from 'class-transformer'
+import { Exclude } 		   from 'class-transformer'
+import { Min, Max, IsInt } from 'class-validator';
 
 import { Room } from 'src/chat/rooms/entities/room.entity'
 import { Message } from 'src/chat/messages/entities/message.entity'
 import { Permission } from 'src/chat/permissions/entities/permission.entity'
 import { Subscription } from 'src/chat/subscriptions/entities/subscription.entity'
+import { Player } from 'src/game/players/entities/player.entity';
+import { Achievement } from './achievement.entity';
 
 @Entity()
 export class User {
@@ -86,4 +89,17 @@ export class User {
     lazy: true,
   })
   public chat_permissions: Promise<Permission[]>
+
+	// -------------------------------------------------------------------------
+	// Game
+	// -------------------------------------------------------------------------
+	@Column({ default: 50 })
+	ladderLevel : number;
+
+  @ManyToMany(() => Achievement, achievement => achievement.users, { cascade: true, eager: true})
+	@JoinTable()
+	achievements: Achievement[];
+
+  @OneToMany(() => Player, player => player.user)
+	players: Player[];
 }
