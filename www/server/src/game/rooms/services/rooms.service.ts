@@ -166,7 +166,7 @@ export class RoomsService {
     return rooms;
   }
 
-  public async findAllWinneByUser(user: User) : Promise<Room[]> {
+  public async findAllWinsByUser(user: User) : Promise<Room[]> {
 
     const rooms = await this.roomsRepository.createQueryBuilder("room")
       .leftJoinAndSelect("room.option", "option")
@@ -180,7 +180,7 @@ export class RoomsService {
   }
 
 
-  public async findWinneByUserInMapDuel(user: User) : Promise<boolean> {
+  public async findWinsByUserInMapDuel(user: User) : Promise<boolean> {
     const totalWinsPerMap = await this.roomsRepository.createQueryBuilder("room")
       .leftJoinAndSelect("room.option", "option")
       .leftJoinAndSelect("room.players", "players")

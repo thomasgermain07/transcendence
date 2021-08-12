@@ -35,17 +35,17 @@ export class UsersService {
 
 		const achievement_5 = await this.achievementsRepository.create({ name: AchievementsName.HARD_MASTER, description: AchievementsDescription.HARD_MASTER });
 
-		const achievement_6 = await this.achievementsRepository.create({ name: AchievementsName.HUNDRED_WINNE, description: AchievementsDescription.NOVICE });
+		const achievement_6 = await this.achievementsRepository.create({ name: AchievementsName.HUNDRED_WINS, description: AchievementsDescription.NOVICE });
 
 		const achievement_7 = await this.achievementsRepository.create({ name: AchievementsName.MIDDLE_PLAYER, description: AchievementsDescription.MIDDLE_PLAYER });
 
-		const achievement_8 = await this.achievementsRepository.create({ name: AchievementsName.SEVENTY_WINNE, description: AchievementsDescription.SEVENTY_WINNE });
+		const achievement_8 = await this.achievementsRepository.create({ name: AchievementsName.SEVENTY_WINS, description: AchievementsDescription.SEVENTY_WINS });
 
-		const achievement_9 = await this.achievementsRepository.create({ name: AchievementsName.TEN_WINNE, description: AchievementsDescription.TEN_WINNE });
+		const achievement_9 = await this.achievementsRepository.create({ name: AchievementsName.TEN_WINS, description: AchievementsDescription.TEN_WINS });
 
-		const achievement_10 = await this.achievementsRepository.create({ name: AchievementsName.THIRTY_WINNE, description: AchievementsDescription.THIRTY_WINNE });
+		const achievement_10 = await this.achievementsRepository.create({ name: AchievementsName.THIRTY_WINS, description: AchievementsDescription.THIRTY_WINS });
 
-		const achievement_11 = await this.achievementsRepository.create({ name: AchievementsName.TWO_HUNDRED_WINNE, description: AchievementsDescription.TWO_HUNDRED_WINNE });
+		const achievement_11 = await this.achievementsRepository.create({ name: AchievementsName.TWO_HUNDRED_WINS, description: AchievementsDescription.TWO_HUNDRED_WINS });
 
 		const user: User = await this.users_repo.create({...create_dto, achievements: []})
 		user.achievements = [achievement_1, achievement_2, achievement_3, achievement_4, achievement_5, achievement_6, achievement_7, achievement_8, achievement_9, achievement_10, achievement_11]
@@ -113,12 +113,8 @@ export class UsersService {
 			.where(`"users"."id" = :id`, { id: userPlayer.id })
 			.andWhere(`"achievement"."name" = :name`, { name: achievementName })
 			.getOne()
-		console.log("----------NEW USERS---------------")
-		console.log(achievement)
+		
 		await this.achievementsRepository.update(achievement.id, {locked: true})
-		console.log("----------NEW ACHIEVEMENTS---------------")
-		const user : User = await this.users_repo.findOne(userPlayer.id, { relations: ["achievements"]});
-		console.log(user)
 
 		return await this.users_repo.findOne(userPlayer.id);
 	}

@@ -49,7 +49,7 @@ import { AchievementsName } from 'src/users/entities/achievement.entity';
 
 				await this.allTerrainAchievements(player)
 
-				await this.doneAchievments(player)
+				await this.doneAchievements(player)
 			}
 		}
 		
@@ -83,39 +83,39 @@ import { AchievementsName } from 'src/users/entities/achievement.entity';
 		}
 
 		private async winneAcchivements(player: Player): Promise<void> {
-			const rooms: Room[] = await this.roomsService.findAllWinneByUser(player.user);
+			const rooms: Room[] = await this.roomsService.findAllWinsByUser(player.user);
 			switch (rooms.length) {
 				case 10:
-					await this.usersService.updateAchievements(player.user, AchievementsName.TEN_WINNE)
+					await this.usersService.updateAchievements(player.user, AchievementsName.TEN_WINS)
 				break;
 
 				case 30:
-					await this.usersService.updateAchievements(player.user, AchievementsName.THIRTY_WINNE)
+					await this.usersService.updateAchievements(player.user, AchievementsName.THIRTY_WINS)
 				break;
 
 				case 70:
-					await this.usersService.updateAchievements(player.user, AchievementsName.SEVENTY_WINNE)
+					await this.usersService.updateAchievements(player.user, AchievementsName.SEVENTY_WINS)
 				break;
 
 				case 100:
-					await this.usersService.updateAchievements(player.user, AchievementsName.HUNDRED_WINNE)
+					await this.usersService.updateAchievements(player.user, AchievementsName.HUNDRED_WINS)
 				break;
 				
 				case 200:
-					await this.usersService.updateAchievements(player.user, AchievementsName.TWO_HUNDRED_WINNE)
+					await this.usersService.updateAchievements(player.user, AchievementsName.TWO_HUNDRED_WINS)
 				break
 			}
 		}
 
 		private async allTerrainAchievements(player: Player): Promise<void> {
-			const achieved = await this.roomsService.findWinneByUserInMapDuel(player.user)
+			const achieved = await this.roomsService.findWinsByUserInMapDuel(player.user)
 			if (achieved) {
 				await this.usersService.updateAchievements(player.user, AchievementsName.ALL_TERRAIN)
 			}
 		}
 
-		private async doneAchievments(player: Player): Promise<void> {
-			if (player.user.achievements.length == 11) (
+		private async doneAchievements(player: Player): Promise<void> {
+			if (player.user.achievements.length == 10) (
 				await this.usersService.updateAchievements(player.user, AchievementsName.DONE)
 			)
 		}

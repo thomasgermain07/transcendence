@@ -17,32 +17,32 @@ export const routes: Array<RouteRecordRaw> = [
     redirect: {
       name: 'game-home',
     },
-    // meta: { requiresAuth: true },
+    meta: { requiresAuth: true },
     children: [
       {
         path: '',
         name: 'game-home',
         component: Home,
-        meta: { requiresAuth: true },
+        // meta: { requiresAuth: true },
       },
       {
         path: 'duel',
         name: 'game-duel',
         component: Duel,
-        meta: { requiresAuth: true },
+        // meta: { requiresAuth: true },
       },
       {
         path: 'ladder',
         name: 'game-ladder',
         component: Ladder,
-        meta: { requiresAuth: true },
+        // meta: { requiresAuth: true },
       },
       {
         path: 'room/:id',
         name: 'game-room',
         component: GameRoom,
         // component: () => import("../views/Game.vue"),
-        meta: { requiresAuth: true },
+        // meta: { requiresAuth: true },
       },
     ],
   },
