@@ -1,13 +1,16 @@
 import { reactive, ref } from 'vue'
-import { useStore } from 'vuex'
-import axios from 'axios'
 
 import { Player } from '../../types/game/player'
 import { GameState } from '../../types/game/gameRoom'
 
+import { useAxios } from '../axios'
+import { useAuth } from '../auth'
+
 const useGameRoom = () => {
-  const store = useStore()
-  const currentUser = store.state.user
+  const { axios } = useAxios()
+
+  const { user } = useAuth()
+  const currentUser = user
 
   const state = reactive({
     isLoading: false,
@@ -32,13 +35,15 @@ const useGameRoom = () => {
 
       // find if current user is a player of the room
       state.currentPlayer = response.data.players.find(
-        (player: Player) => player.user.id === currentUser.id,
+        (player: Player) => player.user.id === currentUser.id, // CHECK: currentUser.value.id?
       )
 
       // protect room access according to state
-      if ((!state.currentPlayer && response.data.state === GameState.WAITING)
-        || (state.currentPlayer && response.data.locked === false)) {
-        console.log('NOT A PLAYER or ROOM INCOMPLETE')
+      if (
+        (!state.currentPlayer && response.data.state === GameState.WAITING) ||
+        (state.currentPlayer && response.data.locked === false)
+      ) {
+        // console.log('NOT A PLAYER or ROOM INCOMPLETE')
         state.error = 'Not authorized'
       }
 
@@ -46,7 +51,7 @@ const useGameRoom = () => {
       if (state.currentPlayer && state.currentPlayer.isReady === true) {
         state.isActive = true
       }
-      
+
       state.isLoading = false
     }
   }

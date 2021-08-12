@@ -2,6 +2,8 @@ import { RouteRecordRaw } from 'vue-router'
 
 import Index from '@/views/game/Index.vue'
 import Home from '@/views/game/Home.vue'
+import Duel from '@/views/game/Duel.vue'
+import Ladder from '@/views/game/Ladder.vue'
 import GameRoom from '@/views/game/GameRoom.vue'
 
 // -----------------------------------------------------------------------------
@@ -15,6 +17,7 @@ export const routes: Array<RouteRecordRaw> = [
     redirect: {
       name: 'game-home',
     },
+    // meta: { requiresAuth: true },
     children: [
       {
         path: '',
@@ -23,7 +26,20 @@ export const routes: Array<RouteRecordRaw> = [
         meta: { requiresAuth: true },
       },
       {
+        path: 'duel',
+        name: 'game-duel',
+        component: Duel,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'ladder',
+        name: 'game-ladder',
+        component: Ladder,
+        meta: { requiresAuth: true },
+      },
+      {
         path: 'room/:id',
+        name: 'game-room',
         component: GameRoom,
         // component: () => import("../views/Game.vue"),
         meta: { requiresAuth: true },

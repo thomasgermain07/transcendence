@@ -1,53 +1,63 @@
 <template>
   <div class="ladder-game">
-    <GameLobby
-      v-if="lobby.visible"
-      :gameMode="'ladder'"
-      :matchFound="lobby.matched"
-      @close="leaveLobby"
-      @renewSearchLadder="expandRange"
-      @redirect-to-game-room="goToRoom"
-    >
-      <template v-slot:header> Hi {{ currentUser.name }} </template>
-    </GameLobby>
-    <h2>Ladder Game</h2>
-    <figure class="circle">
-      <p>LEVEL {{ currentUser.ladderLevel }}</p>
-    </figure>
-    <div class="in-game" v-if="checkInGame.inGame">
-      <h4>Player is already in game</h4>
-      <router-link :to="checkInGame.roomRoute">Go to game room</router-link>
+    <div v-if="loading">LOADING...</div>
+    <div v-else>
+      <GameLobby
+        v-if="lobby.visible"
+        :gameMode="'ladder'"
+        :matchFound="lobby.matched"
+        @close="leaveLobby"
+        @renewSearchLadder="expandRange"
+        @redirect-to-game-room="goToRoom"
+      >
+        <template v-slot:header> Hi {{ currentUser.name }} </template>
+      </GameLobby>
+      <h2>Ladder Game</h2>
+      <figure class="circle">
+        <p>LEVEL {{ currentUser.ladderLevel }}</p>
+      </figure>
+      <div class="in-game" v-if="checkInGame.inGame">
+        <h4>Player is already in game</h4>
+        <router-link :to="checkInGame.roomRoute">Go to game room</router-link>
+      </div>
+      <div class="play-ladder-game">
+        <img src="../../assets/images/mapDefault.png" />
+        <button @click="onPlayLadder">Play Ladder</button>
+      </div>
+      <h3>Ladder Stream</h3>
+      <WatchRooms :rooms="rooms" />
     </div>
-    <div class="play-ladder-game">
-      <img src="../images/mapDefault.png" />
-      <button @click="onPlayLadder">Play Ladder</button>
-    </div>
-    <h3>Ladder Stream</h3>
-    <WatchRooms :rooms="rooms" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted } from 'vue'
+import { defineComponent, onMounted, onUnmounted, ref } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
-import { useStore } from 'vuex'
-import useSockets from '../store/sockets'
-import { GameMode, Room } from '../types/game/gameRoom'
-import { Player } from '../types/game/player'
-import WatchRooms from '../components/Game/WatchRooms.vue'
-import GameLobby from '../components/Game/MatchmakingLobby.vue'
-import useAllGameRoom from '../composables/Game/useAllGameRoom'
-import useMatchmaker from '../composables/Game/useMatchmaker'
+import { GameMode, Room } from '../../types/game/gameRoom'
+import { Player } from '../../types/game/player'
+import GameLobby from '../../components/game/MatchmakingLobby.vue'
+import WatchRooms from '../../components/game/WatchRooms.vue'
+import useAllGameRoom from '../../composables/Game/useAllGameRoom'
+import useMatchmaker from '../../composables/Game/useMatchmaker'
+import { useUsers } from '../../composables/users'
+import useSockets from '../../store/sockets'
 
 export default defineComponent({
-  name: 'Ladder',
+  name: 'game-ladder',
   components: { WatchRooms, GameLobby },
 
   setup() {
-    const store = useStore()
-    const currentUser = store.state.user
+    const loading = ref(true)
+
+    const { users, get } = useUsers()
+    get().then(() => {
+      loading.value = false
+    })
+
     const { rooms, loadGameRooms } = useAllGameRoom('ladder')
+
     const { matchmakingSocket, gameRoomsSocket } = useSockets()
+
     const {
       lobby,
       roomName,
@@ -127,7 +137,7 @@ export default defineComponent({
 
     onUnmounted(() => {
       console.log('In unmount - matchmaker matchmakingSocket.off')
-      matchmakingSocket.emit('leaveLobbySocket', {
+      matchmakingSocket.emit('leaveLobbyInServerTest', {
         roomName: roomName.value,
       })
       matchmakingSocket.off()
@@ -138,17 +148,18 @@ export default defineComponent({
       checkInGame,
       onPlayLadder,
       rooms,
-      currentUser,
+      currentUser: users,
       lobby,
       leaveLobby,
       goToRoom,
       expandRange,
+      loading,
     }
   },
 })
 </script>
 
-<style>
+<style scoped>
 .geme-mode a {
   margin: 50% auto;
 }
@@ -179,7 +190,7 @@ figure p {
       rgba(255, 255, 0, 0.5),
       rgba(0, 0, 255, 0.5)
     ),
-    url('../images/levelUp.png');
+    url('../../assets/images/levelUp.png');
   background-position: center;
   /* background-size: cover; */
   background-size: 30%;

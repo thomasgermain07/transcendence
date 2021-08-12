@@ -6,14 +6,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, ref } from 'vue'
-import { useStore } from 'vuex'
+import { defineComponent, onMounted, onUnmounted } from 'vue'
 import { DifficultyLevel, MapType } from '../../types/game/gameOptions'
 import { IBonusState, IGameState } from '../../views/GameRoom.vue'
 import { Ball } from '../../types/game/ball'
 import { Player } from '../../types/game/player'
 import { IMapPaddleState } from '../../types/game/paddle'
 import useSockets from '../../store/sockets'
+import { useAuth } from '../../composables/auth'
 
 export default defineComponent({
   name: 'GameBoard',
@@ -78,10 +78,11 @@ export default defineComponent({
     let screen = null
 
     const { gameRoomsSocket } = useSockets()
-    const store = useStore()
     const roomName = props.roomName
     const isPlayer = props.isPlayer
-    const currentUser = store.state.user
+
+    const { user } = useAuth()
+    const currentUser = user
 
     const initCanvas = (): void => {
       canvas = document.getElementById('canvas')
@@ -299,7 +300,7 @@ export default defineComponent({
 })
 </script>
 
-<style>
+<style scoped>
 #screen {
   max-width: 600px;
   max-height: 400px;

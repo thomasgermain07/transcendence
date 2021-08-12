@@ -1,22 +1,18 @@
 import { ref } from 'vue'
-import axios from 'axios'
-
+import { useAxios } from '../axios'
 
 const useAllGameRoom = (mode: string) => {
-	// console.log("---------------------")
-	const rooms = ref({});
-	// console.log("---------d------------")
+  const { axios } = useAxios()
+
+  const rooms = ref({})
+
   const loadGameRooms = async (): Promise<void> => {
     const response = await axios.get(`game/rooms/${mode}`)
-    // console.log("---------------------")
-		// console.log(response.data)
-		rooms.value =  response.data
-		// console.log(rooms.value)
-    // return rooms;
+    rooms.value = response.data
   }
 
   return {
-		rooms,
+    rooms,
     loadGameRooms,
   }
 }

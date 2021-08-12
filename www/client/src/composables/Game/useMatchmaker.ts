@@ -1,6 +1,6 @@
-import { computed, reactive } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useStore } from 'vuex'
+import { useAuth } from '../auth'
 import useSockets from '../../store/sockets'
 
 import { LobbyType, InGameType } from '../../types/game/game'
@@ -11,8 +11,9 @@ import { GameOptions } from '../../types/game/gameOptions'
 const useMatchmaker = () => {
   const { matchmakingSocket } = useSockets()
   const router = useRouter()
-  const store = useStore()
-  const currentUser = store.state.user
+
+  const { user } = useAuth()
+  const currentUser = user
 
   const lobby: LobbyType = reactive({
     visible: false,

@@ -1,6 +1,5 @@
 import { io } from 'socket.io-client'
 
-// const gameRoomsSocket = io('ws://localhost:8080/game-rooms')
 const sockets = {
   gameRoom: io('ws://localhost:8080/game-rooms'),
   matchmaking: io('ws://localhost:8080/matchmaker'),

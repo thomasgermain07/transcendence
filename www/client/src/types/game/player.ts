@@ -2,9 +2,9 @@
     GAME ROOM TYPES AND INTERFACES
 */
 
-import { User } from '../user'
+import { UserType } from '../user/user'
 import { Room } from './gameRoom'
-import { IMapPaddleState } from "./paddle"
+import { IMapPaddleState } from './paddle'
 
 export interface Player {
   id: number
@@ -12,7 +12,7 @@ export interface Player {
   score: number
   winner: boolean | null
   isReady: boolean
-  user: User
+  user: UserType
   room: Room
   paddle: IMapPaddleState
 }

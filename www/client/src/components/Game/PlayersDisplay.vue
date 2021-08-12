@@ -2,7 +2,11 @@
   <div class="players-box">
     <div class="player-details" v-if="playerLeft">
       <section class="player-logo">
-        <img src="https://image.flaticon.com/icons/png/512/4865/4865927.png" alt="logo1" />
+        <img
+          src="https://image.flaticon.com/icons/png/512/4865/4865927.png"
+          alt="logo1"
+        />
+        <!-- <img src="playerLeft?.avatar" alt="logo1" /> -->
       </section>
       <section class="player-info">
         <span class="winner">{{ playerLeft?.winner ? '👑' : '' }}</span>
@@ -34,7 +38,11 @@
     </div>
     <div class="player-details inverse" v-if="playerRight">
       <section class="player-logo">
-        <img src="https://image.flaticon.com/icons/png/512/4865/4865942.png" alt="logo2" />
+        <img
+          src="https://image.flaticon.com/icons/png/512/4865/4865942.png"
+          alt="logo2"
+        />
+        <!-- <img src="playerRight?.avatar" alt="logo2" /> -->
       </section>
       <section class="player-info">
         <span class="winner">{{ playerRight?.winner ? '👑' : '' }}</span>
@@ -85,8 +93,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-@import url('http://fonts.cdnfonts.com/css/scoreboard');
-@import url('http://fonts.cdnfonts.com/css/alpha-echo');
 @import url('http://fonts.cdnfonts.com/css/karmatic-arcade');
 /* @import url('http://fonts.cdnfonts.com/css/vanthian-ragnarok'); */
 
@@ -113,7 +119,6 @@ export default defineComponent({
   flex-direction: column;
   font-size: 3rem;
   /* color: #363636; */
-  /* font-family: 'SCOREBOARD', sans-serif; */
   font-family: 'Karmatic Arcade', sans-serif;
   /* font-family: 'Vanthian Ragnarok', sans-serif; */
 }

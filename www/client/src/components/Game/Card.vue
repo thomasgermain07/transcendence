@@ -1,32 +1,30 @@
 <template>
-		<!-- <article class="card"> -->
-			<header>
-				<slot name="header">Default Title</slot>
-			</header>
-			<div class="rules">
-				<slot name="rules">Default Rules</slot>
-			</div>
-			<div>
-				<slot name="button">Default Button</slot>
-			</div>
-		<!-- </article> -->
+  <div class="card-game">
+    <header>
+      <slot name="header">Default Title</slot>
+    </header>
+    <div class="rules">
+      <slot name="rules">Default Rules</slot>
+    </div>
+    <div>
+      <slot name="button">Default Button</slot>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-	name: 'Card',
+  name: 'Card',
 
   setup() {
-
-		return ;
+    return
   },
 })
 </script>
 
-<style>
-
+<style scoped>
 /* .link-button {
   display: block;
   background: #0a0a0a;
@@ -41,17 +39,15 @@ export default defineComponent({
   background: #aa6bdd;
 } */
 
-
 .card h2 {
   margin: 0;
-  padding: .5rem;
+  padding: 0.5rem;
 }
 
 .rules {
-  padding: .5rem;
-	font-size: 200%;
-	font-weight: bold;
-	color: #000000;
+  padding: 0.5rem;
+  font-size: 200%;
+  font-weight: bold;
+  color: #000000;
 }
-
 </style>

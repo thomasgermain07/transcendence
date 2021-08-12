@@ -43,10 +43,16 @@
         <br />
         <img
           v-if="duelOptions.map == 'default'"
-          src="../images/mapDefault.png"
+          src="../../assets/images/mapDefault.png"
         />
-        <img v-else-if="duelOptions.map == 'map1'" src="../images/map1.png" />
-        <img v-else-if="duelOptions.map == 'map2'" src="../images/map2.png" />
+        <img
+          v-else-if="duelOptions.map == 'map1'"
+          src="../../assets/images/map1.png"
+        />
+        <img
+          v-else-if="duelOptions.map == 'map2'"
+          src="../../assets/images/map2.png"
+        />
         <button>Play Duel</button>
       </form>
     </div>
@@ -58,27 +64,29 @@
 <script lang="ts">
 import { defineComponent, onMounted, onUnmounted, reactive } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
-import { useStore } from 'vuex'
-import useSockets from '../store/sockets'
 import {
   DifficultyLevel,
   GameOptions,
   MapType,
-} from '../types/game/gameOptions'
-import { Player } from '../types/game/player'
-import { GameMode, Room } from '../types/game/gameRoom'
-import GameLobby from '../components/Game/MatchmakingLobby.vue'
-import WatchRooms from '../components/Game/WatchRooms.vue'
-import useAllGameRoom from '../composables/Game/useAllGameRoom'
-import useMatchmaker from '../composables/Game/useMatchmaker'
+} from '../../types/game/gameOptions'
+import { Player } from '../../types/game/player'
+import { GameMode, Room } from '../../types/game/gameRoom'
+import GameLobby from '../../components/game/MatchmakingLobby.vue'
+import WatchRooms from '../../components/game/WatchRooms.vue'
+import useAllGameRoom from '../../composables/Game/useAllGameRoom'
+import useMatchmaker from '../../composables/Game/useMatchmaker'
+import useSockets from '../../store/sockets'
+import { useAuth } from '../../composables/auth'
 
 export default defineComponent({
-  name: 'Duel',
+  name: 'game-duel',
   components: { WatchRooms, GameLobby },
   setup() {
-    const store = useStore()
-    const currentUser = store.state.user
+    const { user } = useAuth()
+    const currentUser = user
+
     const { rooms, loadGameRooms } = useAllGameRoom('duel')
+
     const { matchmakingSocket, gameRoomsSocket } = useSockets()
     const {
       lobby,
@@ -173,7 +181,7 @@ export default defineComponent({
     onUnmounted(() => {
       console.log('In unmount - matchmaker matchmakingSocket.off')
       if (roomName.value) {
-        matchmakingSocket.emit('leaveLobbySocket', {
+        matchmakingSocket.emit('leaveLobbyInServerTest', {
           roomName: roomName.value,
         })
       }
@@ -196,7 +204,7 @@ export default defineComponent({
 })
 </script>
 
-<style>
+<style scoped>
 /* @import url('http://fonts.cdnfonts.com/css/pixelfaceonfire');
 @import url('http://fonts.cdnfonts.com/css/messing-lettern');
 @import url('http://fonts.cdnfonts.com/css/gun-metal'); */
@@ -213,7 +221,7 @@ export default defineComponent({
       rgba(255, 255, 0, 0.5),
       rgba(0, 0, 255, 0.5)
     ),
-    url('../images/vs.png');
+    url('../../assets/images/vs.png');
   background-position: center;
   background-size: 30%;
   padding: 30px;
