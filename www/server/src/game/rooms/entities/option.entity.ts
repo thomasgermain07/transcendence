@@ -1,19 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm';
 import { IsEnum, IsBoolean } from 'class-validator';
 import { Room } from './room.entity';
-
-
-export enum DifficultyLevel {
-  EASY = 'easy',
-  MEDIUM = 'medium',
-  HARD = 'hard'
-}
-
-export enum MapType {
-  DEFAULT = 'default',
-  MAP1 = 'map1',
-  MAP2 = 'map2'
-}
+import { DifficultyLevel, MapType } from '../../enum/enum'
 
 @Entity({ name: 'game_option'})
 export class Option {

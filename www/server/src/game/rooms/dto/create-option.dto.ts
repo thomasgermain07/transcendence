@@ -1,5 +1,5 @@
-import { MapType, DifficultyLevel } from '../entities/option.entity';
 import { IsNotEmpty, IsEnum, IsBoolean } from 'class-validator';
+import { MapType, DifficultyLevel } from '../../enum/enum';
 
 export class CreateOptionDto {
 

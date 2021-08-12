@@ -1,5 +1,5 @@
-import { GameMode, GameState } from "../entities/room.entity";
 import { IsEnum, IsBoolean, IsOptional } from 'class-validator';
+import { GameMode, GameState } from '../../enum/enum';
 
 export class UpdateRoomDto {
 
@@ -10,7 +10,6 @@ export class UpdateRoomDto {
     @IsBoolean()
 	locked?: boolean
 
-    //state
     @IsOptional()
     @IsEnum(GameState)
 	state?: GameState

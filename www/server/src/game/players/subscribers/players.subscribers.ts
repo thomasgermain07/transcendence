@@ -47,7 +47,6 @@ import { UsersService, Achievements } from 'src/users/services/users.service';
 
     async afterUpdate(event: UpdateEvent<Player>) {
       console.log("---------__AFTER UPDATE PLAYER-------------")
-      console.log(event.entity);
       if (event.entity.winner) {
         const player: Player = await this.playersService.findOne(event.entity.id)
         console.log(player);

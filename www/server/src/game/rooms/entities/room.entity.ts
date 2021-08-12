@@ -4,19 +4,7 @@ import { OneToOne, OneToMany }    from 'typeorm';
 
 import { Option }   from './option.entity';
 import { Player }   from 'src/game/players/entities/player.entity';
-
-export enum GameMode {
-    DUEL = "duel",
-    LADDER = "ladder",
-    PRIVATE = "private"
-}
-
-export enum GameState {
-    WAITING = "waiting",
-    PLAYING = "playing",
-    CANCELLED = "cancelled",
-    OVER = "over"
-}
+import { GameState, GameMode } from '../../enum/enum'
 
 @Entity({ name: 'game_room'})
 export class Room {

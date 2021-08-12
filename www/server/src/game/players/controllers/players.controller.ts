@@ -8,7 +8,7 @@ import { PlayersService } from '../services/players.service';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 
 
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('game/players')
 @UseInterceptors(ClassSerializerInterceptor)
 export class PlayersController {

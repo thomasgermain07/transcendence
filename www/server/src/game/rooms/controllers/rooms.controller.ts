@@ -1,16 +1,15 @@
-import { Controller, Get, Delete, Post, Body }                     from '@nestjs/common';
+import { Controller, Get, Delete, Post, Body, UseGuards } from '@nestjs/common';
 import { Param, ParseIntPipe }                         from '@nestjs/common';
 import { UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
 
-import { Room, GameMode } from '../entities/room.entity';
+import { Room } from '../entities/room.entity';
+import { GameMode } from '../../enum/enum';
 
 import { RoomsService } from '../services/rooms.service';
-import CreateRoomDto from '../dto/create-room.dto';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 
 
-
-
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('game/rooms')
 @UseInterceptors(ClassSerializerInterceptor)
 export class RoomsController {
@@ -31,27 +30,15 @@ export class RoomsController {
     @Get('/duel')
     findAllDuel(): Promise<Room[]> {
         return this.roomsService.findAllByMode(GameMode.DUEL)
-        // return this.roomsService.findAll()
     }
     @Get('/ladder')
     findAllLadder(): Promise<Room[]> {
         return this.roomsService.findAllByMode(GameMode.LADDER)
-        // return this.roomsService.findAll()
     }
     @Get(':id')
     findone(@Param('id', ParseIntPipe) id: number): Promise<Room> {
         return this.roomsService.findOne(id)
     }
-
-    // @Post()
-    // create(@Body() roomDto: CreateRoomDto): Promise<Room> {
-    //     return this.roomsService.create(roomDto)
-    // }
-
-    // @Put(':id')
-    // update(@Param('id', ParseIntPipe) id: number, @Body() roomDto: UpdateRoomDto): Promise<Room> {
-    //     return this.roomsService.update(id, roomDto)
-    // }
 
     @Delete()
     clear(): void {

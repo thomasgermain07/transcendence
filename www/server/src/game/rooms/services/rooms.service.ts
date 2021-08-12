@@ -3,15 +3,15 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository }       from 'typeorm';
 
-import { Room, GameMode, GameState }        from '../entities/room.entity';
-import { Option, MapType, DifficultyLevel } from '../entities/option.entity';
-import { User }                             from 'src/users/entities/user.entity';
-
+import { Room }                      from '../entities/room.entity';
+import { GameMode, GameState }       from '../../enum/enum'
+import { MapType, DifficultyLevel }  from '../../enum/enum';
+import { Option }                    from '../entities/option.entity';
+import { User }                      from 'src/users/entities/user.entity';
 
 import CreateRoomDto   from '../dto/create-room.dto';
 import UpdateRoomDto   from '../dto/update-room.dto';
 import CreateOptionDto from '../dto/create-option.dto';
-
 
 
 
@@ -129,7 +129,6 @@ export class RoomsService {
   }
 
   public async findMatchOnDuel(
-    // user: User,
     options?: CreateOptionDto,
   ) : Promise<Room> {
 
@@ -217,13 +216,10 @@ export class RoomsService {
         .execute()
   }
 
+  // TODO: transform to query which returns player count
   public async checkIfMatchFound(id: number): Promise<boolean> {
-    console.log('IN CHECK LOCKED')
-    // TODO: transform to query which returns player count
     const room = await this.roomsRepository.findOne(id)
-    console.log(room)
     if (room.players.length == 2) {
-      console.log('in room service match found')
       return true
     }
     return false

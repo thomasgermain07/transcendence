@@ -1,8 +1,8 @@
-import { GameMode } from "../entities/room.entity";
 import { IsNotEmpty, ValidateNested, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
 
 import CreateOptionDto from "./create-option.dto";
+import { GameMode } from '../../enum/enum';
 
 
 export class CreateRoomDto {
@@ -10,10 +10,6 @@ export class CreateRoomDto {
     @IsNotEmpty()
     @IsEnum(GameMode)
     mode: GameMode
-    
-    // @IsNotEmpty()
-    // @IsEnum(GameState)
-	// state: GameState
 
     @ValidateNested()
     @Type(() => CreateOptionDto)
