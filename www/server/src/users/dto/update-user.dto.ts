@@ -3,8 +3,6 @@ import { IsOptional, IsInt, Min, Max } from 'class-validator';
 
 import { CreateUserDto } from "./create-user.dto";
 
-import { Achievements } from '../entities/user.entity';
-
 export class UpdateUserDto
 	extends PartialType(CreateUserDto)
 {

@@ -5,21 +5,9 @@ import { Repository } from 'typeorm'
 import { CreateUserDto } from '../dto/create-user.dto'
 import { UpdateUserDto } from '../dto/update-user.dto'
 import { User } from '../entities/user.entity'
+import { Achievement } from '../entities/achievement.entity'
 
-export enum Achievements {
-	DEFENSE_MASTER = "Defense Master Achievement: You wine a match without taking any goal !",
-	TEN_WINNE = "10 Games Winned Achievement: You have winned 10 games !",
-	THIRTY_WINNE = "30 Games Winned Achievement: You have winned 30 games !",
-	SEVENTY_WINNE = "70 Games Winned Achievement: You have winned 70 games !",
-	HUNDRED_WINNE = "100 Games Winned Achievement: You have winned 100 games !",
-	TWO_HUNDRED_WINNE = "200 Games Winned Achievement: You have winned 200 games !",
-	LADDER_WINNER = "Ladder Winner Achievement: You are Level 1 in Ladder mode !",
-	ALL_TERRAIN = "All Terrain Achievement: You played and winne in all 3 maps in duel mode!",
-	NOVICE = "Novice Achievement: You winned your first match !",
-	MIDDLE_PLAYER = "Player In The Middle Achievement: You winne a match with medium difficulty !",
-	HARD_MASTER = "Hardcore Player Achievement: You winne a match with Hard difficulty !",
-	DONE = "Done Achievement: You have completed all the acchievements Good Job !",
-}
+import { AchievementsName, AchievementsDescription } from '../entities/achievement.entity'
 
 @Injectable()
 export class UsersService {
@@ -29,13 +17,40 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly users_repo: Repository<User>,
+    @InjectRepository(Achievement)
+		private achievementsRepository: Repository<Achievement>
   ) {}
 
   // -------------------------------------------------------------------------
   // Public methods
   // -------------------------------------------------------------------------
   async create(create_dto: CreateUserDto): Promise<User> {
-    return this.users_repo.save(create_dto)
+    const achievement_1 = await this.achievementsRepository.create({name: AchievementsName.NOVICE, description: AchievementsDescription.NOVICE});
+
+		const achievement_2 = await this.achievementsRepository.create({ name: AchievementsName.ALL_TERRAIN, description: AchievementsDescription.ALL_TERRAIN});
+
+		const achievement_3 = await this.achievementsRepository.create({ name: AchievementsName.DEFENSE_MASTER, description: AchievementsDescription.DEFENSE_MASTER });
+
+		const achievement_4 = await this.achievementsRepository.create({ name: AchievementsName.DONE, description: AchievementsDescription.DONE });
+
+		const achievement_5 = await this.achievementsRepository.create({ name: AchievementsName.HARD_MASTER, description: AchievementsDescription.HARD_MASTER });
+
+		const achievement_6 = await this.achievementsRepository.create({ name: AchievementsName.HUNDRED_WINNE, description: AchievementsDescription.NOVICE });
+
+		const achievement_7 = await this.achievementsRepository.create({ name: AchievementsName.MIDDLE_PLAYER, description: AchievementsDescription.MIDDLE_PLAYER });
+
+		const achievement_8 = await this.achievementsRepository.create({ name: AchievementsName.SEVENTY_WINNE, description: AchievementsDescription.SEVENTY_WINNE });
+
+		const achievement_9 = await this.achievementsRepository.create({ name: AchievementsName.TEN_WINNE, description: AchievementsDescription.TEN_WINNE });
+
+		const achievement_10 = await this.achievementsRepository.create({ name: AchievementsName.THIRTY_WINNE, description: AchievementsDescription.THIRTY_WINNE });
+
+		const achievement_11 = await this.achievementsRepository.create({ name: AchievementsName.TWO_HUNDRED_WINNE, description: AchievementsDescription.TWO_HUNDRED_WINNE });
+
+		const user: User = await this.users_repo.create({...create_dto, achievements: []})
+		user.achievements = [achievement_1, achievement_2, achievement_3, achievement_4, achievement_5, achievement_6, achievement_7, achievement_8, achievement_9, achievement_10, achievement_11]
+    
+    return this.users_repo.save(user)
   }
 
   async findAll(): Promise<User[]> {
@@ -82,29 +97,30 @@ export class UsersService {
   )
   	: Promise<User>
   {
-  	await this.users_repo.update(userId, { ladderLevel: level })
-  	if (level == 1) {
-  		const user : User = await this.users_repo.findOne(userId)
-  		await this.updateAchievements(user, Achievements.LADDER_WINNER)
-  	}
+    await this.users_repo.update(userId, { ladderLevel: level })
+    
   	return await this.users_repo.findOne(userId);
   }
 
   public async updateAchievements(
-  	user : User,
-  	achievement : Achievements,
-  )
-  	: Promise<User>
-  {
-  	if (!user.achievements) {
-  		user.achievements = [];
-  	}
-  	console.log(user);
-  	if (user.achievements && !user.achievements.find(element => element == achievement)) {
-  		user.achievements.push(achievement);
-  		await this.users_repo.update(user.id, { achievements: user.achievements })
-  	}
-  	return await this.users_repo.findOne(user.id);
-  }
+  	userPlayer : User,
+		achievementName : AchievementsName,
+	)
+		: Promise<User>
+	{
+		const achievement = await this.achievementsRepository.createQueryBuilder("achievement")
+			.leftJoinAndSelect("achievement.users", "users")
+			.where(`"users"."id" = :id`, { id: userPlayer.id })
+			.andWhere(`"achievement"."name" = :name`, { name: achievementName })
+			.getOne()
+		console.log("----------NEW USERS---------------")
+		console.log(achievement)
+		await this.achievementsRepository.update(achievement.id, {locked: true})
+		console.log("----------NEW ACHIEVEMENTS---------------")
+		const user : User = await this.users_repo.findOne(userPlayer.id, { relations: ["achievements"]});
+		console.log(user)
+
+		return await this.users_repo.findOne(userPlayer.id);
+	}
 
 }
