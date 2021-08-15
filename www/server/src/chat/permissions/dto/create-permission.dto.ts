@@ -7,7 +7,7 @@ import { IsValidType } from '../decorators/is-valid-type.decorator'
 import { Type } from 'class-transformer'
 
 export class CreatePermissionDto {
-  @UserExists()
+  @UserExists('id')
   @Max(2147483647)
   @IsPositive()
   public user_id: number
