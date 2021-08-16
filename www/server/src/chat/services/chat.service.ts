@@ -54,10 +54,9 @@ export class ChatService
 			room: room,
 		});
 
-		// Todo:
 		return subscriptions
 			.map((subscription) => subscription.user)
-			/*.filter((user) => !user.isAdmin())*/
+			.filter((user) => !user.is_admin)
 		;
 	}
 
@@ -95,11 +94,7 @@ export class ChatService
 	)
 		: Promise<boolean>
 	{
-		// Todo:
-		return (
-			/*await this.isAdmin() ||*/
-			await this.isOwner(user, room)
-		);
+		return (user.is_admin || await this.isOwner(user, room));
 	}
 
 	async isModerator(
