@@ -9,11 +9,12 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from 'src/auth/auth.module'
 import { UsersModule } from 'src/users/users.module'
 import { ChatModule } from 'src/chat/chat.module'
+import { RelationsModule } from 'src/relations/relations.module'
 import { GameModule }  from 'src/game/game.module'
 
 import { GlobalExceptionFilter } from './filters/global-exception.filter'
 import { DatabaseConfigService } from './services/database-config.service'
-import { AppController } from './controllers/app.controller'
+import { AppController }         from './controllers/app.controller'
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { AppController } from './controllers/app.controller'
     UsersModule,
     ChatModule,
     GameModule,
+    RelationsModule,
   ],
   controllers: [AppController],
   providers: [

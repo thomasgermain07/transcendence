@@ -3,8 +3,9 @@ import { PrimaryGeneratedColumn } from 'typeorm'
 import { OneToMany, ManyToMany, JoinTable } from 'typeorm'
 
 import { Exclude } 		   from 'class-transformer'
-import { Min, Max, IsInt } from 'class-validator';
 
+import { Ignored } from 'src/relations/ignoreds/entities/ignored.entity'
+import { Friendship } from 'src/relations/friendships/entities/friendship.entity'
 import { Room } from 'src/chat/rooms/entities/room.entity'
 import { Message } from 'src/chat/messages/entities/message.entity'
 import { Permission } from 'src/chat/permissions/entities/permission.entity'
@@ -70,6 +71,33 @@ export class User {
   public marvin_id: number
 
   // -------------------------------------------------------------------------
+  // Relations
+  // -------------------------------------------------------------------------
+  @OneToMany(() => Ignored, (ignored) => ignored.user, {
+    onDelete: 'CASCADE',
+    lazy: true,
+  })
+  public ignoreds: Promise<Ignored[]>;
+
+  @OneToMany(() => Ignored, (ignored) => ignored.target, {
+    onDelete: 'CASCADE',
+    lazy: true,
+  })
+  public ignoreds_by: Promise<Ignored[]>;
+
+  @OneToMany(() => Friendship, (friendship) => friendship.user, {
+    onDelete: 'CASCADE',
+    lazy: true,
+  })
+  public friendships: Promise<Friendship[]>;
+
+  @OneToMany(() => Friendship, (friendship) => friendship.target, {
+    onDelete: 'CASCADE',
+    lazy: true,
+  })
+  public friendships_by: Promise<Friendship[]>;
+
+  // -------------------------------------------------------------------------
   // Chat
   // -------------------------------------------------------------------------
   @OneToMany(() => Room, (room) => room.owner, {
@@ -96,16 +124,16 @@ export class User {
   })
   public chat_permissions: Promise<Permission[]>
 
-	// -------------------------------------------------------------------------
-	// Game
-	// -------------------------------------------------------------------------
-	@Column({ default: 50 })
-	ladderLevel : number;
+  // -------------------------------------------------------------------------
+  // Game
+  // -------------------------------------------------------------------------
+  @Column({ default: 50 })
+  ladderLevel : number;
 
   @ManyToMany(() => Achievement, achievement => achievement.users, { cascade: true, eager: true})
-	@JoinTable()
-	achievements: Achievement[];
+  @JoinTable()
+  achievements: Achievement[];
 
   @OneToMany(() => Player, player => player.user)
-	players: Player[];
+  players: Player[];
 }
