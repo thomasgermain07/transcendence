@@ -8,7 +8,8 @@ import { join }                        from 'path'
 
 import { AuthModule }  from 'src/auth/auth.module'
 import { UsersModule } from 'src/users/users.module'
-import { ChatModule }  from 'src/chat/chat.module'
+import { ChatModule } from 'src/chat/chat.module'
+import { RelationsModule } from 'src/relations/relations.module'
 import { GameModule }  from 'src/game/game.module'
 import { DMModule }    from "src/direct_message/dm.module";
 
@@ -33,7 +34,8 @@ import { AppController }         from './controllers/app.controller'
     UsersModule,
     ChatModule,
     GameModule,
-	DMModule,
+  	DMModule,
+    RelationsModule,
   ],
   controllers: [AppController],
   providers: [
