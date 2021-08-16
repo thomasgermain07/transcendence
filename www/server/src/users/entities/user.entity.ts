@@ -35,6 +35,12 @@ export class User {
   })
   public avatar?: string
 
+  @Column({
+    nullable: true,
+    default: false,
+  })
+  public is_admin: boolean
+
   // -------------------------------------------------------------------------
   // Authentication
   // -------------------------------------------------------------------------
