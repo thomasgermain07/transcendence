@@ -214,7 +214,11 @@ export class GameRoomsGateway
     @MessageBody() data: SocketRoomInfo
   ): Promise<void> {
 
-    await this.playerService.update(data.playerId, { isReady: false })
+    try {
+      await this.playerService.update(data.playerId, { isReady: false }) 
+    } catch (error) {
+      console.log('In not ready Exception - player not found')
+    }
   }
 
   @SubscribeMessage('updateRoomInServer')

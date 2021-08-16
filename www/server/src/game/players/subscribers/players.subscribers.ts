@@ -30,12 +30,12 @@ import { AchievementsName } from 'src/users/entities/achievement.entity';
     listenTo() {
       return Player;
     }
-    
-    afterInsert(event: InsertEvent<Player>) {
-      console.log("---------__AFTER INSERT PALYERS-------------")
+ 
+    async beforeInsert(event: InsertEvent<Player>) {
+      console.log("---------BEFORE INSERT PLAYERS-------------")
       if (event.entity.room.players && event.entity.room.players.length == 1) {
         console.log('Locking Room ' + event.entity.room.id)
-        this.roomsService.update(event.entity.room.id, {locked: true})
+        await this.roomsService.update(event.entity.room.id, {locked: true})
       }
     }
   
