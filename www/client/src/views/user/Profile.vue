@@ -1,4 +1,5 @@
 <template>
+<div>
   <h1>UserProfile</h1>
 
   <p v-if="status == 'loading'">Loading profile ...</p>
@@ -31,41 +32,63 @@
       <input v-if="isCurrentUser" type="file" @change="onFileSelected">
       <button v-if="isCurrentUser" @click="onUpload">Upload</button>
     </div>
+
+    <hr class="separator" />
+    <GameStats :user="user" />
+
+    <hr class="separator" />
+    <MatchHistory :user="user" />
+
   </div>
+</div>
+
 </template>
 
 <script lang="ts">
-import { ref, computed, watchEffect } from 'vue'
-import { useRoute } from 'vue-router'
-import { useAuth } from '@/composables/auth'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, onBeforeRouteUpdate } from 'vue-router'
 import ErrorPage from '@/components/ErrorPage.vue'
 import getFetchUser from '@/composables/User/fetchUser'
 import requestStatus from '@/composables/requestStatus'
 import { addFriend, removeFriend } from '@/composables/User/userInteraction'
-import { useAxios } from '../../composables/axios'
 import { useUsers } from '../../composables/users'
+import GameStats from '../../components/game/GameStats.vue'
+import MatchHistory from '../../components/game/MatchHistory.vue'
+import { useAxios } from '../../composables/axios'
+
 export default {
   components: {
     ErrorPage,
+    GameStats,
+    MatchHistory,
   },
   setup() {
     const route = useRoute()
-    let imageFile = ref("");
     let status = ref(requestStatus.loading)
+    const { user, fetchUser } = getFetchUser(status)
+    const { users, get } = useUsers()
     const { axios } = useAxios()
-    const { user, fetchUser } = getFetchUser(status)  
-     const { users, get } = useUsers()
-    const isCurrentUser = computed(() => {
-      return user.value.id == useAuth().user.id
-    })
-    const userId = route.params.id || useAuth().user.id
+    let imageFile = ref("");
 
-    fetchUser(userId)
-    function onFileSelected(event) {
+    const isCurrentUser = computed(() => {
+      return user.value.id == users?.value?.id
+    })
+
+
+    const fetchUserFromRoute = async () => {
+      await get()
+      if (!route.params.id) {
+        fetchUser(users?.value?.id)
+      } else {
+        fetchUser(route.params.id)
+      }
+    }
+
+    const onFileSelected = (event) => {
       imageFile.value = event.target.files[0]
     }
 
-    async function onUpload() {
+    const onUpload = async () => {
 
       let data = new FormData();
       data.append('file', imageFile.value)
@@ -79,14 +102,14 @@ export default {
       }
     }
 
-    watchEffect(async () => {
-      if (route.params.id == undefined) {
-        await get()
-        fetchUser(users.value.id)
-      } else {
-        fetchUser(route.params.id)
-      }
+    onBeforeRouteUpdate(() => {
+      fetchUserFromRoute()
     })
+
+    onMounted(() => {
+      fetchUserFromRoute()
+    })
+
     return {
       user,
       status,
@@ -98,6 +121,7 @@ export default {
     }
   },
 }
+
 </script>
 
 <style scoped>
