@@ -4,7 +4,7 @@ import { Exists as UserExists } from 'src/users/decorators/exists.decorator';
 
 export class CreateMessageDto
 {
-	@UserExists()
+	@UserExists('id')
 	@Max(2147483647)
 	@IsNumber()
 	public target_id: number;
