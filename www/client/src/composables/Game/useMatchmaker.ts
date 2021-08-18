@@ -73,7 +73,12 @@ const useMatchmaker = () => {
     matchmakingSocket.emit('leaveLobbyInServer', {
       room: roomName.value,
       playerId: lobby.player.id,
+<<<<<<< HEAD
     }, () => {
+=======
+    }, (message: string) => {
+      console.log(message)
+>>>>>>> bfc1af75536a72bfd2dc42bdac15c43a8457ad96
       closeLobby()
     })
   }

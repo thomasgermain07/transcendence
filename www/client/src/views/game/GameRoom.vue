@@ -63,9 +63,9 @@ import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import useSockets from '../../store/sockets'
 import useGameRoom from '../../composables/Game/useGameRoom'
 
-import PlayersDisplay from '../../components/Game/PlayersDisplay.vue'
-import GameBoard from '../../components/Game/GameBoard.vue'
-import GameButton from '../../components/Game/GameButton.vue'
+import PlayersDisplay from '../../components/game/PlayersDisplay.vue'
+import GameBoard from '../../components/game/GameBoard.vue'
+import GameButton from '../../components/game/GameButton.vue'
 
 import { GameState, Room } from '../../types/game/gameRoom'
 

@@ -213,12 +213,12 @@ export class GameRoomsGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() data: SocketRoomInfo
   ): Promise<void> {
+
     try {
-      await this.playerService.update(data.playerId, { isReady: false })
-    } catch {
-      console.log("PLAYER ALREADY DELETED")
+      await this.playerService.update(data.playerId, { isReady: false }) 
+    } catch (error) {
+      console.log('In not ready Exception - player not found')
     }
-    
   }
 
   @SubscribeMessage('updateRoomInServer')

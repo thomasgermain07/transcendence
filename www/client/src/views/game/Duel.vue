@@ -302,7 +302,7 @@ button:hover {
 /* hr {
   width: 40%;
   margin: 50px auto;
-	
+
 } */
 
 .in-game a {
