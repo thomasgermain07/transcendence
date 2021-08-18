@@ -137,8 +137,8 @@ export default defineComponent({
 
     onUnmounted(() => {
       console.log('In unmount - matchmaker matchmakingSocket.off')
-      matchmakingSocket.emit('leaveLobbyInServerTest', {
-        roomName: roomName.value,
+      matchmakingSocket.emit('leaveLobbySocket', {
+        room: roomName.value,
       })
       matchmakingSocket.off()
       // gameRoomsSocket.off() ????

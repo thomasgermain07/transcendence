@@ -79,7 +79,8 @@ export class PlayersService {
       relations: ["user", "room"],
       where: { winner: IsNull(), user: user }
     })
-
+    console.log("----PLAYER CHECK IF IN GAME----------")
+    console.log(player)
 		return player;
 	}
 
@@ -134,7 +135,10 @@ export class PlayersService {
         room: room
       })
     await this.playersRepository.save(player)
-
+    console.log("-------------_ADD PLAYERS-----------------")
+    console.log(room)
+    console.log(room.players)
+    console.log(player)
     return player
   }
 }

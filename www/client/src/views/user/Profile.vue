@@ -10,7 +10,7 @@
   <div v-if="status == 'success'" class="profile-ctn">
     <div class="user-ctn">
       <div class="user-ctn__pp">
-        <img v-bind:src="user.profile_picture" class="profile_picture" />
+        <img v-bind:src="user.avatar" class="profile_picture" />
       </div>
       <div class="user-ctn__info">
         <p class="info__name">{{ user.name }}</p>
@@ -27,6 +27,10 @@
     </div>
 
     <hr class="separator" />
+    <div class="update-avatar">
+      <input v-if="isCurrentUser" type="file" @change="onFileSelected">
+      <button v-if="isCurrentUser" @click="onUpload">Upload</button>
+    </div>
   </div>
 </template>
 
@@ -38,20 +42,47 @@ import ErrorPage from '@/components/ErrorPage.vue'
 import getFetchUser from '@/composables/User/fetchUser'
 import requestStatus from '@/composables/requestStatus'
 import { addFriend, removeFriend } from '@/composables/User/userInteraction'
+import { useAxios } from '../../composables/axios'
+import { useUsers } from '../../composables/users'
 export default {
   components: {
     ErrorPage,
   },
   setup() {
     const route = useRoute()
+    let imageFile = ref("");
     let status = ref(requestStatus.loading)
-    const { user, fetchUser } = getFetchUser(status)
+    const { axios } = useAxios()
+    const { user, fetchUser } = getFetchUser(status)  
+     const { users, get } = useUsers()
     const isCurrentUser = computed(() => {
       return user.value.id == useAuth().user.id
     })
-    watchEffect(() => {
+    const userId = route.params.id || useAuth().user.id
+
+    fetchUser(userId)
+    function onFileSelected(event) {
+      imageFile.value = event.target.files[0]
+    }
+
+    async function onUpload() {
+
+      let data = new FormData();
+      data.append('file', imageFile.value)
+
+      const res = await axios.post('users/upload', data).catch((err) => {
+            alert(`${err.response?.data.message}`)
+          })
+      if (res) {
+        user.value = res.data
+        console.log(user.value)
+      }
+    }
+
+    watchEffect(async () => {
       if (route.params.id == undefined) {
-        fetchUser(useAuth().user.id)
+        await get()
+        fetchUser(users.value.id)
       } else {
         fetchUser(route.params.id)
       }
@@ -62,6 +93,8 @@ export default {
       addFriend,
       removeFriend,
       isCurrentUser,
+      onFileSelected,
+      onUpload,
     }
   },
 }

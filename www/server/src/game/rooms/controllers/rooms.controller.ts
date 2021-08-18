@@ -35,13 +35,14 @@ export class RoomsController {
     findAllLadder(): Promise<Room[]> {
         return this.roomsService.findAllByMode(GameMode.LADDER)
     }
+
+    @Get('/delete')
+    clear(): void {
+        this.roomsService.clearAll()
+    }
+
     @Get(':id')
     findone(@Param('id', ParseIntPipe) id: number): Promise<Room> {
         return this.roomsService.findOne(id)
-    }
-
-    @Delete()
-    clear(): void {
-        this.roomsService.clearAll()
     }
 }

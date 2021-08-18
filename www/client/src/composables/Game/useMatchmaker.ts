@@ -55,12 +55,13 @@ const useMatchmaker = () => {
     matchmakingSocket.emit(
       'joinLobbyInServer',
       {
-        roomName: roomName.value,
+        room: roomName.value,
         roomId: lobby.player.room.id,
       },
       (message: string) => {
         console.log(message)
         if (message === 'matchFound') {
+          console.log(lobby.player)
           updateMatchedState(true)
         }
       },
@@ -69,10 +70,11 @@ const useMatchmaker = () => {
 
   const leaveLobby = () => {
     console.log('In leave lobby Duel view')
-    closeLobby()
     matchmakingSocket.emit('leaveLobbyInServer', {
-      roomName: roomName.value,
+      room: roomName.value,
       playerId: lobby.player.id,
+    }, () => {
+      closeLobby()
     })
   }
 
@@ -105,7 +107,7 @@ const useMatchmaker = () => {
       {
         user: currentUser,
         player: lobby.player,
-        currentRoomName: roomName,
+        currentRoomName: roomName.value,
         range: range,
       },
       (player: Player) => {
@@ -123,7 +125,7 @@ const useMatchmaker = () => {
       {
         user: currentUser,
         player: lobby.player,
-        currentRoomName: roomName,
+        currentRoomName: roomName.value,
       },
       (player: Player) => {
         console.log(player)
