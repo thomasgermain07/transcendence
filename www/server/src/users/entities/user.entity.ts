@@ -9,6 +9,8 @@ import { Permission }           from 'src/chat/permissions/entities/permission.e
 import { Subscription }         from 'src/chat/subscriptions/entities/subscription.entity'
 import { Player }               from 'src/game/players/entities/player.entity'
 import { Message as DMMessage } from 'src/direct_message/messages/entities/message.entity'
+import { Ignored }              from 'src/relations/ignoreds/entities/ignored.entity'
+import { Friendship }           from 'src/relations/friendships/entities/friendship.entity'
 
 import { Achievement } from './achievement.entity';
 
@@ -70,6 +72,34 @@ export class User
 	})
 	public marvin_id: number
 
+  // -------------------------------------------------------------------------
+  // Relations
+  // -------------------------------------------------------------------------
+  @OneToMany(() => Ignored, (ignored) => ignored.user, {
+    onDelete: 'CASCADE',
+    lazy: true,
+  })
+  public ignoreds: Promise<Ignored[]>;
+
+  @OneToMany(() => Ignored, (ignored) => ignored.target, {
+    onDelete: 'CASCADE',
+    lazy: true,
+  })
+  public ignoreds_by: Promise<Ignored[]>;
+
+  @OneToMany(() => Friendship, (friendship) => friendship.user, {
+    onDelete: 'CASCADE',
+    lazy: true,
+  })
+  public friendships: Promise<Friendship[]>;
+
+  @OneToMany(() => Friendship, (friendship) => friendship.target, {
+    onDelete: 'CASCADE',
+    lazy: true,
+  })
+  public friendships_by: Promise<Friendship[]>;
+
+
 	// -------------------------------------------------------------------------
 	// Chat
 	// -------------------------------------------------------------------------
@@ -97,11 +127,11 @@ export class User
 	})
 	public chat_permissions: Promise<Permission[]>
 
-	// -------------------------------------------------------------------------
-	// Game
-	// -------------------------------------------------------------------------
-	@Column({ default: 50 })
-	ladderLevel : number;
+  // -------------------------------------------------------------------------
+  // Game
+  // -------------------------------------------------------------------------
+  @Column({ default: 50 })
+  ladderLevel : number;
 
 	@ManyToMany(() => Achievement, achievement => achievement.users, {
 		cascade: true,

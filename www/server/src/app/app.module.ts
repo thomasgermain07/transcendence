@@ -6,11 +6,12 @@ import { ServeStaticModule }           from '@nestjs/serve-static'
 import { ScheduleModule }              from '@nestjs/schedule';
 import { join }                        from 'path'
 
-import { AuthModule }  from 'src/auth/auth.module'
-import { UsersModule } from 'src/users/users.module'
-import { ChatModule }  from 'src/chat/chat.module'
-import { GameModule }  from 'src/game/game.module'
-import { DMModule }    from "src/direct_message/dm.module";
+import { AuthModule }      from 'src/auth/auth.module'
+import { UsersModule }     from 'src/users/users.module'
+import { ChatModule }      from 'src/chat/chat.module'
+import { RelationsModule } from 'src/relations/relations.module'
+import { GameModule }      from 'src/game/game.module'
+import { DMModule }        from "src/direct_message/dm.module";
 
 import { GlobalExceptionFilter } from './filters/global-exception.filter'
 import { DatabaseConfigService } from './services/database-config.service'
@@ -22,6 +23,7 @@ import { AppController }         from './controllers/app.controller'
     TypeOrmModule.forRootAsync({
       useClass: DatabaseConfigService,
     }),
+    // Jobs
     ScheduleModule.forRoot(),
     // Users' Avatars
     ServeStaticModule.forRoot({
@@ -33,7 +35,8 @@ import { AppController }         from './controllers/app.controller'
     UsersModule,
     ChatModule,
     GameModule,
-	DMModule,
+	  DMModule,
+    RelationsModule,
   ],
   controllers: [AppController],
   providers: [
