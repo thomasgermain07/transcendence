@@ -1,9 +1,10 @@
-import { Controller, Body, Param, Res, StreamableFile } from '@nestjs/common'
+import { Controller, Body, Param, Res, Query } from '@nestjs/common';
 import { Get, Patch, Delete, Post } from '@nestjs/common'
 import { UseGuards } from '@nestjs/common'
 import { ParseIntPipe } from '@nestjs/common'
 import { ForbiddenException } from '@nestjs/common'
 import { NotFoundException } from '@nestjs/common'
+import { BadRequestException } from '@nestjs/common'
 import { UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common'
 import { UploadedFile } from '@nestjs/common'
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
@@ -15,6 +16,9 @@ import { UsersService } from '../services/users.service'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { join } from 'path'
 import { storage, isFileExtensionSafe, removeFile } from '../helpers/image-storage'
+import { GameLeaderboard } from '../types/game-leaderboard';
+import { StatsService } from '../services/stats.service';
+import { GameStatsPerMode, GameStatsTotal } from '../types/game-stats';
 
 
 @UseGuards(JwtAuthGuard)
@@ -24,7 +28,10 @@ export class UsersController {
   // ---------------------------------------------------------------------------
   // Constructor
   // ---------------------------------------------------------------------------
-  constructor(private readonly users_svc: UsersService) {}
+  constructor(
+    private readonly users_svc: UsersService,
+    private readonly stats_svc : StatsService,
+  ) {}
 
   // ---------------------------------------------------------------------------
   // Public methods
@@ -37,6 +44,16 @@ export class UsersController {
   @Get('me')
   async me(@AuthUser() user: User): Promise<User> {
     return user
+  }
+
+  // ex: http://localhost:8080/api/users/leaderboard?offset=0&limit=20
+  @Get('leaderboard')
+  async getLeaderboard(@Query() { offset, limit })
+    : Promise<GameLeaderboard>
+  {
+    return await this.stats_svc.getLeaderboard(offset, limit).catch(err => {
+      throw new BadRequestException(err.message)
+    })
   }
 
   @Get('/images/:avatar')
@@ -55,6 +72,22 @@ export class UsersController {
 
     return target
   }
+
+  @Get(':id/stats')
+	async getUserStats(@Param('id', ParseIntPipe) id: number)
+	{
+    const user: User = await this.users_svc.findOne(id)
+    if (!user) {
+      throw new NotFoundException('User not found')
+    }
+
+		const stats: GameStatsPerMode & GameStatsTotal = await this.stats_svc.getStatsByUser(id)
+
+		return {
+      user_id: id,
+			user_stats: stats
+		}
+	}
 
   @Post('/upload')
   @UseInterceptors(FileInterceptor('file', storage ))

@@ -36,6 +36,7 @@ export class RoomsController {
         return this.roomsService.findAllByMode(GameMode.LADDER)
     }
 
+    // TODO: remove once all tests are done
     @Get('/delete')
     clear(): void {
         this.roomsService.clearAll()

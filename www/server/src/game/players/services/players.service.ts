@@ -6,6 +6,7 @@ import { Player } from '../entities/player.entity';
 import { Room } from '../../rooms/entities/room.entity';
 import { User } from '../../../users/entities/user.entity';
 import UpdatePlayerDto from '../dto/update-player.dto';
+import { GameState } from 'src/game/enum/enum';
 
 
 
@@ -79,8 +80,6 @@ export class PlayersService {
       relations: ["user", "room"],
       where: { winner: IsNull(), user: user }
     })
-    console.log("----PLAYER CHECK IF IN GAME----------")
-    console.log(player)
 		return player;
 	}
 
@@ -114,6 +113,30 @@ export class PlayersService {
     return inactivePlayers
   }
 
+  public async getMatchHistoryByUser(userId: number): Promise<Player[]> {
+
+    const userMatchHistory = await this.playersRepository.createQueryBuilder("player")
+      .leftJoin("player.room", "room")
+      .leftJoin("room.players", "players")
+      .leftJoin("players.user", "user")
+      .select([
+        "player.id",
+        "room.mode",
+        "room.state",
+        "players.position",
+        "players.score",
+        "players.winner",
+        "user.name",
+        "user.avatar",
+        "user.ladderLevel",
+      ])
+      .where("player.user =:userId", { userId: userId })
+      .andWhere("room.state =:state", { state: GameState.OVER })
+      .getMany()
+
+    return userMatchHistory
+  }
+
   // -------------------------------------------------------------------------
 	// Private methods
 	// -------------------------------------------------------------------------
@@ -127,7 +150,6 @@ export class PlayersService {
     let position = 'left'
     if (room.players?.length != 0) {
         position = room.players[0].position == "left" ? "right" : "left"
-        console.log(position)
     }
     const player = this.playersRepository.create({
         position: position,
@@ -135,10 +157,6 @@ export class PlayersService {
         room: room
       })
     await this.playersRepository.save(player)
-    console.log("-------------_ADD PLAYERS-----------------")
-    console.log(room)
-    console.log(room.players)
-    console.log(player)
     return player
   }
 }

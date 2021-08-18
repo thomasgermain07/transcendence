@@ -61,7 +61,6 @@ const useMatchmaker = () => {
       (message: string) => {
         console.log(message)
         if (message === 'matchFound') {
-          console.log(lobby.player)
           updateMatchedState(true)
         }
       },

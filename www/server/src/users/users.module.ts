@@ -7,6 +7,7 @@ import { UsersController } from './controllers/users.controller'
 import { IsUniqueUserConstraint } from './decorators/is-unique.decorator'
 import { ExistsUserConstraint } from './decorators/exists.decorator'
 import { Achievement } from './entities/achievement.entity'
+import { StatsService } from './services/stats.service';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { Achievement } from './entities/achievement.entity'
   providers: [
     // Services
     UsersService,
+    StatsService,
     // Decorators
     IsUniqueUserConstraint,
     ExistsUserConstraint,
