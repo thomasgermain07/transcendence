@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { ref } from '@vue/reactivity'
-import getCreateSubscription from '@/composables/Chat/Subscriptions/createSubscriptions'
+import getCreateSubscription from '@/composables/Chat/Subscription/createSubscription'
 
 export default {
   props: {
@@ -29,7 +29,7 @@ export default {
     let { password_field, createSubscription } = getCreateSubscription()
 
     const join = () => {
-      createSubscription(props.room)
+      createSubscription(props.room!.name)
         .then(() => {
           emit('subCreate')
         })

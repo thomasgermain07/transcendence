@@ -1,31 +1,51 @@
 <template>
   <div class="join-room-ctn">
-    <header class="window-bar">
-      <i class="fas fa-arrow-left" @click="$emit('close')"></i>
+    <header class="window-header">
+      <i class="fas fa-arrow-left" @click="goBack"></i>
       <p class="window-title">Join room</p>
       <i class="fas fa-arrow-left window-bar__separator"></i>
     </header>
 
-    <RoomsList @joinned="joinned" />
+    <RoomsList v-if="open_list" @joinned="joinned" />
+
+    <div v-if="!open_list" class="content">
+      <RoomSearch @joinned="joinned" />
+
+      <div class="separator"></div>
+
+      <div class="display-rooms-ctn">
+        <div class="label">Navigate through rooms list</div>
+        <button class="action-btn" @click="open_list = true">Go to list</button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import JoinRoomPanel from './JoinRoomPanel.vue'
 import RoomsList from './RoomsList.vue'
+import RoomSearch from './RoomSearch.vue'
+import { ref } from '@vue/reactivity'
 
 export default {
   components: {
     JoinRoomPanel,
     RoomsList,
+    RoomSearch,
   },
   setup(props, { emit }) {
+    let open_list = ref(false)
+
     const joinned = () => {
       emit('refresh_rooms')
       emit('close')
     }
 
-    return { joinned }
+    const goBack = () => {
+      open_list.value == true ? (open_list.value = false) : emit('close')
+    }
+
+    return { open_list, joinned, goBack }
   },
 }
 </script>
@@ -37,26 +57,23 @@ export default {
   flex-direction: column;
 }
 
-.window-bar {
+.content {
+  flex-grow: 1;
   display: flex;
-  justify-content: space-between;
-  border-bottom: 2px solid black;
-  background-color: darkgray;
+  flex-direction: column;
+  justify-content: space-evenly;
 }
 
-.window-bar__separator {
-  visibility: hidden;
+.separator {
+  background-color: black;
+  height: 2px;
 }
 
-.window-title {
-  align-self: center;
+.label {
   font-weight: bold;
-  font-size: x-large;
 }
 
-.window-bar > i {
-  padding: 5px;
-  font-size: large;
-  cursor: pointer;
+.display-rooms-ctn * {
+  margin: 5px;
 }
 </style>
