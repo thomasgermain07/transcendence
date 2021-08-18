@@ -1,6 +1,6 @@
 <template>
   <div class="friend-window">
-    <form class="search-bar-container">
+    <form class="search-bar-ctn">
       <i class="fas fa-search search-icon"></i>
       <input v-model="searchQuery" class="search-bar" placeholder="Search" />
       <i class="fas fa-times search-reset" @click="resetValue"></i>
@@ -120,28 +120,11 @@ export default {
   overflow-x: hidden;
 }
 
-.search-bar-container {
+.search-bar-ctn {
   padding: 2px;
-  display: flex;
   justify-content: space-around;
   height: 25px;
   border-bottom: 2px solid black;
-}
-
-.search-bar {
-  width: 75%;
-  border: 1px solid black;
-  border-radius: 5px;
-  background-color: lightgray;
-}
-
-.search-icon {
-  align-self: center;
-}
-
-.search-reset {
-  align-self: center;
-  cursor: pointer;
 }
 
 .roll-menu {

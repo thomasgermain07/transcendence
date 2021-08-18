@@ -8,6 +8,9 @@
   </div>
 </template>
 
+/** Voir comment recup les messages, gerer socket new_message typing stop_typing
+join leave */
+
 <script lang="ts">
 import { onBeforeUpdate, onMounted, ref } from 'vue'
 import getFetchRoom from '@/composables/Chat/Room/fetchRoom'

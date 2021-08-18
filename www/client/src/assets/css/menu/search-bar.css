@@ -1,0 +1,19 @@
+.search-bar-ctn {
+  display: flex;
+}
+
+.search-bar {
+  width: 75%;
+  border: 1px solid black;
+  border-radius: 5px;
+  background-color: lightgray;
+}
+
+.search-icon {
+  align-self: center;
+}
+
+.search-reset {
+  align-self: center;
+  cursor: pointer;
+}
