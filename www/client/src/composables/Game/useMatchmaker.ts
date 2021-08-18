@@ -1,4 +1,4 @@
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '../auth'
 import useSockets from '../../store/sockets'
@@ -73,12 +73,8 @@ const useMatchmaker = () => {
     matchmakingSocket.emit('leaveLobbyInServer', {
       room: roomName.value,
       playerId: lobby.player.id,
-<<<<<<< HEAD
-    }, () => {
-=======
     }, (message: string) => {
       console.log(message)
->>>>>>> bfc1af75536a72bfd2dc42bdac15c43a8457ad96
       closeLobby()
     })
   }
