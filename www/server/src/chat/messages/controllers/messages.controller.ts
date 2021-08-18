@@ -83,7 +83,7 @@ export class MessagesController
 		: Promise<boolean>
 	{
 		return (
-			   await this.chat_svc.isOwner(user, room)
+			   await this.chat_svc.isLeader(user, room)
 			|| (
 				    await this.chat_svc.isSubscribed(user, room)
 				&& !await this.chat_svc.isRestricted(user, room)
@@ -98,7 +98,7 @@ export class MessagesController
 		: Promise<boolean>
 	{
 		return (
-			   await this.chat_svc.isOwner(user, room)
+			   await this.chat_svc.isLeader(user, room)
 			|| await this.chat_svc.isSubscribed(user, room)
 		);
 	}
