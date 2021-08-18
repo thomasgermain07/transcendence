@@ -16,7 +16,7 @@ export class MessagesService
 	// -------------------------------------------------------------------------
 	constructor(
 		@InjectRepository(Message)
-		private readonly message_repo: Repository<Message>,
+		private readonly messages_repo: Repository<Message>,
 	)
 	{
 
@@ -32,12 +32,28 @@ export class MessagesService
 	)
 		: Promise<Message>
 	{
-		const message: Message = this.message_repo.create();
+		const message: Message = this.messages_repo.create();
 		message.author = author;
 		message.room = room;
 		message.content = create_dto.content;
 
-		return this.message_repo.save(message);
+		return this.messages_repo.save(message);
+	}
+
+	findAll(
+		room: Room,
+		page: number,
+	)
+		: Promise<Message[]>
+	{
+		const PAGE_SIZE: number = 50;
+
+		return this.messages_repo.find({
+			where: { room: room },
+			order: { id: "DESC" },
+			take: PAGE_SIZE,
+			skip: page <= 1 ? 0 : PAGE_SIZE * page,
+		});
 	}
 
 }
