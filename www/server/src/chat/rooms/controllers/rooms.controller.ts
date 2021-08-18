@@ -66,9 +66,7 @@ export class RoomsController
 	)
 		: Promise<Room>
 	{
-		const room: Room = await this.rooms_svc.findOne({
-			id: id,
-		});
+		const room: Room = await this.rooms_svc.findOne({ id: id });
 
 		if (!room)
 			throw new NotFoundException("Room not found.");
@@ -107,9 +105,7 @@ export class RoomsController
 	)
 		: Promise<void>
 	{
-		const room: Room = await this.rooms_svc.findOne({
-			id: id
-		});
+		const room: Room = await this.rooms_svc.findOne({ id: id });
 
 		if (!room)
 			throw new NotFoundException("Room not found.");
