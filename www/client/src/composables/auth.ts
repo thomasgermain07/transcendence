@@ -35,6 +35,7 @@ const user = reactive<UserType>({
   name: '',
   email: '',
   ladderLevel: 1,
+  connected: true,
 })
 const is_authenticated = computed(() => !(user.id === 0))
 

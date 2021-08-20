@@ -39,7 +39,7 @@ import ErrorPage from '@/components/ErrorPage.vue'
 
 import getFetchUser from '@/composables/User/fetchUser'
 import requestStatus from '@/composables/requestStatus'
-import { addFriend, removeFriend } from '@/composables/User/userInteraction'
+import getFriendInteraction from '@/composables/Friends/getFriendInteraction'
 
 export default {
   components: {
@@ -50,6 +50,7 @@ export default {
 
     let status = ref(requestStatus.loading)
     const { user, fetchUser } = getFetchUser(status)
+    const { addFriend, removeFriend } = getFriendInteraction()
 
     const isCurrentUser = computed(() => {
       return user.value.id == useAuth().user.id

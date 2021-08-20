@@ -22,7 +22,9 @@ export default {
   setup() {
     let status = ref(requestStatus.loading)
     let { users, fetchUsers } = getFetchUsers(status)
+
     onMounted(fetchUsers)
+
     return { users, status }
   },
 }

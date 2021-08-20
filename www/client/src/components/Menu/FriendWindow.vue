@@ -3,108 +3,118 @@
     <form class="search-bar-ctn">
       <i class="fas fa-search search-icon"></i>
       <input v-model="searchQuery" class="search-bar" placeholder="Search" />
-      <i class="fas fa-times search-reset" @click="resetValue"></i>
+      <i class="fas fa-times search-reset" @click="searchQuery = ''"></i>
     </form>
+    <FriendsList
+      v-if="searchQuery"
+      :friends="friendsByName"
+      @open_chat="$emit('open_chat')"
+    />
 
-    <div class="search-container" v-if="searchQuery">
-      <div
-        class="friend-item"
-        v-for="friend in friendsByName"
-        :key="friend"
-        @click="$emit('open_chat', friend)"
-      >
-        {{ friend.name }}
-        <i
-          v-if="friend.connected"
-          class="fas fa-circle status status--connected"
-        ></i>
-        <i v-else class="fas fa-circle status status--disconnected"></i>
-      </div>
-    </div>
+    <a
+      v-if="!searchQuery && requests.length"
+      class="roll-menu"
+      :class="{ 'roll-menu--open': showRequest }"
+      @click="toggle_menu('request')"
+    >
+      New request(s)
+      <i class="far fa-arrow-alt-circle-down arrow"></i>
+    </a>
+    <RequestList
+      v-if="showRequest"
+      :requests="requests"
+      @request_answered="refreshData"
+    />
 
     <a
       v-if="!searchQuery"
       class="roll-menu"
       :class="{ 'roll-menu--open': showOnline }"
-      @click="toggle_online"
+      @click="toggle_menu('online')"
     >
       Online
       <i class="far fa-arrow-alt-circle-down arrow"></i>
     </a>
-
-    <div class="friend-container" v-if="showOnline && !searchQuery">
-      <div
-        class="friend-item"
-        v-for="friend in onlineFriends"
-        :key="friend"
-        @click="$emit('open_chat')"
-      >
-        {{ friend.name }}
-        <i class="fas fa-circle status status--connected"></i>
-      </div>
-    </div>
+    <FriendsList
+      v-if="showOnline && !searchQuery"
+      :friends="onlineFriends"
+      @open_chat="$emit('open_chat')"
+    />
 
     <a
       v-if="!searchQuery"
       class="roll-menu"
       :class="{ 'roll-menu--open': showOffline }"
-      @click="toggle_offline"
+      @click="toggle_menu('offline')"
     >
       Offline
       <i class="far fa-arrow-alt-circle-down arrow"></i>
     </a>
-
-    <div class="friend-container" v-if="showOffline && !searchQuery">
-      <div
-        class="friend-item"
-        v-for="friend in offlineFriends"
-        :key="friend"
-        @click="$emit('open_chat')"
-      >
-        {{ friend.name }}
-        <i class="fas fa-circle status status--disconnected"></i>
-      </div>
-    </div>
+    <FriendsList
+      v-if="showOffline && !searchQuery"
+      :friends="offlineFriends"
+      @open_chat="$emit('open_chat')"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { onMounted, ref } from 'vue'
+
 import getFetchFriends from '@/composables/Friends/fetchFriends'
+import getFetchRequest from '@/composables/Friends/fetchRequest'
+
 import {
   getFriendsByName,
   getFriendsByStatus,
 } from '@/composables/Friends/getFriendsByFilters'
-import requestStatus from '@/composables/requestStatus'
 import getFriendsWindowInteraction from '@/composables/Window/FriendsWindowInteraction'
+import requestStatus from '@/composables/requestStatus'
+
+import FriendsList from './Friend/Friends/FriendsList.vue'
+import RequestList from './Friend/Request/RequestList.vue'
 
 export default {
+  components: {
+    FriendsList,
+    RequestList,
+  },
   setup() {
     let status = ref(requestStatus.loading)
 
     let { friends, fetchFriends } = getFetchFriends(status)
     let { searchQuery, friendsByName } = getFriendsByName(friends)
     const { onlineFriends, offlineFriends } = getFriendsByStatus(friends)
-    let { showOffline, showOnline, toggle_offline, toggle_online } =
+
+    const { requests, fetchRequest } = getFetchRequest()
+
+    let { showOffline, showOnline, showRequest, toggle_menu } =
       getFriendsWindowInteraction()
 
-    const resetValue = () => {
-      searchQuery.value = ''
+    const refreshData = () => {
+      fetchFriends()
+      fetchRequest()
+      if (!requests.value?.length) {
+        toggle_menu('request')
+      }
     }
 
-    onMounted(fetchFriends)
+    onMounted(() => {
+      fetchFriends()
+      fetchRequest()
+    })
 
     return {
       // Variables
+      requests,
       searchQuery,
       showOnline,
       showOffline,
+      showRequest,
       status, // TODO : Handle status error in templates
       // Methods
-      fetchFriends,
-      resetValue,
-      toggle_online,
-      toggle_offline,
+      toggle_menu,
+      refreshData,
       // Computed
       onlineFriends,
       offlineFriends,
@@ -147,32 +157,5 @@ export default {
 
 .roll-menu--open .arrow {
   transform: rotate(180deg);
-}
-
-.friend-container {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.friend-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px;
-  border-bottom: 1px solid darkgray;
-  cursor: pointer;
-}
-
-.status {
-  font-size: 0.7em;
-  align-self: center;
-}
-
-.status--connected {
-  color: green;
-}
-
-.status--disconnected {
-  color: red;
 }
 </style>
