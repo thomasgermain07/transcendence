@@ -1,54 +1,75 @@
 <template>
-  <div class="app">
-    <NavigationBar />
-    <p>{{route.path}}</p>
-    <router-view></router-view>
+  <div class="root">
+    <Navigation />
+
+    <span v-if="starting">
+      {{ message }}
+    </span>
+    <router-view v-else />
+    <Menu v-if="is_authenticated" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeMount } from 'vue'
-import NavigationBar from './components/NavigationBar.vue'
-import {useRoute, useRouter} from 'vue-router';
-import axios from 'axios';
-export default defineComponent({
-  name: 'App',
-  components: {
-    NavigationBar,
-  },
-  setup() {
-    const route = useRoute()
-    const router = useRouter()
-    onBeforeMount(() => {
-      // check if user is loggedin
-      axios
-        .get(`auth`, {
-          withCredentials: true,
-          credentials: 'include',
-        })
-        .then((response) => {
-          console.log('User is logged in')
-          console.log(response)
-          router.replace('/')
-        })
-        .catch((err) => {
-          console.log(err.response.data)
+import { defineComponent } from 'vue'
+import { ref } from 'vue'
 
-          console.log('User is not logged in')
-          router.replace('login')
-        })
+import Navigation from '@/components/Navigation.vue'
+import Menu from '@/components/Menu/MenuWindow.vue'
+
+import { useApp } from '@/composables/app'
+import { useAuth } from '@/composables/auth'
+
+export default defineComponent({
+  name: 'root',
+  components: {
+    Navigation,
+    Menu,
+  },
+
+  setup() {
+    const starting = ref(true)
+    const message = ref('Starting the application...')
+
+    // Csrf
+    const { csrf } = useApp()
+
+    const {
+      refresh,
+      autoRefresh,
+      isPreviouslyAuthenticated,
+      is_authenticated,
+    } = useAuth()
+
+    csrf().then(async () => {
+      // Authentication
+      if (isPreviouslyAuthenticated()) {
+        message.value = 'Recovering your session...'
+        await refresh()
+      }
+
+      autoRefresh()
+
+      message.value = 'Done.'
+      starting.value = false
     })
-    return {route}
-  }
-});
+
+    return {
+      starting,
+      message,
+      is_authenticated,
+    }
+  },
+})
 </script>
+
 <style>
-#app {
+.root {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  position: relative;
 }
 </style>

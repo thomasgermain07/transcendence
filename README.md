@@ -2,20 +2,23 @@
 
 ---
 ## Notes
-- Move __/docker/.env.template__ into __.env__
+- Copy __.env__ file:
+```
+cp ./docker/.env.template .env
+```
 - Set __FT_ID__ and __FT_SECRET__ in __.env__ _(42 API OAuth2)_
 
 ---
 ## Commands
-- Start project :
+- Start project:
 ```
 docker-compose up [--build]
 ```
-- Set permissions _(because docker runs as __root__)_ :
+- Set permissions _(because docker runs as __root__)_:
 ```
 sudo chown -R $USER:$USER www/
 ```
-- Open a terminal :
+- Open a terminal:
 ```
 docker-compose exec [client, server] sh
 ```
@@ -34,20 +37,26 @@ docker-compose exec [client, server] sh
 ### Socket
 - https://socket.io/
 
-### Authentication
-- https://github.com/jaredhanson/passport
+---
+## Plugins
+
+### Client
+
+### Server
+- Authentication: https://github.com/jaredhanson/passport
+- CRUD: https://github.com/nestjsx/crud
 
 ---
 ## Helper
 
 ---
 ## History
-- Reset projet :
+- Reset projet:
 ```
-sudo rm -rf db && mkdir www
+sudo rm -rf db www/client/* www/server/*
 ```
-- Generate app :
+- Generate app:
 ```
 docker-compose run --no-deps server nest new server --skip-git
-docker-compose run --no-deps client yarn create @vite/app .
+docker-compose run --no-deps client yarn create @vitejs/app .
 ```

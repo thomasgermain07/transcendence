@@ -23,7 +23,6 @@ services:
     build: ./docker/server
     volumes:
       - ./www/server:/workspace
-      #- ./www/server/node_modules:/workspace/node_modules
     env_file:
       - .env
     ports:
@@ -38,7 +37,6 @@ services:
     build: ./docker/client
     volumes:
       - ./www/client:/workspace
-      #- ./www/client/node_modules:/workspace/node_modules
     env_file:
       - .env
     ports:
