@@ -37,7 +37,7 @@ export class MessageSubscriber
 	)
 		: void
 	{
-		this.chat_gtw.broadcast(event.entity);
+		this.chat_gtw.sendMessage(event.entity);
 	}
 
 }

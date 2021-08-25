@@ -37,7 +37,7 @@ export class MessageSubscriber
 	)
 		: void
 	{
-		this.dm_gtw.broadcast(event.entity);
+		this.dm_gtw.sendMessage(event.entity);
 	}
 
 }

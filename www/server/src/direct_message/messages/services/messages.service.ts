@@ -15,7 +15,7 @@ export class MessagesService
 	// -------------------------------------------------------------------------
 	constructor(
 		@InjectRepository(Message)
-		private readonly message_repo: Repository<Message>,
+		private readonly messages_repo: Repository<Message>,
 	)
 	{
 
@@ -31,12 +31,32 @@ export class MessagesService
 	)
 		: Promise<Message>
 	{
-		const message: Message = this.message_repo.create();
+		const message: Message = this.messages_repo.create();
 		message.author = author;
 		message.target = target;
 		message.content = create_dto.content;
 
-		return this.message_repo.save(message);
+		return this.messages_repo.save(message);
+	}
+
+	findAll(
+		user: User,
+		target: User,
+		page: number,
+	)
+		: Promise<Message[]>
+	{
+		const PAGE_SIZE: number = 50;
+
+		return this.messages_repo.find({
+			where: [
+				{ user: user,   target: target },
+				{ user: target, target: user }
+			],
+			order: { id: "DESC" },
+			take: PAGE_SIZE,
+			skip: page <= 1 ? 0 : PAGE_SIZE * page,
+		});
 	}
 
 }

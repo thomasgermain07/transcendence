@@ -10,7 +10,7 @@ export class DMService
 	// Constructor
 	// -------------------------------------------------------------------------
 	constructor(
-		private readonly users_svc: UsersService
+		private readonly users_svc: UsersService,
 	)
 	{
 
