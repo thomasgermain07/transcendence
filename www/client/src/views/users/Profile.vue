@@ -34,21 +34,28 @@
 import { ref, computed, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuth } from '@/composables/auth'
+
 import ErrorPage from '@/components/ErrorPage.vue'
+
 import getFetchUser from '@/composables/User/fetchUser'
 import requestStatus from '@/composables/requestStatus'
-import { addFriend, removeFriend } from '@/composables/User/userInteraction'
+import getFriendInteraction from '@/composables/Friends/getFriendInteraction'
+
 export default {
   components: {
     ErrorPage,
   },
   setup() {
     const route = useRoute()
+
     let status = ref(requestStatus.loading)
     const { user, fetchUser } = getFetchUser(status)
+    const { addFriend, removeFriend } = getFriendInteraction()
+
     const isCurrentUser = computed(() => {
       return user.value.id == useAuth().user.id
     })
+
     watchEffect(() => {
       if (route.params.id == undefined) {
         fetchUser(useAuth().user.id)
@@ -56,6 +63,7 @@ export default {
         fetchUser(route.params.id)
       }
     })
+
     return {
       user,
       status,
@@ -72,24 +80,29 @@ export default {
   display: flex;
   flex-direction: column;
 }
+
 .user-ctn {
   display: flex;
   flex-direction: row;
   justify-content: center;
 }
+
 .user-ctn__info {
   padding: 0 50px;
   text-align: left;
 }
+
 .profile_picture {
   border-radius: 50%;
   width: 150px;
   height: 150px;
 }
+
 .info__name {
   font-weight: bold;
   font-size: 1.5rem;
 }
+
 .separator {
   width: 50%;
   border-top: 2px solid lightgray;

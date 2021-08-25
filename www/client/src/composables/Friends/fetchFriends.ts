@@ -1,25 +1,17 @@
-import { Ref, ref } from 'vue'
+import { FriendType } from '@/types/friend/friend'
+import { ref } from 'vue'
 import { useAxios } from '../axios'
-import requestStatus from '../requestStatus'
 
-export interface IFriend {
-  connected: true
-  name: string
-}
-
-export default function getFetchFriends(status: Ref) {
+export default function getFetchFriends() {
   let friends = ref([])
 
   const fetchFriends = async () => {
     const { axios } = useAxios()
     try {
-      const { data } = await axios.get('users') // TODO : Replace to get user's friends when done in api
+      const { data } = await axios.get('friends')
       friends.value = data
-      friends.value?.map((friend: IFriend) => (friend.connected = true)) // TODO : delete when connection status in api side is done
-      status.value = requestStatus.success
-    } catch (e) {
-      status.value = requestStatus.error
-    }
+      friends.value?.map((friend: FriendType) => (friend.user.connected = true)) // TODEL
+    } catch (e) {}
   }
 
   return { friends, fetchFriends }

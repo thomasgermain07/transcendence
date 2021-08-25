@@ -1,8 +1,8 @@
 import { RouteRecordRaw } from 'vue-router'
 
-import Index from '@/views/user/Index.vue'
-import Users from '@/views/user/Users.vue'
-import Profile from '@/views/user/Profile.vue'
+import Index from '@/views/users/Index.vue'
+import Users from '@/views/users/Users.vue'
+import Profile from '@/views/users/Profile.vue'
 
 // -----------------------------------------------------------------------------
 // Routes

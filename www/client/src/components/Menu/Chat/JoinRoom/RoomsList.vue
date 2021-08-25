@@ -1,6 +1,12 @@
 <template>
   <div class="rooms-ctn">
-    <div class="room" v-for="room in rooms" :key="room">
+    <form class="search-bar-ctn">
+      <i class="fas fa-search search-icon"></i>
+      <input v-model="searchQuery" class="search-bar" placeholder="Search" />
+      <i class="fas fa-times search-reset" @click="resetValue"></i>
+    </form>
+
+    <div class="room" v-for="room in rooms_list" :key="room">
       <span
         class="room__name"
         :class="{ 'room__name--panel-open': open_panel == room.id }"
@@ -20,11 +26,14 @@
 
 <script lang="ts">
 import { ref } from '@vue/reactivity'
-import { onMounted } from '@vue/runtime-core'
+import { computed, onMounted } from '@vue/runtime-core'
+
 import JoinRoomPanel from './JoinRoomPanel.vue'
+
 import requestStatus from '@/composables/requestStatus'
 import getFetchRooms from '@/composables/Chat/Rooms/fetchRooms'
 import getJoinPanelInteraction from '@/composables/Chat/WindowInteraction/getJoinPanelInteraction'
+import { getRoomsByName } from '@/composables/Chat/Rooms/getRoomsByFilters'
 
 export default {
   components: {
@@ -33,19 +42,41 @@ export default {
   setup() {
     let status = ref(requestStatus.loading)
     let { rooms, fetchRooms } = getFetchRooms(status)
+    let { searchQuery, roomsByName } = getRoomsByName(rooms)
 
     let { open_panel, openPanel } = getJoinPanelInteraction()
 
+    const rooms_list = computed(() => {
+      if (searchQuery.value) {
+        return roomsByName()
+      }
+      return rooms.value
+    })
+
+    const resetValue = () => {
+      searchQuery.value = ''
+      open_panel.value = 0
+    }
+
     onMounted(() => fetchRooms(false))
 
-    return { rooms, open_panel, openPanel }
+    return { rooms_list, open_panel, searchQuery, openPanel, resetValue }
   },
 }
 </script>
 
 <style scoped>
+.search-bar-ctn {
+  width: 80%;
+  align-self: center;
+  padding: 2px;
+  justify-content: space-around;
+}
+
 .rooms-ctn {
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .room {

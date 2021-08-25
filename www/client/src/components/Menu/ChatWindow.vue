@@ -1,7 +1,9 @@
 <template>
   <div class="chat-window">
     <div class="rooms-ctn">
-      <header class="room-label">Rooms</header>
+      <header class="window-title">
+        <p>Rooms</p>
+      </header>
       <Rooms ref="rooms" @open="open" />
     </div>
     <div class="chat-ctn">
@@ -58,13 +60,20 @@ export default {
   border-left: 2px solid black;
 }
 
-.room-label {
-  padding: 4px;
+.window-title {
+  border-bottom: 2px solid black;
+  background-color: darkgray;
+}
+
+.window-title p {
+  font-size: x-large;
+  font-weight: normal;
+  padding: 2px;
 }
 
 .rooms-ctn {
   flex-basis: 160px;
-  border-right: 2px solid lightgray;
+  border-right: 2px solid black;
   overflow-y: auto;
 }
 
@@ -75,5 +84,6 @@ export default {
 .chat-ctn {
   flex-grow: 1;
   display: flex;
+  border-right: 2px solid black;
 }
 </style>

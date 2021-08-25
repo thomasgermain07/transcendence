@@ -1,10 +1,10 @@
+import { UserType } from '../user/user'
+
 // -----------------------------------------------------------------------------
 // User Type
 // -----------------------------------------------------------------------------
-export type UserType = {
-  id: number
-  name: string
-  email: string
-  ladderLevel: number
-  connected: boolean
+export type FriendType = {
+  accepted: boolean
+  user: UserType
+  target: UserType
 }
