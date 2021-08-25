@@ -1,5 +1,4 @@
 import { Manager, Socket } from 'socket.io-client'
-// @ts-ignore
 
 // -----------------------------------------------------------------------------
 // State

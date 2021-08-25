@@ -1,7 +1,5 @@
 import { Injectable }            from '@nestjs/common'
-import { UnauthorizedException } from '@nestjs/common'
 import { PassportStrategy }      from '@nestjs/passport'
-import { Request }               from 'express'
 import { ExtractJwt }            from 'passport-jwt'
 import { Strategy }              from 'passport-jwt'
 
@@ -56,14 +54,9 @@ export class WsJwtStrategy
 	)
 		: Promise<User>
 	{
-		const user: User = await this.auth_svc.authenticate({
+		return this.auth_svc.authenticate({
 			id: payload.user_id
 		});
-
-		if (!user)
-			throw new UnauthorizedException("Invalid User ID.");
-
-		return user;
 	}
 
 }

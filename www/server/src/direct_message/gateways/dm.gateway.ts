@@ -1,12 +1,22 @@
-import { ConnectedSocket, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
-import { OnGatewayConnection, OnGatewayInit, OnGatewayDisconnect } from "@nestjs/websockets";
-import { SubscribeMessage, MessageBody } from "@nestjs/websockets";
-import { Server } from "socket.io";
-import { Socket } from "socket.io";
+import { UseGuards }           from "@nestjs/common";
+import { ConnectedSocket }     from "@nestjs/websockets";
+import { OnGatewayConnection } from "@nestjs/websockets";
+import { OnGatewayInit }       from "@nestjs/websockets";
+import { OnGatewayDisconnect } from "@nestjs/websockets";
+import { SubscribeMessage }    from "@nestjs/websockets";
+import { WebSocketGateway }    from "@nestjs/websockets";
+import { WebSocketServer }     from "@nestjs/websockets";
+import { Socket }              from "socket.io";
+import { Server }              from "socket.io";
+
+import { WsJwtGuard } from "src/auth/guards/ws-jwt.guard";
+import { AuthUser }   from "src/auth/decorators/auth-user.decorator";
+import { User }       from "src/users/entities/user.entity";
 
 import { Message }         from "../messages/entities/message.entity";
 import { MessagesService } from "../messages/services/messages.service";
 
+@UseGuards(WsJwtGuard)
 @WebSocketGateway({
 	namespace: 'dm',
 	cors: {
@@ -24,14 +34,11 @@ export class DMGateway
 	private _server: Server;
 
 	// -------------------------------------------------------------------------
-	// Interfaces implementations
+	// Constructor
 	// -------------------------------------------------------------------------
 	constructor(
 		private readonly messages_svc: MessagesService,
-	)
-	{
-
-	}
+	) {}
 
 	// -------------------------------------------------------------------------
 	// Interfaces implementations
@@ -62,40 +69,55 @@ export class DMGateway
 	}
 
 	// -------------------------------------------------------------------------
-	// Public Methods
+	// Public methods
 	// -------------------------------------------------------------------------
-	broadcast(
+	sendMessage(
 		message: Message,
-	)
+		)
 		: void
 	{
 		this._server
-			// .to(this.getRoomName(message.target.id))
-			// .to(this.getRoomName(message.author.id))
+			.to(this.getRoomName(message.author))
+			.to(this.getRoomName(message.target))
 			.emit('message', message)
 		;
+
+		console.log(`Message sent to ${message.author.id} and ${message.target.id}.`);
 	}
 
-	@SubscribeMessage('message')
-	handleMessage(
+	@SubscribeMessage('join')
+	handleJoin(
 		@ConnectedSocket() client: Socket,
-		@MessageBody() data: string,
+		@AuthUser() user: User,
 	)
 		: void
 	{
-		// client.join(this.getRoomName(user_id));
-		this._server.emit('message', data);
+		client.join(this.getRoomName(user));
+
+		console.log(`User ${user.id} joined Room ${this.getRoomName(user)}.`);
+	}
+
+	@SubscribeMessage('leave')
+	handleLeave(
+		@ConnectedSocket() client: Socket,
+		@AuthUser() user: User,
+	)
+		: void
+	{
+		client.leave(this.getRoomName(user));
+
+		console.log(`User ${user.id} left Room ${this.getRoomName(user)}.`);
 	}
 
 	// -------------------------------------------------------------------------
-	// Privte Methods
+	// Private methods
 	// -------------------------------------------------------------------------
 	private getRoomName(
-		target_id: number,
+		user: User,
 	)
 		: string
 	{
-		return `dm_${target_id}`;
+		return `dm_${user.id}`;
 	}
 
 }
