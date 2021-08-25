@@ -57,7 +57,6 @@ export default {
 .rooms-interaction {
   padding: 3px;
   flex-grow: 1;
-  border-top: 2px solid black;
   border-bottom: 2px solid black;
   cursor: pointer;
 }

@@ -9,7 +9,8 @@
 }
 
 .action-btn:hover {
-  background-color: white;
+  background-color: darkblue;
+  color: white;
 }
 
 .action-btn--invalid {

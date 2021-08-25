@@ -14,7 +14,7 @@
       <FriendWindow @open_chat="open_chat" />
     </div>
     <div v-if="chat_open" class="window-chat">
-      <header class="top-bar">
+      <header class="top-bar chat__top-bar">
         <a @click="close_chat">
           <i class="far fa-times-circle top-bar__close"></i>
         </a>
@@ -97,7 +97,7 @@ export default {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  border-right: 2px solid lightgray;
+  /* border-right: 2px solid black; */
 }
 
 .top-bar {
@@ -106,6 +106,10 @@ export default {
   padding: 4px 4px;
   background-color: black;
   color: white;
+}
+
+.chat__top-bar {
+  border-right: 2px solid lightgray;
 }
 
 .top-bar__name {

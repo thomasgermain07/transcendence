@@ -7,9 +7,7 @@ export default function getFriendInteraction() {
   const addFriend = async (user: UserType) => {
     try {
       await axios.post('friends', { target_name: user.name })
-      console.log('friends request send')
     } catch (e) {
-      console.log('addFriends: error with the request')
       console.log(e)
     }
   }
@@ -17,7 +15,6 @@ export default function getFriendInteraction() {
   const removeFriend = async (user: UserType) => {
     try {
       await axios.delete(`friends/${user.id}`)
-      console.log('friends removed')
     } catch (e) {
       console.log(e)
     }
