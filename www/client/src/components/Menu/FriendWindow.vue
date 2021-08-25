@@ -23,7 +23,7 @@
     <RequestList
       v-if="showRequest"
       :requests="requests"
-      @request_answered="refreshData"
+      @request_answered="loadData"
     />
 
     <a
@@ -59,7 +59,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted } from 'vue'
 
 import getFetchFriends from '@/composables/Friends/fetchFriends'
 import getFetchRequest from '@/composables/Friends/fetchRequest'
@@ -69,7 +69,6 @@ import {
   getFriendsByStatus,
 } from '@/composables/Friends/getFriendsByFilters'
 import getFriendsWindowInteraction from '@/composables/Window/FriendsWindowInteraction'
-import requestStatus from '@/composables/requestStatus'
 
 import FriendsList from './Friend/Friends/FriendsList.vue'
 import RequestList from './Friend/Request/RequestList.vue'
@@ -80,9 +79,7 @@ export default {
     RequestList,
   },
   setup() {
-    let status = ref(requestStatus.loading)
-
-    let { friends, fetchFriends } = getFetchFriends(status)
+    let { friends, fetchFriends } = getFetchFriends()
     let { searchQuery, friendsByName } = getFriendsByName(friends)
     const { onlineFriends, offlineFriends } = getFriendsByStatus(friends)
 
@@ -91,17 +88,13 @@ export default {
     let { showOffline, showOnline, showRequest, toggle_menu } =
       getFriendsWindowInteraction()
 
-    const refreshData = () => {
-      fetchFriends()
+    const loadData = () => {
       fetchRequest()
-      if (!requests.value?.length) {
-        toggle_menu('request')
-      }
+      fetchFriends()
     }
 
     onMounted(() => {
-      fetchFriends()
-      fetchRequest()
+      loadData()
     })
 
     return {
@@ -111,10 +104,9 @@ export default {
       showOnline,
       showOffline,
       showRequest,
-      status, // TODO : Handle status error in templates
       // Methods
       toggle_menu,
-      refreshData,
+      loadData,
       // Computed
       onlineFriends,
       offlineFriends,
@@ -133,7 +125,7 @@ export default {
 .search-bar-ctn {
   padding: 2px;
   justify-content: space-around;
-  height: 25px;
+  height: 24px;
   border-bottom: 2px solid black;
 }
 
@@ -144,6 +136,7 @@ export default {
   padding: 0.3em;
   cursor: pointer;
   background-color: darkgrey;
+  border-bottom: 1px solid black;
 }
 
 .roll-menu--open {

@@ -25,13 +25,15 @@ export default {
     requests: Object,
   },
   setup(props, { emit }) {
-    const acceptRequest = (user: UserType) => {
-      getFriendInteraction().addFriend(user)
+    const { addFriend, removeFriend } = getFriendInteraction()
+
+    const acceptRequest = async (user: UserType) => {
+      await addFriend(user)
       emit('request_answered')
     }
 
-    const refuseRequest = (user: UserType) => {
-      getFriendInteraction().removeFriend(user)
+    const refuseRequest = async (user: UserType) => {
+      await removeFriend(user)
       emit('request_answered')
     }
 

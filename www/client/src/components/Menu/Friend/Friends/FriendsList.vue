@@ -9,7 +9,9 @@
       {{ friend.user.name }}
       <i
         class="fas fa-circle status"
-        :class="friend.connected ? 'status--connected' : 'status--disconnected'"
+        :class="
+          friend.user.connected ? 'status--connected' : 'status--disconnected'
+        "
       ></i>
     </div>
   </div>
