@@ -15,9 +15,14 @@ import { WsJwtGuard }  from "src/auth/guards/ws-jwt.guard";
 import { User }        from "src/users/entities/user.entity";
 import { AuthUser }    from "src/auth/decorators/auth-user.decorator";
 
-import { ChatService } from '../services/chat.service'
-import { Room }        from '../rooms/entities/room.entity'
-import { Message }     from '../messages/entities/message.entity'
+import { ChatService }  from '../services/chat.service'
+import { Room }         from '../rooms/entities/room.entity'
+import { RoomsService } from '../rooms/services/rooms.service'
+import { Message }      from '../messages/entities/message.entity'
+
+type JoinLeaveType = {
+	room_id: number
+};
 
 @UseGuards(WsJwtGuard)
 @WebSocketGateway({
@@ -40,22 +45,23 @@ export class ChatGateway
 	// Interfaces implementations
 	// -------------------------------------------------------------------------
 	constructor(
-			private readonly chat_svc: ChatService
+			private readonly chat_svc: ChatService,
+			private readonly rooms_svc: RoomsService,
 	) {}
 
 	// -------------------------------------------------------------------------
 	// Interfaces implementations
 	// -------------------------------------------------------------------------
 	afterInit(server: Server): void {
-		console.log(`MessagesGateway: Initialized.`)
+		console.log(`Chat:Gateway: Initialized.`)
 	}
 
 	handleConnection(client: Socket, ...args: any[]): void {
-		console.log(`MessagesGateway: Connection.`)
+		console.log(`Chat:Gateway: Connection.`)
 	}
 
 	handleDisconnect(client: Socket): void {
-		console.log(`MessagesGateway: Disconnect.`)
+		console.log(`Chat:Gateway: Disconnect.`)
 	}
 
 	// -------------------------------------------------------------------------
@@ -65,50 +71,46 @@ export class ChatGateway
 	async handleJoin(
 		@ConnectedSocket() client: Socket,
 		@AuthUser() user: User,
-		@MessageBody() data: string,
+		@MessageBody() data: JoinLeaveType,
 	)
 		: Promise<void>
 	{
-		console.log(`Chat:Gateway:Join`);
+		console.log(`Chat:Gateway: Join`);
 
-		let room: Room = undefined;
+		const room: Room = await this.rooms_svc.findOne({ id: data.room_id });
 
-		try {
-			room = (await this.chat_svc.getRelatedRooms(user))
-				.find(room => room.id == JSON.parse(data).room_id)
-			;
-		}
-		catch (e)
+		if (!room || !await this.chat_svc.isSubscribed(user, room))
 		{
-			console.log(e);
+			console.log(`Chat:Gateway:Join: Error`)
+			throw new WsException("You are not subscribed to this room.");
 		}
 
-		if (!room)
-			throw new WsException("You are not subscribed to this room.");
+		const room_name: string = this.getRoomName(room.id);
 
-		client.join(this.getRoomName(room.id));
+		client.join(room_name);
+
+		if (!user.is_admin)
+			this._server.to(room_name).emit('info', { type: 'join', username: user.name });
 	}
 
 	@SubscribeMessage('leave')
 	async handleLeave(
 		@ConnectedSocket() client: Socket,
 		@AuthUser() user: User,
-		@MessageBody() data: string,
+		@MessageBody() data: JoinLeaveType,
 	)
 		: Promise<void>
 	{
-		try
-		{
-			console.log(`Chat:Gateway:Leave`);
-			client.leave(this.getRoomName(JSON.parse(data).room_id));
+		console.log(`Chat:Gateway: Leave`);
 
-			console.log(`User ${user.id} left chat ${this.getRoomName(JSON.parse(data).room_id)}.`);
-		}
-		catch (e)
-		{
-			console.log(`Unexpected error.`)
-			console.log(e)
-		}
+		const room_name: string = this.getRoomName(data.room_id);
+
+		client.leave(room_name);
+
+		if (!user.is_admin)
+			this._server.to(room_name).emit('info', { type: 'leave', username: user.name });
+
+		console.log(`User ${user.id} left chat ${room_name}.`);
 	}
 
 	sendMessage(
@@ -116,10 +118,11 @@ export class ChatGateway
 	)
 		: void
 	{
-		this._server
-			.to(this.getRoomName(message.room.id))
-			.emit('message', message)
-		;
+		console.log(`Chat:Gateway: Message`);
+
+		const room_name: string = this.getRoomName(message.room.id);
+
+		this._server.to(room_name).emit('message', message);
 	}
 
 	// -------------------------------------------------------------------------

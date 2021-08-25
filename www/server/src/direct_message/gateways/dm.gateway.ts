@@ -48,7 +48,7 @@ export class DMGateway
 	)
 		: void
 	{
-		console.log(`DM:MessagesGateway: Initialized.`);
+		console.log(`DM:Gateway: Initialized.`);
 	}
 
 	handleConnection(
@@ -57,7 +57,7 @@ export class DMGateway
 	)
 		: void
 	{
-		console.log(`DM:MessagesGateway: Connection.`);
+		console.log(`DM:Gateway: Connection.`);
 	}
 
 	handleDisconnect(
@@ -65,26 +65,12 @@ export class DMGateway
 	)
 		: void
 	{
-		console.log(`DM:MessagesGateway: Disconnect.`);
+		console.log(`DM:Gateway: Disconnect.`);
 	}
 
 	// -------------------------------------------------------------------------
 	// Public methods
 	// -------------------------------------------------------------------------
-	sendMessage(
-		message: Message,
-		)
-		: void
-	{
-		this._server
-			.to(this.getRoomName(message.author))
-			.to(this.getRoomName(message.target))
-			.emit('message', message)
-		;
-
-		console.log(`Message sent to ${message.author.id} and ${message.target.id}.`);
-	}
-
 	@SubscribeMessage('join')
 	handleJoin(
 		@ConnectedSocket() client: Socket,
@@ -107,6 +93,20 @@ export class DMGateway
 		client.leave(this.getRoomName(user));
 
 		console.log(`User ${user.id} left Room ${this.getRoomName(user)}.`);
+	}
+
+	sendMessage(
+		message: Message,
+		)
+		: void
+	{
+		this._server
+			.to(this.getRoomName(message.author))
+			.to(this.getRoomName(message.target))
+			.emit('message', message)
+		;
+
+		console.log(`Message sent to ${message.author.id} and ${message.target.id}.`);
 	}
 
 	// -------------------------------------------------------------------------
