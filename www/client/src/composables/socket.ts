@@ -1,5 +1,6 @@
-import { Manager, Socket } from "socket.io-client";
+// @ts-ignore
 import Cookies             from "js-cookie";
+import { Manager, Socket } from "socket.io-client";
 
 // -----------------------------------------------------------------------------
 // State
