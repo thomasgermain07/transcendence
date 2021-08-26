@@ -8,8 +8,6 @@ export default function getFetchUser(status: Ref) {
   const fetchUser: any = async (id: number) => {
     const { axios } = useAxios()
 
-    console.log(`fetching user ${id}`)
-
     try {
       const { data } = await axios.get(`users/${id}`)
       user.value = data
