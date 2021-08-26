@@ -1,7 +1,12 @@
 <template>
   <div class="room-ctn">
     <div class="messages-ctn">
-      <Setting v-if="open_setting" @close="open_setting = false" :Room="room" />
+      <Setting
+        v-if="open_setting"
+        @close="open_setting = false"
+        @leave="$emit('leave')"
+        :Room="room"
+      />
     </div>
     <div class="bar">
       <i

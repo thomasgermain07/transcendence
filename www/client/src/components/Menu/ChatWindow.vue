@@ -7,7 +7,7 @@
       <Rooms ref="rooms" @open="open" />
     </div>
     <div class="chat-ctn">
-      <Room v-if="openned == 'room'" :room_id="room" />
+      <Room v-if="openned == 'room'" :room_id="room" @leave="left_room" />
       <CreateRoom
         v-if="openned == 'create'"
         @close="close"
@@ -41,13 +41,19 @@ export default {
   },
   setup(props, { emit }) {
     let { rooms, refresh_rooms } = getRoomsInteraction()
+
     let { room, openned, open, close } = getChatWindowInteraction(
       (title: String) => {
         emit('set_page_title', title)
       },
     )
 
-    return { rooms, room, openned, open, close, refresh_rooms }
+    const left_room = () => {
+      refresh_rooms()
+      emit('set_page_title', '')
+    }
+
+    return { rooms, room, openned, open, close, refresh_rooms, left_room }
   },
 }
 </script>

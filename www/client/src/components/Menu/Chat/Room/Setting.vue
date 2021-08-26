@@ -10,7 +10,7 @@
 
       <div class="btn-ctn" v-if="!is_admin">
         <p class="label">Do you want to leave this room ?</p>
-        <button class="action-btn">Leave</button>
+        <button class="action-btn" @click="leave">Leave</button>
       </div>
     </div>
   </div>
@@ -19,7 +19,11 @@
 <script lang="ts">
 import { ref } from 'vue'
 import { useAuth } from '@/composables/auth'
+
+import getDeleteSubscription from '@/composables/Chat/Subscription/deleteSubscription'
+
 import AdminSetting from './AdminSetting.vue'
+import { useSocket } from '@/composables/socket'
 
 export default {
   components: {
@@ -28,10 +32,20 @@ export default {
   props: {
     Room: Object,
   },
-  setup(props) {
+  setup(props, { emit }) {
     let is_admin = ref(useAuth().user.id == props.Room?.owner.id ? true : false)
 
-    return { is_admin }
+    const { deleteSubscription } = getDeleteSubscription()
+
+    const leave = async () => {
+      await deleteSubscription(props.Room!.id).then(() => {
+        useSocket('chat').socket.emit('leave', { room_id: props.Room!.id })
+      })
+      emit('leave')
+      emit('close')
+    }
+
+    return { is_admin, leave }
   },
 }
 </script>
