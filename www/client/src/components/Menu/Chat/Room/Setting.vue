@@ -6,9 +6,9 @@
       <i class="fas fa-arrow-left window-bar__separator"></i>
     </header>
     <div class="content">
-      <AdminSetting v-if="is_admin" :Room="Room" />
+      <AdminSetting v-if="is_owner" :Room="Room" />
 
-      <div class="btn-ctn" v-if="!is_admin">
+      <div class="btn-ctn" v-if="!is_owner">
         <p class="label">Do you want to leave this room ?</p>
         <button class="action-btn" @click="leave">Leave</button>
       </div>
@@ -33,7 +33,7 @@ export default {
     Room: Object,
   },
   setup(props, { emit }) {
-    let is_admin = ref(useAuth().user.id == props.Room?.owner.id ? true : false)
+    let is_owner = ref(useAuth().user.id == props.Room?.owner.id ? true : false)
 
     const { deleteSubscription } = getDeleteSubscription()
 
@@ -45,7 +45,7 @@ export default {
       emit('close')
     }
 
-    return { is_admin, leave }
+    return { is_owner, leave }
   },
 }
 </script>
@@ -53,6 +53,8 @@ export default {
 <style scoped>
 .setting-ctn {
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .content {

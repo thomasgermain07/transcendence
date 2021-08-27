@@ -1,12 +1,14 @@
 <template>
   <div class="room-ctn">
     <div class="messages-ctn">
-      <Setting
-        v-if="open_setting"
-        @close="open_setting = false"
-        @leave="$emit('leave')"
-        :Room="room"
-      />
+      <div class="setting-ctn">
+        <Setting
+          v-if="open_setting"
+          @close="open_setting = false"
+          @leave="$emit('leave')"
+          :Room="room"
+        />
+      </div>
     </div>
     <div class="bar">
       <i
@@ -65,6 +67,10 @@ export default {
 
 .messages-ctn {
   flex-grow: 1;
+}
+
+.setting-ctn {
+  height: 100%;
 }
 
 .bar {
