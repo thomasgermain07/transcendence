@@ -1,17 +1,25 @@
-import { Controller, Body, Param } from '@nestjs/common'
-import { Get, Patch, Delete } from '@nestjs/common'
+import { Controller, Body, Param, Res, Query } from '@nestjs/common';
+import { Get, Patch, Delete, Post } from '@nestjs/common'
 import { UseGuards } from '@nestjs/common'
 import { ParseIntPipe } from '@nestjs/common'
 import { ForbiddenException } from '@nestjs/common'
 import { NotFoundException } from '@nestjs/common'
+import { BadRequestException } from '@nestjs/common'
 import { UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common'
-
+import { UploadedFile } from '@nestjs/common'
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
 import { AuthUser } from 'src/auth/decorators/auth-user.decorator'
 
 import { UpdateUserDto } from '../dto/update-user.dto'
 import { User } from '../entities/user.entity'
 import { UsersService } from '../services/users.service'
+import { FileInterceptor } from '@nestjs/platform-express'
+import { join } from 'path'
+import { storage, isFileExtensionSafe, removeFile } from '../helpers/image-storage'
+import { GameLeaderboard } from '../types/game-leaderboard';
+import { StatsService } from '../services/stats.service';
+import { GameStatsPerMode, GameStatsTotal } from '../types/game-stats';
+
 
 @UseGuards(JwtAuthGuard)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -20,7 +28,10 @@ export class UsersController {
   // ---------------------------------------------------------------------------
   // Constructor
   // ---------------------------------------------------------------------------
-  constructor(private readonly users_svc: UsersService) {}
+  constructor(
+    private readonly users_svc: UsersService,
+    private readonly stats_svc : StatsService,
+  ) {}
 
   // ---------------------------------------------------------------------------
   // Public methods
@@ -35,6 +46,22 @@ export class UsersController {
     return user
   }
 
+  // ex: http://localhost:8080/api/users/leaderboard?offset=0&limit=20
+  @Get('leaderboard')
+  async getLeaderboard(@Query() { offset, limit })
+    : Promise<GameLeaderboard>
+  {
+    return await this.stats_svc.getLeaderboard(offset, limit).catch(err => {
+      throw new BadRequestException(err.message)
+    })
+  }
+
+  @Get('/images/:avatar')
+  async findAvatarImage(@Param('avatar') avatar, @Res() res): Promise<Object> {
+    console.log("----------_GET IMAGE--------------")
+    return res.sendFile(join(process.cwd(), '/images/' + avatar))
+  }
+
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<User> {
     const target: User = await this.users_svc.findOne({
@@ -44,6 +71,50 @@ export class UsersController {
     if (!target) throw new NotFoundException('User not found.')
 
     return target
+  }
+
+  @Get(':id/stats')
+	async getUserStats(@Param('id', ParseIntPipe) id: number)
+	{
+    const user: User = await this.users_svc.findOne(id)
+    if (!user) {
+      throw new NotFoundException('User not found')
+    }
+
+		const stats: GameStatsPerMode & GameStatsTotal = await this.stats_svc.getStatsByUser(id)
+
+		return {
+      user_id: id,
+			user_stats: stats
+		}
+	}
+
+  @Post('/upload')
+  @UseInterceptors(FileInterceptor('file', storage ))
+  async uploadFile(@AuthUser() user: User,
+  @UploadedFile() file): Promise<User> {
+    console.log("-------_UPLOAD FILE---------")
+  
+    const fileName = file?.filename;
+
+    if (!fileName) {
+      console.log("!!!!FileNam " + file)
+      throw new ForbiddenException('File must be png, jpg/jpeg')
+    }
+    
+    console.log(file)
+    const imagesFolderPath = join(process.cwd(), 'images')
+    const fullImagePath = join(imagesFolderPath + '/' + file.filename)
+    if (await isFileExtensionSafe(fullImagePath)) {
+      if (file?.size > 1000000) {
+        removeFile(fullImagePath)
+        throw new ForbiddenException('Max File Size reached')
+      }
+      return this.users_svc.updateAvatar(user.id, file.filename);
+    }
+    removeFile(fullImagePath)
+    throw new ForbiddenException('File content does not match extension!')
+
   }
 
   @Patch(':id')

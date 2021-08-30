@@ -2,11 +2,11 @@
   <div class="players-box">
     <div class="player-details" v-if="playerLeft">
       <section class="player-logo">
-        <img
+        <!-- <img
           src="https://image.flaticon.com/icons/png/512/4865/4865927.png"
           alt="logo1"
-        />
-        <!-- <img src="playerLeft?.avatar" alt="logo1" /> -->
+        /> -->
+        <img :src="playerLeft?.user.avatar" alt="logo1" />
       </section>
       <section class="player-info">
         <span class="winner">{{ playerLeft?.winner ? '👑' : '' }}</span>
@@ -38,11 +38,11 @@
     </div>
     <div class="player-details inverse" v-if="playerRight">
       <section class="player-logo">
-        <img
+        <!-- <img
           src="https://image.flaticon.com/icons/png/512/4865/4865942.png"
           alt="logo2"
-        />
-        <!-- <img src="playerRight?.avatar" alt="logo2" /> -->
+        /> -->
+        <img :src="playerRight?.user.avatar" alt="logo2" />
       </section>
       <section class="player-info">
         <span class="winner">{{ playerRight?.winner ? '👑' : '' }}</span>

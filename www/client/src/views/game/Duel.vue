@@ -75,8 +75,8 @@ import GameLobby from '../../components/game/MatchmakingLobby.vue'
 import WatchRooms from '../../components/game/WatchRooms.vue'
 import useAllGameRoom from '../../composables/Game/useAllGameRoom'
 import useMatchmaker from '../../composables/Game/useMatchmaker'
-import useSockets from '../../store/sockets'
 import { useAuth } from '../../composables/auth'
+import { useSocket } from '../../composables/socket'
 
 export default defineComponent({
   name: 'game-duel',
@@ -87,7 +87,9 @@ export default defineComponent({
 
     const { rooms, loadGameRooms } = useAllGameRoom('duel')
 
-    const { matchmakingSocket, gameRoomsSocket } = useSockets()
+    const matchmakingSocket = useSocket('matchmaker').socket
+    const gameRoomsSocket = useSocket('game-rooms').socket
+
     const {
       lobby,
       roomName,
@@ -181,8 +183,8 @@ export default defineComponent({
     onUnmounted(() => {
       console.log('In unmount - matchmaker matchmakingSocket.off')
       if (roomName.value) {
-        matchmakingSocket.emit('leaveLobbyInServerTest', {
-          roomName: roomName.value,
+        matchmakingSocket.emit('leaveLobbySocket', {
+          room: roomName.value,
         })
       }
       matchmakingSocket.off() // -> could be problematic between vues

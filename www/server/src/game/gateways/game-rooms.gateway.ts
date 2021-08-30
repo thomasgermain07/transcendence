@@ -4,7 +4,7 @@ import { ConnectedSocket }                   from '@nestjs/websockets';
 
 import { Server, Socket } from 'socket.io';
 
-import { UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
+import { UseInterceptors, ClassSerializerInterceptor, UseGuards } from '@nestjs/common';
 
 import { RoomsService }   from '../rooms/services/rooms.service';
 import { PlayersService } from '../players/services/players.service';
@@ -18,6 +18,7 @@ import { Ball } from './ball';
 import { Bonus } from './bonus'
 import { Paddle } from './paddle';
 import { GamePlayer } from './game_player';
+import { WsJwtGuard } from '../../auth/guards/ws-jwt.guard';
 
 
 export const WIDTH = 400
@@ -50,13 +51,10 @@ export class State implements IGameState {
   }
 }
 
+@UseGuards(WsJwtGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 @WebSocketGateway({
 	namespace: 'game-rooms',
-	cors: {
-		origin: "http://localhost:3000",
-		methods: ["GET", "POST"]
-	}
 })
 export class GameRoomsGateway
 {
@@ -72,6 +70,22 @@ export class GameRoomsGateway
     private userService: UsersService
 
   ) { }
+
+	// -------------------------------------------------------------------------
+	// Interfaces implementations
+	// -------------------------------------------------------------------------
+	afterInit(server: Server): void {
+		console.log(`Matchmaker:Gateway: Initialized.`)
+	}
+
+	handleConnection(client: Socket, ...args: any[]): void {
+		console.log(`Matchmaker:Gateway: Connection.`)
+    console.log(client.id)
+	}
+
+	handleDisconnect(client: Socket): void {
+		console.log(`Matchmaker:Gateway: Disconnect.`)
+	}
 
   @SubscribeMessage('joinRoom')
   async handleRoomJoin(
@@ -214,7 +228,11 @@ export class GameRoomsGateway
     @MessageBody() data: SocketRoomInfo
   ): Promise<void> {
 
-    await this.playerService.update(data.playerId, { isReady: false })
+    try {
+      await this.playerService.update(data.playerId, { isReady: false }) 
+    } catch (error) {
+      console.log('In not ready Exception - player not found')
+    }
   }
 
   @SubscribeMessage('updateRoomInServer')

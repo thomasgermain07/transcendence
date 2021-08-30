@@ -174,7 +174,7 @@ export class RoomsService {
       .leftJoinAndSelect("players.user", "users")
       .where("players.user.id = :userId", {userId: user.id})
       .andWhere("players.winner = :winner", { winner: true })
-      .getMany()
+      .getMany() // TODO: replace by getCount
 
     return rooms;
   }
@@ -219,7 +219,7 @@ export class RoomsService {
   // TODO: transform to query which returns player count
   public async checkIfMatchFound(id: number): Promise<boolean> {
     const room = await this.roomsRepository.findOne(id)
-    if (room.players.length == 2) {
+    if (room && room.players.length == 2) {
       return true
     }
     return false

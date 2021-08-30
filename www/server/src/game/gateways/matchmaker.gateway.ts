@@ -3,7 +3,7 @@ import { SubscribeMessage, MessageBody, WsException }     from "@nestjs/websocke
 
 import { Server, Socket } from 'socket.io';
 
-import { UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
+import { UseInterceptors, ClassSerializerInterceptor, UseGuards } from '@nestjs/common';
 import { ValidationPipe, UsePipes } from '@nestjs/common';
 
 import { RoomsService } from '../rooms/services/rooms.service';
@@ -14,16 +14,13 @@ import { Player } from '../players/entities/player.entity';
 
 import MatchmakerDto from './dto/matchmaker.dto';
 import { InGameType, SocketRoomInfo, expandRangeType } from '../type/type';
+import { WsJwtGuard } from '../../auth/guards/ws-jwt.guard';
 
 
-
+@UseGuards(WsJwtGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 @WebSocketGateway({
 	namespace: 'matchmaker',
-	cors: {
-		origin: "http://localhost:3000",
-		methods: ["GET", "POST"]
-	}
 })
 export class MatchmakerGateway
 {
@@ -36,6 +33,22 @@ export class MatchmakerGateway
     private readonly playerService: PlayersService,
 
   ) { }
+
+	// -------------------------------------------------------------------------
+	// Interfaces implementations
+	// -------------------------------------------------------------------------
+	afterInit(server: Server): void {
+		console.log(`Matchmaker:Gateway: Initialized.`)
+	}
+
+	handleConnection(client: Socket, ...args: any[]): void {
+		console.log(`Matchmaker:Gateway: Connection.`)
+    console.log(client.id)
+	}
+
+	handleDisconnect(client: Socket): void {
+		console.log(`Matchmaker:Gateway: Disconnect.`)
+	}
 
   @UsePipes(new ValidationPipe())
   @SubscribeMessage('searchMatch')

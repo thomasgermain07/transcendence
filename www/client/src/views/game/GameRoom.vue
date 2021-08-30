@@ -60,7 +60,6 @@
 import { defineComponent, computed, onMounted, onUnmounted, ref } from 'vue'
 
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
-import useSockets from '../../store/sockets'
 import useGameRoom from '../../composables/Game/useGameRoom'
 
 import PlayersDisplay from '../../components/game/PlayersDisplay.vue'
@@ -68,6 +67,7 @@ import GameBoard from '../../components/game/GameBoard.vue'
 import GameButton from '../../components/game/GameButton.vue'
 
 import { GameState, Room } from '../../types/game/gameRoom'
+import { useSocket } from '../../composables/socket'
 
 export interface IGameState {
   status: string
@@ -95,7 +95,7 @@ export default defineComponent({
     const { state, room, loadRoom } = useGameRoom()
 
     const roomName = `room-${route.params.id}`
-    const { gameRoomsSocket } = useSockets()
+    const gameRoomsSocket = useSocket('game-rooms').socket
 
     // --- FETCH ---
     loadRoom(route.params.id)

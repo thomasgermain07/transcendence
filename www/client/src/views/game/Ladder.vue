@@ -40,7 +40,7 @@ import WatchRooms from '../../components/game/WatchRooms.vue'
 import useAllGameRoom from '../../composables/Game/useAllGameRoom'
 import useMatchmaker from '../../composables/Game/useMatchmaker'
 import { useUsers } from '../../composables/users'
-import useSockets from '../../store/sockets'
+import { useSocket } from '../../composables/socket'
 
 export default defineComponent({
   name: 'game-ladder',
@@ -56,7 +56,8 @@ export default defineComponent({
 
     const { rooms, loadGameRooms } = useAllGameRoom('ladder')
 
-    const { matchmakingSocket, gameRoomsSocket } = useSockets()
+    const matchmakingSocket = useSocket('matchmaker').socket
+    const gameRoomsSocket = useSocket('game-rooms').socket
 
     const {
       lobby,
@@ -137,8 +138,8 @@ export default defineComponent({
 
     onUnmounted(() => {
       console.log('In unmount - matchmaker matchmakingSocket.off')
-      matchmakingSocket.emit('leaveLobbyInServerTest', {
-        roomName: roomName.value,
+      matchmakingSocket.emit('leaveLobbySocket', {
+        room: roomName.value,
       })
       matchmakingSocket.off()
       // gameRoomsSocket.off() ????
