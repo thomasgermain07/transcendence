@@ -12,8 +12,8 @@ import { IBonusState, IGameState } from '../../views/GameRoom.vue'
 import { Ball } from '../../types/game/ball'
 import { Player } from '../../types/game/player'
 import { IMapPaddleState } from '../../types/game/paddle'
-import useSockets from '../../store/sockets'
 import { useAuth } from '../../composables/auth'
+import { useSocket } from '../../composables/socket'
 
 export default defineComponent({
   name: 'GameBoard',
@@ -77,7 +77,7 @@ export default defineComponent({
     let ctx = null
     let screen = null
 
-    const { gameRoomsSocket } = useSockets()
+    const gameRoomsSocket = useSocket('game-rooms').socket
     const roomName = props.roomName
     const isPlayer = props.isPlayer
 

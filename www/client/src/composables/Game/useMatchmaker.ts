@@ -1,15 +1,15 @@
 import { computed, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '../auth'
-import useSockets from '../../store/sockets'
 
 import { LobbyType, InGameType } from '../../types/game/game'
 import { Player } from '../../types/game/player'
 import { GameMode } from '../../types/game/gameRoom'
 import { GameOptions } from '../../types/game/gameOptions'
+import { useSocket } from '../socket';
 
 const useMatchmaker = () => {
-  const { matchmakingSocket } = useSockets()
+  const matchmakingSocket = useSocket('matchmaker').socket
   const router = useRouter()
 
   const { user } = useAuth()

@@ -5,6 +5,7 @@ import * as cookieParser from 'cookie-parser'
 import * as csurf from 'csurf'
 
 import { AppModule } from 'src/app/app.module'
+import { SocketAdapter } from './app/adapter/socket-adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
@@ -29,6 +30,9 @@ async function bootstrap() {
   // Facilitate `cookies` usage
   // See: https://docs.nestjs.com/techniques/cookies
   app.use(cookieParser())
+
+   // Socket Adapter to enable cors
+  app.useWebSocketAdapter(new SocketAdapter(app));
 
   // CSRF Protection
   // See: https://docs.nestjs.com/security/csrf
