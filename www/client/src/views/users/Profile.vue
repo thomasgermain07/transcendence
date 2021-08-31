@@ -10,7 +10,7 @@
   <div v-if="status == 'success'" class="profile-ctn">
     <div class="user-ctn">
       <div class="user-ctn__pp">
-        <img v-bind:src="user.profile_picture" class="profile_picture" />
+        <img v-bind:src="user.avatar" class="profile_picture" />
       </div>
       <div class="user-ctn__info">
         <p class="info__name">{{ user.name }}</p>
@@ -27,23 +27,38 @@
     </div>
 
     <hr class="separator" />
+
+    <div class="update-avatar">
+      <input v-if="isCurrentUser" type="file" @change="onFileSelected">
+      <button v-if="isCurrentUser" @click="onUpload">Upload</button>
+    </div>
+
+    <hr class="separator" />
+    <GameStats :user="user" />
+
+    <hr class="separator" />
+    <MatchHistory :user="user" />
   </div>
 </template>
 
 <script lang="ts">
-import { ref, computed, watchEffect } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, onBeforeRouteUpdate } from 'vue-router'
 import { useAuth } from '@/composables/auth'
-
 import ErrorPage from '@/components/ErrorPage.vue'
-
 import getFetchUser from '@/composables/User/fetchUser'
 import requestStatus from '@/composables/requestStatus'
+import { useUsers } from '../../composables/users'
+import GameStats from '../../components/game/GameStats.vue'
+import MatchHistory from '../../components/game/MatchHistory.vue'
+import { useAxios } from '../../composables/axios'
 import getFriendInteraction from '@/composables/Friends/getFriendInteraction'
 
 export default {
   components: {
     ErrorPage,
+    GameStats,
+    MatchHistory,
   },
   setup() {
     const route = useRoute()
@@ -51,17 +66,43 @@ export default {
     let status = ref(requestStatus.loading)
     const { user, fetchUser } = getFetchUser(status)
     const { addFriend, removeFriend } = getFriendInteraction()
+    const { users, get } = useUsers()
+    const { axios } = useAxios()
+    let imageFile = ref("");
 
     const isCurrentUser = computed(() => {
       return user.value.id == useAuth().user.id
     })
 
-    watchEffect(() => {
-      if (route.params.id == undefined) {
-        fetchUser(useAuth().user.id)
+    const fetchUserFromRoute = async () => {
+      await get()
+      if (!route.params.id) {
+        fetchUser(users?.value?.id)
       } else {
         fetchUser(route.params.id)
       }
+    }
+
+    const onFileSelected = (event: any) => {
+      imageFile.value = event.target.files[0]
+    }
+    const onUpload = async () => {
+      let data = new FormData();
+      data.append('file', imageFile.value)
+      const res = await axios.post('users/upload', data).catch((err : any) => {
+            alert(`${err.response?.data.message}`)
+          })
+      if (res) {
+        user.value = res.data
+        console.log(user.value)
+      }
+    }
+
+    onBeforeRouteUpdate(() => {
+      fetchUserFromRoute()
+    })
+    onMounted(() => {
+      fetchUserFromRoute()
     })
 
     return {
@@ -70,6 +111,8 @@ export default {
       addFriend,
       removeFriend,
       isCurrentUser,
+      onFileSelected,
+      onUpload,
     }
   },
 }
