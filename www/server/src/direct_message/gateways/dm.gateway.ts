@@ -19,10 +19,6 @@ import { MessagesService } from "../messages/services/messages.service";
 @UseGuards(WsJwtGuard)
 @WebSocketGateway({
 	namespace: 'dm',
-	cors: {
-		origin: "http://localhost:3000",
-		methods: ["GET", "POST"],
-	}
 })
 export class DMGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect

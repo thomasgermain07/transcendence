@@ -37,12 +37,11 @@ export class CookiesService
 			? process.env.VITE_JWT_ACCESS_LIFETIME
 			: process.env.VITE_JWT_REFRESH_LIFETIME
 		;
-		const http = !(type === CookieType.AUTHENTICATION);
 
 		const payload: TokenPayload = { user_id: user.id };
 
 		const token  = this.getJwtToken(payload, secret, lifetime);
-		const cookie = this.getJwtCookie(type, token, lifetime, http);
+		const cookie = this.getJwtCookie(type, token, lifetime);
 
 		return { token: token, cookie: cookie };
 	}
@@ -75,11 +74,10 @@ export class CookiesService
 	private getJwtCookie(
 		type: string,
 		token: string,
-		lifetime: string,
-		http: boolean = true
+		lifetime: string
 	)
 		: string
 	{
-		return `${type}=${token}; ${http ? 'HttpOnly;' : ''} SameSite=Strict; Path=/; Max-Age=${lifetime}`
+		return `${type}=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${lifetime}`
 	}
 }

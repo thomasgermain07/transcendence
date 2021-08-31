@@ -27,10 +27,6 @@ type JoinLeaveType = {
 @UseGuards(WsJwtGuard)
 @WebSocketGateway({
 	namespace: 'chat',
-	cors: {
-		origin: 'http://localhost:3000',
-		methods: ['GET', 'POST'],
-	},
 })
 export class ChatGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
