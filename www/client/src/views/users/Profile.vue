@@ -29,7 +29,7 @@
     <hr class="separator" />
 
     <div class="update-avatar">
-      <input v-if="isCurrentUser" type="file" @change="onFileSelected">
+      <input v-if="isCurrentUser" type="file" @change="onFileSelected" />
       <button v-if="isCurrentUser" @click="onUpload">Upload</button>
     </div>
 
@@ -45,7 +45,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, onBeforeRouteUpdate } from 'vue-router'
 import { useAuth } from '@/composables/auth'
+
 import ErrorPage from '@/components/ErrorPage.vue'
+
 import getFetchUser from '@/composables/User/fetchUser'
 import requestStatus from '@/composables/requestStatus'
 import { useUsers } from '../../composables/users'
@@ -68,7 +70,7 @@ export default {
     const { addFriend, removeFriend } = getFriendInteraction()
     const { users, get } = useUsers()
     const { axios } = useAxios()
-    let imageFile = ref("");
+    let imageFile = ref('')
 
     const isCurrentUser = computed(() => {
       return user.value.id == useAuth().user.id
@@ -87,11 +89,11 @@ export default {
       imageFile.value = event.target.files[0]
     }
     const onUpload = async () => {
-      let data = new FormData();
+      let data = new FormData()
       data.append('file', imageFile.value)
-      const res = await axios.post('users/upload', data).catch((err : any) => {
-            alert(`${err.response?.data.message}`)
-          })
+      const res = await axios.post('users/upload', data).catch((err: any) => {
+        alert(`${err.response?.data.message}`)
+      })
       if (res) {
         user.value = res.data
         console.log(user.value)
