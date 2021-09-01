@@ -5,26 +5,28 @@
       <input
         type="text"
         class="field-input"
-        v-model="name_f"
-        placeholder="new name"
+        v-model="Room.name"
+        :placeholder="Room.name"
       />
     </div>
     <div v-if="has_password" class="change-pw">
       <p>Change this room's password</p>
       <input
-        type="text"
+        type="password"
         class="field-input"
-        v-model="password_f"
-        placeholder="new password"
+        v-model="password"
+        placeholder="New password"
       />
+      <p>or</p>
+      <button @click="deletePassword">Delete password</button>
     </div>
     <div v-if="!has_password" class="set-pw">
       <p>Add a password to this room</p>
       <input
-        type="text"
+        type="password"
         class="field-input"
-        v-model="password_f"
-        placeholder="create password"
+        v-model="password"
+        placeholder="Create password"
       />
     </div>
     <div>
@@ -32,45 +34,52 @@
       <div class="switch-ctn">
         <div
           class="switch"
-          :class="{ 'switch--selected-yes': visibility }"
-          @click="visibility = true"
+          :class="{ 'switch--selected-yes': Room.visible }"
+          @click="Room.visible = true"
         >
           Yes
         </div>
         <div
           class="switch"
-          :class="{ 'switch--selected-no': !visibility }"
-          @click="visibility = false"
+          :class="{ 'switch--selected-no': !Room.visible }"
+          @click="Room.visible = false"
         >
           No
         </div>
       </div>
     </div>
     <div>
-      <button>Validate Changes</button>
+      <button @click="changeRoom(password)">Validate Changes</button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import getChangeRoom from '@/composables/Chat/Room/modifyRoom'
 import { ref } from '@vue/reactivity'
+import { computed } from '@vue/runtime-core'
 
 export default {
   props: {
     Room: Object,
   },
   setup(props) {
-    let has_password = ref(props.Room!.password)
+    let has_password = computed(() => props.Room!.password)
 
-    let visibility = ref(props.Room!.visible)
-    let name_f = ref('')
-    let password_f = ref('')
+    let password = ref('')
+
+    const { changeRoom } = getChangeRoom(props.Room)
+
+    const deletePassword = () => {
+      delete props.Room!.password
+      changeRoom()
+    }
 
     return {
       has_password,
-      visibility,
-      name_f,
-      password_f,
+      password,
+      deletePassword,
+      changeRoom,
     }
   },
 }
