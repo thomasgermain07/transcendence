@@ -6,11 +6,14 @@
       :key="friend"
       @click="$emit('open_chat')"
     >
-      {{ friend.user.name }}
+      {{ getFriend(friend).name }}
+      <!-- TODO : getFriend(connected) for status conne -->
       <i
         class="fas fa-circle status"
         :class="
-          friend.user.connected ? 'status--connected' : 'status--disconnected'
+          getFriend(friend).connected
+            ? 'status--connected'
+            : 'status--disconnected'
         "
       ></i>
     </div>
@@ -18,11 +21,22 @@
 </template>
 
 <script lang="ts">
+import { useAuth } from '@/composables/auth'
+import { FriendType } from '@/types/friend/friend'
+
 export default {
   props: {
     friends: Object,
   },
-  setup() {},
+  setup() {
+    let me = useAuth().user
+
+    const getFriend = (friend: FriendType) => {
+      return friend.user.id == me.id ? friend.target : friend.user
+    }
+
+    return { getFriend }
+  },
 }
 </script>
 

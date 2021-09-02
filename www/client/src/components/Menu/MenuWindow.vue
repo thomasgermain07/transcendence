@@ -29,6 +29,10 @@
 import FriendWindow from './FriendWindow.vue'
 import ChatWindow from './ChatWindow.vue'
 import { ref } from '@vue/reactivity'
+import { onMounted } from '@vue/runtime-core'
+import getFetchRooms from '@/composables/Chat/Rooms/fetchRooms'
+import { useSocket } from '@/composables/socket'
+import { RoomType } from '@/types/chat/room'
 
 export default {
   components: {
@@ -52,6 +56,21 @@ export default {
     const set_page_title = (title: string) => {
       page_title.value = title
     }
+
+    onMounted(async () => {
+      let { rooms, fetchRooms } = getFetchRooms()
+
+      await fetchRooms(true)
+
+      rooms.value.forEach((room: RoomType) => {
+        console.log(`socket.emit(join, ${room.name})`)
+        useSocket('chat').socket.emit('join', { room_id: room.id })
+      })
+    })
+
+    useSocket('chat').socket.on('message', () => {
+      console.log('new notification') // TODO : handle notification
+    })
 
     return {
       open,
@@ -97,7 +116,6 @@ export default {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  /* border-right: 2px solid black; */
 }
 
 .top-bar {

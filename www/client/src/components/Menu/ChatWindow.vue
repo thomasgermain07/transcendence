@@ -61,7 +61,6 @@ export default {
 <style scoped>
 .chat-window {
   display: flex;
-  height: 100%;
   flex-grow: 1;
   border-left: 2px solid black;
 }
@@ -89,7 +88,7 @@ export default {
 
 .chat-ctn {
   flex-grow: 1;
-  display: flex;
   border-right: 2px solid black;
+  display: flex;
 }
 </style>

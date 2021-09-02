@@ -2,7 +2,7 @@ import { Ref, ref } from 'vue'
 import requestStatus from '@/composables/requestStatus'
 import { useAxios } from '@/composables/axios'
 
-export default function getFetchRooms(status: Ref) {
+export default function getFetchRooms(status?: Ref) {
   let rooms = ref([])
 
   const fetchRooms = async (related: boolean) => {
@@ -12,9 +12,15 @@ export default function getFetchRooms(status: Ref) {
         params: { related: related },
       })
       rooms.value = data
-      status.value = requestStatus.success
+      if (status) {
+        status.value = requestStatus.success
+      }
     } catch (e) {
-      status.value = requestStatus.error
+      if (status) {
+        status.value = requestStatus.error
+      } else {
+        console.log(e)
+      }
     }
   }
 

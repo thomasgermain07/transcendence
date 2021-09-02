@@ -75,6 +75,7 @@
 import { ref } from 'vue'
 import { getRoomInputs, createRoom } from '@/composables/Chat/Room/createRoom'
 import requestStatus from '@/composables/requestStatus'
+import { useSocket } from '@/composables/socket'
 
 export default {
   setup(props, { emit }) {
@@ -84,7 +85,8 @@ export default {
 
     const sendData = () => {
       createRoom(fields, status)
-        .then(() => {
+        .then((res) => {
+          useSocket('chat').socket.emit('join', { room_id: res.data.id })
           emit('refresh_rooms')
           emit('close')
         })

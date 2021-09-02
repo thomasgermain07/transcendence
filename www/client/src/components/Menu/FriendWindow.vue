@@ -55,6 +55,7 @@
       :friends="offlineFriends"
       @open_chat="$emit('open_chat')"
     />
+    <button @click="$emit('open_chat')">Open conv</button>
   </div>
 </template>
 

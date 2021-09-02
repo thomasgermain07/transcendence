@@ -10,7 +10,10 @@ export default function getFetchFriends() {
     try {
       const { data } = await axios.get('friends')
       friends.value = data
-      friends.value?.map((friend: FriendType) => (friend.user.connected = true)) // TODEL
+      friends.value?.map((friend: FriendType) => {
+        friend.user.connected = true
+        friend.target.connected = true
+      }) // TODEL : when friend status handled
     } catch (e) {}
   }
 
