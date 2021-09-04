@@ -1,9 +1,17 @@
 <template>
-  <a class="open-button" v-if="!open" @click="toggle_window">
+  <a
+    class="open-btn"
+    :class="{ 'open-btn--notif': notification }"
+    v-if="!open"
+    @click="toggle_window"
+  >
     <i class="fas fa-comments fa-2x"></i>
   </a>
 
-  <div v-if="open" class="window" :class="{ 'window--chat-open': chat_open }">
+  <div
+    class="window"
+    :class="{ 'window--chat-open': chat_open, 'window--visible': open }"
+  >
     <div class="window-friend">
       <header class="top-bar">
         <a @click="toggle_window">
@@ -13,14 +21,14 @@
       </header>
       <FriendWindow @open_chat="open_chat" />
     </div>
-    <div v-if="chat_open" class="window-chat">
+    <div class="window-chat" :class="{ 'window-chat--visible': chat_open }">
       <header class="top-bar chat__top-bar">
         <a @click="close_chat">
           <i class="far fa-times-circle top-bar__close"></i>
         </a>
         <div class="top-bar__name">Chat - {{ page_title }}</div>
       </header>
-      <ChatWindow @set_page_title="set_page_title" />
+      <ChatWindow @set_page_title="set_page_title" ref="chat" />
     </div>
   </div>
 </template>
@@ -43,9 +51,15 @@ export default {
     let open = ref(false)
     let chat_open = ref(false)
     let page_title = ref('')
+    let notification = ref(false)
+    let chat = ref()
 
     const toggle_window = () => {
       open.value = !open.value
+      if (notification.value) {
+        chat_open.value = true
+      }
+      notification.value = false
     }
     const open_chat = () => {
       chat_open.value = true
@@ -59,23 +73,29 @@ export default {
 
     onMounted(async () => {
       let { rooms, fetchRooms } = getFetchRooms()
+      const socket = useSocket('chat').socket
 
       await fetchRooms(true)
 
-      rooms.value.forEach((room: RoomType) => {
+      rooms.value!.forEach((room: RoomType) => {
         console.log(`socket.emit(join, ${room.name})`)
-        useSocket('chat').socket.emit('join', { room_id: room.id })
+        socket.emit('join', { room_id: room.id })
       })
     })
 
-    useSocket('chat').socket.on('message', () => {
-      console.log('new notification') // TODO : handle notification
+    useSocket('chat').socket.on('message', (message) => {
+      if (!chat_open.value) {
+        notification.value = true
+        chat.value.sendNotify(message.room.id)
+      }
     })
 
     return {
       open,
       chat_open,
       page_title,
+      notification,
+      chat,
       toggle_window,
       open_chat,
       close_chat,
@@ -86,11 +106,15 @@ export default {
 </script>
 
 <style scoped>
-.open-button {
+.open-btn {
   position: fixed;
   bottom: 0;
   right: 10px;
   margin: 5px;
+}
+
+.open-btn--notif i {
+  color: red;
 }
 
 .window {
@@ -100,6 +124,11 @@ export default {
   bottom: 0px;
   right: 10px;
   background-color: grey;
+  visibility: hidden;
+}
+
+.window--visible {
+  visibility: visible;
 }
 
 .window--chat-open {
@@ -116,6 +145,11 @@ export default {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  visibility: hidden;
+}
+
+.window-chat--visible {
+  visibility: visible;
 }
 
 .top-bar {

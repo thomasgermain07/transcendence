@@ -40,7 +40,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useSocket } from '@/composables/socket'
 import { MessageType } from '@/types/chat/message'
 import { useAuth } from '@/composables/auth'
@@ -58,7 +58,7 @@ export default {
   components: {
     Setting,
   },
-  setup(props) {
+  setup(props, { emit }) {
     let open_setting = ref(false)
     let message_field = ref('')
     let me = useAuth().user
@@ -75,11 +75,12 @@ export default {
       }
     }
 
-    const getData = (id: number) => {
+    const getData = async (id: number) => {
       if (id != 0) {
-        fetchRoom(id)
-        fetchMessages(id)
+        await fetchRoom(id)
+        await fetchMessages(id)
       }
+      emit('notification_read', room.value.id)
     }
 
     onMounted(() => getData(props.room_id!))
@@ -97,6 +98,8 @@ export default {
         messages.value!.unshift(message)
       }
     })
+
+    const currentRoom = computed(() => room.value.id)
 
     return {
       open_setting,

@@ -4,10 +4,15 @@
       <header class="window-title">
         <p>Rooms</p>
       </header>
-      <Rooms ref="rooms" @open="open" />
+      <Rooms ref="rooms" @open="open" :CurrentRoomId="room" />
     </div>
     <div class="chat-ctn">
-      <Room v-if="openned == 'room'" :room_id="room" @leave="left_room" />
+      <Room
+        v-if="openned == 'room'"
+        :room_id="room"
+        @leave="left_room"
+        @notification_read="sendNotificationRead"
+      />
       <CreateRoom
         v-if="openned == 'create'"
         @close="close"
@@ -48,12 +53,30 @@ export default {
       },
     )
 
+    const sendNotify = (id: Number) => {
+      rooms.value.notify(id)
+    }
+
+    const sendNotificationRead = (id: Number) => {
+      rooms.value.notificationRead(id)
+    }
+
     const left_room = () => {
       refresh_rooms()
       emit('set_page_title', '')
     }
 
-    return { rooms, room, openned, open, close, refresh_rooms, left_room }
+    return {
+      rooms,
+      room,
+      openned,
+      open,
+      close,
+      refresh_rooms,
+      left_room,
+      sendNotify,
+      sendNotificationRead,
+    }
   },
 }
 </script>

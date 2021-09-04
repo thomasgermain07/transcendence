@@ -6,4 +6,5 @@ export type RoomType = {
   owner: UserType
   visible: Boolean
   password: Boolean
+  notification: Boolean
 }
