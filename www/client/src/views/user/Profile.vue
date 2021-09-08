@@ -1,7 +1,5 @@
 <template>
 <div>
-  <h1>UserProfile</h1>
-
   <p v-if="status == 'loading'">Loading profile ...</p>
 
   <div v-if="status == 'error'">
@@ -9,35 +7,46 @@
   </div>
 
   <div v-if="status == 'success'" class="profile-ctn">
-    <div class="user-ctn">
+
+    <section class="user-info">
       <div class="user-ctn__pp">
         <img v-bind:src="user.avatar" class="profile_picture" />
       </div>
-      <div class="user-ctn__info">
-        <p class="info__name">{{ user.name }}</p>
-        <p>Point : {{ user.point }}</p>
+      <div class="user-ctn">
+        <div class="user-ctn__info">
+          <p class="info__name">{{ user.name }}</p>
+          <p class="ladder__level">Ladder Level : {{ user.ladderLevel }}</p>
+          
+          <!-- TODO: add edit profile button  -->
+          <div class="update-avatar">
+            <input v-if="isCurrentUser" type="file" @change="onFileSelected">
+            <button v-if="isCurrentUser" @click="onUpload">Upload</button>
+          </div>
+          
+          <div class="user-interaction">
+            <button v-if="!isCurrentUser" @click="addFriend(user)">add friend</button>
+          </div>
+          <div class="user-interaction">
+            <button v-if="!isCurrentUser" @click="removeFriend(user)">
+              remove friend
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="user-interaction">
-      <button v-if="!isCurrentUser" @click="addFriend(user)">add friend</button>
-    </div>
-    <div class="user-interaction">
-      <button v-if="!isCurrentUser" @click="removeFriend(user)">
-        remove friend
-      </button>
-    </div>
+    </section>
 
-    <hr class="separator" />
-    <div class="update-avatar">
-      <input v-if="isCurrentUser" type="file" @change="onFileSelected">
-      <button v-if="isCurrentUser" @click="onUpload">Upload</button>
-    </div>
-
-    <hr class="separator" />
-    <GameStats :user="user" />
-
-    <hr class="separator" />
-    <MatchHistory :user="user" />
+    <section class="game-info">
+      <div class="user-stats">
+        <h1 class="info-header">GAME STATS</h1>
+        <GameStats :user="user" />
+      </div>
+      <!-- TODO: Achievements  -->
+      <div class="user-match-history">
+        <h1 class="info-header">MATCH HISTORY</h1>
+        <hr>
+        <MatchHistory class="matches" :user="user" />
+      </div>
+    </section>
 
   </div>
 </div>
@@ -125,31 +134,120 @@ export default {
 </script>
 
 <style scoped>
+@import url("https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap");
+
+
+* {
+  box-sizing: border-box;
+  font-family: "Inconsolata", monospace;
+}
+
+.user-info {
+  display: flex;
+  margin: 40px;
+  margin-top: 0;
+}
+
+
+@media only screen and (max-width: 768px) {
+/* @media only screen and (max-width: 600px) { */
+  .user-info {
+    flex-direction: column;
+    text-align: center;
+  }
+  .game-info {
+    flex-direction: column;
+    align-items: center;
+  }
+  .user-stats {
+    margin: 50px;
+  }
+  .user-match-history {
+    margin: 50px;
+  }
+}
+
 .profile-ctn {
   display: flex;
   flex-direction: column;
 }
 .user-ctn {
+  /* border: solid 1px red; */
   display: flex;
   flex-direction: row;
   justify-content: center;
+  /* flex: 1; */
 }
+.user-ctn__pp {
+  /* border: solid 1px green; */
+  /* flex: 1; */
+  margin: auto 0;
+}
+
 .user-ctn__info {
   padding: 0 50px;
   text-align: left;
 }
+
 .profile_picture {
   border-radius: 50%;
   width: 150px;
   height: 150px;
 }
 .info__name {
-  font-weight: bold;
-  font-size: 1.5rem;
+  font-weight: 800;
+  font-size: 64px;
+  text-transform: capitalize;
+  letter-spacing: -1px;
+  margin: 20px 0 0;
 }
-.separator {
-  width: 50%;
-  border-top: 2px solid lightgray;
-  margin-top: 80px;
+.ladder__level {
+  padding: 0 0 20px 0;
+  color: grey;
+}
+
+.game-info {
+  display: flex;
+}
+.user-stats {
+  flex: 1;
+  /* border: solid 1px black; */
+  margin: 0 30px 20px 30px;
+  padding: 20px 50px;
+  color: var(--secondary-color);
+  /* background-color: var(--tertiary-color); */
+  background-color: #173f5f;
+  border-radius: 4px;
+  height: 60vh;
+}
+.user-match-history {
+  flex: 1;
+  margin: 0 30px 20px 30px;
+  padding: 20px 50px;
+  color: var(--secondary-color);
+  /* background-color: var(--tertiary-color); */
+  background-color: #173f5f;
+  border-radius: 4px;
+  height: 60vh;
+  overflow: scroll;
+}
+
+hr {
+  border-top: 0.5px solid white;
+  margin: 20px;
+}
+
+/* .matches {
+  height: 50vh;
+  overflow: scroll;
+} */
+
+.info-header {
+  font-size: 26px;
+  font-weight: 800;
+  padding: 20px;
+  /* color: var(--secondary-color);
+  background-color: #173f5f; */
+  
 }
 </style>

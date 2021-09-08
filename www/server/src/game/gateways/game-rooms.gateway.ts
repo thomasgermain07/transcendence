@@ -75,16 +75,16 @@ export class GameRoomsGateway
 	// Interfaces implementations
 	// -------------------------------------------------------------------------
 	afterInit(server: Server): void {
-		console.log(`Matchmaker:Gateway: Initialized.`)
+		console.log(`GameRoom:Gateway: Initialized.`)
 	}
 
 	handleConnection(client: Socket, ...args: any[]): void {
-		console.log(`Matchmaker:Gateway: Connection.`)
+		console.log(`GameRoom:Gateway: Connection.`)
     console.log(client.id)
 	}
 
 	handleDisconnect(client: Socket): void {
-		console.log(`Matchmaker:Gateway: Disconnect.`)
+		console.log(`GameRoom:Gateway: Disconnect.`)
 	}
 
   @SubscribeMessage('joinRoom')

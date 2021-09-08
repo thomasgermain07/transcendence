@@ -52,6 +52,7 @@ export default defineComponent({
   width: 100%;
   margin-bottom: 1em;
   background-color: grey;
+  z-index: 2;
 }
 .navigation {
   display: flex;

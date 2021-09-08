@@ -174,7 +174,7 @@ export default defineComponent({
   display: flex;
   justify-content: center;
   align-items: center;
-  /* z position  */
+  z-index: 2;
 }
 
 .modal {

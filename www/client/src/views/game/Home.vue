@@ -70,7 +70,7 @@ export default defineComponent({
   width: 100%;
   font-size: 200%;
   /* background-size: 30%; */
-  background-size: contain;
+  /* background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
   background-image: linear-gradient(
@@ -81,7 +81,7 @@ export default defineComponent({
     url('../../assets/images/ultimatePong.png');
   margin: 0;
   padding: 30px;
-  text-shadow: 1px 1px 2px pink;
+  text-shadow: 1px 1px 2px pink; */
 
   /* position: center; */
   /* padding: 0;
