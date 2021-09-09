@@ -89,6 +89,18 @@ async function activate2Fa(
 	return await axios.post(url, payload);
 }
 
+async function deactivate2Fa(
+	payload: RegisterType,
+)
+	: Promise<AxiosResType>
+{
+	const { axios } = useAxios();
+
+	const url: string = `auth/deactivate2Fa`;
+	
+	return await axios.post(url, payload);
+}
+
 async function verifyCode(
 	code: GoogleAuthType,
 )
@@ -102,6 +114,8 @@ async function verifyCode(
 	return await axios.post(url, code);
 }
 
+async function getTwoFaState()
+
 // -----------------------------------------------------------------------------
 // Exports
 // -----------------------------------------------------------------------------
@@ -113,5 +127,6 @@ export const AuthService = Object.freeze({
 	logout,
 	edit,
 	activate2Fa,
+	deactivate2Fa,
 	verifyCode,
 });

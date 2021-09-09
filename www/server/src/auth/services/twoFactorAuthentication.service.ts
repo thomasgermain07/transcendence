@@ -43,4 +43,8 @@ export class TwoFactorAuthenticationService {
     public async turnOnTwoFactorAuthentication(user: User): Promise<void> {
         await this.usersService.turnOnTwoFactorAuthentication(user.id)
     }
+
+    public async turnOffTwoFactorAuthentication(user: User): Promise<void> {
+        await this.usersService.turnOffTwoFactorAuthentication(user.id)
+    }
 }

@@ -46,6 +46,7 @@ const user = reactive<UserType>({
   name: '',
   email: '',
   ladderLevel: 1,
+  isTwoFactorAuthenticationEnabled: false,
 })
 const is_authenticated = computed(() => !(user.id === 0))
 
@@ -214,6 +215,19 @@ export function useAuth() {
     }
   }
 
+  async function deactivateTwoFa(): Promise<string> {
+    try {
+      const res = await AuthService.deactivate2Fa()
+      console.log('useAuth.deactivate2fa: Done.')
+
+      return res
+    } catch (err: AxiosErrType) {
+      console.log('useAuth.deactivate2Fa: Fail.')
+
+      throw err
+    }
+  }
+
   async function verifyCode(code: GoogleAuthType): Promise<string> {
     try {
       const res = await AuthService.verifyCode(code)
@@ -239,6 +253,10 @@ export function useAuth() {
   }
 
 
+
+  
+
+
   // -------------------------------------------------------------------------
   // Exposes
   // -------------------------------------------------------------------------
@@ -258,6 +276,7 @@ export function useAuth() {
     logout,
     edit,
     activateTwoFa,
+    deactivateTwoFa,
     verifyCode,
 
     isPreviouslyAuthenticated,
@@ -276,4 +295,5 @@ function setUser(data: UserType | undefined = undefined) {
   user.name = data?.name ?? ''
   user.email = data?.email ?? ''
   user.ladderLevel = data?.ladderLevel ?? 1
+  user.isTwoFactorAuthenticationEnabled = data?.isTwoFactorAuthenticationEnabled ?? false
 }

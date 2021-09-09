@@ -57,6 +57,16 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Post('deactivate2Fa')
+  async deactivate2Fa(@AuthUser() user: User): Promise<void> {
+    // const { otpauthUrl } = await this.twoFactorAuthenticationService.generateTwoFactorAuthenticationSecret(user)
+    // const qrcode =  await this.twoFactorAuthenticationService.pipeQrCodeStream(otpauthUrl)
+    // console.log(qrcode)
+    await this.twoFactorAuthenticationService.turnOffTwoFactorAuthentication(user)
+    
+  }
+
+  @UseGuards(JwtAuthGuard)
   // @UseGuards(JwtTwoFactorGuard)
   @Post('edit')
   async edit(@AuthUser() user: User, @Body() edit_info: EditProfilePayload): Promise<User> {

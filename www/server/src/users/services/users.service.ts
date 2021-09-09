@@ -29,6 +29,10 @@ export class UsersService {
     await this.users_repo.update(userId, {isTwoFactorAuthenticationEnabled: true})
   }
 
+  async turnOffTwoFactorAuthentication(userId: number): Promise<void> {
+    await this.users_repo.update(userId, {isTwoFactorAuthenticationEnabled: false})
+  }
+
   async setTwoFactorAuthenticationSecret(secret: string, userId: number): Promise<void> {
     await this.users_repo.update(userId, {twoFactorAuthenticationSecret: secret})
   }
