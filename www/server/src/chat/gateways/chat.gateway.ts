@@ -14,7 +14,10 @@ import { Socket } from 'socket.io'
 
 import { ChatService } from '../services/chat.service'
 import { Message } from '../messages/entities/message.entity'
+import { UseGuards } from '@nestjs/common';
+import { WsJwtGuard } from '../../auth/guards/ws-jwt.guard';
 
+@UseGuards(WsJwtGuard)
 @WebSocketGateway({
   namespace: 'chat',
   cors: {

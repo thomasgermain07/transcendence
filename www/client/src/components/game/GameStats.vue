@@ -4,7 +4,7 @@
     <div v-if="loading">LOADING...</div>
     <div v-else>
       <!-- <p>{{ user.id }}</p> -->
-      <hr class="separator">
+      <!-- <hr class="separator"> -->
 
       <div class="stats-summary-total">
         <div class="matches">
@@ -27,7 +27,7 @@
 
       <hr class="separator">
 
-      <h3>Details per mode</h3>
+      <h6>Details per mode</h6>
       <div class="stats-summary-per-mode">
         <div class="stats-duel">
           <h4>Duel</h4>
@@ -132,7 +132,7 @@ export default defineComponent({
   color: #ed553b;
 }
 
-h3 {
+h6 {
   font-weight: 800;
   margin-top: 50px;
   text-transform: uppercase;

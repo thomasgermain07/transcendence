@@ -35,16 +35,23 @@
       </div>
     </section>
 
-    <section class="game-info">
+    <section class="user-match-history">
+      <h1 class="info-header">MATCH HISTORY ></h1>
+      <hr>
+      <MatchHistory class="matches" :user="user" />
+    </section>
+
+    <section class="user-game-info">
       <div class="user-stats">
-        <h1 class="info-header">GAME STATS</h1>
+        <h1 class="info-header">GAME STATS ></h1>
+        <hr>
         <GameStats :user="user" />
       </div>
       <!-- TODO: Achievements  -->
-      <div class="user-match-history">
-        <h1 class="info-header">MATCH HISTORY</h1>
+      <div class="user-achievements">
+        <h1 class="info-header">ACHIEVEMENTS ></h1>
         <hr>
-        <MatchHistory class="matches" :user="user" />
+        <Achievements :user="user" />
       </div>
     </section>
 
@@ -63,6 +70,7 @@ import { addFriend, removeFriend } from '@/composables/User/userInteraction'
 import { useUsers } from '../../composables/users'
 import GameStats from '../../components/game/GameStats.vue'
 import MatchHistory from '../../components/game/MatchHistory.vue'
+import Achievements from '../../components/game/Achievements.vue'
 import { useAxios } from '../../composables/axios'
 
 export default {
@@ -70,6 +78,7 @@ export default {
     ErrorPage,
     GameStats,
     MatchHistory,
+    Achievements,
   },
   setup() {
     const route = useRoute()
@@ -155,9 +164,9 @@ export default {
     flex-direction: column;
     text-align: center;
   }
-  .game-info {
+  .user-game-info {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
   }
   .user-stats {
     margin: 50px;
@@ -206,10 +215,22 @@ export default {
   color: grey;
 }
 
-.game-info {
+.user-game-info {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
 }
-.user-stats {
+.info-header {
+  /* font-size: 26px; */
+  font-size: 16px;
+  font-weight: 800;
+  padding: 20px;
+  text-align: left;
+  /* color: var(--secondary-color);
+  background-color: #173f5f; */
+}
+
+.user-stats, .user-achievements {
   flex: 1;
   /* border: solid 1px black; */
   margin: 0 30px 20px 30px;
@@ -219,35 +240,24 @@ export default {
   background-color: #173f5f;
   border-radius: 4px;
   height: 60vh;
+  overflow: scroll;
 }
+
 .user-match-history {
-  flex: 1;
+  /* flex: 4; */
   margin: 0 30px 20px 30px;
   padding: 20px 50px;
   color: var(--secondary-color);
   /* background-color: var(--tertiary-color); */
   background-color: #173f5f;
   border-radius: 4px;
-  height: 60vh;
-  overflow: scroll;
+  /* height: 60vh;
+  overflow: scroll; */
 }
 
 hr {
   border-top: 0.5px solid white;
   margin: 20px;
-}
-
-/* .matches {
-  height: 50vh;
-  overflow: scroll;
-} */
-
-.info-header {
-  font-size: 26px;
-  font-weight: 800;
-  padding: 20px;
-  /* color: var(--secondary-color);
-  background-color: #173f5f; */
-  
+  margin-top: 0;
 }
 </style>

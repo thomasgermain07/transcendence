@@ -62,6 +62,11 @@ export class UsersController {
     return res.sendFile(join(process.cwd(), '/images/' + avatar))
   }
 
+  @Get('/achievements/images/:type')
+  async findAchievementImage(@Param('type') type, @Res() res): Promise<Object> {
+    return res.sendFile(join(process.cwd(), '/assets/achievements-badges/' + type))
+  }
+
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<User> {
     const target: User = await this.users_svc.findOne({

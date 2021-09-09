@@ -1,4 +1,4 @@
-import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { WebSocketGateway, WebSocketServer, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { SubscribeMessage, MessageBody }     from "@nestjs/websockets";
 import { ConnectedSocket }                   from '@nestjs/websockets';
 
@@ -57,6 +57,7 @@ export class State implements IGameState {
 	namespace: 'game-rooms',
 })
 export class GameRoomsGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
 
 	@WebSocketServer()

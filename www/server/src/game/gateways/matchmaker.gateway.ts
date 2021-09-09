@@ -1,4 +1,4 @@
-import { WebSocketGateway, WebSocketServer, ConnectedSocket } from '@nestjs/websockets';
+import { WebSocketGateway, WebSocketServer, ConnectedSocket, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { SubscribeMessage, MessageBody, WsException }     from "@nestjs/websockets";
 
 import { Server, Socket } from 'socket.io';
@@ -23,6 +23,7 @@ import { WsJwtGuard } from '../../auth/guards/ws-jwt.guard';
 	namespace: 'matchmaker',
 })
 export class MatchmakerGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
 
 	@WebSocketServer()

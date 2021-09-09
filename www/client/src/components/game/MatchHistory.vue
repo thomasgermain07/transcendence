@@ -2,37 +2,34 @@
   <div class="match-history">
     <div v-if="loading">LOADING...</div>
     <div v-else>
-      <!-- <p>{{ user.id }}</p> -->
-      <!-- {{ matchHistory }} -->
-      <div class="match" v-for="match in matchHistory" v-bind:key="match.id">
-        <div class="players">
-          <div class="player-details left">
-            <!-- {{ match.room.players[0] }} -->
-              <div class="player-info">
-                <img class="avatar" :src="match.room.players[0].user.avatar" alt="logo" srcset="">
-                <div class="winner-ctn">
-                  <p class="username">{{ match.room.players[0].user.name }}</p>
-                  <p class="victory" v-if="match.room.players[0].winner">victory</p>
-                </div>
-                <p class="score">{{ match.room.players[0].score }}</p>
-              </div>
+      <div class="container">
+        <div class="card" v-for="match in matchHistory" v-bind:key="match.id">
+          <div class="card_title">
+            <div v-if="userIsWinner(match.room.players)">
+              <p class="victory">VICTORY</p>
+            </div>
+            <div v-else>
+              <p class="defeat">DEFEAT</p>
+            </div>
           </div>
-          <div>-</div>
-          <div class="player-details right">
-            <!-- {{ match.room.players[1] }} -->
-              <div class="player-info">
-                <p class="score">{{ match.room.players[1].score }}</p>
-                <div class="winner-ctn">
-                  <p class="username">{{ match.room.players[1].user.name }}</p>
-                  <p class="victory" v-if="match.room.players[1].winner">victory</p>
-                </div>
-                <img class="avatar" :src="match.room.players[1].user.avatar" alt="logo" srcset="">
+          <div class="match_info">
+            <div class="team_name">
+              <div class="team1">
+                <img class="avatar" :src="match.room.players[0].user.avatar" alt="logo" srcset="">
+                <h3>{{ match.room.players[0].user.name.slice(0, 5) }}</h3>
+                <h3 class="score">{{ match.room.players[0].score }}</h3>
               </div>
+              <div class="team2">
+                <img class="avatar" :src="match.room.players[1].user.avatar" alt="logo" srcset="">
+                <h3>{{ match.room.players[1].user.name.slice(0, 5) }}</h3>
+                <h3 class="score">{{ match.room.players[1].score }}</h3>
+              </div>
+            </div>
+          </div>
+          <div class="card_title">
+            <p class="mode">Mode: {{ match.room.mode }}</p>
           </div>
         </div>
-        
-        <p class="mode">mode: {{ match.room.mode }}</p>
-
       </div>
     </div>
   </div>
@@ -67,6 +64,11 @@ export default defineComponent({
       }
     }
 
+    const userIsWinner = (players): boolean => {
+      const player = players.find(player => player.user.name === user.value.name)
+      return player.winner;
+    }
+
     fetchUserMatchHistory()
 
     watch(
@@ -76,46 +78,12 @@ export default defineComponent({
         fetchUserMatchHistory()
       },
     )
-
-    const test = [ 
-      { 
-        "id": 7, 
-        "room": 
-        { 
-          "mode": "duel", 
-          "state": "over", 
-          "players": [ 
-            { 
-              "position": "left", 
-              "score": 2, 
-              "winner": false, 
-              "user": 
-              { 
-                "name": "bob", 
-                "avatar": null, 
-                "ladderLevel": 48 
-              } 
-            }, 
-            { 
-              "position": "right", 
-              "score": 15, 
-              "winner": true, 
-              "user": 
-              { 
-                "name": "karl", 
-                "avatar": "http://localhost:8080/api/users/images/map-2df138c8f-388b-455c-bcb8-c62d859d0d25.png", 
-                "ladderLevel": 53 
-              } 
-            } 
-          ] 
-        } 
-      },
-    ]
     
     return {
       loading,
       user,
       matchHistory,
+      userIsWinner,
     }
   },
 })
@@ -123,68 +91,66 @@ export default defineComponent({
 
 <style scoped>
 
-.match {
-  border: solid 1px var(--secondary-color);
-  color: var(--secondary-color);
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.container {
+  width: 100%;
+  display: flex;
+  color: var(--tertiary-color);
+  overflow: scroll;
+}
+.card {
+  background-color: #fff;
+  width: 250px;
+  height: 180px;
+  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
   border-radius: 4px;
-  /* background-color: #173f5f; */
-  /* box-shadow: -1rem 0 1rem rgba(0, 0, 0, 0.568); */
-  /* display: flex;
-  flex-direction: column; */
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-  transition: 0.2s;
+  padding: 10px;
+  margin: 20px;
+}
+.match_info {
+  display: flex;
+  justify-content: start;
+  padding: 5px 10px;
+}
+
+.card_title, .mode {
+  text-align: right;
+  padding: 5px 10px;
+}
+
+.team1,
+.team2 {
+  display: flex;
   align-items: center;
 }
 
-.players {
-  display: flex;
-  justify-content: space-evenly;
-  /* flex-direction: column-reverse; */
-}
-
-/* .player {
-  flex: 1;
-  margin: auto;
-} */
-
-.player-details {
-  flex: 1;
-  margin: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.player-info {
-  display: flex;
-  justify-content: space-evenly;
-  /* margin: auto; */
+.avatar {
   height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  margin-bottom: 10px;
 }
 
-.winner-ctn {
-  text-transform: capitalize;
-}
-
-.username, .score {
-  font-size: 20px;
-  font-weight: 800;
+.team1 h3,
+.team2 h3 {
+  width: 130px;
+  text-transform: uppercase;
+  text-align: left;
+  padding-left: 20px;
 }
 
 .victory {
-  color: var(--primary-color);
-  padding-top: 5px;
+  color: red;
 }
 
-.avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
+.defeat {
+  color: green;
 }
 
-.mode {
-  text-align: justify;
-  padding: 10px;
-  padding-bottom: 0;
-}
 </style>
