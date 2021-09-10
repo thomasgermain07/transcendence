@@ -209,6 +209,7 @@ export default {
   text-transform: capitalize;
   letter-spacing: -1px;
   margin: 20px 0 0;
+  color: var(--tertiary-color);
 }
 .ladder__level {
   padding: 0 0 20px 0;
@@ -235,9 +236,11 @@ export default {
   /* border: solid 1px black; */
   margin: 0 30px 20px 30px;
   padding: 20px 50px;
-  color: var(--secondary-color);
+  /* color: var(--secondary-color); */
   /* background-color: var(--tertiary-color); */
-  background-color: #173f5f;
+  /* background-color: #173f5f; */
+  color: var(--tertiary-color);
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.4);
   border-radius: 4px;
   height: 60vh;
   overflow: scroll;
@@ -249,7 +252,8 @@ export default {
   padding: 20px 50px;
   color: var(--secondary-color);
   /* background-color: var(--tertiary-color); */
-  background-color: #173f5f;
+  background-color: #060b1f;
+  /* box-shadow: 0 0 50px rgba(0, 0, 0, 0.4); */
   border-radius: 4px;
   /* height: 60vh;
   overflow: scroll; */

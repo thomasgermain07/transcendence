@@ -263,8 +263,16 @@ export default defineComponent({
 </script>
 
 <style scoped>
+@import url("https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap");
+
 .game-ready {
   position: relative;
+  margin: 20px;
+}
+
+.game-ready .game-button {
+  opacity: 100%;
+  transition: all 0.1s ease-out;
 }
 
 .success {
@@ -276,21 +284,22 @@ export default defineComponent({
   color: #7fbe61;
   z-index: 1;
   visibility: hidden;
+  transition-duration: 2s;
+  opacity: 0%;
+  font-family: "Inconsolata", monospace;
+  font-weight: 800;
+  font-size: 16px;
 }
 
-.btn span {
-  visibility: visible;
-}
 
-.btn.active {
+.game-ready .game-button.active {
   visibility: hidden;
+  opacity: 0%;
 }
 
 .success.active {
   visibility: visible;
+  opacity: 100%;
 }
 
-.btn.active span {
-  visibility: hidden;
-}
 </style>

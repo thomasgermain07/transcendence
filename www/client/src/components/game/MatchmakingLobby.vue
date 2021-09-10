@@ -2,29 +2,46 @@
   <div class="modal-backdrop">
     <div class="modal">
       <header class="modal-header">
-        <slot name="header"> This is the default title! </slot>
+        <div class="user">
+          <p>Username</p>
+          <slot name="header"> This is the default title! </slot>
+        </div>
+        <p>GAME ROOM LOBBY</p>
       </header>
 
       <section class="modal-body">
-        <slot name="body">
-          This is the default body
-          <h3>Room Options:</h3>
-          <p>Map : {{ defaultOptions.map }}</p>
-          <p>Level: {{ defaultOptions.difficulty }}</p>
-          <p>Addons: {{ defaultOptions.powerUps }}</p>
-        </slot>
+        <!-- <slot name="body"> -->
+          <!-- This is the default body -->
+          <div class="option-item">
+            <p class="options-header">MAP</p>
+            <slot name="map">
+              <p>default</p>
+            </slot>
+          </div>
+          <div class="option-item">
+            <p class="options-header">DIFFICULTY</p>
+            <slot name="difficulty">
+              <p>easy</p>
+            </slot>
+          </div>
+          <div class="option-item">
+            <p class="options-header">POWER-UPS</p>
+            <slot name="power-ups">
+              <p>no</p>
+            </slot>
+          </div>
+        <!-- </slot> -->
       </section>
 
       <footer class="modal-footer">
         <slot name="footer">
-          <p>Has been matched? {{ props.matchFound }}</p>
-          {{ status }}
+          <div class="status">{{ status }}</div>
         </slot>
 
         <button
           v-show="!matchFound"
           type="button"
-          class="btn-green"
+          class="btn"
           @click="onLeave"
         >
           Stop Waiting and Leave
@@ -164,6 +181,15 @@ export default defineComponent({
 </script>
 
 <style scoped>
+@import url("https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap");
+
+* {
+  box-sizing: border-box;
+  font-family: "Inconsolata", monospace;
+  font-size: 16px;
+  color: var(--secondary-color);
+}
+
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -178,12 +204,16 @@ export default defineComponent({
 }
 
 .modal {
-  background: #ffffff;
-  box-shadow: 2px 2px 20px 1px;
+  /* background: #ffffff; */
+  background: rgb(17, 17, 31);
+  box-shadow: 2px 2px 20px 1px black;
   overflow-x: auto;
   display: flex;
   flex-direction: column;
+  justify-content: space-around;
   width: 80%;
+  max-width: 800px;
+  min-height: 300px;
   max-height: 70%;
   /* font-family: 'Courier New', Courier, monospace; */
   font-size: 2vh;
@@ -193,44 +223,63 @@ export default defineComponent({
 .modal-footer {
   padding: 15px;
   display: flex;
+  margin: 0 40px;
+  padding: 20px 0;
 }
 
 .modal-header {
   position: relative;
   border-bottom: 1px solid #eeeeee;
-  color: #4aae9b;
+  /* color: #4aae9b; */
   justify-content: space-between;
+}
+
+.user {
+  text-transform: capitalize;
+}
+.user p {
+  font-weight: 800;
+  color: rgb(57, 57, 59);
+  font-size: 12px;
 }
 
 .modal-footer {
   border-top: 1px solid #eeeeee;
   flex-direction: column;
   justify-content: flex-end;
+  font-weight: 800;
+  /* margin: 20px 40px; */
+}
+.status {
+  text-align: center;
+  padding-bottom: 20px;
 }
 
 .modal-body {
   position: relative;
   padding: 20px 10px;
-  /* font-family: 'Courier New', Courier, monospace; */
+  display: flex;
+  justify-content: space-evenly;
+  text-align: center;
+}
+.options-header {
+  font-family: "Press Start 2P", cursive;
+  padding-bottom: 10px;
 }
 
-.btn-close {
-  position: absolute;
-  top: 0;
-  right: 0;
-  border: none;
-  font-size: 20px;
-  padding: 10px;
-  cursor: pointer;
-  font-weight: bold;
-  color: #4aae9b;
-  background: transparent;
-}
-
-.btn-green {
-  color: white;
-  background: #4aae9b;
-  border: 1px solid #4aae9b;
+.btn {
+  color: var(--secondary-color);
+  background: var(--primary-color);
+  /* border: 1px solid #4aae9b; */
   border-radius: 2px;
+  margin: auto;
+  font-family: "Press Start 2P", cursive;
+  font-size: 10px;
+  padding: 10px 20px;
+}
+
+.btn:hover {
+  color: var(--primary-color);
+  background: var(--secondary-color);
 }
 </style>

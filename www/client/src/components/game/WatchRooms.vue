@@ -1,16 +1,16 @@
 <template>
   <div class="watch">
-    <!-- <div class="card-container" v-if="props.rooms.length > 0">
-      <div class="card" v-for="match in props.rooms" v-bind:key="match.id"> -->
-    <div class="card-container" v-if="test.length > 0">
-      <div class="card" v-for="match in test" v-bind:key="match.id">
+    <div class="card-container" v-if="props.rooms.length > 0">
+      <div class="card" v-for="match in props.rooms" v-bind:key="match.id">
+    <!-- <div class="card-container" v-if="test.length > 0">
+      <div class="card" v-for="match in test" v-bind:key="match.id"> -->
           <header class="article-header">
               <h2 class="article-title">
-                <div>{{ match[0] }}</div>
-                <!-- <div>{{ match.players[0].user.name }}</div> -->
+                <!-- <div>{{ match[0] }}</div> -->
+                <div>{{ match.players[0].user.name }}</div>
                 <div>VS</div>
-                <div>{{ match[1] }}</div>
-                <!-- <div>{{ match.players[1].user.name }}</div> -->
+                <!-- <div>{{ match[1] }}</div> -->
+                <div>{{ match.players[1].user.name }}</div>
               </h2>
           </header>
           <div class="footer">
@@ -38,15 +38,15 @@ export default defineComponent({
   setup(props) {
     const router = useRouter()
 
-    const test = [
-      ["karl", "coco"],
-      ["romeo", "juliet"],
-      ["renaissance", "karlito"],
-      ["monica", "barbara"],
-      ["monica", "barbara"],
-      ["monica", "barbara"],
-      ["monica", "barbara"],
-    ]
+    // const test = [
+    //   ["karl", "coco"],
+    //   ["romeo", "juliet"],
+    //   ["renaissance", "karlito"],
+    //   ["monica", "barbara"],
+    //   ["monica", "barbara"],
+    //   ["monica", "barbara"],
+    //   ["monica", "barbara"],
+    // ]
 
     const onWatch = (roomId: number): void => {
       router.push(`/game/room/${roomId}`)
@@ -56,7 +56,7 @@ export default defineComponent({
       props,
       onWatch,
       router,
-      test
+      // test
     }
   },
 })

@@ -8,12 +8,16 @@
       @renewSearchDuel="renewSearch"
       @redirect-to-game-room="goToRoom"
     >
-      <template v-slot:header> Hi {{ currentUser.name }} </template>
-      <template v-slot:body>
-        <h3>Room Options:</h3>
-        <p>Map : {{ lobby.player.room.option.map }}</p>
-        <p>Level: {{ lobby.player.room.option.difficulty }}</p>
-        <p>Addons: {{ lobby.player.room.option.powerUps }}</p>
+      <template v-slot:header> {{ currentUser.name }} </template>
+      <template v-slot:map>
+          <p>{{ lobby.player.room.option.map }}</p>
+      </template>
+      <template v-slot:difficulty>
+          <p>{{ lobby.player.room.option.difficulty }}</p>
+      </template>
+      <template v-slot:power-ups>
+          <p v-if="lobby.player.room.option.powerUps">yes</p>
+          <p v-else>no</p>
       </template>
     </GameLobby>
     <section class="duel-play">

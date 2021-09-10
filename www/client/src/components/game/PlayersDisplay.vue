@@ -97,7 +97,7 @@ export default defineComponent({
 /* @import url('http://fonts.cdnfonts.com/css/vanthian-ragnarok'); */
 
 .players-box {
-  /* background-color: #e1e8eb; */
+  /* background-color: var(--secondary-color); */
   display: inline-flex;
   max-width: 50rem;
   min-height: 10rem;
@@ -105,11 +105,9 @@ export default defineComponent({
   padding: 0 1rem;
   overflow: hidden;
   box-shadow: 0 0 20px 8px #d0d0d0;
-  border-radius: 20px;
-  border: 10px solid black;
-  color: #0a0a0a;
-  /* font-family: 'Exo', sans-serif;
-  font-weight: 700; */
+  border-radius: 4px;
+  /* border: 10px solid black; */
+  color: var(--tertiary-color);
   font-family: 'Karmatic Arcade', sans-serif;
 }
 
