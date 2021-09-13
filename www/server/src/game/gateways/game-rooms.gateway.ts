@@ -79,6 +79,7 @@ export class GameRoomsGateway
 		console.log(`GameRoom:Gateway: Initialized.`)
 	}
 
+
 	handleConnection(client: Socket, ...args: any[]): void {
 		console.log(`GameRoom:Gateway: Connection.`)
     console.log(client.id)

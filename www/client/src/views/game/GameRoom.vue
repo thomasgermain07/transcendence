@@ -189,10 +189,10 @@ export default defineComponent({
       joinRoom()
     })
     gameRoomsSocket.io.on('reconnect', () => {
-      console.log('reconnected')
+      console.log('gameRoomsSocket reconnected')
     })
     gameRoomsSocket.on('disconnect', () => {
-      console.log(`disconnected game-room`)
+      console.log(`gameRoomsSocket disconnected`)
       // gameRoomsSocket.off()
     })
 

@@ -154,6 +154,7 @@ h1 {
   box-shadow: 0 0 60px 10px rgba(0, 0, 0, 0.9);
   border-radius: 2px;
   display: none;
+  z-index: 100;
 }
 .rules-modal h2 {
   text-align: left;

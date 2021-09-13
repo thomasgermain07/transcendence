@@ -91,14 +91,14 @@ export default defineComponent({
 
     // --- SOCKETS LISTENERS ---
     matchmakingSocket.on('connect', () => {
-      console.log('connected')
+      console.log('matchmakingSocket connected')
       console.log(matchmakingSocket.id)
     })
     matchmakingSocket.io.on('reconnect', () => {
-      console.log('reconnected')
+      console.log('matchmakingSocket reconnected')
     })
     matchmakingSocket.on('disconnect', () => {
-      console.log(`disconnected`)
+      console.log(`matchmakingSocket disconnected`)
     })
     matchmakingSocket.on('exception', (err) => {
       console.log('IN EXCEPTION')
