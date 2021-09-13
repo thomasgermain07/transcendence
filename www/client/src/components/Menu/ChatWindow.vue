@@ -4,24 +4,26 @@
       <header class="window-title">
         <p>Rooms</p>
       </header>
-      <Rooms ref="rooms" @open="open" :CurrentRoomId="room" />
+      <Rooms
+        @open="open"
+        :CurrentRoomId="open_id"
+        :Notifications="Notifications"
+        :Rooms="Rooms"
+        :RelatedUsers="RelatedUsers"
+      />
     </div>
     <div class="chat-ctn">
-      <Room
-        v-if="openned == 'room'"
-        :room_id="room"
-        @leave="left_room"
-        @notification_read="sendNotificationRead"
-      />
+      <Room v-if="openned == 'room'" :RoomId="open_id" @leave="left_room" />
+      <Dm v-if="openned == 'dm'" :UserId="open_id" />
       <CreateRoom
         v-if="openned == 'create'"
         @close="close"
-        @refresh_rooms="refresh_rooms"
+        @refresh_rooms="$emit('refresh_rooms')"
       />
       <JoinRoom
         v-if="openned == 'join'"
         @close="close"
-        @refresh_rooms="refresh_rooms"
+        @refresh_rooms="$emit('refresh_rooms')"
       />
     </div>
   </div>
@@ -32,10 +34,8 @@ import Rooms from './Chat/Rooms/Rooms.vue'
 import CreateRoom from './Chat/CreateRoom/CreateRoom.vue'
 import JoinRoom from './Chat/JoinRoom/JoinRoom.vue'
 import Room from './Chat/Room/Room.vue'
-import {
-  getChatWindowInteraction,
-  getRoomsInteraction,
-} from '@/composables/Chat/WindowInteraction/windowInteraction'
+import Dm from './Chat/Dm/Dm.vue'
+import getChatWindowInteraction from '@/composables/Chat/WindowInteraction/windowInteraction'
 
 export default {
   components: {
@@ -43,39 +43,31 @@ export default {
     Room,
     CreateRoom,
     JoinRoom,
+    Dm,
+  },
+  props: {
+    Notifications: Array,
+    Rooms: Array,
+    RelatedUsers: Array,
   },
   setup(props, { emit }) {
-    let { rooms, refresh_rooms } = getRoomsInteraction()
-
-    let { room, openned, open, close } = getChatWindowInteraction(
+    let { open_id, openned, open, close } = getChatWindowInteraction(
       (title: String) => {
         emit('set_page_title', title)
       },
     )
 
-    const sendNotify = (id: Number) => {
-      rooms.value.notify(id)
-    }
-
-    const sendNotificationRead = (id: Number) => {
-      rooms.value.notificationRead(id)
-    }
-
     const left_room = () => {
-      refresh_rooms()
-      emit('set_page_title', '')
+      emit('refresh_rooms')
+      close()
     }
 
     return {
-      rooms,
-      room,
+      open_id,
       openned,
       open,
       close,
-      refresh_rooms,
       left_room,
-      sendNotify,
-      sendNotificationRead,
     }
   },
 }

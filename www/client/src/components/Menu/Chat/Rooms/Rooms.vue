@@ -1,55 +1,116 @@
 <template>
-  <div class="rooms-interaction-ctn">
-    <div class="rooms-interaction" @click="$emit('open', 'create')">Create</div>
-    <div class="rooms-interaction" @click="$emit('open', 'join')">Join</div>
+  <div class="convs-interaction-ctn">
+    <div class="convs-interaction" @click="$emit('open', 'create')">Create</div>
+    <div class="convs-interaction" @click="$emit('open', 'join')">Join</div>
   </div>
 
-  <div v-if="status == 'loading'">Loading...</div>
+  <div v-if="sortedConvs" class="convs__list">
+    <p v-if="!sortedConvs.length">No rooms registered</p>
 
-  <div v-if="rooms" class="rooms__list">
-    <p v-if="!rooms.length">No rooms registered</p>
-    <div
-      v-for="room in rooms"
-      :key="room"
-      class="rooms__item"
-      @click="$emit('open', 'room', { id: room.id, name: room.name })"
-    >
-      {{ room.name }}
-      <span v-if="room.notification" class="notification"></span>
+    <div v-for="conv in sortedConvs" :key="conv">
+      <div class="convs-item" @click="openConv(conv)">
+        <i v-if="conv.type == 'room'" class="fas fa-users conv-icon"></i>
+        <i v-else-if="conv.type == 'dm'" class="fas fa-user conv-icon"></i>
+
+        <span class="convs-item--name">{{ conv.target.name }}</span>
+        <i
+          class="fas fa-bell notification"
+          :class="{ 'notification--visible': conv.notification }"
+        ></i>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { onMounted, ref } from 'vue'
-import getFetchRooms from '@/composables/Chat/Rooms/fetchRooms'
-import requestStatus from '@/composables/requestStatus'
+import { computed, onMounted, PropType, ref, watch } from 'vue'
+import { ConversationType } from '@/types/chat/conversation'
+import { NotificationType } from '@/types/chat/notification'
+import { RoomType } from '@/types/chat/room'
+import { UserType } from '@/types/user/user'
 
 export default {
   props: {
     CurrentRoomId: Number,
+    Notifications: Array as PropType<Array<NotificationType>>,
+    Rooms: Array as PropType<Array<RoomType>>,
+    RelatedUsers: Array as PropType<Array<UserType>>,
   },
-  setup(props) {
-    let status = ref(requestStatus.loading)
+  setup(props, { emit }) {
+    let convs = ref<ConversationType[]>([])
 
-    let { rooms, fetchRooms } = getFetchRooms(status)
+    const getConvs = () => {
+      convs.value = []
 
-    onMounted(() => fetchRooms(true))
+      props.Rooms!.forEach((room) => {
+        convs.value.push({ type: 'room', target: room })
+      })
+      props.RelatedUsers!.forEach((user) => {
+        convs.value.push({ type: 'dm', target: user })
+      })
 
-    const notify = (id: Number) => {
-      rooms.value!.find((room) => room.id == id)!.notification = true
+      props.Notifications?.forEach((notif) => {
+        convs.value.find(
+          (conv) => conv.type == notif.type && conv.target.id == notif.target,
+        )!.notification = true
+      })
     }
 
-    const notificationRead = (id: Number) => {
-      rooms.value!.find((room) => room.id == id)!.notification = false
+    onMounted(() => {
+      getConvs()
+    })
+
+    const openConv = (conv: ConversationType) => {
+      let index = props.Notifications?.findIndex(
+        (notif) => notif.type == conv.type && notif.target == conv.target.id,
+      )
+      if (index != undefined && index != -1) {
+        props.Notifications?.splice(index, 1)
+      }
+      emit('open', conv.type, { id: conv.target.id, name: conv.target.name })
     }
+
+    const sortedConvs = computed(() => {
+      convs.value.sort((a, b) => {
+        if (a.notification && !b.notification) {
+          return -1
+        } else if (!a.notification && b.notification) {
+          return 1
+        }
+        return 0
+      })
+      return convs.value
+    })
+
+    watch(
+      () => props.Rooms?.length,
+      () => getConvs(),
+    )
+    watch(
+      () => props.RelatedUsers?.length,
+      () => getConvs(),
+    )
+
+    watch(
+      () => props.Notifications?.length,
+      () => {
+        convs.value.forEach((conv) => {
+          conv.notification = false
+        })
+        props.Notifications?.forEach((notif) => {
+          let conv = convs.value.find(
+            (conv) => conv.type == notif.type && conv.target.id == notif.target,
+          )
+          conv?.target.id != props.CurrentRoomId
+            ? (conv!.notification = true)
+            : 0
+        })
+      },
+    )
 
     return {
-      rooms,
-      status,
-      fetchRooms,
-      notify,
-      notificationRead,
+      sortedConvs,
+      openConv,
     }
   },
   emits: ['open'],
@@ -63,44 +124,55 @@ export default {
   font-weight: bold;
 }
 
-.rooms-interaction-ctn {
+.convs-interaction-ctn {
   display: flex;
   background-color: darkgray;
 }
 
 .notification {
   color: red;
-  background-color: red;
-  width: 0.8rem;
-  height: 0.8rem;
-  border-radius: 50%;
+  visibility: hidden;
 }
 
-.rooms-interaction {
+.notification--visible {
+  visibility: visible;
+}
+
+.convs-interaction {
   padding: 3px;
   flex-grow: 1;
   border-bottom: 2px solid black;
   cursor: pointer;
 }
 
-.rooms-interaction:hover {
+.convs-interaction:hover {
   background-color: white;
 }
 
-.rooms-interaction-ctn > .rooms-interaction:first-child {
+.convs-interaction-ctn > .convs-interaction:first-child {
   border-right: 2px solid black;
 }
 
-.rooms__list {
+.convs__list {
   display: flex;
   flex-direction: column;
 }
 
-.rooms__item {
+.convs-item {
   display: flex;
   justify-content: space-between;
-  padding: 4px;
   border-bottom: 1px solid darkgray;
   cursor: pointer;
+}
+
+.convs-item--name {
+  padding: 4px 0;
+  overflow: hidden !important;
+  text-overflow: ellipsis;
+}
+
+/* TODO : Align conv icon on the center */
+.conv-icon {
+  padding: 2px;
 }
 </style>

@@ -1,8 +1,7 @@
 import { UserType } from '../user/user'
-import { RoomType } from './room'
 
-export type MessageType = {
+export type DirectMessageType = {
   author: UserType
-  room: RoomType
+  target: UserType
   content: String
 }

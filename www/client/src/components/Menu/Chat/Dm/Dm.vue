@@ -1,14 +1,7 @@
 <template>
   <div class="room-ctn">
     <div class="content">
-      <Setting
-        v-if="open_setting"
-        @close="open_setting = false"
-        @leave="$emit('leave')"
-        :Room="room"
-      />
-
-      <div v-if="!open_setting" class="messages-ctn">
+      <div class="messages-ctn">
         <div
           v-for="message in messages"
           :key="message"
@@ -22,11 +15,7 @@
     </div>
 
     <div class="bar">
-      <i
-        class="fas fa-cogs setting-btn"
-        @click="open_setting = !open_setting"
-      ></i>
-      <div class="bar__input" v-if="!open_setting">
+      <div class="bar__input">
         <input
           type="text"
           class="input__field"
@@ -40,69 +29,54 @@
 </template>
 
 <script lang="ts">
-import { onMounted, ref, watch } from 'vue'
-import { useSocket } from '@/composables/socket'
-import { MessageType } from '@/types/chat/message'
+import { ref } from '@vue/reactivity'
+import getFetchMessages from '@/composables/Chat/Dms/fetchMessages'
+import { onMounted, watch } from '@vue/runtime-core'
 import { useAuth } from '@/composables/auth'
-
-import Setting from './Setting.vue'
-
-import getFetchRoom from '@/composables/Chat/Room/fetchRoom'
-import getFetchMessages from '@/composables/Chat/Messages/fetchMessages'
-import getCreateMessage from '@/composables/Chat/Messages/createMessage'
+import getCreateMessage from '@/composables/Chat/Dms/createMessage'
+import { useSocket } from '@/composables/socket'
+import { DirectMessageType } from '@/types/chat/direct_message'
 
 export default {
   props: {
-    RoomId: Number,
+    UserId: Number,
   },
-  components: {
-    Setting,
-  },
-  setup(props, { emit }) {
-    let open_setting = ref(false)
+  setup(props) {
     let message_field = ref('')
+    let { messages, fetchMessages } = getFetchMessages()
+    let { createMessage } = getCreateMessage()
+
     let me = useAuth().user
 
-    let { room, fetchRoom } = getFetchRoom()
+    const getData = async () => {
+      if (props.UserId! != 0) {
+        await fetchMessages(props.UserId!)
+      }
+    }
 
-    const { messages, fetchMessages } = getFetchMessages()
-    const { createMessage } = getCreateMessage()
+    onMounted(() => getData())
+
+    watch(
+      () => props.UserId,
+      () => getData(),
+    )
 
     const sendMessage = async () => {
       if (message_field.value.length) {
-        await createMessage(props.RoomId!, message_field.value)
+        await createMessage(props.UserId!, message_field.value)
         message_field.value = ''
       }
     }
 
-    const getData = async (id: number) => {
-      if (id != 0) {
-        await fetchRoom(id)
-        await fetchMessages(id)
-      }
-    }
-
-    onMounted(() => getData(props.RoomId!))
-
-    watch(
-      () => props.RoomId,
-      (new_value) => {
-        getData(new_value!)
-        open_setting.value = false
-      },
-    )
-
-    useSocket('chat').socket.on('message', (message: MessageType) => {
-      if (message.room.id == props.RoomId) {
-        messages.value!.unshift(message)
+    useSocket('dm').socket.on('message', (message: DirectMessageType) => {
+      if (message.author.id == props.UserId || message.author.id == me.id) {
+        messages.value.unshift(message)
       }
     })
 
     return {
-      open_setting,
-      message_field,
       me,
-      room,
+      message_field,
       messages,
       sendMessage,
     }

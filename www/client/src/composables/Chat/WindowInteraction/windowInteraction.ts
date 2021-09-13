@@ -1,23 +1,13 @@
 import { ref } from 'vue'
 
-export function getRoomsInteraction() {
-  const rooms = ref()
-
-  const refresh_rooms = () => {
-    rooms.value.fetchRooms(true)
-  }
-
-  return { rooms, refresh_rooms }
-}
-
-export function getChatWindowInteraction(set_page_title: Function) {
+export default function getChatWindowInteraction(set_page_title: Function) {
   let openned = ref('')
-  const room = ref(0)
+  let open_id = ref(0)
 
   const open = (vue: string, params?: any) => {
-    if (vue == 'room') {
+    if (vue == 'room' || vue == 'dm') {
       set_page_title(params.name)
-      room.value = params.id
+      open_id.value = params.id
       openned.value = vue
     } else if (vue == 'create') {
       set_page_title('Create')
@@ -31,7 +21,8 @@ export function getChatWindowInteraction(set_page_title: Function) {
   const close = () => {
     set_page_title('')
     openned.value = ''
+    open_id.value = 0
   }
 
-  return { room, openned, open, close }
+  return { open_id, openned, open, close }
 }

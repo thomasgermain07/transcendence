@@ -8,10 +8,7 @@
     <i class="fas fa-comments fa-2x"></i>
   </a>
 
-  <div
-    class="window"
-    :class="{ 'window--chat-open': chat_open, 'window--visible': open }"
-  >
+  <div v-if="open" class="window" :class="{ 'window--chat-open': chat_open }">
     <div class="window-friend">
       <header class="top-bar">
         <a @click="toggle_window">
@@ -21,14 +18,20 @@
       </header>
       <FriendWindow @open_chat="open_chat" />
     </div>
-    <div class="window-chat" :class="{ 'window-chat--visible': chat_open }">
+    <div v-if="chat_open" class="window-chat">
       <header class="top-bar chat__top-bar">
         <a @click="close_chat">
           <i class="far fa-times-circle top-bar__close"></i>
         </a>
         <div class="top-bar__name">Chat - {{ page_title }}</div>
       </header>
-      <ChatWindow @set_page_title="set_page_title" ref="chat" />
+      <ChatWindow
+        @set_page_title="set_page_title"
+        @refresh_rooms="refreshRooms"
+        :Notifications="notifications"
+        :Rooms="rooms"
+        :RelatedUsers="relatedUsers"
+      />
     </div>
   </div>
 </template>
@@ -41,6 +44,10 @@ import { onMounted } from '@vue/runtime-core'
 import getFetchRooms from '@/composables/Chat/Rooms/fetchRooms'
 import { useSocket } from '@/composables/socket'
 import { RoomType } from '@/types/chat/room'
+import { NotificationType } from '@/types/chat/notification'
+import getFetchUsers from '@/composables/Chat/Dms/fetchUsers'
+import { useAuth } from '@/composables/auth'
+import { MessageType } from '@/types/chat/message'
 
 export default {
   components: {
@@ -52,7 +59,11 @@ export default {
     let chat_open = ref(false)
     let page_title = ref('')
     let notification = ref(false)
-    let chat = ref()
+    let notifications = ref<NotificationType[]>([])
+    let currentID = useAuth().user.id
+
+    let { rooms, fetchRooms } = getFetchRooms()
+    let { relatedUsers, fetchUsers } = getFetchUsers()
 
     const toggle_window = () => {
       open.value = !open.value
@@ -71,22 +82,34 @@ export default {
       page_title.value = title
     }
 
-    onMounted(async () => {
-      let { rooms, fetchRooms } = getFetchRooms()
-      const socket = useSocket('chat').socket
-
+    const refreshRooms = async () => {
       await fetchRooms(true)
+    }
 
+    onMounted(async () => {
+      await fetchRooms(true)
+      await fetchUsers()
+
+      const socket = useSocket('chat').socket
       rooms.value!.forEach((room: RoomType) => {
-        console.log(`socket.emit(join, ${room.name})`)
         socket.emit('join', { room_id: room.id })
       })
+
+      useSocket('dm').socket.emit('join')
     })
 
-    useSocket('chat').socket.on('message', (message) => {
-      if (!chat_open.value) {
+    useSocket('chat').socket.on('message', (message: MessageType) => {
+      if (message.author.id != currentID) {
+        console.log(`new msg from ${message.author.id}`)
+        notifications.value.unshift({ type: 'room', target: message.room.id })
         notification.value = true
-        chat.value.sendNotify(message.room.id)
+      }
+    })
+
+    useSocket('dm').socket.on('message', (message: MessageType) => {
+      if (message.author.id != currentID) {
+        notifications.value.unshift({ type: 'dm', target: message.author.id })
+        notification.value = true
       }
     })
 
@@ -95,7 +118,10 @@ export default {
       chat_open,
       page_title,
       notification,
-      chat,
+      notifications,
+      rooms,
+      relatedUsers,
+      refreshRooms,
       toggle_window,
       open_chat,
       close_chat,
@@ -124,11 +150,6 @@ export default {
   bottom: 0px;
   right: 10px;
   background-color: grey;
-  visibility: hidden;
-}
-
-.window--visible {
-  visibility: visible;
 }
 
 .window--chat-open {
@@ -145,11 +166,6 @@ export default {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  visibility: hidden;
-}
-
-.window-chat--visible {
-  visibility: visible;
 }
 
 .top-bar {

@@ -93,7 +93,6 @@ export default {
 }
 
 .admin-ctn > div {
-  /* flex-grow: 1; */
   padding: 5px;
 }
 
