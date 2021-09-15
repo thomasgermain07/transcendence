@@ -28,6 +28,7 @@
       <ChatWindow
         @set_page_title="set_page_title"
         @refresh_rooms="refreshRooms"
+        :DmID="dmID"
         :Notifications="notifications"
         :Rooms="rooms"
         :RelatedUsers="relatedUsers"
@@ -61,6 +62,7 @@ export default {
     let notification = ref(false)
     let notifications = ref<NotificationType[]>([])
     let currentID = useAuth().user.id
+    let dmID = ref(0)
 
     let { rooms, fetchRooms } = getFetchRooms()
     let { relatedUsers, fetchUsers } = getFetchUsers()
@@ -72,7 +74,11 @@ export default {
       }
       notification.value = false
     }
-    const open_chat = () => {
+    const open_chat = (userID?: number, userName?: string) => {
+      if (userID && userName) {
+        dmID.value = userID
+        set_page_title(userName)
+      }
       chat_open.value = true
     }
     const close_chat = () => {
@@ -100,7 +106,6 @@ export default {
 
     useSocket('chat').socket.on('message', (message: MessageType) => {
       if (message.author.id != currentID) {
-        console.log(`new msg from ${message.author.id}`)
         notifications.value.unshift({ type: 'room', target: message.room.id })
         notification.value = true
       }
@@ -117,6 +122,7 @@ export default {
       open,
       chat_open,
       page_title,
+      dmID,
       notification,
       notifications,
       rooms,

@@ -8,8 +8,12 @@
     <FriendsList
       v-if="searchQuery"
       :friends="friendsByName"
-      @open_chat="$emit('open_chat')"
+      @open_chat="open_chat"
     />
+
+    <div @click="open_chat" class="open-chat-btn" v-if="!searchQuery">
+      Open chat
+    </div>
 
     <a
       v-if="!searchQuery && requests.length"
@@ -38,7 +42,7 @@
     <FriendsList
       v-if="showOnline && !searchQuery"
       :friends="onlineFriends"
-      @open_chat="$emit('open_chat')"
+      @open_chat="open_chat"
     />
 
     <a
@@ -53,9 +57,8 @@
     <FriendsList
       v-if="showOffline && !searchQuery"
       :friends="offlineFriends"
-      @open_chat="$emit('open_chat')"
+      @open_chat="open_chat"
     />
-    <button @click="$emit('open_chat')">Open conv</button>
   </div>
 </template>
 
@@ -79,7 +82,7 @@ export default {
     FriendsList,
     RequestList,
   },
-  setup() {
+  setup(props, { emit }) {
     let { friends, fetchFriends } = getFetchFriends()
     let { searchQuery, friendsByName } = getFriendsByName(friends)
     const { onlineFriends, offlineFriends } = getFriendsByStatus(friends)
@@ -92,6 +95,10 @@ export default {
     const loadData = () => {
       fetchRequest()
       fetchFriends()
+    }
+
+    const open_chat = (userId: Number, userName: String) => {
+      emit('open_chat', userId, userName)
     }
 
     onMounted(() => {
@@ -108,12 +115,14 @@ export default {
       // Methods
       toggle_menu,
       loadData,
+      open_chat,
       // Computed
       onlineFriends,
       offlineFriends,
       friendsByName,
     }
   },
+  emits: ['open_chat'],
 }
 </script>
 
@@ -121,6 +130,7 @@ export default {
 .friend-window {
   overflow-y: auto;
   overflow-x: hidden;
+  max-height: 375px;
 }
 
 .search-bar-ctn {
@@ -128,6 +138,11 @@ export default {
   justify-content: space-around;
   height: 24px;
   border-bottom: 2px solid black;
+}
+
+.open-chat-btn {
+  border-bottom: 2px solid black;
+  padding: 3px;
 }
 
 .roll-menu {

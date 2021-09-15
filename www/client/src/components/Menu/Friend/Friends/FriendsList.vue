@@ -4,7 +4,7 @@
       class="friend-item"
       v-for="friend in friends"
       :key="friend"
-      @click="$emit('open_chat')"
+      @click="$emit('open_chat', getFriend(friend).id, getFriend(friend).name)"
     >
       {{ getFriend(friend).name }}
       <!-- TODO : getFriend(connected) for status conne -->

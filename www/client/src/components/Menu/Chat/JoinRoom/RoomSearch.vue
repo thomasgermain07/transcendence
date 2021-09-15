@@ -40,6 +40,7 @@
 <script lang="ts">
 import { ref } from '@vue/reactivity'
 import getCreateSubscription from '@/composables/Chat/Subscription/createSubscription'
+import { useSocket } from '@/composables/socket'
 
 export default {
   setup(props, { emit }) {
@@ -49,7 +50,8 @@ export default {
 
     const join = () => {
       createSubscription(name_field.value)
-        .then(() => {
+        .then((res) => {
+          useSocket('chat').socket.emit('join', { room_id: res.data.id })
           emit('joinned')
         })
         .catch((e) => {

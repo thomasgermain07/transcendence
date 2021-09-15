@@ -36,6 +36,7 @@ import JoinRoom from './Chat/JoinRoom/JoinRoom.vue'
 import Room from './Chat/Room/Room.vue'
 import Dm from './Chat/Dm/Dm.vue'
 import getChatWindowInteraction from '@/composables/Chat/WindowInteraction/windowInteraction'
+import { onMounted, watch } from '@vue/runtime-core'
 
 export default {
   components: {
@@ -49,6 +50,7 @@ export default {
     Notifications: Array,
     Rooms: Array,
     RelatedUsers: Array,
+    DmID: Number,
   },
   setup(props, { emit }) {
     let { open_id, openned, open, close } = getChatWindowInteraction(
@@ -61,6 +63,19 @@ export default {
       emit('refresh_rooms')
       close()
     }
+
+    const openDm = (id: number) => {
+      if (id != 0) {
+        open('dm', { id: id })
+      }
+    }
+
+    onMounted(() => openDm(props.DmID!))
+
+    watch(
+      () => props.DmID,
+      (new_id) => openDm(new_id!),
+    )
 
     return {
       open_id,
@@ -78,6 +93,7 @@ export default {
   display: flex;
   flex-grow: 1;
   border-left: 2px solid black;
+  max-height: 375px;
 }
 
 .window-title {

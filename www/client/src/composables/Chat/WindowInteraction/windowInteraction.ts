@@ -6,7 +6,9 @@ export default function getChatWindowInteraction(set_page_title: Function) {
 
   const open = (vue: string, params?: any) => {
     if (vue == 'room' || vue == 'dm') {
-      set_page_title(params.name)
+      if (params.name != undefined) {
+        set_page_title(params.name)
+      }
       open_id.value = params.id
       openned.value = vue
     } else if (vue == 'create') {

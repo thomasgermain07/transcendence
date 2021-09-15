@@ -69,6 +69,7 @@ export default {
     }
 
     useSocket('dm').socket.on('message', (message: DirectMessageType) => {
+      console.log('new dm')
       if (message.author.id == props.UserId || message.author.id == me.id) {
         messages.value.unshift(message)
       }
