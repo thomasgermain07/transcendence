@@ -159,11 +159,6 @@ export function useAuth() {
       }
     }
 
-    // const namespaces = ['chat', 'matchmaker', 'game-rooms']
-    namespaces.forEach(nsp => {
-      useSocket(nsp).close()
-    })
-
     console.log('useAuth.logout: (Soft) Done.')
 
     setUser()
@@ -171,6 +166,11 @@ export function useAuth() {
 
     router.replace({ name: 'auth-login' })
 
+    // const namespaces = ['chat', 'matchmaker', 'game-rooms']
+    namespaces.forEach(nsp => {
+      useSocket(nsp).close()
+    })
+  
     return
   }
 

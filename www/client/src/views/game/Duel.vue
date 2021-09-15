@@ -159,11 +159,13 @@ export default defineComponent({
     // --- SOCKETS LISTENERS ---
     matchmakingSocket.on('connect', () => {
       console.log('matchmakingSocket connected')
-      console.log(matchmakingSocket.id)
+      // console.log(matchmakingSocket.id)
+      console.log(matchmakingSocket.rooms)
     })
     matchmakingSocket.io.on('reconnect', () => {
       console.log('matchmakingSocket reconnected')
-      console.log(matchmakingSocket.id)
+      // console.log(matchmakingSocket.id)
+      console.log(matchmakingSocket.rooms)
     })
     matchmakingSocket.on('disconnect', () => {
       console.log(`matchmakingSocket disconnected`)
@@ -196,6 +198,14 @@ export default defineComponent({
 
     // --- NAVIGATION GUARDS ---
     onBeforeRouteLeave((to, from) => {
+
+      // if soft logout
+      const { is_authenticated } = useAuth()
+      if (!is_authenticated.value && lobby.visible) {
+        leaveLobby()
+        return
+      }
+
       if (lobby.visible) {
         const answer = window.confirm(
           'Do you really want to leave? You will be removed from the queue!',

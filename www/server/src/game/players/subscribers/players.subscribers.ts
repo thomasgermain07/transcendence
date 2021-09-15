@@ -40,6 +40,7 @@ import { AchievementsName } from 'src/users/entities/achievement.entity';
     }
   
     async afterRemove(event: RemoveEvent<Player>) {
+      console.log("---------__AFTER REMOVE PLAYER-------------")
       // console.log(`AFT ENTITY WITH ID ${event.entityId} REMOVED: `, event.entity);
       if (event.entity?.room?.state === GameState.WAITING) {
         await this.roomsService.update(event.entity.room.id, {locked: false})
