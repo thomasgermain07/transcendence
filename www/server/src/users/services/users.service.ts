@@ -26,6 +26,27 @@ export class UsersService {
   // -------------------------------------------------------------------------
   // Public methods
   // -------------------------------------------------------------------------
+  async turnOnTwoFactorAuthentication(userId: number): Promise<void> {
+    await this.users_repo.update(userId, {
+      isTwoFactorAuthenticationEnabled: true,
+    })
+  }
+
+  async turnOffTwoFactorAuthentication(userId: number): Promise<void> {
+    await this.users_repo.update(userId, {
+      isTwoFactorAuthenticationEnabled: false,
+    })
+  }
+
+  async setTwoFactorAuthenticationSecret(
+    secret: string,
+    userId: number,
+  ): Promise<void> {
+    await this.users_repo.update(userId, {
+      twoFactorAuthenticationSecret: secret,
+    })
+  }
+
   async create(create_dto: CreateUserDto): Promise<User> {
     const achievement_1 = this.achievementsRepository.create({
       name: AchievementsName.NOVICE,
@@ -181,5 +202,11 @@ export class UsersService {
     await this.achievementsRepository.update(achievement.id, { locked: true })
 
     return await this.users_repo.findOne(userPlayer.id)
+  }
+
+  public async updateName(userId: number, name: string): Promise<User> {
+    await this.users_repo.update(userId, { name: name })
+
+    return await this.users_repo.findOne(userId)
   }
 }

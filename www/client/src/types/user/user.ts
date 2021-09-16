@@ -6,5 +6,6 @@ export type UserType = {
   name: string
   email: string
   ladderLevel: number
+  isTwoFactorAuthenticationEnabled: boolean
   connected: boolean
 }

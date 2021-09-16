@@ -27,6 +27,17 @@ export type LoginType = {
   password: string
 }
 
+export type GoogleAuthType = {
+  visible: boolean
+  code: string
+  user_id: number
+}
+
+export type EditType = {
+  name: string
+  newname: string
+}
+
 // -------------------------------------------------------------------------
 // State
 // -------------------------------------------------------------------------
@@ -35,10 +46,16 @@ const user = reactive<UserType>({
   name: '',
   email: '',
   ladderLevel: 1,
+  isTwoFactorAuthenticationEnabled: false,
   connected: true,
 })
 const is_authenticated = computed(() => !(user.id === 0))
 
+const googleCode = reactive<GoogleAuthType>({
+  visible: false,
+  user_id: 0,
+  code: ''
+})
 // -----------------------------------------------------------------------------
 // Composable
 // -----------------------------------------------------------------------------
@@ -68,14 +85,18 @@ export function useAuth() {
 
       console.log('useAuth.login: Done.')
 
-      const { users, get } = useUsers()
-
-      await get()
-
-      setUser(users.value)
-      setAuthenticated(true)
-
-      router.replace({ name: 'index' })
+      if (!res.data || !res.data.two_factor_enabled) {
+        const { users, get } = useUsers()
+        await get()
+        setUser(users.value)
+        setAuthenticated(true)
+        router.replace({ name: 'index' })
+      }
+      else {
+        console.log(res)
+        googleCode.user_id = res.data.user_id
+        googleCode.visible = true
+      }
     } catch (err: AxiosErrType) {
       console.log('useAuth.login: Fail.')
 
@@ -91,14 +112,17 @@ export function useAuth() {
 
       console.log('useAuth.loginMarvin: Done.')
 
-      const { users, get } = useUsers()
-
-      await get()
-
-      setUser(users.value)
-      setAuthenticated(true)
-
-      router.replace({ name: 'index' })
+      if (!res.data || !res.data.two_factor_enabled) {
+        const { users, get } = useUsers()
+        await get()
+        setUser(users.value)
+        setAuthenticated(true)
+        router.replace({ name: 'index' })
+      }
+      else {
+        googleCode.user_id = res.data.user_id
+        googleCode.visible = true
+      }
     } catch (err: AxiosErrType) {
       console.log('useAuth.loginMarvin: Fail.')
 
@@ -154,10 +178,73 @@ export function useAuth() {
 
     setUser()
     setAuthenticated(false)
-
+    googleCode.visible = false
+    googleCode.user_id = 0
     router.replace({ name: 'auth-login' })
 
     return
+  }
+
+  async function edit(payload: EditType): Promise<void> {
+    try {
+      const res = await AuthService.edit(payload)
+
+      console.log('useAuth.editing: Done.')
+
+      router.push({ name: 'auth-login' })
+    } catch (err: AxiosErrType) {
+      console.log('useAuth.editing: Fail.')
+
+      throw err
+    }
+
+    return
+  }
+
+  async function activateTwoFa(): Promise<string> {
+    try {
+      const res = await AuthService.activate2Fa()
+      console.log('useAuth.activate2fa: Done.')
+
+      return res
+    } catch (err: AxiosErrType) {
+      console.log('useAuth.activate2Fa: Fail.')
+
+      throw err
+    }
+  }
+
+  async function deactivateTwoFa(): Promise<string> {
+    try {
+      const res = await AuthService.deactivate2Fa()
+      console.log('useAuth.deactivate2fa: Done.')
+
+      return res
+    } catch (err: AxiosErrType) {
+      console.log('useAuth.deactivate2Fa: Fail.')
+
+      throw err
+    }
+  }
+
+  async function verifyCode(code: GoogleAuthType): Promise<string> {
+    try {
+      const res = await AuthService.verifyCode(code)
+
+      const { users, get } = useUsers()
+
+      await get()
+
+      console.log('useAuth.verifyCode: Done.')
+      setUser(users.value)
+      setAuthenticated(true)
+      router.replace({ name: 'index' })
+      return res
+    } catch (err: AxiosErrType) {
+      console.log('useAuth.verifyCode: Fail.')
+
+      throw err
+    }
   }
 
   function isPreviouslyAuthenticated(): boolean {
@@ -171,7 +258,7 @@ export function useAuth() {
     // State
     user: readonly(user),
     is_authenticated,
-
+    googleCode,
     // Datas
 
     // Functions
@@ -181,7 +268,10 @@ export function useAuth() {
     refresh,
     autoRefresh,
     logout,
-
+    edit,
+    activateTwoFa,
+    deactivateTwoFa,
+    verifyCode,
     isPreviouslyAuthenticated,
   }
 }
@@ -198,4 +288,5 @@ function setUser(data: UserType | undefined = undefined) {
   user.name = data?.name ?? ''
   user.email = data?.email ?? ''
   user.ladderLevel = data?.ladderLevel ?? 1
+  user.isTwoFactorAuthenticationEnabled = data?.isTwoFactorAuthenticationEnabled ?? false
 }

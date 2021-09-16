@@ -1,43 +1,56 @@
 <template>
-  <h1>UserProfile</h1>
+  <div>
+    <h1>UserProfile</h1>
 
-  <p v-if="status == 'loading'">Loading profile ...</p>
+    <p v-if="status == 'loading'">Loading profile ...</p>
 
-  <div v-if="status == 'error'">
-    <ErrorPage />
-  </div>
+    <div v-if="status == 'error'">
+      <ErrorPage />
+    </div>
 
-  <div v-if="status == 'success'" class="profile-ctn">
-    <div class="user-ctn">
-      <div class="user-ctn__pp">
-        <img v-bind:src="user.avatar" class="profile_picture" />
+    <div v-if="status == 'success'" class="profile-ctn">
+      <div class="user-ctn">
+        <div class="user-ctn__pp">
+          <img v-bind:src="user.avatar" class="profile_picture" />
+        </div>
+        <div class="user-ctn__info">
+          <p class="info__name">{{ user.name }}</p>
+          <p>Point : {{ user.point }}</p>
+        </div>
       </div>
-      <div class="user-ctn__info">
-        <p class="info__name">{{ user.name }}</p>
-        <p>Point : {{ user.point }}</p>
+      <div class="user-interaction">
+        <button v-if="!isCurrentUser" @click="addFriend(user)">
+          add friend
+        </button>
+      </div>
+      <div class="user-interaction">
+        <button v-if="!isCurrentUser" @click="removeFriend(user)">
+          remove friend
+        </button>
+      </div>
+
+      <hr class="separator" />
+      <div class="update-avatar">
+        <input v-if="isCurrentUser" type="file" @change="onFileSelected" />
+        <button v-if="isCurrentUser" @click="onUpload">Upload</button>
+      </div>
+
+      <hr class="separator" />
+      <GameStats :user="user" />
+
+      <hr class="separator" />
+      <MatchHistory :user="user" />
+
+      <hr class="separator" />
+      <div class="edit-profile" v-if="isCurrentUser">
+        <edit-profile-form :user="user" />
+      </div>
+
+      <hr class="separator" />
+      <div class="google-authenticator" v-if="isCurrentUser">
+        <google-authenticator />
       </div>
     </div>
-    <div class="user-interaction">
-      <button v-if="!isCurrentUser" @click="addFriend(user)">add friend</button>
-    </div>
-    <div class="user-interaction">
-      <button v-if="!isCurrentUser" @click="removeFriend(user)">
-        remove friend
-      </button>
-    </div>
-
-    <hr class="separator" />
-
-    <div class="update-avatar">
-      <input v-if="isCurrentUser" type="file" @change="onFileSelected" />
-      <button v-if="isCurrentUser" @click="onUpload">Upload</button>
-    </div>
-
-    <hr class="separator" />
-    <GameStats :user="user" />
-
-    <hr class="separator" />
-    <MatchHistory :user="user" />
   </div>
 </template>
 
@@ -55,16 +68,19 @@ import GameStats from '../../components/game/GameStats.vue'
 import MatchHistory from '../../components/game/MatchHistory.vue'
 import { useAxios } from '../../composables/axios'
 import getFriendInteraction from '@/composables/Friends/getFriendInteraction'
+import EditProfileForm from '@/components/edit/EditProfileForm.vue'
+import GoogleAuthenticator from '@/components/auth/TwoAuth.vue'
 
 export default {
   components: {
     ErrorPage,
     GameStats,
     MatchHistory,
+    EditProfileForm,
+    GoogleAuthenticator,
   },
   setup() {
     const route = useRoute()
-
     let status = ref(requestStatus.loading)
     const { user, fetchUser } = getFetchUser(status)
     const { addFriend, removeFriend } = getFriendInteraction()

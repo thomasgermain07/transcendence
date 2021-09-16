@@ -1,0 +1,156 @@
+import { UseGuards }           from "@nestjs/common";
+import { ConnectedSocket }     from "@nestjs/websockets";
+import { MessageBody }         from '@nestjs/websockets'
+import { OnGatewayConnection } from "@nestjs/websockets";
+import { OnGatewayInit }       from "@nestjs/websockets";
+import { OnGatewayDisconnect } from "@nestjs/websockets";
+import { SubscribeMessage }    from "@nestjs/websockets";
+import { WebSocketGateway }    from "@nestjs/websockets";
+import { WebSocketServer }     from "@nestjs/websockets";
+import { WsException     }     from "@nestjs/websockets";
+import { Socket }              from "socket.io";
+import { Server }              from "socket.io";
+
+import { WsJwtGuard }         from "src/auth/guards/ws-jwt.guard";
+import { AuthUser }           from "src/auth/decorators/auth-user.decorator";
+import { FriendshipsService } from "src/relations/friendships/services/friendships.service";
+
+import { User }         from "../entities/user.entity";
+import { UsersService } from "../services/users.service";
+
+type JoinLeaveType = {
+	target_id: number
+};
+
+type SetStatusType = {
+	status: string
+};
+
+@UseGuards(WsJwtGuard)
+@WebSocketGateway({
+	namespace: 'user',
+})
+export class UserGateway
+	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
+	// -------------------------------------------------------------------------
+	// Attributes
+	// -------------------------------------------------------------------------
+	@WebSocketServer()
+	private _server: Server
+
+	// -------------------------------------------------------------------------
+	// Interfaces implementations
+	// -------------------------------------------------------------------------
+	constructor(
+			private readonly users_svc: UsersService,
+			private readonly friendships_svc: FriendshipsService,
+	) {}
+
+	// -------------------------------------------------------------------------
+	// Interfaces implementations
+	// -------------------------------------------------------------------------
+	afterInit(server: Server): void {
+		console.log(`User:Gateway: Initialized.`)
+	}
+
+	handleConnection(client: Socket, ...args: any[]): void {
+		console.log(`User:Gateway: Connection.`)
+	}
+
+	handleDisconnect(client: Socket): void {
+		console.log(`User:Gateway: Disconnect.`)
+	}
+
+	// -------------------------------------------------------------------------
+	// Public Methods
+	// -------------------------------------------------------------------------
+	@SubscribeMessage('join')
+	async handleJoin(
+		@ConnectedSocket() client: Socket,
+		@AuthUser() user: User,
+		@MessageBody() data: JoinLeaveType,
+	)
+		: Promise<void>
+	{
+		console.log(`User:Gateway: Join`);
+
+		const target: User = (user.id === data.target_id)
+			? user
+			: await this.users_svc.findOne({ id: data.target_id })
+		;
+
+		const is_friend: boolean = !!((await this.friendships_svc.findAllOrWithAccepted(user, true))
+			.map((friendship) => (friendship.user.id === user.id)
+				? friendship.target
+				: friendship.user
+			)
+			.filter((friend) => friend.id === target?.id)
+			.length
+		);
+
+		if (!target || (user.id != target.id && !is_friend))
+		{
+			console.log(`User:Gateway:Join: Error`)
+			throw new WsException("You cannot listen to this user.");
+		}
+
+		const room_name: string = this.getRoomName(target.id);
+
+		client.join(room_name);
+
+		this._server.to(room_name).emit('join', { user_id: user.id });
+
+		console.log(`User ${user.id} join ${room_name}.`);
+	}
+
+	@SubscribeMessage('leave')
+	async handleLeave(
+		@ConnectedSocket() client: Socket,
+		@AuthUser() user: User,
+		@MessageBody() data: JoinLeaveType,
+	)
+		: Promise<void>
+	{
+		console.log(`User:Gateway: Leave`);
+
+		const room_name: string = this.getRoomName(data.target_id);
+
+		client.leave(room_name);
+
+		this._server.to(room_name).emit('leave', { user_id: user.id });
+
+		console.log(`User ${user.id} left ${room_name}.`);
+	}
+
+	@SubscribeMessage('set_status')
+	async handleSetStatus(
+		@AuthUser() user: User,
+		@MessageBody() data: SetStatusType,
+	)
+		: Promise<void>
+	{
+		console.log(`User:Gateway: Set status`);
+
+		const room_name: string = this.getRoomName(user.id);
+
+		this._server.to(room_name).emit('set_status', {
+			user_id: user.id,
+			status: data.status
+		});
+
+		console.log(`User ${user.id} set status to ${data.status}.`);
+	}
+
+
+	// -------------------------------------------------------------------------
+	// Private Methods
+	// -------------------------------------------------------------------------
+	private getRoomName(
+		target_id: number,
+	)
+		: string
+	{
+		return `user_${target_id}`
+	}
+}

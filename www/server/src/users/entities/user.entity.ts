@@ -71,41 +71,75 @@ export class User {
   })
   public marvin_id: number
 
-  // -------------------------------------------------------------------------
-  // Relations
-  // -------------------------------------------------------------------------
-  @OneToMany(() => Ignored, (ignored) => ignored.user, {
-    onDelete: 'CASCADE',
-    lazy: true,
-  })
-  public ignoreds: Promise<Ignored[]>
+	@Column({
+		nullable: true
+	})
+	@Exclude({
+		toPlainOnly: true,
+	})
+	public twoFactorAuthenticationSecret?: string
 
-  @OneToMany(() => Ignored, (ignored) => ignored.target, {
-    onDelete: 'CASCADE',
-    lazy: true,
-  })
-  public ignoreds_by: Promise<Ignored[]>
+	@Column({
+		default: false
+	})
+	@Exclude({
+		toPlainOnly: true,
+	})
+	public isTwoFactorAuthenticationEnabled: boolean
 
-  @OneToMany(() => Friendship, (friendship) => friendship.user, {
-    onDelete: 'CASCADE',
-    lazy: true,
-  })
-  public friendships: Promise<Friendship[]>
+	// -------------------------------------------------------------------------
+	// Relations
+	// -------------------------------------------------------------------------
+	@OneToMany(() => Ignored, (ignored) => ignored.user, {
+		onDelete: 'CASCADE',
+		lazy: true,
+	})
+	public ignoreds: Promise<Ignored[]>;
 
-  @OneToMany(() => Friendship, (friendship) => friendship.target, {
-    onDelete: 'CASCADE',
-    lazy: true,
-  })
-  public friendships_by: Promise<Friendship[]>
+	@OneToMany(() => Ignored, (ignored) => ignored.target, {
+		onDelete: 'CASCADE',
+		lazy: true,
+	})
+	public ignoreds_by: Promise<Ignored[]>;
 
-  // -------------------------------------------------------------------------
-  // Chat
-  // -------------------------------------------------------------------------
-  @OneToMany(() => Room, (room) => room.owner, {
-    onDelete: 'CASCADE',
-    lazy: true,
-  })
-  public chat_rooms: Promise<Room[]>
+	@OneToMany(() => Friendship, (friendship) => friendship.user, {
+		onDelete: 'CASCADE',
+		lazy: true,
+	})
+	public friendships: Promise<Friendship[]>;
+
+	@OneToMany(() => Friendship, (friendship) => friendship.target, {
+		onDelete: 'CASCADE',
+		lazy: true,
+	})
+	public friendships_by: Promise<Friendship[]>;
+
+	// -------------------------------------------------------------------------
+	// Chat
+	// -------------------------------------------------------------------------
+	@OneToMany(() => Room, (room) => room.owner, {
+		onDelete: 'CASCADE',
+		lazy: true,
+	})
+	public chat_rooms: Promise<Room[]>
+
+	@OneToMany(() => Subscription, (subscription) => subscription.user, {
+		onDelete: 'CASCADE',
+		lazy: true,
+	})
+	public chat_subscriptions: Promise<Subscription[]>
+
+	@OneToMany(() => Message, (message) => message.author, {
+		onDelete: 'CASCADE',
+		lazy: true,
+	})
+	public chat_messages: Promise<Message[]>
+
+	@OneToMany(() => Permission, (permission) => permission.user, {
+		onDelete: 'CASCADE',
+		lazy: true,
+	})
+	public chat_permissions: Promise<Permission[]>
 
   @OneToMany(() => Subscription, (subscription) => subscription.user, {
     onDelete: 'CASCADE',
@@ -125,6 +159,7 @@ export class User {
   })
   public chat_permissions: Promise<Permission[]>
 
+<<<<<<< HEAD
   // -------------------------------------------------------------------------
   // Game
   // -------------------------------------------------------------------------
@@ -140,6 +175,38 @@ export class User {
 
   @OneToMany(() => Player, (player) => player.user)
   players: Player[]
+=======
+	// -------------------------------------------------------------------------
+	// Game
+	// -------------------------------------------------------------------------
+	@Column({ default: 50 })
+	ladderLevel : number;
+
+	@ManyToMany(() => Achievement, achievement => achievement.users, {
+		cascade: true,
+		eager: true
+	})
+	@JoinTable()
+	achievements: Achievement[];
+
+	@OneToMany(() => Player, player => player.user)
+	players: Player[];
+
+	// -------------------------------------------------------------------------
+	// Direct Message
+	// -------------------------------------------------------------------------
+	@OneToMany(() => DMMessage, message => message.author, {
+		onDelete: 'CASCADE',
+		lazy: true,
+	})
+	public dm_messages_sent: Promise<DMMessage[]>;
+
+	@OneToMany(() => DMMessage, message => message.target, {
+		onDelete: 'CASCADE',
+		lazy: true,
+	})
+	public dm_messages_received: Promise<DMMessage[]>;
+>>>>>>> 7ac68593e783506db9462e85a686c866d4378030
 
   // -------------------------------------------------------------------------
   // Direct Message

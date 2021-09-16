@@ -1,7 +1,6 @@
 <template>
 	<div class="auth-login">
 		<h2>Auth-Login</h2>
-
 		<login-marvin />
 		<hr>
 		<login-form />

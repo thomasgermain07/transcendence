@@ -61,7 +61,7 @@ export class GameRoomsGateway
 
 	@WebSocketServer()
   server: Server;
-  
+
   game: {[index: string] : Game} = {};
 
   constructor(
@@ -116,7 +116,7 @@ export class GameRoomsGateway
     client.leave(data.room);
     // notify other player that someone left the room
     this.server.to(data.room).emit('opponentLeaving')
-  
+
     return 'Player ' + data.playerId + ' deleted';
   }
 
@@ -133,7 +133,7 @@ export class GameRoomsGateway
 
     // Update game room for opponent
     let room = await this.roomsService.findOne(roomId)
-  
+
     // TODO: update game room state depending of the situation
     let playerL: Player = null;
     let playerR: Player = null;
@@ -163,16 +163,16 @@ export class GameRoomsGateway
         this.game[data.room].player_left.setWinner(true);
       }
     }
-    this.server.to(data.room).emit('updateRoomInClient', 
+    this.server.to(data.room).emit('updateRoomInClient',
     {room: playerL.room} )
-    this.server.to(data.room).emit('updateRoomInClient', 
+    this.server.to(data.room).emit('updateRoomInClient',
     {room: playerR.room} )
     this.game[data.room].info.status = GameState.OVER
     room = await this.roomsService.update(roomId, {state: GameState.OVER})
     this.server.to(data.room).emit('updateRoomInClient',
       {room: room} )
-    
-  
+
+
     return 'Player ' + data.playerId + ' give up';
   }
 
@@ -188,10 +188,10 @@ export class GameRoomsGateway
     const roomId = await this.playerService.findRoomNumber(data.playerId)
 
     let room = await this.roomsService.findOne(roomId)
-  
-    this.server.to(data.room).emit('updateRoomInClient', 
+
+    this.server.to(data.room).emit('updateRoomInClient',
       {room: room} )
-  
+
     return 'Player ' + data.playerId + ' go back';
   }
 
@@ -215,7 +215,7 @@ export class GameRoomsGateway
 
       const player: Player = await this.playerService.update(data.playerId, { isReady: true })
 
-      this.server.to(data.room).emit('updateRoomInClient', 
+      this.server.to(data.room).emit('updateRoomInClient',
         {room: player.room} )
 
       client.to(data.room).emit('checkReady',
@@ -229,7 +229,7 @@ export class GameRoomsGateway
   ): Promise<void> {
 
     try {
-      await this.playerService.update(data.playerId, { isReady: false }) 
+      await this.playerService.update(data.playerId, { isReady: false })
     } catch (error) {
       console.log('In not ready Exception - player not found')
     }
@@ -243,7 +243,7 @@ export class GameRoomsGateway
       const room: Room = await this.roomsService.update(data.roomId, data.dto)
       const rooms: Room[] = await this.roomsService.findAllByMode(room.mode)
       this.server.emit('updateWatchRoomInClient', {rooms: rooms})
-      this.server.to(data.socketRoomName).emit('updateRoomInClient', 
+      this.server.to(data.socketRoomName).emit('updateRoomInClient',
         {room: room} )
   }
 
@@ -306,7 +306,7 @@ export class GameRoomsGateway
           break;
       }
       data['players'].forEach(player => {
-        
+
         if ( player.position == 'left' ) {
           player_left = new GamePlayer(player.id, player.user.id, 'left', 0, null, true, paddle_left, 0);
         }
@@ -318,7 +318,7 @@ export class GameRoomsGateway
       if (!this.game[data["socketRoomName"]]) {
         this.game[data["socketRoomName"]] = new Game(player_left, player_right, ball, info, map_paddle, bonus);
       }
-    
+
       start(this.game[data["socketRoomName"]], data["socketRoomName"], this.server, this.playerService, this.roomsService, this.userService);
 
       async function start(game: Game, room: string, server: Server, playerService: PlayersService, roomsService: RoomsService, userService: UsersService): Promise<void> {
@@ -338,7 +338,7 @@ export class GameRoomsGateway
           game_loop(game, room, server, playerService, roomsService, userService)
         }
       }
-      
+
       async function game_loop(game: Game, room: string, server: Server, playerService: PlayersService, roomsService: RoomsService, userService: UsersService): Promise<void> {
         let player_left = game.player_left;
         let player_right = game.player_right;
@@ -348,7 +348,7 @@ export class GameRoomsGateway
         var myVar = null;
 
         let bonus = game.bonus;
-        
+
         player_left.paddle.paddle_move(ball);
         player_right.paddle.paddle_move(ball);
 
@@ -364,11 +364,11 @@ export class GameRoomsGateway
 
         const topY = ball.y + ball.rayon;
         const botY = ball.y - ball.rayon;
-        
+
         if ( botY <= 0 || topY >= WIDTH) {
             ball.yspeed *= -1;
         }
-  
+
         ball.addSpeedBall()
 
         player_ball_collision(ball, player_left.paddle, info.map, player_left.getId());
@@ -453,7 +453,7 @@ export class GameRoomsGateway
         ball.last_touch_id = id;
         if (id == 0) {
           if (map == MapType.MAP1) {
-            ball.xspeed *= direction 
+            ball.xspeed *= direction
             ball.yspeed = ball.speed * Math.sin(angle);
           }
           else {
@@ -517,23 +517,23 @@ export class GameRoomsGateway
 
         const playerL: Player = await playerService.update(player_left.getId(), { score: player_left.getScore() })
         const playerR: Player = await playerService.update(player_right.getId(), { score: player_right.getScore() })
- 
-        server.to(room).emit('updateRoomInClient', 
+
+        server.to(room).emit('updateRoomInClient',
         {room: playerL.room} )
-        server.to(room).emit('updateRoomInClient', 
+        server.to(room).emit('updateRoomInClient',
         {room: playerR.room} )
     }
 
     async function end_game(game: IGameInfoState, roomName: string, server: Server, playerService: PlayersService, roomsService: RoomsService, userService: UsersService): Promise<void>  {
-      
+
       // console.log("END " + game.player_left.winner + game.player_right.winner );
       const roomId = await playerService.findRoomNumber(game.player_left.getId())
       const playerL: Player = await playerService.update(game.player_left.getId(), { winner: game.player_left.getWinner() })
       const playerR: Player = await playerService.update(game.player_right.getId(), { winner: game.player_right.getWinner() })
       game.info.status = GameState.OVER;
-      server.to(roomName).emit('updateRoomInClient', 
+      server.to(roomName).emit('updateRoomInClient',
       {room: playerL.room} )
-      server.to(roomName).emit('updateRoomInClient', 
+      server.to(roomName).emit('updateRoomInClient',
       {room: playerR.room} )
       const room: Room = await roomsService.update(roomId, {state: GameState.OVER})
       server.to(roomName).emit('updateRoomInClient',
@@ -547,7 +547,7 @@ export class GameRoomsGateway
         console.log("----------LADDER RIGHT-----------")
         console.log(ladder_right)
         console.log(game.player_right.getWinner());
-        
+
         if (game.player_left.getWinner() && ladder_left >= ladder_right
           || game.player_right.getWinner() && ladder_right >= ladder_left) {
             let newlader_left = ladder_left;

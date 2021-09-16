@@ -13,6 +13,7 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy'
 import { OAuthMarvinStrategy } from './strategies/oauth-marvin.strategy'
 import { WsJwtStrategy } from './strategies/ws-jwt.strategy'
 import { AuthController } from './controllers/auth.controller'
+import { TwoFactorAuthenticationService } from './services/twoFactorAuthentication.service'
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AuthController } from './controllers/auth.controller'
     // Services
     AuthService,
     CookiesService,
+    TwoFactorAuthenticationService,
     // Strategies
     LocalStrategy,
     JwtAuthStrategy,
