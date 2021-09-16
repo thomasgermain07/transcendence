@@ -141,24 +141,6 @@ export class User {
   })
   public chat_permissions: Promise<Permission[]>
 
-  @OneToMany(() => Subscription, (subscription) => subscription.user, {
-    onDelete: 'CASCADE',
-    lazy: true,
-  })
-  public chat_subscriptions: Promise<Subscription[]>
-
-  @OneToMany(() => Message, (message) => message.author, {
-    onDelete: 'CASCADE',
-    lazy: true,
-  })
-  public chat_messages: Promise<Message[]>
-
-  @OneToMany(() => Permission, (permission) => permission.user, {
-    onDelete: 'CASCADE',
-    lazy: true,
-  })
-  public chat_permissions: Promise<Permission[]>
-
   // -------------------------------------------------------------------------
   // Game
   // -------------------------------------------------------------------------
@@ -174,21 +156,6 @@ export class User {
 
   @OneToMany(() => Player, (player) => player.user)
   players: Player[]
-
-  // -------------------------------------------------------------------------
-  // Direct Message
-  // -------------------------------------------------------------------------
-  @OneToMany(() => DMMessage, (message) => message.author, {
-    onDelete: 'CASCADE',
-    lazy: true,
-  })
-  public dm_messages_sent: Promise<DMMessage[]>
-
-  @OneToMany(() => DMMessage, (message) => message.target, {
-    onDelete: 'CASCADE',
-    lazy: true,
-  })
-  public dm_messages_received: Promise<DMMessage[]>
 
   // -------------------------------------------------------------------------
   // Direct Message
