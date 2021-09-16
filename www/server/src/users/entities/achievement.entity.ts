@@ -11,7 +11,7 @@ export enum AchievementsDescription {
 	SEVENTY_WINS = "You have won 70 games !",
 	HUNDRED_WINS = "You have won 100 games !",
 	TWO_HUNDRED_WINS = "You have won 200 games !",
-	ALL_TERRAIN = "You played and won in all 3 maps in duel mode!",
+	ALL_TERRAIN = "You played and won in all 3 maps in duel mode !",
 	NOVICE = "You won your first match !",
 	MIDDLE_PLAYER = "You won a match with medium difficulty !",
 	HARD_MASTER = "You won a match with Hard difficulty !",
@@ -29,7 +29,21 @@ export enum AchievementsName {
 	NOVICE = "Novice Achievement",
 	MIDDLE_PLAYER = "Player In The Middle Achievement",
 	HARD_MASTER = "Hardcore Player Achievement",
-	DONE = "Done Achievement",
+	DONE = "All Done Achievement",
+}
+
+export enum AchievementsImage {
+	DEFENSE_MASTER = "http://localhost:8080/api/users/achievements/images/defense.png",
+	TEN_WINS = "http://localhost:8080/api/users/achievements/images/wins-ten.png",
+	THIRTY_WINS = "http://localhost:8080/api/users/achievements/images/wins-thirty.png",
+	SEVENTY_WINS = "http://localhost:8080/api/users/achievements/images/wins-seventy.png",
+	HUNDRED_WINS = "http://localhost:8080/api/users/achievements/images/wins-hundred.png",
+	TWO_HUNDRED_WINS = "http://localhost:8080/api/users/achievements/images/wins-two-hundred.png",
+	ALL_TERRAIN = "http://localhost:8080/api/users/achievements/images/all-terrain.png",
+	NOVICE = "http://localhost:8080/api/users/achievements/images/novice.png",
+	MIDDLE_PLAYER = "http://localhost:8080/api/users/achievements/images/medium.png",
+	HARD_MASTER = "http://localhost:8080/api/users/achievements/images/hard.png",
+	DONE = "http://localhost:8080/api/users/achievements/images/done.png",
 }
 
 
@@ -60,7 +74,7 @@ export class Achievement
     description: AchievementsDescription;
 
     @IsBoolean()
-    @Column({ default: false })
+    @Column({ default: true })
     locked: boolean;
 
     @Column({ default: ""})

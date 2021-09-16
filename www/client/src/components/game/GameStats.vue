@@ -1,20 +1,43 @@
 <template>
   <div class="game-stats">
-    <h1>GAME STATS</h1>
+    <!-- <h1 class="title">GAME STATS</h1> -->
     <div v-if="loading">LOADING...</div>
     <div v-else>
-      <p>{{ user.id }}</p>
-      <br />
-      <h4>Duel</h4>
-      <p>wins: {{ stats.duel.wins }} - losses: {{ stats.duel.losses }}</p>
-      <br />
-      <h4>Ladder</h4>
-      <p>wins: {{ stats.ladder.wins }} - losses: {{ stats.ladder.losses }}</p>
-      <br />
-      <h4>Total</h4>
-      <p>wins: {{ stats.total_wins }}</p>
-      <p>losses: {{ stats.total_losses }}</p>
-      <p>played: {{ stats.total_played }}</p>
+      <!-- <p>{{ user.id }}</p> -->
+      <!-- <hr class="separator"> -->
+
+      <div class="stats-summary-total">
+        <div class="matches">
+          <p class="stats-header">MATCHES</p>
+          <div class="stats-value total-played">{{ stats.total_played }}</div>
+        </div>
+        <div class="wins">
+          <p class="stats-header">WINS</p>
+          <div class="stats-value total-wins">{{ stats.total_wins }}</div>
+        </div>
+        <div class="losses">
+          <p class="stats-header">LOSSES</p>
+          <div class="stats-value total-losses">{{ stats.total_losses }}</div>
+        </div>
+        <div class="win-rate">
+          <p class="stats-header">WINRATE</p>
+          <div class="stats-value win-rate-percent"> {{ stats.total_wins / stats.total_played * 100 | 0 }}%</div>
+        </div>
+      </div>
+
+      <hr class="separator">
+
+      <h6>Details per mode</h6>
+      <div class="stats-summary-per-mode">
+        <div class="stats-duel">
+          <h4>Duel</h4>
+          <div>wins: {{ stats.duel.wins }} - losses: {{ stats.duel.losses }}</div>
+        </div>
+        <div class="stats-ladder">
+          <h4>Ladder</h4>
+          <div>wins: {{ stats.ladder.wins }} - losses: {{ stats.ladder.losses }}</div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -67,4 +90,62 @@ export default defineComponent({
 })
 </script>
 
-<style scoped></style>
+<style scoped>
+/* @import url("https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap");
+
+* {
+  box-sizing: border-box;
+  font-family: "Inconsolata", monospace;
+} */
+
+/* .title {
+  font-size: 26px;
+  font-weight: 800;
+  padding-bottom: 40px;
+} */
+
+.stats-summary-total {
+  display: flex;
+  justify-content: space-evenly;
+  line-height: 40px;
+}
+
+.stats-header {
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.stats-value {
+  font-size: 40px;
+  font-weight: 800;
+}
+
+.total-played {
+  color: #f6d55c;
+}
+
+.total-wins {
+  color: #3caea3;
+}
+
+.total-losses {
+  color: #ed553b;
+}
+
+h6 {
+  font-weight: 800;
+  margin-top: 50px;
+  text-transform: uppercase;
+}
+
+.stats-summary-per-mode {
+  display: flex;
+  justify-content: space-evenly;
+  margin-top: 20px;
+}
+
+hr {
+  border-top: 0.5px solid white;
+  margin: 20px;
+}
+</style>

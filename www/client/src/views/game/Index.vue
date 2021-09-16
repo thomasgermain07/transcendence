@@ -1,6 +1,6 @@
 <template>
   <div class="game">
-    <h1>Game</h1>
+    <!-- <h1>Game</h1> -->
 
     <router-view />
   </div>
@@ -17,7 +17,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.game {
+/* .game {
   background: rgb(184, 62, 184);
-}
+} */
 </style>

@@ -132,6 +132,7 @@ export class PlayersService {
       ])
       .where("player.user =:userId", { userId: userId })
       .andWhere("room.state =:state", { state: GameState.OVER })
+      .orderBy("player.id", "DESC")
       .getMany()
 
     return userMatchHistory

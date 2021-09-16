@@ -71,5 +71,12 @@ export default defineComponent({
   text-align: center;
   color: #2c3e50;
   position: relative;
+
+  --primary-color: #ff2a6d;
+  --secondary-color: #d1f7ff;
+  --tertiary-color: #01012b;
+    /* --primary-color: #ff2a6d;
+  --secondary-color: black; */
+  box-sizing: border-box;
 }
 </style>

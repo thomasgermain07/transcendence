@@ -1,4 +1,4 @@
-import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { WebSocketGateway, WebSocketServer, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { SubscribeMessage, MessageBody }     from "@nestjs/websockets";
 import { ConnectedSocket }                   from '@nestjs/websockets';
 
@@ -57,6 +57,7 @@ export class State implements IGameState {
 	namespace: 'game-rooms',
 })
 export class GameRoomsGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
 
 	@WebSocketServer()
@@ -75,16 +76,17 @@ export class GameRoomsGateway
 	// Interfaces implementations
 	// -------------------------------------------------------------------------
 	afterInit(server: Server): void {
-		console.log(`Matchmaker:Gateway: Initialized.`)
+		console.log(`GameRoom:Gateway: Initialized.`)
 	}
 
+
 	handleConnection(client: Socket, ...args: any[]): void {
-		console.log(`Matchmaker:Gateway: Connection.`)
+		console.log(`GameRoom:Gateway: Connection.`)
     console.log(client.id)
 	}
 
 	handleDisconnect(client: Socket): void {
-		console.log(`Matchmaker:Gateway: Disconnect.`)
+		console.log(`GameRoom:Gateway: Disconnect.`)
 	}
 
   @SubscribeMessage('joinRoom')

@@ -1,6 +1,6 @@
 <template>
   <div class="users">
-    <h1>User</h1>
+    <!-- <h1>User</h1> -->
 
     <router-view />
   </div>
@@ -17,7 +17,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.user {
+/* .user {
   background: rgb(184, 62, 184);
-}
+} */
 </style>

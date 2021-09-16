@@ -1,4 +1,4 @@
-import { Manager, Socket } from 'socket.io-client'
+import { Manager, Socket, io } from 'socket.io-client';
 
 // -----------------------------------------------------------------------------
 // State
@@ -9,14 +9,16 @@ const sockets: { [name: string]: Socket } = {}
 // Composable
 // -----------------------------------------------------------------------------
 export function useSocket(nsp: string) {
-  const manager = new Manager('http://localhost:8080', {
-    withCredentials: true,
-  })
+
+  // const manager = new Manager('http://localhost:8080', {
+  //   withCredentials: true,
+  // })
 
   // -------------------------------------------------------------------------
   // Datas
   // -------------------------------------------------------------------------
-  sockets[nsp] ||= manager.socket(`/${nsp}`)
+  // sockets[nsp] ||= manager.socket(`/${nsp}`)
+  sockets[nsp] ||= io(`http://localhost:8080/${nsp}`, { withCredentials: true, forceNew: true })
 
   // -------------------------------------------------------------------------
   // Functions
@@ -26,11 +28,18 @@ export function useSocket(nsp: string) {
     delete sockets[nsp]
   }
 
+  function refresh() {
+    console.log('in refresh, nsp: ' + nsp)
+    sockets[nsp]?.disconnect()
+    sockets[nsp]?.connect({ withCredentials: true })
+  }
+
   return {
     // Datas
     socket: sockets[nsp],
 
     // Functions
     close,
+    refresh,
   }
 }

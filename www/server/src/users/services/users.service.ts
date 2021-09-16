@@ -8,6 +8,7 @@ import { CreateUserDto } from '../dto/create-user.dto'
 import { UpdateUserDto } from '../dto/update-user.dto'
 import { User } from '../entities/user.entity'
 import { Achievement } from '../entities/achievement.entity'
+import { AchievementsImage } from '../entities/achievement.entity'
 import { AchievementsName } from '../entities/achievement.entity'
 import { AchievementsDescription } from '../entities/achievement.entity'
 
@@ -48,50 +49,28 @@ export class UsersService {
   }
 
   async create(create_dto: CreateUserDto): Promise<User> {
-    const achievement_1 = this.achievementsRepository.create({
-      name: AchievementsName.NOVICE,
-      description: AchievementsDescription.NOVICE,
-    })
-    const achievement_2 = this.achievementsRepository.create({
-      name: AchievementsName.ALL_TERRAIN,
-      description: AchievementsDescription.ALL_TERRAIN,
-    })
-    const achievement_3 = this.achievementsRepository.create({
-      name: AchievementsName.DEFENSE_MASTER,
-      description: AchievementsDescription.DEFENSE_MASTER,
-    })
-    const achievement_4 = this.achievementsRepository.create({
-      name: AchievementsName.DONE,
-      description: AchievementsDescription.DONE,
-    })
-    const achievement_5 = this.achievementsRepository.create({
-      name: AchievementsName.HARD_MASTER,
-      description: AchievementsDescription.HARD_MASTER,
-    })
-    const achievement_6 = this.achievementsRepository.create({
-      name: AchievementsName.HUNDRED_WINS,
-      description: AchievementsDescription.NOVICE,
-    })
-    const achievement_7 = this.achievementsRepository.create({
-      name: AchievementsName.MIDDLE_PLAYER,
-      description: AchievementsDescription.MIDDLE_PLAYER,
-    })
-    const achievement_8 = this.achievementsRepository.create({
-      name: AchievementsName.SEVENTY_WINS,
-      description: AchievementsDescription.SEVENTY_WINS,
-    })
-    const achievement_9 = this.achievementsRepository.create({
-      name: AchievementsName.TEN_WINS,
-      description: AchievementsDescription.TEN_WINS,
-    })
-    const achievement_10 = this.achievementsRepository.create({
-      name: AchievementsName.THIRTY_WINS,
-      description: AchievementsDescription.THIRTY_WINS,
-    })
-    const achievement_11 = this.achievementsRepository.create({
-      name: AchievementsName.TWO_HUNDRED_WINS,
-      description: AchievementsDescription.TWO_HUNDRED_WINS,
-    })
+    const achievement_1 = this.achievementsRepository.create({name: AchievementsName.NOVICE, description: AchievementsDescription.NOVICE, image: AchievementsImage.NOVICE });
+
+    const achievement_2 = this.achievementsRepository.create({ name: AchievementsName.TEN_WINS, description: AchievementsDescription.TEN_WINS, image: AchievementsImage.TEN_WINS});
+
+		const achievement_3 = this.achievementsRepository.create({ name: AchievementsName.THIRTY_WINS, description: AchievementsDescription.THIRTY_WINS, image: AchievementsImage.THIRTY_WINS});
+
+		const achievement_4 = this.achievementsRepository.create({ name: AchievementsName.SEVENTY_WINS, description: AchievementsDescription.SEVENTY_WINS, image: AchievementsImage.SEVENTY_WINS});
+
+		const achievement_5 = this.achievementsRepository.create({ name: AchievementsName.HUNDRED_WINS, description: AchievementsDescription.HUNDRED_WINS, image: AchievementsImage.HUNDRED_WINS});
+
+		const achievement_6 = this.achievementsRepository.create({ name: AchievementsName.TWO_HUNDRED_WINS, description: AchievementsDescription.TWO_HUNDRED_WINS, image: AchievementsImage.TWO_HUNDRED_WINS});
+
+		const achievement_7 = this.achievementsRepository.create({ name: AchievementsName.MIDDLE_PLAYER, description: AchievementsDescription.MIDDLE_PLAYER, image: AchievementsImage.MIDDLE_PLAYER});
+
+		const achievement_8 = this.achievementsRepository.create({ name: AchievementsName.HARD_MASTER, description: AchievementsDescription.HARD_MASTER, image: AchievementsImage.HARD_MASTER});
+
+		const achievement_9 = this.achievementsRepository.create({ name: AchievementsName.DEFENSE_MASTER, description: AchievementsDescription.DEFENSE_MASTER, image: AchievementsImage.DEFENSE_MASTER});
+
+		const achievement_10 = this.achievementsRepository.create({ name: AchievementsName.ALL_TERRAIN, description: AchievementsDescription.ALL_TERRAIN, image: AchievementsImage.ALL_TERRAIN});
+
+		const achievement_11 = this.achievementsRepository.create({ name: AchievementsName.DONE, description: AchievementsDescription.DONE, image: AchievementsImage.DONE});
+
 
     const user: User = this.users_repo.create({
       ...create_dto,
@@ -194,12 +173,12 @@ export class UsersService {
     achievementName: AchievementsName,
   ): Promise<User> {
     const achievement = await this.achievementsRepository
-      .createQueryBuilder('achievement')
-      .leftJoinAndSelect('achievement.users', 'users')
+      .createQueryBuilder("achievement")
+      .leftJoinAndSelect("achievement.users", "users")
       .where(`"users"."id" = :id`, { id: userPlayer.id })
       .andWhere(`"achievement"."name" = :name`, { name: achievementName })
       .getOne()
-    await this.achievementsRepository.update(achievement.id, { locked: true })
+    await this.achievementsRepository.update(achievement.id, { locked: false })
 
     return await this.users_repo.findOne(userPlayer.id)
   }

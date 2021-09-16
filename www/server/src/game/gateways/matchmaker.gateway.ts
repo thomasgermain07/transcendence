@@ -1,4 +1,4 @@
-import { WebSocketGateway, WebSocketServer, ConnectedSocket } from '@nestjs/websockets';
+import { WebSocketGateway, WebSocketServer, ConnectedSocket, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { SubscribeMessage, MessageBody, WsException }     from "@nestjs/websockets";
 
 import { Server, Socket } from 'socket.io';
@@ -23,6 +23,7 @@ import { WsJwtGuard } from '../../auth/guards/ws-jwt.guard';
 	namespace: 'matchmaker',
 })
 export class MatchmakerGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
 
 	@WebSocketServer()
@@ -43,7 +44,8 @@ export class MatchmakerGateway
 
 	handleConnection(client: Socket, ...args: any[]): void {
 		console.log(`Matchmaker:Gateway: Connection.`)
-    console.log(client.id)
+    // console.log(client.id)
+    console.log(client.rooms)
 	}
 
 	handleDisconnect(client: Socket): void {
@@ -128,8 +130,9 @@ export class MatchmakerGateway
     @MessageBody() data: SocketRoomInfo,
   ): Promise<string> {
 
-    // delete player from db
-    await this.playerService.remove(data.playerId)
+    console.log('IN LEAVE LOBBY IN SERVER')
+    // // delete player from db -> done in axios
+    // await this.playerService.remove(data.playerId)
 
     // remove socket from room
     client.leave(data.room);

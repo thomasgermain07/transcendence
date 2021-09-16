@@ -55,7 +55,10 @@ export default defineComponent({
   left: 0;
   width: 100%;
   margin-bottom: 1em;
-  background-color: grey;
+  /* background-color: grey; */
+  background-color: white;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
+  z-index: 2;
 }
 .navigation {
   display: flex;
@@ -63,11 +66,13 @@ export default defineComponent({
 .link {
   padding: 14px 23px;
   text-align: center;
-  color: white;
+  /* color: white; */
+  color: var(--tertiary-color);
   text-decoration: none;
   cursor: pointer;
 }
 .link:hover {
-  background-color: black;
+  /* background-color: black; */
+  background-color: var(--primary-color);
 }
 </style>

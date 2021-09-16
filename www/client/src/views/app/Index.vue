@@ -1,6 +1,6 @@
 <template>
 	<div class="app">
-		<h1>App</h1>
+		<!-- <h1>App</h1> -->
 
 		<router-view />
 	</div>
@@ -21,7 +21,7 @@
 </script>
 
 <style scoped>
-	.app {
+	/* .app {
 		background: rgb(184, 62, 184);
-	}
+	} */
 </style>
