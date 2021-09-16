@@ -1,5 +1,10 @@
 <template>
 	<div class="auth-login-marvin-callback">
+		<GoogleAuth
+			v-if="googleCode.visible"
+			@submit="submit"
+			>
+		</GoogleAuth>
 		<h2>Auth-Login-Marvin-Callback</h2>
 
 		{{ message }}
@@ -13,9 +18,13 @@
 
 	import { useAuth } from "@/composables/auth";
 
+	import GoogleAuth from "@/components/auth/GoogleAuth.vue";
+
 	export default defineComponent({
 		name: 'auth-login-marvin-callback',
-
+		components: {
+			GoogleAuth,
+		},
 		setup()
 		{
 			const route = useRoute();
@@ -27,7 +36,7 @@
 
 			const message = ref("Verifying your login...");
 
-			const { loginMarvin } = useAuth();
+			const { loginMarvin, googleCode } = useAuth();
 
 			loginMarvin(code)
 				.catch((err) => {
@@ -37,6 +46,7 @@
 
 			return {
 				// Datas
+				googleCode,
 				message,
 			};
 		},

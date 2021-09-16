@@ -1,23 +1,28 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { IsOptional, IsInt, Min, Max, IsString } from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types'
+import { IsOptional } from 'class-validator'
+import { IsBoolean, IsInt, Min } from 'class-validator'
+import { IsString } from 'class-validator'
 
-import { CreateUserDto } from "./create-user.dto";
+import { CreateUserDto } from './create-user.dto'
 
-export class UpdateUserDto
-	extends PartialType(CreateUserDto)
-{
-	@IsInt()
-	id: number
-	
-    @IsOptional()
-    @IsInt()
-	@Min(1)
-	ladderLevel?: number
+export class UpdateUserDto extends PartialType(CreateUserDto) {
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  ladderLevel?: number
 
-	@IsOptional()
-    @IsString()
-	avatar?: string
+  @IsBoolean()
+  @IsOptional()
+  is_admin?: boolean[]
 
-	// @IsOptional()
-	// achievements?: Achievements[];
+  // @IsOptional()
+  // @IsString()
+  // twoFactorAuthenticationSecret?: string
+
+  @IsOptional()
+  @IsString()
+  isTwoFactorAuthenticationEnabled?: boolean
+
+  // @IsOptional()
+  // achievements?: Achievements[];
 }

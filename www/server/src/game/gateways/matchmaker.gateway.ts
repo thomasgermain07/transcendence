@@ -58,16 +58,16 @@ export class MatchmakerGateway
   ): Promise<Player | void> {
 
     const defaultRange = 3
-    
+
     // Check if user is already in a game room
     const inGame = await this.playerService.checkIfInGame(data.user)
     if (inGame) {
       return inGame
     }
 
-    // Find room that matches the game mode and options 
+    // Find room that matches the game mode and options
     const room = await this.roomsService.findMatchOrCreate(data.mode, data.options, data.user, defaultRange)
-    
+
     // Create and Add player
     const player = await this.playerService.create(room, data.user)
 
@@ -81,7 +81,7 @@ export class MatchmakerGateway
   async checkIfInGame(
     @MessageBody() user: User
   ): Promise<InGameType> {
-    
+
     const player = await this.playerService.checkIfInGame(user)
     if (player) {
       if (!player.room.locked) {
@@ -118,7 +118,7 @@ export class MatchmakerGateway
 
     // remove socket from room
     client.leave(data.room);
-  
+
     return 'Player ' + data.playerId + ' deleted';
   }
 
@@ -136,7 +136,7 @@ export class MatchmakerGateway
 
     // send info to other player
     this.server.to(data.room).emit('opponentLeaving')
-  
+
     return 'Player ' + data.playerId + ' deleted';
   }
 
@@ -155,7 +155,7 @@ export class MatchmakerGateway
     if (room && currentRoomId != room.id) {
       await this.playerService.remove(data.player.id)
       client.leave(data.currentRoomName);
-      
+
       player = await this.playerService.create(room, data.user)
       client.emit('joinLobbyInClient', player);
     }
@@ -177,7 +177,7 @@ export class MatchmakerGateway
     if (room && currentRoomId != room.id) {
       await this.playerService.remove(data.player.id)
       client.leave(data.currentRoomName);
-      
+
       player = await this.playerService.create(room, data.user)
       client.emit('joinLobbyInClient', player);
     }

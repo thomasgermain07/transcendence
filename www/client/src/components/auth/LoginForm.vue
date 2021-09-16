@@ -1,5 +1,10 @@
 <template>
 	<div class="auth-login-form">
+		<GoogleAuth
+			v-if="googleCode.visible"
+			@submit="submit"
+			>
+		</GoogleAuth>
 		<h3>Connect with credentials:</h3>
 
 		<div v-if="message">
@@ -17,7 +22,7 @@
 
 			<button type="submit">Log in</button>
 		</form>
-  </div>
+	</div>
 </template>
 
 <script lang='ts'>
@@ -26,10 +31,13 @@
 
 	import { LoginType } from "@/composables/auth";
 	import { useAuth }   from "@/composables/auth";
+	import GoogleAuth from "@/components/auth/GoogleAuth.vue";
 
 	export default defineComponent({
 		name: 'auth-login-form',
-
+		components: {
+			GoogleAuth,
+		},
 		setup()
 		{
 			const message = ref();
@@ -38,8 +46,7 @@
 				password: '',
 			});
 
-			const { login } = useAuth();
-
+			const { login, googleCode } = useAuth();
 			const submit = () => {
 				login(readonly(credentials))
 					.catch((err) => {
@@ -52,6 +59,7 @@
 				// Datas
 				credentials,
 				message,
+				googleCode,
 				// Functions
 				submit,
 			};

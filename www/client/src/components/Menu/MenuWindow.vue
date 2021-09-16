@@ -1,5 +1,10 @@
 <template>
-  <a class="open-button" v-if="!open" @click="toggle_window">
+  <a
+    class="open-btn"
+    :class="{ 'open-btn--notif': notification }"
+    v-if="!open"
+    @click="toggle_window"
+  >
     <i class="fas fa-comments fa-2x"></i>
   </a>
 
@@ -14,13 +19,20 @@
       <FriendWindow @open_chat="open_chat" />
     </div>
     <div v-if="chat_open" class="window-chat">
-      <header class="top-bar">
+      <header class="top-bar chat__top-bar">
         <a @click="close_chat">
           <i class="far fa-times-circle top-bar__close"></i>
         </a>
         <div class="top-bar__name">Chat - {{ page_title }}</div>
       </header>
-      <ChatWindow @set_page_title="set_page_title" />
+      <ChatWindow
+        @set_page_title="set_page_title"
+        @refresh_rooms="refreshRooms"
+        :DmID="dmID"
+        :Notifications="notifications"
+        :Rooms="rooms"
+        :RelatedUsers="relatedUsers"
+      />
     </div>
   </div>
 </template>
@@ -29,6 +41,14 @@
 import FriendWindow from './FriendWindow.vue'
 import ChatWindow from './ChatWindow.vue'
 import { ref } from '@vue/reactivity'
+import { onMounted } from '@vue/runtime-core'
+import getFetchRooms from '@/composables/Chat/Rooms/fetchRooms'
+import { useSocket } from '@/composables/socket'
+import { RoomType } from '@/types/chat/room'
+import { NotificationType } from '@/types/chat/notification'
+import getFetchUsers from '@/composables/Chat/Dms/fetchUsers'
+import { useAuth } from '@/composables/auth'
+import { MessageType } from '@/types/chat/message'
 
 export default {
   components: {
@@ -39,11 +59,26 @@ export default {
     let open = ref(false)
     let chat_open = ref(false)
     let page_title = ref('')
+    let notification = ref(false)
+    let notifications = ref<NotificationType[]>([])
+    let currentID = useAuth().user.id
+    let dmID = ref(0)
+
+    let { rooms, fetchRooms } = getFetchRooms()
+    let { relatedUsers, fetchUsers } = getFetchUsers()
 
     const toggle_window = () => {
       open.value = !open.value
+      if (notification.value) {
+        chat_open.value = true
+      }
+      notification.value = false
     }
-    const open_chat = () => {
+    const open_chat = (userID?: number, userName?: string) => {
+      if (userID && userName) {
+        dmID.value = userID
+        set_page_title(userName)
+      }
       chat_open.value = true
     }
     const close_chat = () => {
@@ -53,10 +88,46 @@ export default {
       page_title.value = title
     }
 
+    const refreshRooms = async () => {
+      await fetchRooms(true)
+    }
+
+    onMounted(async () => {
+      await fetchRooms(true)
+      await fetchUsers()
+
+      const socket = useSocket('chat').socket
+      rooms.value!.forEach((room: RoomType) => {
+        socket.emit('join', { room_id: room.id })
+      })
+
+      useSocket('dm').socket.emit('join')
+    })
+
+    useSocket('chat').socket.on('message', (message: MessageType) => {
+      if (message.author.id != currentID) {
+        notifications.value.unshift({ type: 'room', target: message.room.id })
+        notification.value = true
+      }
+    })
+
+    useSocket('dm').socket.on('message', (message: MessageType) => {
+      if (message.author.id != currentID) {
+        notifications.value.unshift({ type: 'dm', target: message.author.id })
+        notification.value = true
+      }
+    })
+
     return {
       open,
       chat_open,
       page_title,
+      dmID,
+      notification,
+      notifications,
+      rooms,
+      relatedUsers,
+      refreshRooms,
       toggle_window,
       open_chat,
       close_chat,
@@ -67,11 +138,15 @@ export default {
 </script>
 
 <style scoped>
-.open-button {
+.open-btn {
   position: fixed;
   bottom: 0;
   right: 10px;
   margin: 5px;
+}
+
+.open-btn--notif i {
+  color: red;
 }
 
 .window {
@@ -97,7 +172,6 @@ export default {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  border-right: 2px solid lightgray;
 }
 
 .top-bar {
@@ -106,6 +180,10 @@ export default {
   padding: 4px 4px;
   background-color: black;
   color: white;
+}
+
+.chat__top-bar {
+  border-right: 2px solid lightgray;
 }
 
 .top-bar__name {

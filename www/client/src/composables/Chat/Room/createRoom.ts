@@ -55,7 +55,3 @@ export async function createRoom(fields: any, status: Ref) {
   }
   return res
 }
-
-export function join() {
-  console.log('join')
-}

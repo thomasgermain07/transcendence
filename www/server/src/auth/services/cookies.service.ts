@@ -32,7 +32,6 @@ export class CookiesService {
       type === CookieType.AUTHENTICATION
         ? process.env.VITE_JWT_ACCESS_LIFETIME
         : process.env.VITE_JWT_REFRESH_LIFETIME
-
     const payload: TokenPayload = { user_id: user.id }
 
     const token = this.getJwtToken(payload, secret, lifetime)

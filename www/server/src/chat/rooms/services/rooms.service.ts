@@ -91,6 +91,9 @@ export class RoomsService
 	)
 		: Promise<Room>
 	{
+		if (!update_dto.name)
+			delete update_dto.name;
+
 		if (update_dto.password)
 			update_dto.password = await this.hashSecure(update_dto.password);
 

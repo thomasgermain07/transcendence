@@ -53,9 +53,8 @@ export class RoomsController
 		if (related)
 			return rooms;
 
-		// Todo:
-		// if (user.isAdmin())
-		// 	return this.rooms_svc.findNotIn(rooms);
+		if (user.is_admin)
+			return this.rooms_svc.findNotIn(rooms);
 
 		return this.rooms_svc.findVisibleNotIn(rooms);
 	}
@@ -67,9 +66,7 @@ export class RoomsController
 	)
 		: Promise<Room>
 	{
-		const room: Room = await this.rooms_svc.findOne({
-			id: id,
-		});
+		const room: Room = await this.rooms_svc.findOne({ id: id });
 
 		if (!room)
 			throw new NotFoundException("Room not found.");
@@ -108,9 +105,7 @@ export class RoomsController
 	)
 		: Promise<void>
 	{
-		const room: Room = await this.rooms_svc.findOne({
-			id: id
-		});
+		const room: Room = await this.rooms_svc.findOne({ id: id });
 
 		if (!room)
 			throw new NotFoundException("Room not found.");

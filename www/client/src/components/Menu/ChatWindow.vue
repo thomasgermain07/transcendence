@@ -1,20 +1,29 @@
 <template>
   <div class="chat-window">
     <div class="rooms-ctn">
-      <header class="room-label">Rooms</header>
-      <Rooms ref="rooms" @open="open" />
+      <header class="window-title">
+        <p>Rooms</p>
+      </header>
+      <Rooms
+        @open="open"
+        :CurrentRoomId="open_id"
+        :Notifications="Notifications"
+        :Rooms="Rooms"
+        :RelatedUsers="RelatedUsers"
+      />
     </div>
     <div class="chat-ctn">
-      <Room v-if="openned == 'room'" :room_id="room" />
+      <Room v-if="openned == 'room'" :RoomId="open_id" @leave="left_room" />
+      <Dm v-if="openned == 'dm'" :UserId="open_id" />
       <CreateRoom
         v-if="openned == 'create'"
         @close="close"
-        @refresh_rooms="refresh_rooms"
+        @refresh_rooms="$emit('refresh_rooms')"
       />
       <JoinRoom
         v-if="openned == 'join'"
         @close="close"
-        @refresh_rooms="refresh_rooms"
+        @refresh_rooms="$emit('refresh_rooms')"
       />
     </div>
   </div>
@@ -25,10 +34,9 @@ import Rooms from './Chat/Rooms/Rooms.vue'
 import CreateRoom from './Chat/CreateRoom/CreateRoom.vue'
 import JoinRoom from './Chat/JoinRoom/JoinRoom.vue'
 import Room from './Chat/Room/Room.vue'
-import {
-  getChatWindowInteraction,
-  getRoomsInteraction,
-} from '@/composables/Chat/WindowInteraction/windowInteraction'
+import Dm from './Chat/Dm/Dm.vue'
+import getChatWindowInteraction from '@/composables/Chat/WindowInteraction/windowInteraction'
+import { onMounted, watch } from '@vue/runtime-core'
 
 export default {
   components: {
@@ -36,16 +44,46 @@ export default {
     Room,
     CreateRoom,
     JoinRoom,
+    Dm,
+  },
+  props: {
+    Notifications: Array,
+    Rooms: Array,
+    RelatedUsers: Array,
+    DmID: Number,
   },
   setup(props, { emit }) {
-    let { rooms, refresh_rooms } = getRoomsInteraction()
-    let { room, openned, open, close } = getChatWindowInteraction(
+    let { open_id, openned, open, close } = getChatWindowInteraction(
       (title: String) => {
         emit('set_page_title', title)
       },
     )
 
-    return { rooms, room, openned, open, close, refresh_rooms }
+    const left_room = () => {
+      emit('refresh_rooms')
+      close()
+    }
+
+    const openDm = (id: number) => {
+      if (id != 0) {
+        open('dm', { id: id })
+      }
+    }
+
+    onMounted(() => openDm(props.DmID!))
+
+    watch(
+      () => props.DmID,
+      (new_id) => openDm(new_id!),
+    )
+
+    return {
+      open_id,
+      openned,
+      open,
+      close,
+      left_room,
+    }
   },
 }
 </script>
@@ -53,18 +91,25 @@ export default {
 <style scoped>
 .chat-window {
   display: flex;
-  height: 100%;
   flex-grow: 1;
   border-left: 2px solid black;
+  max-height: 375px;
 }
 
-.room-label {
-  padding: 4px;
+.window-title {
+  border-bottom: 2px solid black;
+  background-color: darkgray;
+}
+
+.window-title p {
+  font-size: x-large;
+  font-weight: normal;
+  padding: 2px;
 }
 
 .rooms-ctn {
   flex-basis: 160px;
-  border-right: 2px solid lightgray;
+  border-right: 2px solid black;
   overflow-y: auto;
 }
 
@@ -74,6 +119,7 @@ export default {
 
 .chat-ctn {
   flex-grow: 1;
+  border-right: 2px solid black;
   display: flex;
 }
 </style>

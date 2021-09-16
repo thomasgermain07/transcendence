@@ -18,8 +18,9 @@ export class ExistsUserConstraint implements ValidatorConstraintInterface {
   // -------------------------------------------------------------------------
   // Public methods
   // -------------------------------------------------------------------------
-  async validate(id: number): Promise<boolean> {
-    return !!(await this.users_svc.findOne({ id: id }))
+  async validate(value: any, args: ValidationArguments): Promise<boolean> {
+		const [attribute] = args.constraints;
+		return !!(await this.users_svc.findOne({ [attribute]: value }));
   }
 
   defaultMessage(args: ValidationArguments): string {
@@ -30,13 +31,13 @@ export class ExistsUserConstraint implements ValidatorConstraintInterface {
 // -----------------------------------------------------------------------------
 // Decorator
 // -----------------------------------------------------------------------------
-export function Exists(validationOptions?: ValidationOptions) {
+export function Exists(attribute: string, validationOptions?: ValidationOptions) {
   return function (object: Object, propertyName: string) {
     registerDecorator({
       target: object.constructor,
       propertyName: propertyName,
       options: validationOptions,
-      constraints: [],
+      constraints: [attribute],
       validator: ExistsUserConstraint,
     })
   }

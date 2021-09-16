@@ -16,13 +16,17 @@
 
 <script lang="ts">
 import { onMounted, ref } from 'vue'
-import getFetchUsers from '../../composables/Users/fetchUsers'
+
+import getFetchUsers from '@/composables/Users/fetchUsers'
 import requestStatus from '@/composables/requestStatus'
+
 export default {
   setup() {
     let status = ref(requestStatus.loading)
     let { users, fetchUsers } = getFetchUsers(status)
+
     onMounted(fetchUsers)
+
     return { users, status }
   },
 }

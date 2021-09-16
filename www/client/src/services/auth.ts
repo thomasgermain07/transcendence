@@ -2,6 +2,7 @@ import { RegisterType } from "@/composables/auth";
 import { LoginType }    from "@/composables/auth";
 import { AxiosResType } from "@/composables/axios";
 import { useAxios }     from "@/composables/axios";
+import { EditType, GoogleAuthType } from "../composables/auth";
 
 // -----------------------------------------------------------------------------
 // Functions
@@ -63,6 +64,55 @@ async function logout()
 	return await axios.delete(url);
 }
 
+async function edit(
+	payload: EditType,
+)
+	: Promise<AxiosResType>
+{
+	const { axios } = useAxios();
+
+	const url: string = `auth/edit`;
+
+	return await axios.post(url, payload);
+}
+
+async function activate2Fa(
+	payload: RegisterType,
+)
+	: Promise<AxiosResType>
+{
+	const { axios } = useAxios();
+
+	const url: string = `auth/activate2Fa`;
+
+	return await axios.post(url, payload);
+}
+
+async function deactivate2Fa(
+	payload: RegisterType,
+)
+	: Promise<AxiosResType>
+{
+	const { axios } = useAxios();
+
+	const url: string = `auth/deactivate2Fa`;
+
+	return await axios.post(url, payload);
+}
+
+async function verifyCode(
+	code: GoogleAuthType,
+)
+	: Promise<AxiosResType>
+{
+	const { axios } = useAxios();
+
+	const url: string = `auth/code`;
+	console.log('-------')
+	console.log(code)
+	return await axios.post(url, code);
+}
+
 // -----------------------------------------------------------------------------
 // Exports
 // -----------------------------------------------------------------------------
@@ -72,4 +122,8 @@ export const AuthService = Object.freeze({
 	loginMarvin,
 	refresh,
 	logout,
+	edit,
+	activate2Fa,
+	deactivate2Fa,
+	verifyCode,
 });

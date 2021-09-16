@@ -6,6 +6,7 @@ import { User } from 'src/users/entities/user.entity'
 import { UsersService } from 'src/users/services/users.service'
 
 import { AuthenticationPayload } from '../interfaces/authentication-payload.interface'
+import { EditProfilePayload } from '../interfaces/edit-profile-payload.interface'
 
 @Injectable()
 export class AuthService {
@@ -24,7 +25,6 @@ export class AuthService {
     return this.users_svc.create(create_dto)
   }
 
-  // Todo: Verify empty args (password / token)
   async authenticate(data: AuthenticationPayload): Promise<User> {
     const credentials = {}
     data.id ? (credentials['id'] = data.id) : null
@@ -53,6 +53,15 @@ export class AuthService {
 
   async logout(user: User): Promise<void> {
     return this.users_svc.setRefreshToken(user, null)
+  }
+
+  async edit(user: User, data: EditProfilePayload): Promise<User> {
+
+    if (data.name && data.new_name && data.name == user.name) {
+      await this.users_svc.updateName(user.id, data.new_name)
+    }
+
+    return user
   }
 
   // -------------------------------------------------------------------------
