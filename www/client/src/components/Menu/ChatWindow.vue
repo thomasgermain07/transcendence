@@ -6,7 +6,8 @@
       </header>
       <Rooms
         @open="open"
-        :CurrentRoomId="open_id"
+        @refresh_related_users="refresh_related_users"
+        :RoomId="open_id"
         :Notifications="Notifications"
         :Rooms="Rooms"
         :RelatedUsers="RelatedUsers"
@@ -14,7 +15,11 @@
     </div>
     <div class="chat-ctn">
       <Room v-if="openned == 'room'" :RoomId="open_id" @leave="left_room" />
-      <Dm v-if="openned == 'dm'" :UserId="open_id" />
+      <Dm
+        v-if="openned == 'dm'"
+        @refresh_related_users="refresh_related_users"
+        :UserId="open_id"
+      />
       <CreateRoom
         v-if="openned == 'create'"
         @close="close"
@@ -70,6 +75,10 @@ export default {
       }
     }
 
+    const refresh_related_users = () => {
+      emit('refresh_related_users')
+    }
+
     onMounted(() => openDm(props.DmID!))
 
     watch(
@@ -81,6 +90,7 @@ export default {
       open_id,
       openned,
       open,
+      refresh_related_users,
       close,
       left_room,
     }

@@ -6,14 +6,14 @@ import { useUsers } from '@/composables/users'
 
 import { AxiosErrType } from './axios'
 import { UserType } from '../types/user/user'
-import { useSocket } from './socket';
+import { useSocket } from './socket'
 
 // -----------------------------------------------------------------------------
 // Constants
 // -----------------------------------------------------------------------------
 const EXPIRATION = parseInt(import.meta.env.VITE_JWT_ACCESS_LIFETIME)
 const TIMEOUT = Math.max(10, EXPIRATION - (EXPIRATION > 600 ? 300 : 30))
-const namespaces = ['chat', 'matchmaker', 'game-rooms']
+const namespaces = ['matchmaker', 'game-rooms']
 
 // -----------------------------------------------------------------------------
 // Types
@@ -56,7 +56,7 @@ const is_authenticated = computed(() => !(user.id === 0))
 const googleCode = reactive<GoogleAuthType>({
   visible: false,
   user_id: 0,
-  code: ''
+  code: '',
 })
 // -----------------------------------------------------------------------------
 // Composable
@@ -93,8 +93,7 @@ export function useAuth() {
         setUser(users.value)
         setAuthenticated(true)
         router.replace({ name: 'index' })
-      }
-      else {
+      } else {
         console.log(res)
         googleCode.user_id = res.data.user_id
         googleCode.visible = true
@@ -120,8 +119,7 @@ export function useAuth() {
         setUser(users.value)
         setAuthenticated(true)
         router.replace({ name: 'index' })
-      }
-      else {
+      } else {
         googleCode.user_id = res.data.user_id
         googleCode.visible = true
       }
@@ -149,7 +147,6 @@ export function useAuth() {
       }
 
       setAuthenticated(true)
-
     } catch (err: AxiosErrType) {
       console.log('useAuth.refresh: Fail.')
 
@@ -159,7 +156,7 @@ export function useAuth() {
 
     // Refresh the socket connections
     // const namespaces = ['chat', 'matchmaker', 'game-rooms']
-    namespaces.forEach(nsp => {
+    namespaces.forEach((nsp) => {
       useSocket(nsp).refresh()
     })
 
@@ -192,10 +189,10 @@ export function useAuth() {
     router.replace({ name: 'auth-login' })
 
     // const namespaces = ['chat', 'matchmaker', 'game-rooms']
-    namespaces.forEach(nsp => {
+    namespaces.forEach((nsp) => {
       useSocket(nsp).close()
     })
-  
+
     return
   }
 
@@ -302,5 +299,6 @@ function setUser(data: UserType | undefined = undefined) {
   user.name = data?.name ?? ''
   user.email = data?.email ?? ''
   user.ladderLevel = data?.ladderLevel ?? 1
-  user.isTwoFactorAuthenticationEnabled = data?.isTwoFactorAuthenticationEnabled ?? false
+  user.isTwoFactorAuthenticationEnabled =
+    data?.isTwoFactorAuthenticationEnabled ?? false
 }

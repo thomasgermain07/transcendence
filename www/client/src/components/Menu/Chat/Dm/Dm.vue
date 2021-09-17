@@ -41,7 +41,7 @@ export default {
   props: {
     UserId: Number,
   },
-  setup(props) {
+  setup(props, { emit }) {
     let message_field = ref('')
     let { messages, fetchMessages } = getFetchMessages()
     let { createMessage } = getCreateMessage()
@@ -66,10 +66,12 @@ export default {
         await createMessage(props.UserId!, message_field.value)
         message_field.value = ''
       }
+      if (messages.value.length == 1) {
+        emit('refresh_related_users')
+      }
     }
 
     useSocket('dm').socket.on('message', (message: DirectMessageType) => {
-      console.log('new dm')
       if (message.author.id == props.UserId || message.author.id == me.id) {
         messages.value.unshift(message)
       }
