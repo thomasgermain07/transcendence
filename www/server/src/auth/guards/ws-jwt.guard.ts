@@ -16,7 +16,7 @@ export class WsJwtGuard
 		: User
 	{
 		if (error || !user)
-			throw new WsException("Invalid JWT Token.");
+			throw new WsException("Invalid WS Token.");
 
 		return user;
 	}

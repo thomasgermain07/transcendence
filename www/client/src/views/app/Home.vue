@@ -1,7 +1,9 @@
 <template>
 	<div class="app-home">
-		<h2>App-Home</h2>
-		<Leaderboard />
+		<!-- <h2>App-Home</h2> -->
+		<div class="leaderboard">
+			<Leaderboard />
+		</div>
 	</div>
 </template>
 
@@ -22,7 +24,13 @@
 </script>
 
 <style scoped>
-	.app-home {
+	/* .app-home {
 		background: rgb(230, 163, 64);
+	} */
+	.leaderboard {
+		width: 60vw;
+		/* height: 80vh; */
+		/* overflow: hidden; */
+		margin: auto;
 	}
 </style>

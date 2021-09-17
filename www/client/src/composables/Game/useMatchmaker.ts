@@ -7,6 +7,7 @@ import { Player } from '../../types/game/player'
 import { GameMode } from '../../types/game/gameRoom'
 import { GameOptions } from '../../types/game/gameOptions'
 import { useSocket } from '../socket';
+import { useAxios } from '../axios';
 
 const useMatchmaker = () => {
   const matchmakingSocket = useSocket('matchmaker').socket
@@ -14,6 +15,8 @@ const useMatchmaker = () => {
 
   const { user } = useAuth()
   const currentUser = user
+
+  const { axios } = useAxios()
 
   const lobby: LobbyType = reactive({
     visible: false,
@@ -67,8 +70,11 @@ const useMatchmaker = () => {
     )
   }
 
-  const leaveLobby = () => {
+  const leaveLobby = async () => {
     console.log('In leave lobby Duel view')
+    await axios.delete(`game/players/${ lobby.player.id}`).catch((err: any)=> {
+      console.log(err)
+    })
     matchmakingSocket.emit('leaveLobbyInServer', {
       room: roomName.value,
       playerId: lobby.player.id,
@@ -85,17 +91,22 @@ const useMatchmaker = () => {
     router.push(`/game/room/${lobby.player.room.id}`)
   }
 
-  const checkIfInGameOrQueue = () => {
-    matchmakingSocket.emit('checkInGame', currentUser, (data: InGameType) => {
-      console.log(data)
-      checkInGame.inGame = data.inGame
-      checkInGame.roomRoute = data.roomRoute
+  const checkIfInGameOrQueue = async (): Promise<void> => {
+    const response = await axios
+    .get(`game/players/checkIfInGameOrQueue/${currentUser.id}`)
+    .catch((error: any) => {
+  
+    })
+    if (response) {
+      console.log(response)
+      checkInGame.inGame = response.data.inGame
+      checkInGame.roomRoute = response.data.roomRoute
       // show matchmaking window if player in unlocked game room
       if (!checkInGame.inGame && checkInGame.roomRoute === 'matchmaking') {
         showLobby()
-        joinLobby(data.player)
+        joinLobby(response.data.player)
       }
-    })
+    }
   }
 
   // FOR LADDER ONLY

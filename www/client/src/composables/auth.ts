@@ -6,12 +6,14 @@ import { useUsers } from '@/composables/users'
 
 import { AxiosErrType } from './axios'
 import { UserType } from '../types/user/user'
+import { useSocket } from './socket';
 
 // -----------------------------------------------------------------------------
 // Constants
 // -----------------------------------------------------------------------------
 const EXPIRATION = parseInt(import.meta.env.VITE_JWT_ACCESS_LIFETIME)
 const TIMEOUT = Math.max(10, EXPIRATION - (EXPIRATION > 600 ? 300 : 30))
+const namespaces = ['chat', 'matchmaker', 'game-rooms']
 
 // -----------------------------------------------------------------------------
 // Types
@@ -152,7 +154,14 @@ export function useAuth() {
       console.log('useAuth.refresh: Fail.')
 
       logout(true)
+      return
     }
+
+    // Refresh the socket connections
+    // const namespaces = ['chat', 'matchmaker', 'game-rooms']
+    namespaces.forEach(nsp => {
+      useSocket(nsp).refresh()
+    })
 
     return
   }
@@ -182,6 +191,11 @@ export function useAuth() {
     googleCode.user_id = 0
     router.replace({ name: 'auth-login' })
 
+    // const namespaces = ['chat', 'matchmaker', 'game-rooms']
+    namespaces.forEach(nsp => {
+      useSocket(nsp).close()
+    })
+  
     return
   }
 

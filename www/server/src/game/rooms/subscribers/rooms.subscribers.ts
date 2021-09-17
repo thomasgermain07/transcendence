@@ -33,7 +33,7 @@ import { AchievementsName } from 'src/users/entities/achievement.entity';
 		
 		async afterUpdate(event: UpdateEvent<Room>) {
 			console.log("---------__AFTER UPDATE ROOM-------------")
-			console.log(event.entity);
+			// console.log(event.entity);
 			let player: Player = null;
 			const room: Room = await this.roomsService.findOne(event.entity.id);
 
@@ -68,7 +68,7 @@ import { AchievementsName } from 'src/users/entities/achievement.entity';
 				}
 			}
 			console.log("---------------------DEFENSE ACHIEVEMENTS-------------")
-			console.log(player)
+			// console.log(player)
 			return player
 		}
 

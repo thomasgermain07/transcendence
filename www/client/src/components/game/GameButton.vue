@@ -34,10 +34,11 @@ $red: #ed3833;
 $green: #6ded8a; */
 
 .game-button {
-  display: inline-block;
+  /* display: inline-block; */
+  display: block;
+  margin: auto;
   text-align: center;
   position: relative;
-  /* margin: 0.5em 0; */
   padding: 0.6em 1em;
   cursor: pointer;
   transition: 0.3s;
@@ -45,13 +46,8 @@ $green: #6ded8a; */
   color: var(--hovercolor);
   background: var(--color);
   font-family: 'Press Start 2P', cursive;
-  /* font-size: 3em; */
-  /* font-family: 'Patrick Hand', sans-serif;
-  font-size: 1em;
-  font-weight: 700;
-  letter-spacing: 0.05em; */
-  border: 2px solid black;
-  border-radius: 0.6em;
+  /* border: 2px solid black; */
+  border-radius: 4px;
   box-sizing: border-box;
   /* box-shadow: inset 0 -0.6em 0 -0.35em rgba(0, 0, 0, 0.17); */
   box-shadow: inset -0.3em -0.3em 0.1em rgba(0, 0, 0, 0.16),
@@ -62,10 +58,6 @@ $green: #6ded8a; */
 .game-button:hover {
   color: var(--color);
   background: var(--hovercolor);
-  /* box-shadow: none; */
   box-shadow: 0px 0.6em 0.8em rgba(0, 0, 0, 0.17512156);
-  /* border: 2px solid var(--color); */
-  /* background: #fff; */
-  /* color: tomato; */
 }
 </style>

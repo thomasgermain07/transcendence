@@ -1,47 +1,62 @@
 <template>
   <div>
-    <h1>UserProfile</h1>
-
     <p v-if="status == 'loading'">Loading profile ...</p>
 
     <div v-if="status == 'error'">
       <ErrorPage />
     </div>
 
-    <div v-if="status == 'success'" class="profile-ctn">
+  <div v-if="status == 'success'" class="profile-ctn">
+
+    <section class="user-info">
+      <div class="user-ctn__pp">
+        <img v-bind:src="user.avatar" class="profile_picture" />
+      </div>
       <div class="user-ctn">
-        <div class="user-ctn__pp">
-          <img v-bind:src="user.avatar" class="profile_picture" />
-        </div>
         <div class="user-ctn__info">
           <p class="info__name">{{ user.name }}</p>
-          <p>Point : {{ user.point }}</p>
+          <p class="ladder__level">Ladder Level : {{ user.ladderLevel }}</p>
+
+          <!-- TODO: add edit profile button  -->
+          <div class="update-avatar">
+            <input v-if="isCurrentUser" type="file" @change="onFileSelected">
+            <button v-if="isCurrentUser" @click="onUpload">Upload</button>
+          </div>
+
+          <div class="user-interaction">
+            <button v-if="!isCurrentUser" @click="addFriend(user)">add friend</button>
+          </div>
+          <div class="user-interaction">
+            <button v-if="!isCurrentUser" @click="removeFriend(user)">
+              remove friend
+            </button>
+          </div>
         </div>
       </div>
-      <div class="user-interaction">
-        <button v-if="!isCurrentUser" @click="addFriend(user)">
-          add friend
-        </button>
+    </section>
+
+    <section class="user-match-history">
+      <h1 class="info-header">MATCH HISTORY ></h1>
+      <hr>
+      <MatchHistory class="matches" :user="user" />
+    </section>
+
+    <section class="user-game-info">
+      <div class="user-stats">
+        <h1 class="info-header">GAME STATS ></h1>
+        <hr>
+        <GameStats :user="user" />
       </div>
-      <div class="user-interaction">
-        <button v-if="!isCurrentUser" @click="removeFriend(user)">
-          remove friend
-        </button>
+      <!-- TODO: Achievements  -->
+      <div class="user-achievements">
+        <h1 class="info-header">ACHIEVEMENTS ></h1>
+        <hr>
+        <Achievements :user="user" />
       </div>
+    </section>
 
       <hr class="separator" />
-      <div class="update-avatar">
-        <input v-if="isCurrentUser" type="file" @change="onFileSelected" />
-        <button v-if="isCurrentUser" @click="onUpload">Upload</button>
-      </div>
 
-      <hr class="separator" />
-      <GameStats :user="user" />
-
-      <hr class="separator" />
-      <MatchHistory :user="user" />
-
-      <hr class="separator" />
       <div class="edit-profile" v-if="isCurrentUser">
         <edit-profile-form :user="user" />
       </div>
@@ -66,6 +81,7 @@ import requestStatus from '@/composables/requestStatus'
 import { useUsers } from '../../composables/users'
 import GameStats from '../../components/game/GameStats.vue'
 import MatchHistory from '../../components/game/MatchHistory.vue'
+import Achievements from '../../components/game/Achievements.vue'
 import { useAxios } from '../../composables/axios'
 import getFriendInteraction from '@/composables/Friends/getFriendInteraction'
 import EditProfileForm from '@/components/edit/EditProfileForm.vue'
@@ -78,6 +94,7 @@ export default {
     MatchHistory,
     EditProfileForm,
     GoogleAuthenticator,
+    Achievements,
   },
   setup() {
     const route = useRoute()
@@ -137,15 +154,55 @@ export default {
 </script>
 
 <style scoped>
+@import url("https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap");
+
+
+* {
+  box-sizing: border-box;
+  font-family: "Inconsolata", monospace;
+}
+
+.user-info {
+  display: flex;
+  margin: 40px;
+  margin-top: 0;
+}
+
+
+@media only screen and (max-width: 768px) {
+/* @media only screen and (max-width: 600px) { */
+  .user-info {
+    flex-direction: column;
+    text-align: center;
+  }
+  .user-game-info {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .user-stats {
+    margin: 50px;
+  }
+  .user-match-history {
+    margin: 50px;
+  }
+}
+
 .profile-ctn {
   display: flex;
   flex-direction: column;
 }
 
 .user-ctn {
+  /* border: solid 1px red; */
   display: flex;
   flex-direction: row;
   justify-content: center;
+  /* flex: 1; */
+}
+.user-ctn__pp {
+  /* border: solid 1px green; */
+  /* flex: 1; */
+  margin: auto 0;
 }
 
 .user-ctn__info {
@@ -160,13 +217,71 @@ export default {
 }
 
 .info__name {
-  font-weight: bold;
-  font-size: 1.5rem;
+  font-weight: 800;
+  font-size: 64px;
+  text-transform: capitalize;
+  letter-spacing: -1px;
+  margin: 20px 0 0;
+  color: var(--tertiary-color);
+}
+.ladder__level {
+  padding: 0 0 20px 0;
+  color: grey;
+}
+
+.user-game-info {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
 }
 
 .separator {
   width: 50%;
   border-top: 2px solid lightgray;
   margin-top: 80px;
+}
+
+.info-header {
+  /* font-size: 26px; */
+  font-size: 16px;
+  font-weight: 800;
+  padding: 20px;
+  text-align: left;
+  /* color: var(--secondary-color);
+  background-color: #173f5f; */
+}
+
+.user-stats, .user-achievements {
+  flex: 1;
+  /* border: solid 1px black; */
+  margin: 0 30px 20px 30px;
+  padding: 20px 50px;
+  /* color: var(--secondary-color); */
+  /* background-color: var(--tertiary-color); */
+  /* background-color: #173f5f; */
+  color: var(--tertiary-color);
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+  height: 60vh;
+  overflow: scroll;
+}
+
+.user-match-history {
+  /* flex: 4; */
+  margin: 0 30px 20px 30px;
+  padding: 20px 50px;
+  color: var(--secondary-color);
+  /* background-color: var(--tertiary-color); */
+  background-color: #060b1f;
+  /* box-shadow: 0 0 50px rgba(0, 0, 0, 0.4); */
+  border-radius: 4px;
+  /* height: 60vh;
+  overflow: scroll; */
+}
+
+hr {
+  border-top: 0.5px solid white;
+  margin: 20px;
+  margin-top: 0;
 }
 </style>

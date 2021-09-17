@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Delete, UseGuards } from '@nestjs/common';
 import { ParseIntPipe, NotFoundException, Param } from '@nestjs/common';
 import { UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
 
@@ -8,6 +8,7 @@ import { PlayersService } from '../services/players.service';
 import { UsersService } from 'src/users/services/users.service';
 
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
+import { InGameType } from 'src/game/type/type';
 
 
 @UseGuards(JwtAuthGuard)
@@ -28,6 +29,21 @@ export class PlayersController {
         return this.playersService.findAll()
     }
 
+    @Get('checkIfInGameOrQueue/:userId')
+    async checkIfInGameOrQueue(@Param('userId', ParseIntPipe) id: number
+    ): Promise<InGameType> {
+        const user = await this.usersService.findOne(id)
+        const player = await this.playersService.checkIfInGame(user)
+        if (player) {
+          if (!player.room.locked) {
+            return { inGame: false, roomRoute: 'matchmaking', player: player }
+          } else {
+            return {inGame: true, roomRoute: `/game/room/${player.room.id}`, player: player}
+          }
+        }
+        return {inGame: false, roomRoute: '', player: player}
+    }
+
     @Get('history/:userId')
     async findMatchHistory(
         @Param('userId', ParseIntPipe) id: number
@@ -39,4 +55,11 @@ export class PlayersController {
         return this.playersService.getMatchHistoryByUser(id)
     }
 
+    // Delete player
+    @Delete(':playerId')
+    async removePlayer(
+        @Param('playerId', ParseIntPipe) id: number
+    ) : Promise<void> {
+        await this.playersService.remove(id)
+    }
 }
