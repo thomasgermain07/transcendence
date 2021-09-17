@@ -28,6 +28,7 @@
       <ChatWindow
         @set_page_title="set_page_title"
         @refresh_rooms="refreshRooms"
+        @refresh_related_users="refreshRelatedUsers"
         :DmID="dmID"
         :Notifications="notifications"
         :Rooms="rooms"
@@ -68,12 +69,16 @@ export default {
     let { relatedUsers, fetchUsers } = getFetchUsers()
 
     const toggle_window = () => {
-      open.value = !open.value
-      if (notification.value) {
-        chat_open.value = true
+      if (open.value == false) {
+        if (notification.value) {
+          chat_open.value = true
+        }
+      } else {
+        notification.value = false
       }
-      notification.value = false
+      open.value = !open.value
     }
+
     const open_chat = (userID?: number, userName?: string) => {
       if (userID && userName) {
         dmID.value = userID
@@ -81,15 +86,20 @@ export default {
       }
       chat_open.value = true
     }
+
     const close_chat = () => {
       chat_open.value = false
     }
+
     const set_page_title = (title: string) => {
       page_title.value = title
     }
 
     const refreshRooms = async () => {
       await fetchRooms(true)
+    }
+    const refreshRelatedUsers = async () => {
+      await fetchUsers()
     }
 
     onMounted(async () => {
@@ -128,6 +138,7 @@ export default {
       rooms,
       relatedUsers,
       refreshRooms,
+      refreshRelatedUsers,
       toggle_window,
       open_chat,
       close_chat,

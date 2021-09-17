@@ -28,11 +28,10 @@ import { ConversationType } from '@/types/chat/conversation'
 import { NotificationType } from '@/types/chat/notification'
 import { RoomType } from '@/types/chat/room'
 import { UserType } from '@/types/user/user'
-import getFetchUser from '@/composables/User/fetchUser'
 
 export default {
   props: {
-    CurrentRoomId: Number,
+    RoomId: Number,
     Notifications: Array as PropType<Array<NotificationType>>,
     Rooms: Array as PropType<Array<RoomType>>,
     RelatedUsers: Array as PropType<Array<UserType>>,
@@ -40,32 +39,20 @@ export default {
   setup(props, { emit }) {
     let convs = ref<ConversationType[]>([])
 
-    let { user, fetchUser } = getFetchUser()
-
-    const newDmConv = async (id: Number) => {
-      await fetchUser(id)
-      let new_conv: ConversationType = { type: 'dm', target: user.value! }
-      new_conv.notification = true
-      convs.value.unshift(new_conv)
-    }
-
     const markNotification = () => {
       props.Notifications?.forEach((notif) => {
         let conv = convs.value.find(
           (conv) => conv.type == notif.type && conv.target.id == notif.target,
         )
         if (conv != undefined) {
-          if (notif.type == 'room') {
-            conv.target.id != props.CurrentRoomId
-              ? (conv!.notification = true)
-              : 0
-          } else if (notif.type == 'dm') {
-            conv.target.id != props.CurrentRoomId
-              ? (conv!.notification = true)
-              : 0
+          if (notif.type == 'room' && conv.type == 'room') {
+            conv.target.id != props.RoomId ? (conv.notification = true) : 0
+          } else if (notif.type == 'dm' && conv.type == 'dm') {
+            conv.target.id != props.RoomId ? (conv.notification = true) : 0
           }
         } else {
-          newDmConv(notif.target)
+          emit('refresh_related_users')
+          return
         }
       })
     }
@@ -133,7 +120,7 @@ export default {
       openConv,
     }
   },
-  emits: ['open'],
+  emits: ['open', 'refresh_related_users'],
 }
 </script>
 
