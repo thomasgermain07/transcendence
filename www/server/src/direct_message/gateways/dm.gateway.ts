@@ -12,9 +12,10 @@ import { Server } from 'socket.io'
 import { WsJwtGuard } from 'src/auth/guards/ws-jwt.guard'
 import { AuthUser } from 'src/auth/decorators/auth-user.decorator'
 import { User } from 'src/users/entities/user.entity'
+import { Ignored } from 'src/relations/ignoreds/entities/ignored.entity'
+import { IgnoredsService } from 'src/relations/ignoreds/services/ignoreds.service'
 
 import { Message } from '../messages/entities/message.entity'
-import { MessagesService } from '../messages/services/messages.service'
 
 @UseGuards(WsJwtGuard)
 @WebSocketGateway({
@@ -32,7 +33,9 @@ export class DMGateway
   // -------------------------------------------------------------------------
   // Constructor
   // -------------------------------------------------------------------------
-  constructor(private readonly messages_svc: MessagesService) {}
+  constructor(
+    private readonly ignoreds_svc: IgnoredsService,
+  ) {}
 
   // -------------------------------------------------------------------------
   // Interfaces implementations
@@ -66,15 +69,17 @@ export class DMGateway
     console.log(`User ${user.id} left Room ${this.getRoomName(user)}.`)
   }
 
-  sendMessage(message: Message): void {
-    this._server
-      .to(this.getRoomName(message.author))
-      .to(this.getRoomName(message.target))
-      .emit('message', message)
+  async sendMessage(message: Message): Promise<void> {
+    const ignoreds: Ignored[] = await this.ignoreds_svc.findAll(message.target);
 
-    console.log(
-      `Message sent to ${message.author.id} and ${message.target.id}.`,
-    )
+    let targets = this._server.to(this.getRoomName(message.author));
+
+    if (!ignoreds.some((ignored) => ignored.target.id === message.author.id))
+      targets = targets.to(this.getRoomName(message.target));
+
+    targets.emit('message', message);
+
+    console.log(`DM:Message sent to ${message.author.id} and ${message.target.id}.`)
   }
 
   // -------------------------------------------------------------------------
