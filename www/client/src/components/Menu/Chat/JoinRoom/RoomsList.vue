@@ -25,12 +25,10 @@
 </template>
 
 <script lang="ts">
-import { ref } from '@vue/reactivity'
 import { computed, onMounted } from '@vue/runtime-core'
 
 import JoinRoomPanel from './JoinRoomPanel.vue'
 
-import requestStatus from '@/composables/requestStatus'
 import getFetchRooms from '@/composables/Chat/Rooms/fetchRooms'
 import getJoinPanelInteraction from '@/composables/Chat/WindowInteraction/getJoinPanelInteraction'
 import { getRoomsByName } from '@/composables/Chat/Rooms/getRoomsByFilters'
@@ -40,8 +38,7 @@ export default {
     JoinRoomPanel,
   },
   setup() {
-    let status = ref(requestStatus.loading)
-    let { rooms, fetchRooms } = getFetchRooms(status)
+    let { rooms, fetchRooms } = getFetchRooms()
     let { searchQuery, roomsByName } = getRoomsByName(rooms)
 
     let { open_panel, openPanel } = getJoinPanelInteraction()

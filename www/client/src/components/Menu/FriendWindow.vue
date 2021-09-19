@@ -7,8 +7,9 @@
     </form>
     <FriendsList
       v-if="searchQuery"
-      :friends="friendsByName"
+      :Friends="friendsByName"
       @open_chat="open_chat"
+      @reloadData="loadData"
     />
 
     <div @click="open_chat" class="open-chat-btn" v-if="!searchQuery">
@@ -26,7 +27,7 @@
     </a>
     <RequestList
       v-if="showRequest"
-      :requests="requests"
+      :Requests="requests"
       @request_answered="loadData"
     />
 
@@ -41,8 +42,9 @@
     </a>
     <FriendsList
       v-if="showOnline && !searchQuery"
-      :friends="onlineFriends"
+      :Friends="onlineFriends"
       @open_chat="open_chat"
+      @reloadData="loadData"
     />
 
     <a
@@ -56,8 +58,23 @@
     </a>
     <FriendsList
       v-if="showOffline && !searchQuery"
-      :friends="offlineFriends"
+      :Friends="offlineFriends"
       @open_chat="open_chat"
+    />
+
+    <a
+      v-if="!searchQuery"
+      class="roll-menu"
+      :class="{ 'roll-menu--open': showIgnored }"
+      @click="toggle_menu('ignored')"
+    >
+      Blocked
+      <i class="far fa-arrow-alt-circle-down arrow"></i>
+    </a>
+    <IgnoredList
+      v-if="showIgnored && !searchQuery"
+      :Ignored="ignored"
+      @unblocked_user="loadData"
     />
   </div>
 </template>
@@ -67,6 +84,7 @@ import { onMounted } from 'vue'
 
 import getFetchFriends from '@/composables/Friends/fetchFriends'
 import getFetchRequest from '@/composables/Friends/fetchRequest'
+import getFetchIgnored from '@/composables/Ignored/fetchIgnored'
 
 import {
   getFriendsByName,
@@ -76,25 +94,35 @@ import getFriendsWindowInteraction from '@/composables/Window/FriendsWindowInter
 
 import FriendsList from './Friend/Friends/FriendsList.vue'
 import RequestList from './Friend/Request/RequestList.vue'
+import IgnoredList from './Friend/Ignored/IgnoredList.vue'
 
 export default {
   components: {
     FriendsList,
     RequestList,
+    IgnoredList,
   },
   setup(props, { emit }) {
     let { friends, fetchFriends } = getFetchFriends()
-    let { searchQuery, friendsByName } = getFriendsByName(friends)
-    const { onlineFriends, offlineFriends } = getFriendsByStatus(friends)
+    let { ignored, fetchIgnored } = getFetchIgnored()
+
+    let { searchQuery, friendsByName } = getFriendsByName(friends, ignored)
+    const { onlineFriends, offlineFriends } = getFriendsByStatus(
+      friends,
+      ignored,
+    )
 
     const { requests, fetchRequest } = getFetchRequest()
 
-    let { showOffline, showOnline, showRequest, toggle_menu } =
+    let { showOffline, showOnline, showRequest, showIgnored, toggle_menu } =
       getFriendsWindowInteraction()
 
     const loadData = () => {
+      friends.value = []
+      ignored.value = []
       fetchRequest()
       fetchFriends()
+      fetchIgnored()
     }
 
     const open_chat = (userId: Number, userName: String) => {
@@ -108,10 +136,12 @@ export default {
     return {
       // Variables
       requests,
+      ignored,
       searchQuery,
       showOnline,
       showOffline,
       showRequest,
+      showIgnored,
       // Methods
       toggle_menu,
       loadData,

@@ -1,6 +1,6 @@
 <template>
   <div class="friend-container">
-    <div class="friend-item" v-for="request in requests" :key="request">
+    <div class="friend-item" v-for="request in Requests" :key="request">
       {{ request.user.name }}
       <div class="request-btn">
         <i
@@ -17,15 +17,15 @@
 </template>
 
 <script lang="ts">
-import getFriendInteraction from '@/composables/Friends/getFriendInteraction'
+import getUserInteraction from '@/composables/User/getUserInteraction'
 import { UserType } from '@/types/user/user'
 
 export default {
   props: {
-    requests: Object,
+    Requests: Object,
   },
   setup(props, { emit }) {
-    const { addFriend, removeFriend } = getFriendInteraction()
+    const { addFriend, removeFriend } = getUserInteraction()
 
     const acceptRequest = async (user: UserType) => {
       await addFriend(user)
