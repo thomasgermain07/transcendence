@@ -216,13 +216,30 @@ export class RoomsService {
         .execute()
   }
 
-  // TODO: transform to query which returns player count
   public async checkIfMatchFound(id: number): Promise<boolean> {
     const room = await this.roomsRepository.findOne(id)
     if (room && room.players.length == 2) {
       return true
     }
     return false
+  }
+
+  public async createPrivate(
+    createOptionDto: CreateOptionDto,
+  )
+      : Promise<Room>
+  {
+    const option = this.optionsRepository.create(createOptionDto);
+
+    const room = this.roomsRepository.create({
+        mode: GameMode.PRIVATE,
+        option: option,
+        locked: true,
+        players: [],
+    });
+    await this.roomsRepository.save(room)
+  
+    return room;
   }
 
   // -------------------------------------------------------------------------

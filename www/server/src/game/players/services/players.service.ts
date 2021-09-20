@@ -7,6 +7,7 @@ import { Room } from '../../rooms/entities/room.entity';
 import { User } from '../../../users/entities/user.entity';
 import UpdatePlayerDto from '../dto/update-player.dto';
 import { GameState } from 'src/game/enum/enum';
+import { RoomsService } from 'src/game/rooms/services/rooms.service';
 
 
 
@@ -20,6 +21,7 @@ export class PlayersService {
   constructor(
     @InjectRepository(Player)
     private playersRepository: Repository<Player>,
+    private roomsService: RoomsService,
   ) {}
 
   // -------------------------------------------------------------------------
@@ -33,14 +35,21 @@ export class PlayersService {
   )
       : Promise<Player>
   {
+    let player = null;
+
+    try {
+      room = await this.roomsService.findOne(room.id)
       // check if player for this user is already in room
-      let player = await this.playersRepository.findOne({
-          where: {user: user, room: room}
-        })
+      player = await this.playersRepository.findOne({
+        where: {user: user, room: room}
+      })
       // if not: add player in room
       if (!player) {
         player = await this.addPlayer(room, user)
       }
+    } catch (error) {
+      console.log(error)
+    }
 
     return player;
   }
