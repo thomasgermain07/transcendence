@@ -172,7 +172,8 @@ export class RoomsService {
       .leftJoinAndSelect("room.option", "option")
       .leftJoinAndSelect("room.players", "players")
       .leftJoinAndSelect("players.user", "users")
-      .where("players.user.id = :userId", {userId: user.id})
+      .where("room.mode != :mode", { mode: GameMode.PRIVATE })
+      .andWhere("players.user.id = :userId", {userId: user.id})
       .andWhere("players.winner = :winner", { winner: true })
       .getMany() // TODO: replace by getCount
 

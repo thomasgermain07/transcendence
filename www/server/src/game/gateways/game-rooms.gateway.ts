@@ -142,8 +142,8 @@ export class GameRoomsGateway
     console.log(room.players[0].id);
     console.log(data.playerId);
     if ( room.players[0].id == data.playerId) {
-      playerL = await this.playerService.update( room.players[0].id ,{ winner: false })
-      playerR = await this.playerService.update( room.players[1].id, { winner: true })
+      playerL = await this.playerService.update( room.players[0].id ,{ winner: false, mode: room.mode })
+      playerR = await this.playerService.update( room.players[1].id, { winner: true, mode: room.mode })
       if (this.game[data.room].player_left.getId() == data.playerId ) {
         this.game[data.room].player_left.setWinner(false);
         this.game[data.room].player_right.setWinner(true);
@@ -154,8 +154,8 @@ export class GameRoomsGateway
       }
     }
     else {
-      playerL =  await this.playerService.update( room.players[0].id ,{ winner: true })
-      playerR =  await this.playerService.update( room.players[1].id, { winner: false })
+      playerL =  await this.playerService.update( room.players[0].id ,{ winner: true, mode: room.mode })
+      playerR =  await this.playerService.update( room.players[1].id, { winner: false, mode: room.mode })
       if (this.game[data.room].player_left.getId() == data.playerId ) {
         this.game[data.room].player_left.setWinner(false);
         this.game[data.room].player_right.setWinner(true);
@@ -530,8 +530,8 @@ export class GameRoomsGateway
 
       // console.log("END " + game.player_left.winner + game.player_right.winner );
       const roomId = await playerService.findRoomNumber(game.player_left.getId())
-      const playerL: Player = await playerService.update(game.player_left.getId(), { winner: game.player_left.getWinner() })
-      const playerR: Player = await playerService.update(game.player_right.getId(), { winner: game.player_right.getWinner() })
+      const playerL: Player = await playerService.update(game.player_left.getId(), { winner: game.player_left.getWinner(), mode: game.info.mode })
+      const playerR: Player = await playerService.update(game.player_right.getId(), { winner: game.player_right.getWinner(), mode: game.info.mode })
       game.info.status = GameState.OVER;
       server.to(roomName).emit('updateRoomInClient',
       {room: playerL.room} )
