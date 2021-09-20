@@ -12,7 +12,7 @@ import CreateOptionDto from '../dto/create-option.dto';
 import { User } from 'src/users/entities/user.entity';
 
 
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('game/rooms')
 @UseInterceptors(ClassSerializerInterceptor)
 export class RoomsController {

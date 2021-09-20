@@ -6,7 +6,7 @@ import { Player } from '../entities/player.entity';
 import { Room } from '../../rooms/entities/room.entity';
 import { User } from '../../../users/entities/user.entity';
 import UpdatePlayerDto from '../dto/update-player.dto';
-import { GameState } from 'src/game/enum/enum';
+import { GameState, GameMode } from 'src/game/enum/enum';
 import { RoomsService } from 'src/game/rooms/services/rooms.service';
 
 
@@ -141,6 +141,7 @@ export class PlayersService {
       ])
       .where("player.user =:userId", { userId: userId })
       .andWhere("room.state =:state", { state: GameState.OVER })
+      .andWhere("room.mode !=:mode", { mode: GameMode.PRIVATE })
       .orderBy("player.id", "DESC")
       .getMany()
 
