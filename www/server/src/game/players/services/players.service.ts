@@ -141,7 +141,6 @@ export class PlayersService {
       ])
       .where("player.user =:userId", { userId: userId })
       .andWhere("room.state =:state", { state: GameState.OVER })
-      .andWhere("room.mode !=:mode", { mode: GameMode.PRIVATE })
       .orderBy("player.id", "DESC")
       .getMany()
 
