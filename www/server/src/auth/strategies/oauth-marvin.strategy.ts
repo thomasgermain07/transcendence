@@ -8,6 +8,7 @@ import { CreateUserDto } from "src/users/dto/create-user.dto";
 import { User }          from "src/users/entities/user.entity";
 
 import { AuthService } from "../services/auth.service";
+import { UsersService } from "src/users/services/users.service";
 
 const CLIENT_ID     = process.env.VITE_FT_ID;
 const CLIENT_SECRET = process.env.VITE_FT_SECRET;
@@ -23,6 +24,7 @@ export class OAuthMarvinStrategy
 	constructor(
 		private readonly http_svc: HttpService,
 		private readonly auth_svc: AuthService,
+		private readonly users_svc: UsersService,
 	)
 	{
 		super({
@@ -62,9 +64,25 @@ export class OAuthMarvinStrategy
 		if (user)
 			return user;
 
+		const name_already_taken: boolean = !!(await this.users_svc.findOne({ name: data.login }));
+
+		let username: string = data.login;
+		if (name_already_taken)
+		{
+			const users: User[] = await this.users_svc.findAllWithNameLike(data.login);
+
+			for (let i = 1; i < Number.MAX_SAFE_INTEGER; ++i)
+			{
+				username = `${data.login}_${i}`;
+
+				if (!users.some(u => u.name === username))
+					break;
+			}
+		}
+
 		const create_dto: CreateUserDto = {
 			email: data.email,
-			name: data.login,
+			name: username,
 			marvin_id: data.id,
 			avatar: data.image_url,
 		};
