@@ -33,31 +33,26 @@ import { ref, PropType } from 'vue'
 import { UserType } from '@/types/user/user'
 import getUserInteraction from '@/composables/User/getUserInteraction'
 import { useRouter } from 'vue-router'
-import MyContextMenu from '../ContextMenu.vue'
 
 export default {
-  components: {
-    MyContextMenu,
-  },
   props: {
     Friends: Array as PropType<Array<UserType>>,
   },
   setup(props, { emit }) {
-    let cm_user = ref<UserType>()
+    let cm_user: UserType
     let router = useRouter()
 
     const { removeFriend, blockUser } = getUserInteraction()
 
     const onRightClick = (user: UserType) => {
-      cm_user.value = user
-      emit('right_click')
+      cm_user = user
     }
 
     const onProfile = () => {
-      if (cm_user.value != undefined) {
+      if (cm_user != undefined) {
         router.push({
           name: 'user-profile',
-          params: { id: cm_user.value.id },
+          params: { id: cm_user.id },
         })
       }
     }
@@ -67,26 +62,26 @@ export default {
     }
 
     const onOpenDm = () => {
-      if (cm_user.value == undefined) {
+      if (cm_user == undefined) {
         return
       }
-      emit('open_chat', cm_user.value.id, cm_user.value.name)
+      emit('open_chat', cm_user.id, cm_user.name)
     }
 
     const onDeleteFriend = async () => {
-      if (cm_user.value == undefined) {
+      if (cm_user == undefined) {
         return
       }
-      await removeFriend(cm_user.value)
-      emit('reloadData')
+      await removeFriend(cm_user)
+      emit('reload_data')
     }
 
     const onBlockUser = async () => {
-      if (cm_user.value == undefined) {
+      if (cm_user == undefined) {
         return
       }
-      await blockUser(cm_user.value)
-      emit('reloadData')
+      await blockUser(cm_user)
+      emit('reload_data')
     }
 
     return {

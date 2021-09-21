@@ -7,8 +7,8 @@
         @leave="$emit('leave')"
         :Room="room"
       />
-
-      <div v-if="!open_setting" class="messages-ctn">
+      <!-- TODO (CSS) : Check why long messages with no space overflow on x axis -->
+      <div class="messages-ctn" v-if="!open_setting">
         <div
           v-for="message in messages"
           :key="message"
@@ -18,15 +18,23 @@
           <p class="msg__name">{{ message.author.name }}</p>
           <span class="msg__content">{{ message.content }}</span>
         </div>
+        <a
+          v-if="!max_msg"
+          class="info info--clickable"
+          @click="loadMoreMessages"
+        >
+          load more</a
+        >
+        <div v-else class="info">no more messages</div>
       </div>
     </div>
 
-    <div class="bar">
+    <div class="bar" v-if="!open_setting">
       <i
         class="fas fa-cogs setting-btn"
         @click="open_setting = !open_setting"
       ></i>
-      <div class="bar__input" v-if="!open_setting">
+      <div class="bar__input">
         <input
           type="text"
           class="input__field"
@@ -62,11 +70,22 @@ export default {
     let open_setting = ref(false)
     let message_field = ref('')
     let me = useAuth().user
+    let max_msg = ref(false)
+    let page = 1
 
     let { room, fetchRoom } = getFetchRoom()
 
     const { messages, fetchMessages } = getFetchMessages()
     const { createMessage } = getCreateMessage()
+
+    const loadMoreMessages = async () => {
+      page += 1
+      let size_before = messages.value.length
+      await fetchMessages(props.RoomId!, page)
+      if (messages.value.length == size_before) {
+        max_msg.value = true
+      }
+    }
 
     const sendMessage = async () => {
       if (message_field.value.length) {
@@ -76,9 +95,12 @@ export default {
     }
 
     const getData = async (id: number) => {
+      max_msg.value = false
+      page = 1
+      messages.value.length = 0
       if (id != 0) {
         await fetchRoom(id)
-        await fetchMessages(id)
+        await fetchMessages(id, 0)
       }
     }
 
@@ -104,7 +126,9 @@ export default {
       me,
       room,
       messages,
+      max_msg,
       sendMessage,
+      loadMoreMessages,
     }
   },
 }
@@ -123,6 +147,7 @@ export default {
 
 .messages-ctn {
   overflow-y: auto;
+  overflow-x: hidden;
   height: 100%;
   max-height: 347px;
   display: flex;
@@ -152,6 +177,14 @@ export default {
   background-color: cadetblue;
   text-align: left;
   max-width: 250px;
+}
+
+.info {
+  align-self: center;
+}
+
+.info--clickable {
+  cursor: pointer;
 }
 
 .bar {

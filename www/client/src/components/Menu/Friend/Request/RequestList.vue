@@ -1,7 +1,21 @@
 <template>
   <div class="friend-container">
+    <v-contextmenu ref="contextmenu">
+      <v-contextmenu-item @click="onProfile">View Profile</v-contextmenu-item>
+      <v-contextmenu-item @click="onOpenDm">Send Message</v-contextmenu-item>
+      <v-contextmenu-item @click="onBlockUser">Block</v-contextmenu-item>
+    </v-contextmenu>
+
     <div class="friend-item" v-for="request in Requests" :key="request">
-      {{ request.user.name }}
+      <div
+        @click.left="$emit('open_chat', request.user.id, request.user.name)"
+        @click.right="onRightClick(request.user)"
+        v-contextmenu:contextmenu
+      >
+        <div>
+          {{ request.user.name }}
+        </div>
+      </div>
       <div class="request-btn">
         <i
           class="fas fa-check-square accept-btn"
@@ -19,13 +33,42 @@
 <script lang="ts">
 import getUserInteraction from '@/composables/User/getUserInteraction'
 import { UserType } from '@/types/user/user'
+import { useRouter } from 'vue-router'
 
 export default {
   props: {
     Requests: Object,
   },
   setup(props, { emit }) {
-    const { addFriend, removeFriend } = getUserInteraction()
+    let cm_user: UserType
+    let router = useRouter()
+
+    const { addFriend, removeFriend, blockUser } = getUserInteraction()
+
+    const onRightClick = (user: UserType) => {
+      cm_user = user
+    }
+
+    const onProfile = () => {
+      if (cm_user != undefined) {
+        router.push({
+          name: 'user-profile',
+          params: { id: cm_user.id },
+        })
+      }
+    }
+
+    const onBlockUser = async () => {
+      if (cm_user == undefined) {
+        return
+      }
+      await blockUser(cm_user)
+      emit('reload_data')
+    }
+
+    const onOpenDm = () => {
+      emit('open_chat', cm_user.id, cm_user.name)
+    }
 
     const acceptRequest = async (user: UserType) => {
       await addFriend(user)
@@ -37,7 +80,14 @@ export default {
       emit('request_answered')
     }
 
-    return { acceptRequest, refuseRequest }
+    return {
+      onRightClick,
+      onProfile,
+      onOpenDm,
+      onBlockUser,
+      acceptRequest,
+      refuseRequest,
+    }
   },
 }
 </script>

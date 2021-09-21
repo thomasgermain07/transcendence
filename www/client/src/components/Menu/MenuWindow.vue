@@ -10,29 +10,24 @@
 
   <div v-if="open" class="window" :class="{ 'window--chat-open': chat_open }">
     <div class="window-friend">
-      <header class="top-bar">
-        <a @click="toggle_window">
-          <i class="far fa-times-circle top-bar__close"></i>
-        </a>
-        <div class="top-bar__name">Friends</div>
-      </header>
-      <FriendWindow @open_chat="open_chat" />
+      <FriendWindow
+        @open_chat="open_chat"
+        @close="toggle_window"
+        :Notification="notifications.length"
+        :ChatStatus="chat_open"
+      />
     </div>
     <div v-if="chat_open" class="window-chat">
-      <header class="top-bar chat__top-bar">
-        <a @click="close_chat">
-          <i class="far fa-times-circle top-bar__close"></i>
-        </a>
-        <div class="top-bar__name">Chat - {{ page_title }}</div>
-      </header>
       <ChatWindow
-        @set_page_title="set_page_title"
         @refresh_rooms="refreshRooms"
         @refresh_related_users="refreshRelatedUsers"
+        @set_page_title="set_page_title"
+        @close="close_chat"
         :DmID="dmID"
         :Notifications="notifications"
         :Rooms="rooms"
         :RelatedUsers="relatedUsers"
+        :PageTitle="page_title"
       />
     </div>
   </div>
@@ -164,7 +159,7 @@ export default {
   width: 180px;
   height: 400px;
   position: fixed;
-  bottom: 0px;
+  bottom: 50px;
   right: 10px;
   background-color: grey;
 }
@@ -185,24 +180,7 @@ export default {
   flex-direction: column;
 }
 
-.top-bar {
-  display: flex;
-  justify-content: flex-start;
-  padding: 4px 4px;
-  background-color: black;
-  color: white;
-}
-
 .chat__top-bar {
   border-right: 2px solid lightgray;
-}
-
-.top-bar__name {
-  flex-grow: 1;
-}
-
-.top-bar__close {
-  color: whitesmoke;
-  cursor: pointer;
 }
 </style>

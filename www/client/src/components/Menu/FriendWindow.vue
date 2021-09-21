@@ -1,5 +1,6 @@
 <template>
   <div class="friend-window">
+    <TopBar :Title="'Friends'" @close="$emit('close')" @refresh="loadData" />
     <form class="search-bar-ctn">
       <i class="fas fa-search search-icon"></i>
       <input v-model="searchQuery" class="search-bar" placeholder="Search" />
@@ -9,11 +10,16 @@
       v-if="searchQuery"
       :Friends="friendsByName"
       @open_chat="open_chat"
-      @reloadData="loadData"
+      @reload_data="loadData"
     />
 
     <div @click="open_chat" class="open-chat-btn" v-if="!searchQuery">
+      <i class="fas fa-bell notification"></i>
       Open chat
+      <i
+        class="fas fa-bell notification"
+        :class="{ 'notification--visible': Notification && !ChatStatus }"
+      ></i>
     </div>
 
     <a
@@ -26,9 +32,11 @@
       <i class="far fa-arrow-alt-circle-down arrow"></i>
     </a>
     <RequestList
-      v-if="showRequest"
+      v-if="showRequest && !searchQuery"
       :Requests="requests"
       @request_answered="loadData"
+      @reload_data="loadData"
+      @open_chat="open_chat"
     />
 
     <a
@@ -44,7 +52,7 @@
       v-if="showOnline && !searchQuery"
       :Friends="onlineFriends"
       @open_chat="open_chat"
-      @reloadData="loadData"
+      @reload_data="loadData"
     />
 
     <a
@@ -92,15 +100,21 @@ import {
 } from '@/composables/Friends/getFriendsByFilters'
 import getFriendsWindowInteraction from '@/composables/Window/FriendsWindowInteraction'
 
+import TopBar from './Utils/TopBar.vue'
 import FriendsList from './Friend/Friends/FriendsList.vue'
 import RequestList from './Friend/Request/RequestList.vue'
 import IgnoredList from './Friend/Ignored/IgnoredList.vue'
 
 export default {
   components: {
+    TopBar,
     FriendsList,
     RequestList,
     IgnoredList,
+  },
+  props: {
+    Notification: Number,
+    ChatStatus: Boolean,
   },
   setup(props, { emit }) {
     let { friends, fetchFriends } = getFetchFriends()
@@ -152,7 +166,7 @@ export default {
       friendsByName,
     }
   },
-  emits: ['open_chat'],
+  emits: ['open_chat', 'close'],
 }
 </script>
 
@@ -163,6 +177,15 @@ export default {
   max-height: 375px;
 }
 
+.notification {
+  color: red;
+  visibility: hidden;
+}
+
+.notification--visible {
+  visibility: visible;
+}
+
 .search-bar-ctn {
   padding: 2px;
   justify-content: space-around;
@@ -171,6 +194,8 @@ export default {
 }
 
 .open-chat-btn {
+  display: flex;
+  justify-content: space-between;
   border-bottom: 2px solid black;
   padding: 3px;
 }
