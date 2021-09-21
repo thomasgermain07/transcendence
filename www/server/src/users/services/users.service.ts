@@ -188,4 +188,14 @@ export class UsersService {
 
     return await this.users_repo.findOne(userId)
   }
+
+  public async updateGameInvitation(
+    user: User, 
+    inviteStatus: boolean
+  ) : Promise<User> {
+    const result = await this.users_repo.update(user.id, {
+      game_invitation_pending: inviteStatus
+    })
+    return await this.users_repo.findOne(user.id)
+  }
 }
