@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { Like, Repository } from 'typeorm'
 
 import { Message } from 'src/direct_message/messages/entities/message.entity'
 
@@ -121,6 +121,17 @@ export class UsersService {
 
   async findAll(): Promise<User[]> {
     return this.users_repo.find()
+  }
+
+  findAllWithNameLike(
+    name: string,
+  )
+    : Promise<User[]>
+  {
+    return this.users_repo.find({
+      select: [ "name" ],
+      where: { name: Like(`${name}%`) }
+    });
   }
 
   async findOne(data: Object): Promise<User> {
