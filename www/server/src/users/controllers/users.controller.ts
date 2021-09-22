@@ -95,6 +95,16 @@ export class UsersController {
 		}
 	}
 
+  @Get(':id/game-invite-pending')
+  async getGameInvite(@Param('id', ParseIntPipe) id: number): Promise<boolean> 
+  {
+    const user: User = await this.users_svc.findOne(id)
+    if (!user) {
+      throw new NotFoundException('User not found')
+    }
+    return user.game_invitation_pending
+  }
+
   @Post('/upload')
   @UseInterceptors(FileInterceptor('file', storage ))
   async uploadFile(@AuthUser() user: User,

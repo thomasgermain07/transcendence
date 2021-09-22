@@ -171,4 +171,7 @@ export class User {
     lazy: true,
   })
   public dm_messages_received: Promise<DMMessage[]>
+
+  @Column({ default: false })
+  public game_invitation_pending: boolean
 }

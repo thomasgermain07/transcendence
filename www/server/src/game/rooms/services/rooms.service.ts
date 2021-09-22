@@ -172,7 +172,8 @@ export class RoomsService {
       .leftJoinAndSelect("room.option", "option")
       .leftJoinAndSelect("room.players", "players")
       .leftJoinAndSelect("players.user", "users")
-      .where("players.user.id = :userId", {userId: user.id})
+      .where("room.mode != :mode", { mode: GameMode.PRIVATE })
+      .andWhere("players.user.id = :userId", {userId: user.id})
       .andWhere("players.winner = :winner", { winner: true })
       .getMany() // TODO: replace by getCount
 
@@ -216,13 +217,30 @@ export class RoomsService {
         .execute()
   }
 
-  // TODO: transform to query which returns player count
   public async checkIfMatchFound(id: number): Promise<boolean> {
     const room = await this.roomsRepository.findOne(id)
     if (room && room.players.length == 2) {
       return true
     }
     return false
+  }
+
+  public async createPrivate(
+    createOptionDto: CreateOptionDto,
+  )
+      : Promise<Room>
+  {
+    const option = this.optionsRepository.create(createOptionDto);
+
+    const room = this.roomsRepository.create({
+        mode: GameMode.PRIVATE,
+        option: option,
+        locked: true,
+        players: [],
+    });
+    await this.roomsRepository.save(room)
+  
+    return room;
   }
 
   // -------------------------------------------------------------------------

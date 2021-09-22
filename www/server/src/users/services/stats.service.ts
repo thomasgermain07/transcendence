@@ -3,6 +3,7 @@ import { InjectRepository }     from '@nestjs/typeorm'
 import { Repository }           from 'typeorm'
 
 import { User }                               from '../entities/user.entity'
+import { GameMode } 						  from 'src/game/enum/enum'
 import { GameLeaderboard }                    from '../types/game-leaderboard'
 import { GameStatsPerMode, GameStatsTotal }   from '../types/game-stats'
 
@@ -123,7 +124,9 @@ export class StatsService
 			'COUNT(*) FILTER (WHERE player.winner IS NOT NULL) as played',
 		])
 		.leftJoin('user.players', 'player')
+		.leftJoin("player.room", "room")
 		.where('user.id = :id', { id : userId })
+		.andWhere("room.mode !=:mode", { mode: GameMode.PRIVATE })
 		.getRawMany()
 
 		const total: GameStatsTotal = {
