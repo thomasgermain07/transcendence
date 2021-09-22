@@ -19,13 +19,14 @@
           <span class="msg__content">{{ message.content }}</span>
         </div>
         <a
-          v-if="!max_msg"
+          v-if="!max_msg && messages.length >= 50"
           class="info info--clickable"
           @click="loadMoreMessages"
         >
           load more</a
         >
-        <div v-else class="info">no more messages</div>
+        <div v-else-if="messages.length" class="info">no more messages</div>
+        <div v-else class="info">No message yet</div>
       </div>
     </div>
 
@@ -49,9 +50,11 @@
 
 <script lang="ts">
 import { onMounted, ref, watch } from 'vue'
+
 import { useSocket } from '@/composables/socket'
-import { MessageType } from '@/types/chat/message'
 import { useAuth } from '@/composables/auth'
+
+import { MessageType } from '@/types/chat/message'
 
 import Setting from './Setting.vue'
 
@@ -66,7 +69,7 @@ export default {
   components: {
     Setting,
   },
-  setup(props, { emit }) {
+  setup(props) {
     let open_setting = ref(false)
     let message_field = ref('')
     let me = useAuth().user

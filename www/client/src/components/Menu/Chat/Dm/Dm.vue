@@ -11,6 +11,15 @@
           <p class="msg__name">{{ message.author.name }}</p>
           <span class="msg__content">{{ message.content }}</span>
         </div>
+        <a
+          v-if="!max_msg && messages.length >= 50"
+          class="info info--clickable"
+          @click="loadMoreMessages"
+        >
+          load more</a
+        >
+        <div v-else-if="messages.length" class="info">no more messages</div>
+        <div v-else class="info">No message yet</div>
       </div>
     </div>
 
@@ -29,13 +38,15 @@
 </template>
 
 <script lang="ts">
-import { ref } from '@vue/reactivity'
-import getFetchMessages from '@/composables/Chat/Dms/fetchMessages'
-import { onMounted, watch } from '@vue/runtime-core'
+import { onMounted, watch, ref } from '@vue/runtime-core'
+
 import { useAuth } from '@/composables/auth'
-import getCreateMessage from '@/composables/Chat/Dms/createMessage'
 import { useSocket } from '@/composables/socket'
+
 import { DirectMessageType } from '@/types/chat/direct_message'
+
+import getFetchMessages from '@/composables/Chat/Dms/fetchMessages'
+import getCreateMessage from '@/composables/Chat/Dms/createMessage'
 
 export default {
   props: {
@@ -46,11 +57,25 @@ export default {
     let { messages, fetchMessages } = getFetchMessages()
     let { createMessage } = getCreateMessage()
 
+    let page = 1
+    let max_msg = ref(false)
     let me = useAuth().user
 
     const getData = async () => {
+      page = 1
+      max_msg.value = false
+      messages.value.length = 0
       if (props.UserId! != 0) {
-        await fetchMessages(props.UserId!)
+        await fetchMessages(props.UserId!, page)
+      }
+    }
+
+    const loadMoreMessages = async () => {
+      page += 1
+      let size_before = messages.value.length
+      await fetchMessages(props.UserId!, page)
+      if (messages.value.length == size_before) {
+        max_msg.value = true
       }
     }
 
@@ -81,7 +106,9 @@ export default {
       me,
       message_field,
       messages,
+      max_msg,
       sendMessage,
+      loadMoreMessages,
     }
   },
 }
@@ -129,6 +156,14 @@ export default {
   background-color: cadetblue;
   text-align: left;
   max-width: 250px;
+}
+
+.info {
+  align-self: center;
+}
+
+.info--clickable {
+  cursor: pointer;
 }
 
 .bar {

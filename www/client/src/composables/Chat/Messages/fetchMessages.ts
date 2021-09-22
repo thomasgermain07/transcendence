@@ -13,7 +13,6 @@ export default function getFetchMessages() {
           page: page,
         },
       })
-      console.log(data)
       messages.value = messages.value.concat(data)
     } catch (e) {
       console.log(e)
