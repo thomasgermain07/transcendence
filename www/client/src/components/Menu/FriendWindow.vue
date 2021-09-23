@@ -68,6 +68,7 @@
       v-if="showOffline && !searchQuery"
       :Friends="offlineFriends"
       @open_chat="open_chat"
+      @reload_data="loadData"
     />
 
     <a
@@ -166,7 +167,7 @@ export default {
       friendsByName,
     }
   },
-  emits: ['open_chat', 'close'],
+  emits: ['open_chat', 'close', 'open_create_invite'],
 }
 </script>
 

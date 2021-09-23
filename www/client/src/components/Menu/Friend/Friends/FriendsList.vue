@@ -1,6 +1,6 @@
 <template>
   <div class="friend-container">
-    <v-contextmenu ref="contextmenu" @hide="cm_user = undefined">
+    <v-contextmenu ref="contextmenu">
       <v-contextmenu-item @click="onProfile">View Profile</v-contextmenu-item>
       <v-contextmenu-item @click="onOpenDm">Send Message</v-contextmenu-item>
       <v-contextmenu-item @click="onSendDuel">Send Duel</v-contextmenu-item>
@@ -29,10 +29,19 @@
 </template>
 
 <script lang="ts">
-import { ref, PropType } from 'vue'
+import { PropType } from 'vue'
+import { openModal } from 'jenesius-vue-modal'
+
+import DuelCreaction from '@/components/game/DuelCreation.vue'
+
 import { UserType } from '@/types/user/user'
-import getUserInteraction from '@/composables/User/getUserInteraction'
+
 import { useRouter } from 'vue-router'
+import { useAuth } from '@/composables/auth'
+import useGameInvite from '@/composables/Game/useGameInvite'
+
+import getUserInteraction from '@/composables/User/getUserInteraction'
+import getInvitationInteraction from '@/composables/Game/invitationInteraction'
 
 export default {
   props: {
@@ -43,6 +52,8 @@ export default {
     let router = useRouter()
 
     const { removeFriend, blockUser } = getUserInteraction()
+
+    const { hasPendingInvite } = getInvitationInteraction()
 
     const onRightClick = (user: UserType) => {
       cm_user = user
@@ -57,8 +68,14 @@ export default {
       }
     }
 
-    const onSendDuel = () => {
-      // TODO : Connect with game when done
+    const onSendDuel = async () => {
+      if (await hasPendingInvite(useAuth().user.id)) {
+        useGameInvite().alreadySendInvite()
+        return
+      }
+      openModal(DuelCreaction, {
+        Target: cm_user,
+      })
     }
 
     const onOpenDm = () => {
@@ -85,7 +102,6 @@ export default {
     }
 
     return {
-      cm_user,
       onOpenDm,
       onRightClick,
       onProfile,
