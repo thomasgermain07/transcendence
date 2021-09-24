@@ -106,6 +106,7 @@ import { UserType } from '@/types/user/user'
 import { DifficultyLevel, GameOptions, MapType } from '@/types/game/gameOptions'
 import { closeModal } from 'jenesius-vue-modal'
 import getInvitationInteraction from '@/composables/Game/invitationInteraction'
+import useGameInvite from '@/composables/Game/useGameInvite'
 
 export default {
   props: {
@@ -125,7 +126,8 @@ export default {
     }
 
     const sendInvite = async () => {
-      await createInvitation(gameOptions, props.Target!.id)
+      let invite = await createInvitation(gameOptions, props.Target!.id)
+      useGameInvite().createInviteNotification(invite, props.Target!)
       closeWindow()
     }
 

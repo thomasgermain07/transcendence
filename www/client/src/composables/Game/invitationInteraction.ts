@@ -32,9 +32,10 @@ export default function getInvitationInteraction() {
     }
   }
 
-  const refuseInvitation = async (invitation: InvitationType) => {
+  const deleteInvitation = async () => {
     try {
-      await axios.post('dm/refuse-invitation', { ...invitation })
+      await axios.post('dm/cancel-invitation')
+      console.log('invitation deleted')
     } catch (e) {
       console.log(e)
     }
@@ -49,9 +50,18 @@ export default function getInvitationInteraction() {
     }
   }
 
+  const refuseInvitation = async (invitation: InvitationType) => {
+    try {
+      await axios.post('dm/refuse-invitation', { ...invitation })
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   return {
     hasPendingInvite,
     createInvitation,
+    deleteInvitation,
     refuseInvitation,
     acceptInvitation,
   }

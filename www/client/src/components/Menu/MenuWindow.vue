@@ -45,6 +45,8 @@ import { NotificationType } from '@/types/chat/notification'
 import getFetchUsers from '@/composables/Chat/Dms/fetchUsers'
 import { useAuth } from '@/composables/auth'
 import { MessageType } from '@/types/chat/message'
+import useGameInvite from '@/composables/Game/useGameInvite'
+import { InvitationType } from '@/types/game/invitation'
 
 export default {
   components: {
@@ -122,6 +124,13 @@ export default {
         notification.value = true
       }
     })
+
+    useSocket('dm').socket.on(
+      'gameInvitationReceived',
+      (invitation: InvitationType) => {
+        useGameInvite().createInvitationNotification(invitation)
+      },
+    )
 
     return {
       open,

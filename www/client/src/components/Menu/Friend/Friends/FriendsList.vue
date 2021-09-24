@@ -32,7 +32,7 @@
 import { PropType } from 'vue'
 import { openModal } from 'jenesius-vue-modal'
 
-import DuelCreaction from '@/components/game/DuelCreation.vue'
+import DuelCreaction from '@/components/game/duel/DuelCreation.vue'
 
 import { UserType } from '@/types/user/user'
 

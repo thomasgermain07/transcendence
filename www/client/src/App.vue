@@ -1,7 +1,7 @@
 <template>
   <div class="root">
-    <Navigation />
     <widget-container-modal />
+    <Navigation />
 
     <span v-if="starting">
       {{ message }}
