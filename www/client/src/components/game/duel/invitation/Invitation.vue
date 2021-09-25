@@ -23,9 +23,8 @@
 </template>
 
 <script lang="ts">
-import { PropType, ref, onMounted } from '@vue/runtime-core'
+import { PropType, ref, onMounted, onUnmounted } from '@vue/runtime-core'
 
-import { useRouter } from 'vue-router'
 import useGameInvite from '@/composables/Game/useGameInvite'
 
 import getInvitationInteraction from '@/composables/Game/invitationInteraction'
@@ -41,10 +40,11 @@ export default {
     let interval = 0
 
     const { acceptInvitation, refuseInvitation } = getInvitationInteraction()
-
-    const closeWindow = () => {
-      useGameInvite().closeInvitationNotification()
-    }
+    const {
+      closeInvitationNotification,
+      invitationExpired,
+      redirectToGameRoom,
+    } = useGameInvite()
 
     const startCountDown = (counter: number) => {
       timer.value = new Date(counter * 1000).toISOString().substr(14, 5)
@@ -55,23 +55,35 @@ export default {
 
         if (counter < 0) {
           clearInterval(interval)
+          timer.value = '00:00'
           onRefuse()
         }
       }, 1000)
     }
 
     const onAccept = async () => {
+      clearInterval(interval)
+
       let gameRoom = await acceptInvitation(props.Invitation!)
-      useRouter().push(`/game/room/${gameRoom.id}`)
-      closeWindow()
+
+      if (gameRoom == 'Invitation expired') {
+        invitationExpired()
+      } else {
+        redirectToGameRoom(gameRoom.id)
+      }
+      closeInvitationNotification(props.Invitation!)
     }
 
     const onRefuse = async () => {
-      await refuseInvitation(props.Invitation!)
-      closeWindow()
+      let res = await refuseInvitation(props.Invitation!)
+      if (res) {
+        invitationExpired()
+      }
+      closeInvitationNotification(props.Invitation!)
     }
 
     onMounted(() => startCountDown(120))
+    onUnmounted(() => clearInterval(interval))
 
     return {
       timer,

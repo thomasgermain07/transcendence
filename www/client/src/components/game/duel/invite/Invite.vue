@@ -6,14 +6,16 @@
       :Target="Target"
     />
     <Refused v-if="status == 'refused'" :Target="Target" />
-    <Accepted v-if="status == 'accepted'" :Target="Target" />
-    <button @click="status = 'accepted'">accept</button>
-    <button @click="status = 'refused'">refuse</button>
+    <Accepted
+      v-if="status == 'accepted'"
+      :Target="Target"
+      :GameRoomId="gameRoomId"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import { onMounted, PropType, ref } from '@vue/runtime-core'
+import { PropType, ref } from '@vue/runtime-core'
 
 import { UserType } from '@/types/user/user'
 import { useSocket } from '@/composables/socket'
@@ -34,19 +36,23 @@ export default {
     Invitation: Object as PropType<InvitationType>,
     Target: Object as PropType<UserType>,
   },
-  setup(props) {
+  setup() {
     let status = ref('waiting')
-    let gameRoomId = 0
-
-    onMounted(() => {
-      console.log(props.Invitation!)
-    })
+    let gameRoomId = ref(0)
 
     useSocket('dm').socket.on('gameInvitationAnswered', (invitation) => {
-      console.log('invitation')
+      if (invitation.reply === 'Game Invitation Refused') {
+        status.value = 'refused'
+      } else if (invitation.reply === 'Game Invitation Accepted') {
+        gameRoomId.value = invitation.gameRoom.id
+        status.value = 'accepted'
+      }
     })
 
-    return { status }
+    return {
+      status,
+      gameRoomId,
+    }
   },
 }
 </script>

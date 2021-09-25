@@ -38,10 +38,11 @@ export default {
     let interval = 0
 
     const { deleteInvitation } = getInvitationInteraction()
+    const { closeInviteNotification } = useGameInvite()
 
     const cancelWaiting = async () => {
       await deleteInvitation()
-      useGameInvite().closeInviteNotification()
+      closeInviteNotification()
     }
 
     const startCountDown = (counter: number) => {
@@ -58,7 +59,6 @@ export default {
     }
 
     onMounted(() => startCountDown(120))
-
     onBeforeUnmount(() => clearInterval(interval))
 
     return {

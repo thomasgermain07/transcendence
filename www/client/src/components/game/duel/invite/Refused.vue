@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, PropType, ref } from '@vue/runtime-core'
+import { onMounted, PropType } from '@vue/runtime-core'
 import { UserType } from '@/types/user/user'
 import useGameInvite from '@/composables/Game/useGameInvite'
 
@@ -22,16 +22,20 @@ export default {
     Target: Object as PropType<UserType>,
   },
   setup() {
+    let interval = 0
+
+    const { closeInviteNotification } = useGameInvite()
+
     const closeInvite = () => {
-      useGameInvite().closeInviteNotification()
+      clearInterval(interval)
+      closeInviteNotification()
     }
 
     const startCountDown = (counter: number) => {
-      let interval = setInterval(() => {
+      interval = setInterval(() => {
         counter--
 
         if (counter < 0) {
-          clearInterval(interval)
           closeInvite()
         }
       }, 1000)

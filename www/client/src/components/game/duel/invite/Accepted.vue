@@ -6,6 +6,7 @@
       </p>
       <div class="join-section">
         <button class="btn" @click="onJoinRoom">Join Room</button>
+        <button class="btn" @click="onCancel">Cancel</button>
       </div>
     </div>
     <div class="logo">
@@ -17,7 +18,7 @@
 <script lang="ts">
 import { PropType } from '@vue/runtime-core'
 import { UserType } from '@/types/user/user'
-import { useRouter } from 'vue-router'
+import useGameInvite from '@/composables/Game/useGameInvite'
 
 export default {
   props: {
@@ -25,12 +26,20 @@ export default {
     GameRoomId: Number,
   },
   setup(props) {
+    const { closeInviteNotification, redirectToGameRoom } = useGameInvite()
+
     const onJoinRoom = () => {
-      useRouter().push(`/game/room/${props.GameRoomId!}`)
+      redirectToGameRoom(props.GameRoomId!)
+      closeInviteNotification()
+    }
+
+    const onCancel = () => {
+      // TODO : Make quit the gameRoom
     }
 
     return {
       onJoinRoom,
+      onCancel,
     }
   },
 }
@@ -48,7 +57,6 @@ export default {
   justify-content: space-around;
   align-items: center;
   font-family: Avenir, Helvetica, Arial, sans-serif;
-  background-color: rgba(0, 128, 0, 0.5);
   border-radius: 8px;
 }
 

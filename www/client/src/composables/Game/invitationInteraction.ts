@@ -1,7 +1,7 @@
 import { GameOptions } from '@/types/game/gameOptions'
 import { InvitationType } from '@/types/game/invitation'
 import { useAuth } from '../auth'
-import { useAxios } from '../axios'
+import { AxiosErrType, useAxios } from '../axios'
 
 export default function getInvitationInteraction() {
   let axios = useAxios().axios
@@ -35,7 +35,6 @@ export default function getInvitationInteraction() {
   const deleteInvitation = async () => {
     try {
       await axios.post('dm/cancel-invitation')
-      console.log('invitation deleted')
     } catch (e) {
       console.log(e)
     }
@@ -45,16 +44,17 @@ export default function getInvitationInteraction() {
     try {
       let { data } = await axios.post('dm/accept-invitation', { ...invitation })
       return data
-    } catch (e) {
-      console.log(e)
+    } catch (e: AxiosErrType) {
+      console.log(`acceptInvitation : ${e.response.data.message}`)
+      return e.response.data.message
     }
   }
 
   const refuseInvitation = async (invitation: InvitationType) => {
     try {
       await axios.post('dm/refuse-invitation', { ...invitation })
-    } catch (e) {
-      console.log(e)
+    } catch (e: AxiosErrType) {
+      return e.response.data.message
     }
   }
 
