@@ -27,12 +27,18 @@
             </div>
 
             <div class="user-interaction">
-              <button v-if="!isCurrentUser" @click="addFriend(user)">
+              <button
+                v-if="!isCurrentUser && !isAlreadyFriend"
+                @click="onAddFriend"
+              >
                 add friend
               </button>
             </div>
             <div class="user-interaction">
-              <button v-if="!isCurrentUser" @click="removeFriend(user)">
+              <button
+                v-if="!isCurrentUser && isAlreadyFriend"
+                @click="onDeleteFriend"
+              >
                 remove friend
               </button>
             </div>
@@ -91,6 +97,7 @@ import { useAxios } from '../../composables/axios'
 import getUserInteraction from '@/composables/User/getUserInteraction'
 import EditProfileForm from '@/components/edit/EditProfileForm.vue'
 import GoogleAuthenticator from '@/components/auth/TwoAuth.vue'
+import { useFriends } from '@/composables/Friends/useFriends'
 
 export default {
   components: {
@@ -102,13 +109,18 @@ export default {
     Achievements,
   },
   setup() {
-    const route = useRoute()
     let status = ref(requestStatus.loading)
-    const { user, fetchUser } = getFetchUser(status)
-    const { addFriend, removeFriend } = getUserInteraction()
+
+    const route = useRoute()
     const { users, get } = useUsers()
     const { axios } = useAxios()
+
+    const { user, fetchUser } = getFetchUser(status)
+    const { addFriend, removeFriend } = getUserInteraction()
     let imageFile = ref('')
+
+    const { reloadFriends, reloadRequests, hasPendingInvite, friends } =
+      useFriends()
 
     const isCurrentUser = computed(() => {
       return user.value!.id == useAuth().user.id
@@ -138,6 +150,29 @@ export default {
       }
     }
 
+    const onAddFriend = async () => {
+      await addFriend(user.value!)
+      reloadRequests()
+      reloadFriends()
+    }
+
+    const onDeleteFriend = async () => {
+      await removeFriend(user.value!)
+      reloadFriends()
+    }
+
+    const isAlreadyFriend = computed(() => {
+      if (
+        friends.value.findIndex((friend) => {
+          return friend.id == user.value!.id
+        }) != -1 ||
+        hasPendingInvite(user.value!)
+      ) {
+        return true
+      }
+      return false
+    })
+
     onBeforeRouteUpdate(() => {
       fetchUserFromRoute()
     })
@@ -153,6 +188,9 @@ export default {
       isCurrentUser,
       onFileSelected,
       onUpload,
+      isAlreadyFriend,
+      onAddFriend,
+      onDeleteFriend,
     }
   },
 }

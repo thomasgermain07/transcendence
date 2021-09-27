@@ -38,6 +38,7 @@ import { InvitationType } from '@/types/game/invitation'
 import { useSocket } from '@/composables/socket'
 import { useGameInvite } from '@/composables/Game/useGameInvite'
 import { useChat } from '@/composables/Chat/useChat'
+import { useFriends } from '@/composables/Friends/useFriends'
 
 export default {
   components: {
@@ -51,7 +52,7 @@ export default {
     let notification = ref(false)
     let dmID = ref(0)
 
-    const { notifications, loadData, joinSocket, listenSocket } = useChat()
+    const { notifications, joinSocket, listenSocket } = useChat()
 
     const toggle_window = () => {
       if (open.value == false) {
@@ -81,7 +82,8 @@ export default {
     }
 
     onMounted(async () => {
-      await loadData()
+      await useChat().loadData()
+      await useFriends().loadData()
       joinSocket()
       listenSocket()
     })

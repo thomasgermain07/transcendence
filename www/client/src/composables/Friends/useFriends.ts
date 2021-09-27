@@ -90,6 +90,17 @@ export function useFriends() {
     )
   })
 
+  const hasPendingInvite = (user: UserType) => {
+    if (
+      requestsList.value.findIndex((request) => {
+        return request.target.id == user.id
+      }) != -1
+    ) {
+      return true
+    }
+    return false
+  }
+
   return {
     friends,
     ignored,
@@ -98,5 +109,6 @@ export function useFriends() {
     reloadFriends,
     reloadIgnored,
     reloadRequests,
+    hasPendingInvite,
   }
 }

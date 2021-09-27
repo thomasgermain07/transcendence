@@ -133,10 +133,6 @@ export default {
       emit('open_chat', userId, userName)
     }
 
-    onMounted(() => {
-      loadData()
-    })
-
     watch(
       () => useChat().notifications.value.length,
       (v) => {
