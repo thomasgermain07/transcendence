@@ -43,6 +43,12 @@ export class User {
   })
   public is_admin: boolean
 
+  @Column({
+    nullable: true,
+    default: "disconnected"
+  })
+  public status: string;
+
   // -------------------------------------------------------------------------
   // Authentication
   // -------------------------------------------------------------------------

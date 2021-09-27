@@ -199,4 +199,8 @@ export class UsersService {
 
     return await this.users_repo.findOne(userId)
   }
+
+  public async updateStatus(user: User, status: string): Promise<void> {
+    this.users_repo.update(user.id, { status: status })
+  }
 }
