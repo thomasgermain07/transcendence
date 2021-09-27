@@ -65,7 +65,6 @@ export function useChat() {
 
     chatSocket.on('message', (message: MessageType) => {
       if (message.author.id != useAuth().user.id) {
-        console.log('new messages')
         notifications.value.unshift({
           type: 'room',
           target: message.room.id,

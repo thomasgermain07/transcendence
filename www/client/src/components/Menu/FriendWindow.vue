@@ -91,10 +91,6 @@
 <script lang="ts">
 import { onMounted, ref, watch } from 'vue'
 
-import getFetchFriends from '@/composables/Friends/fetchFriends'
-import getFetchRequest from '@/composables/Friends/fetchRequest'
-import getFetchIgnored from '@/composables/Ignored/fetchIgnored'
-
 import {
   getFriendsByName,
   getFriendsByStatus,
@@ -107,6 +103,7 @@ import RequestList from './Friend/Request/RequestList.vue'
 import IgnoredList from './Friend/Ignored/IgnoredList.vue'
 
 import { useChat } from '@/composables/Chat/useChat'
+import { useFriends } from '@/composables/Friends/useFriends'
 
 export default {
   components: {
@@ -119,8 +116,7 @@ export default {
     ChatStatus: Boolean,
   },
   setup(props, { emit }) {
-    let { friends, fetchFriends } = getFetchFriends()
-    let { ignored, fetchIgnored } = getFetchIgnored()
+    const { loadData, friends, ignored, requests } = useFriends()
 
     let notification = ref(false)
 
@@ -130,18 +126,8 @@ export default {
       ignored,
     )
 
-    const { requests, fetchRequest } = getFetchRequest()
-
     let { showOffline, showOnline, showRequest, showIgnored, toggle_menu } =
       getFriendsWindowInteraction()
-
-    const loadData = () => {
-      friends.value = []
-      ignored.value = []
-      fetchRequest()
-      fetchFriends()
-      fetchIgnored()
-    }
 
     const open_chat = (userId: Number, userName: String) => {
       emit('open_chat', userId, userName)
