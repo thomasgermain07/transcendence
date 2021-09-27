@@ -42,10 +42,27 @@ export class UsersController {
     return this.users_svc.findAll()
   }
 
+  @Get('users')
+  async getUsers(@Query() { offset, limit, search })
+    : Promise<User[]>
+  {
+    if (search) {
+      return await this.users_svc.getUsersSearch(search,offset, limit).catch(err => {
+        throw new BadRequestException(err.message)
+      })
+    }
+    else {
+      return await this.users_svc.getUsers(offset, limit).catch(err => {
+        throw new BadRequestException(err.message)
+      })
+    }
+  }
+
   @Get('me')
   async me(@AuthUser() user: User): Promise<User> {
     return user
   }
+
 
   // ex: http://localhost:8080/api/users/leaderboard?offset=0&limit=20
   @Get('leaderboard')

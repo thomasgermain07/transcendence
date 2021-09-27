@@ -198,4 +198,37 @@ export class UsersService {
     })
     return await this.users_repo.findOne(user.id)
   }
+
+  public async getUsers(
+    offset?: number,
+    limit?: number,
+  ): Promise<User[]> {
+
+    const users = await this.users_repo
+    .createQueryBuilder('user')
+    .orderBy("user.name")
+    .offset(offset)
+    .limit(limit)
+    .getMany()
+
+    return users as any as User[]
+  }
+
+  public async getUsersSearch(
+    search: string,
+    offset?: number,
+    limit?: number,
+    ): Promise<User[]> {
+
+      const users = await this.users_repo
+      .createQueryBuilder('user')
+      .orderBy("user.name")
+      .where("user.name like :name", { name: `${search}%`})
+      .offset(offset)
+      .limit(limit)
+      .getMany()
+  
+      return users as any as User[]
+
+    }
 }
