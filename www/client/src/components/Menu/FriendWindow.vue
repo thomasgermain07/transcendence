@@ -18,7 +18,7 @@
       Open chat
       <i
         class="fas fa-bell notification"
-        :class="{ 'notification--visible': Notification && !ChatStatus }"
+        :class="{ 'notification--visible': notification && !ChatStatus }"
       ></i>
     </div>
 
@@ -89,7 +89,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 import getFetchFriends from '@/composables/Friends/fetchFriends'
 import getFetchRequest from '@/composables/Friends/fetchRequest'
@@ -106,6 +106,8 @@ import FriendsList from './Friend/Friends/FriendsList.vue'
 import RequestList from './Friend/Request/RequestList.vue'
 import IgnoredList from './Friend/Ignored/IgnoredList.vue'
 
+import { useChat } from '@/composables/Chat/useChat'
+
 export default {
   components: {
     TopBar,
@@ -114,12 +116,13 @@ export default {
     IgnoredList,
   },
   props: {
-    Notification: Number,
     ChatStatus: Boolean,
   },
   setup(props, { emit }) {
     let { friends, fetchFriends } = getFetchFriends()
     let { ignored, fetchIgnored } = getFetchIgnored()
+
+    let notification = ref(false)
 
     let { searchQuery, friendsByName } = getFriendsByName(friends, ignored)
     const { onlineFriends, offlineFriends } = getFriendsByStatus(
@@ -148,6 +151,13 @@ export default {
       loadData()
     })
 
+    watch(
+      () => useChat().notifications.value.length,
+      (v) => {
+        notification.value = v > 0 ? true : false
+      },
+    )
+
     return {
       // Variables
       requests,
@@ -157,6 +167,7 @@ export default {
       showOffline,
       showRequest,
       showIgnored,
+      notification,
       // Methods
       toggle_menu,
       loadData,

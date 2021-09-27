@@ -1,4 +1,19 @@
 <template>
+  <v-contextmenu ref="contextmenu">
+    <v-contextmenu-item v-if="cm_conv.type == 'dm'" @click="onProfile"
+      >View Profile</v-contextmenu-item
+    >
+    <v-contextmenu-item v-if="cm_conv.type == 'dm'" @click="onSendDuel"
+      >Send Duel</v-contextmenu-item
+    >
+    <v-contextmenu-item v-if="cm_conv.type == 'dm'" @click="onDeleteFriend"
+      >Delete Friend</v-contextmenu-item
+    >
+    <v-contextmenu-item v-if="cm_conv.type == 'dm'" @click="onBlockUser"
+      >Block</v-contextmenu-item
+    >
+  </v-contextmenu>
+
   <div class="convs-interaction-ctn">
     <div class="convs-interaction" @click="$emit('open', 'create')">Create</div>
     <div class="convs-interaction" @click="$emit('open', 'join')">Join</div>
@@ -8,7 +23,12 @@
     <p v-if="!sortedConvs.length">No rooms registered</p>
 
     <div v-for="conv in sortedConvs" :key="conv">
-      <div class="convs-item" @click="openConv(conv)">
+      <div
+        class="convs-item"
+        @click.left="openConv(conv)"
+        @click.right="cm_conv = conv"
+        v-contextmenu:contextmenu
+      >
         <i v-if="conv.type == 'room'" class="fas fa-users conv-icon"></i>
         <i v-else-if="conv.type == 'dm'" class="fas fa-user conv-icon"></i>
 
@@ -23,24 +43,23 @@
 </template>
 
 <script lang="ts">
-import { computed, onMounted, PropType, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { ConversationType } from '@/types/chat/conversation'
-import { NotificationType } from '@/types/chat/notification'
-import { RoomType } from '@/types/chat/room'
-import { UserType } from '@/types/user/user'
+import { useChat } from '@/composables/Chat/useChat'
 
 export default {
   props: {
     RoomId: Number,
-    Notifications: Array as PropType<Array<NotificationType>>,
-    Rooms: Array as PropType<Array<RoomType>>,
-    RelatedUsers: Array as PropType<Array<UserType>>,
   },
   setup(props, { emit }) {
     let convs = ref<ConversationType[]>([])
+    let cm_conv = ref<ConversationType>()
+
+    const { rooms, relatedUsers, notifications, reloadRelatedUsers, getConvs } =
+      useChat()
 
     const markNotification = () => {
-      props.Notifications?.forEach((notif) => {
+      notifications.value.forEach((notif) => {
         let conv = convs.value.find(
           (conv) => conv.type == notif.type && conv.target.id == notif.target,
         )
@@ -51,35 +70,23 @@ export default {
             conv.target.id != props.RoomId ? (conv.notification = true) : 0
           }
         } else {
-          emit('refresh_related_users')
+          reloadRelatedUsers()
           return
         }
       })
     }
 
-    const getConvs = () => {
-      convs.value = []
-
-      props.Rooms!.forEach((room) => {
-        convs.value.push({ type: 'room', target: room })
-      })
-      props.RelatedUsers!.forEach((user) => {
-        convs.value.push({ type: 'dm', target: user })
-      })
-
-      markNotification()
-    }
-
     onMounted(() => {
-      getConvs()
+      convs.value = getConvs()
+      markNotification()
     })
 
     const openConv = (conv: ConversationType) => {
-      let index = props.Notifications?.findIndex(
+      let index = notifications.value.findIndex(
         (notif) => notif.type == conv.type && notif.target == conv.target.id,
       )
       if (index != undefined && index != -1) {
-        props.Notifications?.splice(index, 1)
+        notifications.value.splice(index, 1)
       }
       emit('open', conv.type, { id: conv.target.id, name: conv.target.name })
     }
@@ -97,16 +104,22 @@ export default {
     })
 
     watch(
-      () => props.Rooms?.length,
-      () => getConvs(),
+      () => rooms.value.length,
+      () => {
+        convs.value = getConvs()
+        markNotification()
+      },
     )
     watch(
-      () => props.RelatedUsers?.length,
-      () => getConvs(),
+      () => relatedUsers.value.length,
+      () => {
+        convs.value = getConvs()
+        markNotification()
+      },
     )
 
     watch(
-      () => props.Notifications?.length,
+      () => notifications.value.length,
       () => {
         convs.value.forEach((conv) => {
           conv.notification = false
@@ -115,12 +128,23 @@ export default {
       },
     )
 
+    // TODO : module this in useContextMenu
+    const onProfile = () => {}
+    const onSendDuel = () => {}
+    const onDeleteFriend = () => {}
+    const onBlockUser = () => {}
+
     return {
       sortedConvs,
       openConv,
+      cm_conv,
+      onProfile,
+      onSendDuel,
+      onDeleteFriend,
+      onBlockUser,
     }
   },
-  emits: ['open', 'refresh_related_users'],
+  emits: ['open'],
 }
 </script>
 

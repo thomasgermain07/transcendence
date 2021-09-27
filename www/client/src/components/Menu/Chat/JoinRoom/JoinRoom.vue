@@ -22,10 +22,13 @@
 </template>
 
 <script lang="ts">
+import { ref } from '@vue/reactivity'
+
 import JoinRoomPanel from './JoinRoomPanel.vue'
 import RoomsList from './RoomsList.vue'
 import RoomSearch from './RoomSearch.vue'
-import { ref } from '@vue/reactivity'
+
+import { useChat } from '@/composables/Chat/useChat'
 
 export default {
   components: {
@@ -36,8 +39,10 @@ export default {
   setup(props, { emit }) {
     let open_list = ref(false)
 
+    const { reloadRooms } = useChat()
+
     const joinned = () => {
-      emit('refresh_rooms')
+      reloadRooms()
       emit('close')
     }
 
@@ -45,7 +50,11 @@ export default {
       open_list.value == true ? (open_list.value = false) : emit('close')
     }
 
-    return { open_list, joinned, goBack }
+    return {
+      open_list,
+      joinned,
+      goBack,
+    }
   },
 }
 </script>

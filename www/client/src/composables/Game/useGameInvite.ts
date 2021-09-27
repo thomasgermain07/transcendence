@@ -29,7 +29,7 @@ let invitationsList: Array<InvitationTab> = []
 // -----------------------------------------------------------------------------
 // Composable
 // -----------------------------------------------------------------------------
-export default function useGameInvite() {
+export function useGameInvite() {
   const alreadySendInvite = () => {
     createToast(withProps(Error, { Msg: 'You already sent an invitation' }), {
       timeout: 5000,

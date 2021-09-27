@@ -73,21 +73,26 @@
 
 <script lang="ts">
 import { ref } from 'vue'
-import { getRoomInputs, createRoom } from '@/composables/Chat/Room/createRoom'
+
 import requestStatus from '@/composables/requestStatus'
-import { useSocket } from '@/composables/socket'
+
+import { getRoomInputs, createRoom } from '@/composables/Chat/Room/createRoom'
+import { useChat } from '@/composables/Chat/useChat'
 
 export default {
   setup(props, { emit }) {
     let { fields, errors, sendable } = getRoomInputs()
 
-    let status = ref(requestStatus.default)
+    let status = ref(requestStatus.default) // get ride of this
+
+    const { chatSocket, reloadRooms } = useChat()
 
     const sendData = () => {
+      // TODO : look request weird for me
       createRoom(fields, status)
         .then((res) => {
-          useSocket('chat').socket.emit('join', { room_id: res.data.id })
-          emit('refresh_rooms')
+          chatSocket.emit('join', { room_id: res.data.id })
+          reloadRooms()
           emit('close')
         })
         .catch((e) => {
@@ -96,7 +101,13 @@ export default {
         })
     }
 
-    return { fields, errors, status, sendData, sendable }
+    return {
+      fields,
+      errors,
+      status,
+      sendData,
+      sendable,
+    }
   },
 }
 </script>

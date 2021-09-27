@@ -25,7 +25,7 @@
 import { onBeforeUnmount, onMounted, PropType, ref } from '@vue/runtime-core'
 import { InvitationType } from '@/types/game/invitation'
 import { UserType } from '@/types/user/user'
-import useGameInvite from '@/composables/Game/useGameInvite'
+import { useGameInvite } from '@/composables/Game/useGameInvite'
 import getInvitationInteraction from '@/composables/Game/invitationInteraction'
 
 export default {

@@ -4,39 +4,20 @@
       class="top-bar"
       :Title="getPageTitle"
       @close="$emit('close')"
-      @refresh="reloadData"
+      @refresh="loadData"
     />
     <div class="chat-content">
       <div class="rooms-ctn">
         <header class="window-title">
           <p>Rooms</p>
         </header>
-        <Rooms
-          @open="open"
-          @refresh_related_users="$emit('refresh_related_users')"
-          :RoomId="open_id"
-          :Notifications="Notifications"
-          :Rooms="Rooms"
-          :RelatedUsers="RelatedUsers"
-        />
+        <Rooms @open="open" :RoomId="open_id" />
       </div>
       <div class="chat-ctn">
         <Room v-if="openned == 'room'" :RoomId="open_id" @leave="left_room" />
-        <Dm
-          v-if="openned == 'dm'"
-          @refresh_related_users="$emit('refresh_related_users')"
-          :UserId="open_id"
-        />
-        <CreateRoom
-          v-if="openned == 'create'"
-          @close="close"
-          @refresh_rooms="$emit('refresh_rooms')"
-        />
-        <JoinRoom
-          v-if="openned == 'join'"
-          @close="close"
-          @refresh_rooms="$emit('refresh_rooms')"
-        />
+        <Dm v-if="openned == 'dm'" :UserId="open_id" />
+        <CreateRoom v-if="openned == 'create'" @close="close" />
+        <JoinRoom v-if="openned == 'join'" @close="close" />
       </div>
     </div>
   </div>
@@ -53,6 +34,7 @@ import CreateRoom from './Chat/CreateRoom/CreateRoom.vue'
 import JoinRoom from './Chat/JoinRoom/JoinRoom.vue'
 import Room from './Chat/Room/Room.vue'
 import Dm from './Chat/Dm/Dm.vue'
+import { useChat } from '@/composables/Chat/useChat'
 
 export default {
   components: {
@@ -65,9 +47,6 @@ export default {
   },
   props: {
     PageTitle: String,
-    Notifications: Array,
-    Rooms: Array,
-    RelatedUsers: Array,
     DmID: Number,
   },
   setup(props, { emit }) {
@@ -77,21 +56,14 @@ export default {
       },
     )
 
+    const { loadData, reloadRooms } = useChat()
+
     const getPageTitle = computed(() => {
       return 'Chat - ' + props.PageTitle
     })
 
-    const reloadData = () => {
-      emit('refresh_rooms')
-      emit('refresh_related_users')
-    }
-
-    const refresh_related_users = () => {
-      emit('refresh_related_users')
-    }
-
     const left_room = () => {
-      emit('refresh_rooms')
+      reloadRooms()
       close()
     }
 
@@ -113,8 +85,7 @@ export default {
       openned,
       getPageTitle,
       open,
-      refresh_related_users,
-      reloadData,
+      loadData,
       close,
       left_room,
     }

@@ -18,12 +18,13 @@
 
 <script lang="ts">
 import { ref } from 'vue'
-import { useAuth } from '@/composables/auth'
 
 import getDeleteSubscription from '@/composables/Chat/Subscription/deleteSubscription'
 
 import AdminSetting from './AdminSetting.vue'
-import { useSocket } from '@/composables/socket'
+
+import { useAuth } from '@/composables/auth'
+import { useChat } from '@/composables/Chat/useChat'
 
 export default {
   components: {
@@ -37,9 +38,11 @@ export default {
 
     const { deleteSubscription } = getDeleteSubscription()
 
+    const { chatSocket } = useChat()
+
     const leave = async () => {
       await deleteSubscription(props.Room!.id).then(() => {
-        useSocket('chat').socket.emit('leave', { room_id: props.Room!.id })
+        chatSocket.emit('leave', { room_id: props.Room!.id })
       })
       emit('leave')
       emit('close')

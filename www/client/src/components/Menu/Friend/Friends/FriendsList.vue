@@ -38,7 +38,7 @@ import { UserType } from '@/types/user/user'
 
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/auth'
-import useGameInvite from '@/composables/Game/useGameInvite'
+import { useGameInvite } from '@/composables/Game/useGameInvite'
 
 import getUserInteraction from '@/composables/User/getUserInteraction'
 import getInvitationInteraction from '@/composables/Game/invitationInteraction'

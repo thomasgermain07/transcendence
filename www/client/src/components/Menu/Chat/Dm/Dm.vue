@@ -41,18 +41,18 @@
 import { onMounted, watch, ref } from '@vue/runtime-core'
 
 import { useAuth } from '@/composables/auth'
-import { useSocket } from '@/composables/socket'
 
 import { DirectMessageType } from '@/types/chat/direct_message'
 
 import getFetchMessages from '@/composables/Chat/Dms/fetchMessages'
 import getCreateMessage from '@/composables/Chat/Dms/createMessage'
+import { useChat } from '@/composables/Chat/useChat'
 
 export default {
   props: {
     UserId: Number,
   },
-  setup(props, { emit }) {
+  setup(props) {
     let message_field = ref('')
     let { messages, fetchMessages } = getFetchMessages()
     let { createMessage } = getCreateMessage()
@@ -60,6 +60,8 @@ export default {
     let page = 1
     let max_msg = ref(false)
     let me = useAuth().user
+
+    const { reloadRelatedUsers, dmSocket } = useChat()
 
     const getData = async () => {
       page = 1
@@ -88,15 +90,19 @@ export default {
 
     const sendMessage = async () => {
       if (message_field.value.length) {
-        await createMessage(props.UserId!, message_field.value)
-        message_field.value = ''
-      }
-      if (messages.value.length == 1) {
-        emit('refresh_related_users')
+        try {
+          await createMessage(props.UserId!, message_field.value)
+          message_field.value = ''
+          if (messages.value.length == 0) {
+            await reloadRelatedUsers()
+          }
+        } catch (e) {
+          console.log(e)
+        }
       }
     }
 
-    useSocket('dm').socket.on('message', (message: DirectMessageType) => {
+    dmSocket.on('message', (message: DirectMessageType) => {
       if (message.author.id == props.UserId || message.author.id == me.id) {
         messages.value.unshift(message)
       }

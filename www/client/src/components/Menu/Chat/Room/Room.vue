@@ -51,7 +51,6 @@
 <script lang="ts">
 import { onMounted, ref, watch } from 'vue'
 
-import { useSocket } from '@/composables/socket'
 import { useAuth } from '@/composables/auth'
 
 import { MessageType } from '@/types/chat/message'
@@ -61,6 +60,7 @@ import Setting from './Setting.vue'
 import getFetchRoom from '@/composables/Chat/Room/fetchRoom'
 import getFetchMessages from '@/composables/Chat/Messages/fetchMessages'
 import getCreateMessage from '@/composables/Chat/Messages/createMessage'
+import { useChat } from '@/composables/Chat/useChat'
 
 export default {
   props: {
@@ -75,6 +75,8 @@ export default {
     let me = useAuth().user
     let max_msg = ref(false)
     let page = 1
+
+    let { chatSocket } = useChat()
 
     let { room, fetchRoom } = getFetchRoom()
 
@@ -117,7 +119,7 @@ export default {
       },
     )
 
-    useSocket('chat').socket.on('message', (message: MessageType) => {
+    chatSocket.on('message', (message: MessageType) => {
       if (message.room.id == props.RoomId) {
         messages.value!.unshift(message)
       }

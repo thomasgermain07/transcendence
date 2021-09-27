@@ -15,7 +15,7 @@
 <script lang="ts">
 import { onMounted, PropType } from '@vue/runtime-core'
 import { UserType } from '@/types/user/user'
-import useGameInvite from '@/composables/Game/useGameInvite'
+import { useGameInvite } from '@/composables/Game/useGameInvite'
 
 export default {
   props: {

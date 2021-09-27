@@ -25,7 +25,7 @@
 <script lang="ts">
 import { PropType, ref, onMounted, onUnmounted } from '@vue/runtime-core'
 
-import useGameInvite from '@/composables/Game/useGameInvite'
+import { useGameInvite } from '@/composables/Game/useGameInvite'
 
 import getInvitationInteraction from '@/composables/Game/invitationInteraction'
 
