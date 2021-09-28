@@ -140,6 +140,10 @@ export default {
       },
     )
 
+    onMounted(async () => {
+      await loadData()
+    })
+
     return {
       // Variables
       requests,

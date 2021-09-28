@@ -93,9 +93,6 @@ export default {
         try {
           await createMessage(props.UserId!, message_field.value)
           message_field.value = ''
-          if (messages.value.length == 0) {
-            await reloadRelatedUsers()
-          }
         } catch (e) {
           console.log(e)
         }
@@ -105,6 +102,9 @@ export default {
     dmSocket.on('message', (message: DirectMessageType) => {
       if (message.author.id == props.UserId || message.author.id == me.id) {
         messages.value.unshift(message)
+        if (messages.value.length == 1) {
+          reloadRelatedUsers()
+        }
       }
     })
 
