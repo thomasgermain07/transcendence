@@ -1,13 +1,19 @@
 <template>
   <div class="friend-container">
     <v-contextmenu ref="contextmenu">
-      <v-contextmenu-item @click="onProfile">View Profile</v-contextmenu-item>
+      <v-contextmenu-item @click="eventHandler.onProfile(cm_user)"
+        >View Profile</v-contextmenu-item
+      >
       <v-contextmenu-item @click="onOpenDm">Send Message</v-contextmenu-item>
-      <v-contextmenu-item @click="onSendDuel">Send Duel</v-contextmenu-item>
-      <v-contextmenu-item @click="onDeleteFriend"
+      <v-contextmenu-item @click="eventHandler.onSendDuel(cm_user)"
+        >Send Duel</v-contextmenu-item
+      >
+      <v-contextmenu-item @click="eventHandler.onDeleteFriend(cm_user)"
         >Delete Friend</v-contextmenu-item
       >
-      <v-contextmenu-item @click="onBlockUser">Block</v-contextmenu-item>
+      <v-contextmenu-item @click="eventHandler.onBlockUser(cm_user)"
+        >Block</v-contextmenu-item
+      >
     </v-contextmenu>
 
     <div
@@ -29,85 +35,37 @@
 </template>
 
 <script lang="ts">
-import { PropType } from 'vue'
-import { openModal } from 'jenesius-vue-modal'
-
-import DuelCreaction from '@/components/game/duel/DuelCreation.vue'
+import { PropType, ref } from 'vue'
 
 import { UserType } from '@/types/user/user'
 
-import { useRouter } from 'vue-router'
-import { useAuth } from '@/composables/auth'
-import { useGameInvite } from '@/composables/Game/useGameInvite'
-
-import getUserInteraction from '@/composables/User/getUserInteraction'
-import getInvitationInteraction from '@/composables/Game/invitationInteraction'
+import { useContextMenu } from '@/composables/useContextMenu'
 
 export default {
   props: {
     Friends: Array as PropType<Array<UserType>>,
   },
   setup(props, { emit }) {
-    let cm_user: UserType
-    let router = useRouter()
+    let cm_user = ref<UserType>()
 
-    const { removeFriend, blockUser } = getUserInteraction()
-
-    const { hasPendingInvite } = getInvitationInteraction()
+    const eventHandler = useContextMenu()
 
     const onRightClick = (user: UserType) => {
-      cm_user = user
-    }
-
-    const onProfile = () => {
-      if (cm_user != undefined) {
-        router.push({
-          name: 'user-profile',
-          params: { id: cm_user.id },
-        })
-      }
-    }
-
-    const onSendDuel = async () => {
-      if (await hasPendingInvite(useAuth().user.id)) {
-        useGameInvite().alreadySendInvite()
-        return
-      }
-      openModal(DuelCreaction, {
-        Target: cm_user,
-      })
+      cm_user.value = user
     }
 
     const onOpenDm = () => {
       if (cm_user == undefined) {
         return
       }
-      emit('open_chat', cm_user.id, cm_user.name)
-    }
-
-    const onDeleteFriend = async () => {
-      if (cm_user == undefined) {
-        return
-      }
-      await removeFriend(cm_user)
-      emit('reload_data')
-    }
-
-    const onBlockUser = async () => {
-      if (cm_user == undefined) {
-        return
-      }
-      await blockUser(cm_user)
-      emit('reload_data')
+      emit('open_chat', cm_user.value!.id, cm_user.value!.name)
     }
 
     return {
+      cm_user,
       onOpenDm,
       onRightClick,
-      onProfile,
-      onSendDuel,
-      onDeleteFriend,
-      onBlockUser,
+      eventHandler,
     }
   },
 }

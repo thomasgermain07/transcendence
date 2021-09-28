@@ -1,5 +1,17 @@
 <template>
   <div class="room-ctn">
+    <v-contextmenu ref="contextmenu">
+      <v-contextmenu-item @click="eventHandler.onProfile(cm_user)"
+        >View Profile</v-contextmenu-item
+      >
+      <v-contextmenu-item @click="eventHandler.onSendDuel(cm_user)"
+        >Send Duel</v-contextmenu-item
+      >
+      <v-contextmenu-item @click="eventHandler.onBlockUser(cm_user)"
+        >Block</v-contextmenu-item
+      >
+    </v-contextmenu>
+
     <div class="content">
       <Setting
         v-if="open_setting"
@@ -15,7 +27,17 @@
           class="msg"
           :class="{ 'msg--from-me': message.author.id == me.id }"
         >
-          <p class="msg__name">{{ message.author.name }}</p>
+          <p
+            v-if="message.author.id != me.id"
+            class="msg__name"
+            v-contextmenu:contextmenu
+            @click.right="cm_user = message.author"
+          >
+            {{ message.author.name }}
+          </p>
+          <p v-else class="msg__name">
+            {{ message.author.name }}
+          </p>
           <span class="msg__content">{{ message.content }}</span>
         </div>
         <a
@@ -52,15 +74,17 @@
 import { onMounted, ref, watch } from 'vue'
 
 import { useAuth } from '@/composables/auth'
+import { useChat } from '@/composables/Chat/useChat'
+import { useContextMenu } from '@/composables/useContextMenu'
 
 import { MessageType } from '@/types/chat/message'
+import { UserType } from '@/types/user/user'
 
 import Setting from './Setting.vue'
 
 import getFetchRoom from '@/composables/Chat/Room/fetchRoom'
 import getFetchMessages from '@/composables/Chat/Messages/fetchMessages'
 import getCreateMessage from '@/composables/Chat/Messages/createMessage'
-import { useChat } from '@/composables/Chat/useChat'
 
 export default {
   props: {
@@ -75,6 +99,7 @@ export default {
     let me = useAuth().user
     let max_msg = ref(false)
     let page = 1
+    let cm_user = ref<UserType>()
 
     let { chatSocket } = useChat()
 
@@ -82,6 +107,8 @@ export default {
 
     const { messages, fetchMessages } = getFetchMessages()
     const { createMessage } = getCreateMessage()
+
+    const eventHandler = useContextMenu()
 
     const loadMoreMessages = async () => {
       page += 1
@@ -132,6 +159,8 @@ export default {
       room,
       messages,
       max_msg,
+      cm_user,
+      eventHandler,
       sendMessage,
       loadMoreMessages,
     }
@@ -174,6 +203,7 @@ export default {
 
 .msg__name {
   padding: 4px;
+  cursor: default;
 }
 
 .msg__content {

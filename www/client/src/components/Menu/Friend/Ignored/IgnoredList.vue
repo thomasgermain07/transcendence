@@ -1,8 +1,12 @@
 <template>
   <div class="user-container">
     <v-contextmenu ref="user-interaction" @hide="cm_user = undefined">
-      <v-contextmenu-item>View Profile</v-contextmenu-item>
-      <v-contextmenu-item @click="removeBlockUser">Unblock</v-contextmenu-item>
+      <v-contextmenu-item @click="onProfile(cm_user)"
+        >View Profile</v-contextmenu-item
+      >
+      <v-contextmenu-item @click="onUnblockUser(cm_user)"
+        >Unblock</v-contextmenu-item
+      >
     </v-contextmenu>
 
     <div
@@ -20,7 +24,7 @@
 <script lang="ts">
 import { ref, PropType } from 'vue'
 import { UserType } from '@/types/user/user'
-import getUserInteraction from '@/composables/User/getUserInteraction'
+import { useContextMenu } from '@/composables/useContextMenu'
 
 export default {
   props: {
@@ -29,17 +33,13 @@ export default {
   setup(props, { emit }) {
     let cm_user = ref<UserType>()
 
-    const { unblockUser } = getUserInteraction()
+    const { onProfile, onUnblockUser } = useContextMenu()
 
-    const removeBlockUser = async () => {
-      if (cm_user.value == undefined) {
-        return
-      }
-      await unblockUser(cm_user.value)
-      emit('unblocked_user')
+    return {
+      cm_user,
+      onProfile,
+      onUnblockUser,
     }
-
-    return { cm_user, removeBlockUser }
   },
 }
 </script>

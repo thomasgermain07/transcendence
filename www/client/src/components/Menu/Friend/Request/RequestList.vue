@@ -34,6 +34,7 @@
 import getUserInteraction from '@/composables/User/getUserInteraction'
 import { UserType } from '@/types/user/user'
 import { useRouter } from 'vue-router'
+import { useContextMenu } from '@/composables/useContextMenu'
 
 export default {
   props: {
@@ -43,27 +44,11 @@ export default {
     let cm_user: UserType
     let router = useRouter()
 
-    const { addFriend, removeFriend, blockUser } = getUserInteraction()
+    const { addFriend, removeFriend } = getUserInteraction()
+    const { onProfile, onBlockUser } = useContextMenu()
 
     const onRightClick = (user: UserType) => {
       cm_user = user
-    }
-
-    const onProfile = () => {
-      if (cm_user != undefined) {
-        router.push({
-          name: 'user-profile',
-          params: { id: cm_user.id },
-        })
-      }
-    }
-
-    const onBlockUser = async () => {
-      if (cm_user == undefined) {
-        return
-      }
-      await blockUser(cm_user)
-      emit('reload_data')
     }
 
     const onOpenDm = () => {

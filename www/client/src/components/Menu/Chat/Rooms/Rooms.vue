@@ -1,15 +1,18 @@
 <template>
   <v-contextmenu ref="contextmenu">
-    <v-contextmenu-item v-if="cm_conv.type == 'dm'" @click="onProfile"
+    <v-contextmenu-item
+      v-if="cm_conv.type == 'dm'"
+      @click="eventHandler.onProfile(cm_conv.target)"
       >View Profile</v-contextmenu-item
     >
-    <v-contextmenu-item v-if="cm_conv.type == 'dm'" @click="onSendDuel"
+    <v-contextmenu-item
+      v-if="cm_conv.type == 'dm'"
+      @click="eventHandler.onSendDuel(cm_conv.target)"
       >Send Duel</v-contextmenu-item
     >
-    <v-contextmenu-item v-if="cm_conv.type == 'dm'" @click="onDeleteFriend"
-      >Delete Friend</v-contextmenu-item
-    >
-    <v-contextmenu-item v-if="cm_conv.type == 'dm'" @click="onBlockUser"
+    <v-contextmenu-item
+      v-if="cm_conv.type == 'dm'"
+      @click="eventHandler.onBlockUser(cm_conv.target)"
       >Block</v-contextmenu-item
     >
   </v-contextmenu>
@@ -46,6 +49,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { ConversationType } from '@/types/chat/conversation'
 import { useChat } from '@/composables/Chat/useChat'
+import { useContextMenu } from '@/composables/useContextMenu'
 
 export default {
   props: {
@@ -57,6 +61,8 @@ export default {
 
     const { rooms, relatedUsers, notifications, reloadRelatedUsers, getConvs } =
       useChat()
+
+    const eventHandler = useContextMenu()
 
     const markNotification = () => {
       notifications.value.forEach((notif) => {
@@ -128,20 +134,11 @@ export default {
       },
     )
 
-    // TODO : module this in useContextMenu
-    const onProfile = () => {}
-    const onSendDuel = () => {}
-    const onDeleteFriend = () => {}
-    const onBlockUser = () => {}
-
     return {
       sortedConvs,
       openConv,
       cm_conv,
-      onProfile,
-      onSendDuel,
-      onDeleteFriend,
-      onBlockUser,
+      eventHandler,
     }
   },
   emits: ['open'],
