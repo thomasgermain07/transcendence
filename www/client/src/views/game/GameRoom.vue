@@ -7,7 +7,11 @@
     </div>
     <div v-else>
       <div class="game-room">
-        <PlayersDisplay :players="room.players" :roomState="room.state" />
+        <PlayersDisplay
+          :players="room.players"
+          :roomState="room.state"
+          :roomMode="room.mode"
+        />
         <!-- @checkReady="onReady" -->
         <div class="game-ready" v-if="isPlayerWaiting">
           <GameButton
@@ -28,7 +32,7 @@
         />
 
         <GameButton
-          v-if="isPlayerWaiting"
+          v-if="isPlayerWaiting && room.mode != 'private'"
           @click="onLeave('leaveRoom')"
           :colorStyle="'#ed3833'"
           >Quit</GameButton
@@ -51,6 +55,9 @@
           :colorStyle="'#1645f5'"
           >Leave Stream</GameButton
         >
+        <GameButton v-if="isPrivate" @click="onCancel" :colorStyle="'#ed3833'"
+          >Cancel</GameButton
+        >
       </div>
     </div>
   </div>
@@ -66,8 +73,9 @@ import PlayersDisplay from '../../components/game/PlayersDisplay.vue'
 import GameBoard from '../../components/game/GameBoard.vue'
 import GameButton from '../../components/game/GameButton.vue'
 
-import { GameState, Room } from '../../types/game/gameRoom'
+import { GameState, Room, GameMode } from '../../types/game/gameRoom'
 import { useSocket } from '../../composables/socket'
+import { AxiosErrType, useAxios } from '../../composables/axios'
 
 export interface IGameState {
   status: string
@@ -123,6 +131,26 @@ export default defineComponent({
       return false
     })
 
+    const isPrivate = computed(() => {
+      if (
+        room.value.state == GameState.WAITING &&
+        room.value.mode == GameMode.PRIVATE
+      )
+        return state.currentPlayer ? true : false
+      return false
+    })
+
+    const onCancel = async () => {
+      console.log('in cancel')
+      try {
+        await useAxios().axios.delete('game/rooms/private', {
+          data: { room: room.value },
+        })
+      } catch (err: AxiosErrType) {
+        console.log(err.response?.data?.message)
+      }
+    }
+
     const onReady = (): void => {
       console.log(`Player ${state.currentPlayer.id} READY`)
       state.isActive = true
@@ -140,7 +168,7 @@ export default defineComponent({
           playerId: state?.currentPlayer?.id,
           room: roomName,
         },
-        (message) => {
+        (message: string) => {
           console.log(message)
           router.push('/game')
         },
@@ -218,11 +246,22 @@ export default defineComponent({
       alert(
         'The other player left the game room - you will be redirected to the game view',
       )
-      // onLeave('leaveRoom') // router.push .. to put back in matchmaking queue
       room.value.mode === 'duel'
         ? router.push('/game/duel')
         : router.push('/game/ladder')
     })
+
+    gameRoomsSocket.on('roomCanceled', () => {
+      console.log('someone canceled the private room')
+      // TODO: change alert to custom notif toast
+      alert('Game canceled - you will be redirected to the game view')
+      router.push('/game')
+    })
+
+    // TO CHECK: reload room on route change
+    // onBeforeRouteUpdate(() => {
+    //   loadRoom(route.params.id)
+    // })
 
     onBeforeRouteLeave(() => {
       if (state.currentPlayer && room.value.state == GameState.WAITING) {
@@ -257,13 +296,15 @@ export default defineComponent({
       isWatching,
       onReady,
       onLeave,
+      isPrivate,
+      onCancel,
     }
   },
 })
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap');
 
 .game-ready {
   position: relative;
@@ -286,11 +327,10 @@ export default defineComponent({
   visibility: hidden;
   transition-duration: 2s;
   opacity: 0%;
-  font-family: "Inconsolata", monospace;
+  font-family: 'Inconsolata', monospace;
   font-weight: 800;
   font-size: 16px;
 }
-
 
 .game-ready .game-button.active {
   visibility: hidden;
@@ -301,5 +341,4 @@ export default defineComponent({
   visibility: visible;
   opacity: 100%;
 }
-
 </style>

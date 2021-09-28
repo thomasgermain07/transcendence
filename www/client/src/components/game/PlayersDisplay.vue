@@ -2,10 +2,6 @@
   <div class="players-box">
     <div class="player-details" v-if="playerLeft">
       <section class="player-logo">
-        <!-- <img
-          src="https://image.flaticon.com/icons/png/512/4865/4865927.png"
-          alt="logo1"
-        /> -->
         <img :src="playerLeft?.user.avatar" alt="logo1" />
       </section>
       <section class="player-info">
@@ -16,6 +12,7 @@
     </div>
     <div v-else>Waiting for Player to join</div>
     <div class="score">
+      <div class="mode">{{ props.roomMode }}</div>
       <div class="score-box">
         <div class="score-left">
           {{ playerLeft?.score }}
@@ -38,10 +35,6 @@
     </div>
     <div class="player-details inverse" v-if="playerRight">
       <section class="player-logo">
-        <!-- <img
-          src="https://image.flaticon.com/icons/png/512/4865/4865942.png"
-          alt="logo2"
-        /> -->
         <img :src="playerRight?.user.avatar" alt="logo2" />
       </section>
       <section class="player-info">
@@ -55,21 +48,21 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue'
+import { defineComponent, computed, Data } from 'vue'
 import { GameState } from '../../types/game/gameRoom'
 import { Player } from '../../types/game/player'
 
 export default defineComponent({
   name: 'PlayersDisplay',
-  props: ['players', 'roomState'],
+  props: ['players', 'roomState', 'roomMode'],
 
-  setup(props) {
+  setup(props: Data) {
     const playerLeft: Player = computed(() => {
-      return props.players.find((player) => player.position === 'left')
+      return props.players.find((player: Player) => player.position === 'left')
     })
 
     const playerRight: Player = computed(() => {
-      return props.players.find((player) => player.position === 'right')
+      return props.players.find((player: Player) => player.position === 'right')
     })
 
     const status: string = computed(() => {
@@ -106,9 +99,12 @@ export default defineComponent({
   overflow: hidden;
   box-shadow: 0 0 20px 8px #d0d0d0;
   border-radius: 4px;
-  /* border: 10px solid black; */
   color: var(--tertiary-color);
   font-family: 'Karmatic Arcade', sans-serif;
+}
+
+.mode {
+  font-size: 1rem;
 }
 
 .score {
@@ -116,7 +112,6 @@ export default defineComponent({
   display: inline-flex;
   flex-direction: column;
   font-size: 3rem;
-  /* color: #363636; */
   font-family: 'Karmatic Arcade', sans-serif;
   /* font-family: 'Vanthian Ragnarok', sans-serif; */
 }
@@ -156,7 +151,6 @@ export default defineComponent({
 }
 
 .player-details {
-  /* border: 2px solid black; */
   display: inline-flex;
   align-items: center;
   text-transform: uppercase;
@@ -197,7 +191,5 @@ export default defineComponent({
 
 .winner {
   font-size: 4em;
-  /* color: #ed3833; */
-  /* padding: 1em; */
 }
 </style>

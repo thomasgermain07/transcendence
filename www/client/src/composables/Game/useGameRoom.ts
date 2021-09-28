@@ -4,13 +4,13 @@ import { Player } from '../../types/game/player'
 import { GameState } from '../../types/game/gameRoom'
 
 import { useAxios } from '../axios'
-import { useAuth } from '../auth'
+import { useUsers } from '@/composables/users'
 
 const useGameRoom = () => {
   const { axios } = useAxios()
 
-  const { user } = useAuth()
-  const currentUser = user
+  const { users, get } = useUsers()
+  const currentUser = users
 
   const state = reactive({
     isLoading: false,
@@ -30,12 +30,15 @@ const useGameRoom = () => {
         state.isLoading = false
       })
     if (response) {
+      // refresh current user data
+      await get()
+
       // transfer data into room
       room.value = response.data
 
       // find if current user is a player of the room
       state.currentPlayer = response.data.players.find(
-        (player: Player) => player.user.id === currentUser.id, // CHECK: currentUser.value.id?
+        (player: Player) => player.user.id === currentUser.value.id,
       )
 
       // protect room access according to state

@@ -2,7 +2,7 @@ import { WebSocketGateway, WebSocketServer, OnGatewayInit, OnGatewayConnection, 
 import { SubscribeMessage, MessageBody }     from "@nestjs/websockets";
 import { ConnectedSocket }                   from '@nestjs/websockets';
 
-import { Server, Socket } from 'socket.io';
+import { Server, Socket, RemoteSocket } from 'socket.io';
 
 import { UseInterceptors, ClassSerializerInterceptor, UseGuards } from '@nestjs/common';
 
@@ -104,6 +104,22 @@ export class GameRoomsGateway
     client.to(roomName).emit('roomJoined', room);
 
     return 'Joined ' + roomName;
+  }
+
+  async cancelRoom(
+    room: Room,
+  ): Promise<void> {
+    
+    const roomName = `room-${room.id}`
+
+    // notify all players that room has been canceled
+    this.server.to(roomName).emit('roomCanceled')
+
+    // remove all sockets from room
+    const sockets = await this.server.in(roomName).fetchSockets()
+    sockets.forEach((socket: Socket | RemoteSocket<any>) => {
+      socket.leave(roomName)
+    });
   }
 
   @SubscribeMessage('leaveRoom')

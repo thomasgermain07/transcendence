@@ -1,4 +1,4 @@
-import { Controller, UseGuards, Post, Body, BadRequestException } from '@nestjs/common';
+import { Controller, UseGuards, Post, Body, BadRequestException, NotFoundException } from '@nestjs/common';
 import { Get }                    from '@nestjs/common';
 
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -69,6 +69,11 @@ export class DMController
 	)
 	: Promise<void>
 	{
+		// Check if invitation has expired
+		if ((await this.users_svc.findOne(invitation.host.id)).game_invitation_pending === false) {
+			throw new NotFoundException("Invitation expired")
+		}
+
 		// Send answer notification to host
 		this.dm_gtw.answerGameInvitation({
 			reply: 'Game Invitation Refused',
@@ -79,12 +84,27 @@ export class DMController
 		await this.users_svc.updateGameInvitation(invitation.host, false)
 	}
 
+	@Post('cancel-invitation')
+	async cancelGameInvite(
+		@AuthUser() user: User
+	)
+	: Promise<void>
+	{	
+		// Switch game_invitation_pending of the host user back to false
+		await this.users_svc.updateGameInvitation(user, false)
+	}
+
 	@Post('accept-invitation')
 	async acceptGameInvite(
 	  @Body() invitation: InvitationDto,
 	)
 	: Promise<Room>
 	{
+	  // Check if invitation has expired
+	  if ((await this.users_svc.findOne(invitation.host.id)).game_invitation_pending === false) {
+	  	throw new NotFoundException("Invitation expired")
+	  }
+
 	  // create game room
 	  const room = await this.game_rooms_svc.createPrivate(invitation.gameOptions)
 
