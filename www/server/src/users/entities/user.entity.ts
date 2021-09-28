@@ -43,6 +43,11 @@ export class User {
   })
   public is_admin: boolean
 
+  @Column({
+    default: false,
+  })
+  public isTwoFactorAuthenticationEnabled: boolean
+
   // -------------------------------------------------------------------------
   // Authentication
   // -------------------------------------------------------------------------
@@ -78,14 +83,6 @@ export class User {
     toPlainOnly: true,
   })
   public twoFactorAuthenticationSecret?: string
-
-  @Column({
-    default: false,
-  })
-  @Exclude({
-    toPlainOnly: true,
-  })
-  public isTwoFactorAuthenticationEnabled: boolean
 
   // -------------------------------------------------------------------------
   // Relations

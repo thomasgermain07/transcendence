@@ -1,93 +1,91 @@
 <template>
-	<div class="google-authenticator">
-	    <h3>Activate Google Authenticator</h3>
-        <div class="switch">
-            <input id="switch-1" type="checkbox" class="switch-input" v-model="switchTwoFa.state"/>
-            <label for="switch-1" class="switch-label">Switch</label>
-        </div>
-        <div v-if="qrcode" class="qrcode">
-          <img v-bind:src="qrcode" class="qrcode_picture" alt='qrcode' />
-        </div>
-	</div>
+  <div class="google-authenticator">
+    <h3>Activate Google Authenticator</h3>
+    <div class="switch">
+      <input
+        id="switch-1"
+        type="checkbox"
+        class="switch-input"
+        v-model="switchTwoFa.state"
+      />
+      <label for="switch-1" class="switch-label">Switch</label>
+    </div>
+    <div class="qrcode" v-bind:class="{ active: switchTwoFa.state }">
+      <img v-bind:src="qrcode" class="qrcode_picture" alt="qrcode" />
+    </div>
+  </div>
 </template>
 
-<script lang='ts'>
-import { defineComponent }         from "vue";
-import { ref, reactive, readonly, watch } from "vue";
+<script lang="ts">
+import { defineComponent } from 'vue'
+import { ref, reactive, watch } from 'vue'
 
-import { useAuth } from "@/composables/auth";
+import { useAuth } from '@/composables/auth'
+import { AxiosResType, AxiosErrType } from '@/composables/axios'
 
 export default defineComponent({
-    name: 'google-authenticator',
+  name: 'google-authenticator',
 
-    setup()
-    {
-        const messages = ref([]);
-        const qrcode = ref();
+  setup() {
+    const messages = ref([])
+    const qrcode = ref()
+    const qrcodeActive = ref(false)
 
-        const { activateTwoFa, deactivateTwoFa, user } = useAuth();
-        const switchTwoFa = reactive({
-            state: user.isTwoFactorAuthenticationEnabled
-        })
-        // const submit = () => {
-        //     console.log("----------------HERRE-------")
-        //     activateTwoFa()
-        //         .then((response) => {
-        //             console.log("------")
-        //             console.log(response)
-        //             qrcode.value = response.data
-        //         })
-        //         .catch((err) => {
-        //             messages.value = err.response?.data.message;
-        //         });
-        // };
-        watch(
-            () => switchTwoFa.state,
-            () => {
-                if (switchTwoFa.state === true) {
-                    activateTwoFa()
-                        .then((response) => {
-                            console.log("------")
-                            console.log(response)
-                            qrcode.value = response.data
-                        })
-                        .catch((err) => {
-                            messages.value = err.response?.data.message;
-                        });
-                }
-                else {
-                    deactivateTwoFa()
-                        .then((response) => {
-                            console.log("------")
-                            console.log(response)
-                        })
-                        .catch((err) => {
-                            messages.value = err.response?.data.message;
-                        });
-                }
-            }
-        )
+    const { activateTwoFa, deactivateTwoFa, user } = useAuth()
 
-        return {
-            // Datas
-            messages,
-            qrcode,
-            user,
-            // Functions
-            switchTwoFa,
-        };
+    const switchTwoFa = reactive({
+      state: user.isTwoFactorAuthenticationEnabled,
+    })
+
+    watch(
+      () => switchTwoFa.state,
+      () => {
+        if (switchTwoFa.state === true) {
+          activateTwoFa()
+            .then((response: AxiosResType) => {
+              qrcode.value = response.data
+            })
+            .catch((err: AxiosErrType) => {
+              messages.value = err.response?.data.message
+            })
+        } else {
+          deactivateTwoFa()
+            .then(() => {
+              qrcode.value = null
+            })
+            .catch((err: AxiosErrType) => {
+              messages.value = err.response?.data.message
+            })
+        }
+      },
+    )
+
+    return {
+      // Datas
+      messages,
+      qrcode,
+      qrcodeActive,
+      user,
+      // Functions
+      switchTwoFa,
     }
-
-});
+  },
+})
 </script>
 
 <style scoped>
-.google-authenticator  {
-    background: rgb(230, 163, 64);
+.google-authenticator {
+  padding: 20px;
+}
+.qrcode {
+  display: none;
+}
+.qrcode.active {
+  display: block;
 }
 .qrcode_picture {
-  width: 50%;
-  height: 50%;
+  width: 250px;
+  height: 250px;
 }
 /* Power Ups Switch button */
 .switch {
@@ -109,7 +107,7 @@ export default defineComponent({
 }
 .switch-label::before,
 .switch-label::after {
-  content: "";
+  content: '';
   display: block;
   position: absolute;
   cursor: pointer;

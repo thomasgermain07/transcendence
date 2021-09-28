@@ -199,10 +199,12 @@ export function useAuth() {
   async function edit(payload: EditType): Promise<void> {
     try {
       const res = await AuthService.edit(payload)
-
+      if (res) {
+        const { users, get } = useUsers()
+        await get()
+        setUser(users.value)
+      }
       console.log('useAuth.editing: Done.')
-
-      router.push({ name: 'auth-login' })
     } catch (err: AxiosErrType) {
       console.log('useAuth.editing: Fail.')
 
@@ -215,6 +217,11 @@ export function useAuth() {
   async function activateTwoFa(): Promise<string> {
     try {
       const res = await AuthService.activate2Fa()
+      if (res) {
+        const { users, get } = useUsers()
+        await get()
+        setUser(users.value)
+      }
       console.log('useAuth.activate2fa: Done.')
 
       return res
@@ -228,6 +235,11 @@ export function useAuth() {
   async function deactivateTwoFa(): Promise<string> {
     try {
       const res = await AuthService.deactivate2Fa()
+      if (res) {
+        const { users, get } = useUsers()
+        await get()
+        setUser(users.value)
+      }
       console.log('useAuth.deactivate2fa: Done.')
 
       return res
