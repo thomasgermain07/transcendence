@@ -74,8 +74,8 @@
 import { onMounted, ref, watch } from 'vue'
 
 import { useAuth } from '@/composables/auth'
-import { useChat } from '@/composables/Chat/useChat'
 import { useContextMenu } from '@/composables/useContextMenu'
+import { useSocket } from '@/composables/socket'
 
 import { MessageType } from '@/types/chat/message'
 import { UserType } from '@/types/user/user'
@@ -100,8 +100,6 @@ export default {
     let max_msg = ref(false)
     let page = 1
     let cm_user = ref<UserType>()
-
-    let { chatSocket } = useChat()
 
     let { room, fetchRoom } = getFetchRoom()
 
@@ -146,7 +144,7 @@ export default {
       },
     )
 
-    chatSocket.on('message', (message: MessageType) => {
+    useSocket('chat').socket.on('message', (message: MessageType) => {
       if (message.room.id == props.RoomId) {
         messages.value!.unshift(message)
       }

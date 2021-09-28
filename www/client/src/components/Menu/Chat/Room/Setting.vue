@@ -24,7 +24,8 @@ import getDeleteSubscription from '@/composables/Chat/Subscription/deleteSubscri
 import AdminSetting from './AdminSetting.vue'
 
 import { useAuth } from '@/composables/auth'
-import { useChat } from '@/composables/Chat/useChat'
+
+import { useSocket } from '@/composables/socket'
 
 export default {
   components: {
@@ -38,11 +39,9 @@ export default {
 
     const { deleteSubscription } = getDeleteSubscription()
 
-    const { chatSocket } = useChat()
-
     const leave = async () => {
       await deleteSubscription(props.Room!.id).then(() => {
-        chatSocket.emit('leave', { room_id: props.Room!.id })
+        useSocket('chat').socket.emit('leave', { room_id: props.Room!.id })
       })
       emit('leave')
       emit('close')

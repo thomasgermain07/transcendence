@@ -41,12 +41,13 @@
 import { onMounted, watch, ref } from '@vue/runtime-core'
 
 import { useAuth } from '@/composables/auth'
-
-import { DirectMessageType } from '@/types/chat/direct_message'
+import { useChat } from '@/composables/Chat/useChat'
+import { useSocket } from '@/composables/socket'
 
 import getFetchMessages from '@/composables/Chat/Dms/fetchMessages'
 import getCreateMessage from '@/composables/Chat/Dms/createMessage'
-import { useChat } from '@/composables/Chat/useChat'
+
+import { DirectMessageType } from '@/types/chat/direct_message'
 
 export default {
   props: {
@@ -61,7 +62,7 @@ export default {
     let max_msg = ref(false)
     let me = useAuth().user
 
-    const { reloadRelatedUsers, dmSocket } = useChat()
+    const { reloadRelatedUsers } = useChat()
 
     const getData = async () => {
       page = 1
@@ -99,7 +100,7 @@ export default {
       }
     }
 
-    dmSocket.on('message', (message: DirectMessageType) => {
+    useSocket('dm').socket.on('message', (message: DirectMessageType) => {
       if (message.author.id == props.UserId || message.author.id == me.id) {
         messages.value.unshift(message)
         if (messages.value.length == 1) {

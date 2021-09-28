@@ -3,9 +3,10 @@ import { ref, computed } from 'vue'
 import { UserType } from '@/types/user/user'
 import { FriendType } from '@/types/friend/friend'
 
-import getFetchFriends from './fetchFriends'
-
+import { useSocket } from '../socket'
 import { useAuth } from '../auth'
+
+import getFetchFriends from './fetchFriends'
 import getFetchIgnored from '../Ignored/fetchIgnored'
 import getFetchRequests from './fetchRequests'
 
@@ -15,10 +16,6 @@ import getFetchRequests from './fetchRequests'
 const { fetchFriends } = getFetchFriends()
 const { fetchIgnored } = getFetchIgnored()
 const { fetchRequests } = getFetchRequests()
-
-// -----------------------------------------------------------------------------
-// Sockets
-// -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -62,11 +59,6 @@ export function useFriends() {
       }
     })
 
-    // TODEL
-    friends.forEach((friend) => {
-      friend.connected = true
-    })
-
     return friends
   })
 
@@ -101,11 +93,34 @@ export function useFriends() {
     return false
   }
 
+  const joinSocket = () => {
+    useSocket('user').socket.emit('join', { target_id: useAuth().user.id })
+    friends.value.forEach((friend) => {
+      useSocket('user').socket.emit('join', { target_id: friend.id })
+    })
+  }
+
+  const listenSocket = () => {
+    useSocket('user').socket.on('set_status', (params) => {
+      if (params.user_id != useAuth().user.id) {
+        let user = friends.value.find((friend) => {
+          return friend.id == params.user_id
+        })
+
+        if (user) {
+          user.status = params.status
+        }
+      }
+    })
+  }
+
   return {
     friends,
     ignored,
     requests,
     loadData,
+    joinSocket,
+    listenSocket,
     reloadFriends,
     reloadIgnored,
     reloadRequests,

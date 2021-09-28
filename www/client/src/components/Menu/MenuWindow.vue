@@ -52,7 +52,7 @@ export default {
     let notification = ref(false)
     let dmID = ref(0)
 
-    const { notifications, joinSocket, listenSocket } = useChat()
+    const { notifications } = useChat()
 
     const toggle_window = () => {
       if (open.value == false) {
@@ -84,8 +84,10 @@ export default {
     onMounted(async () => {
       await useChat().loadData()
       await useFriends().loadData()
-      joinSocket()
-      listenSocket()
+      useChat().joinSocket()
+      useChat().listenSocket()
+      useFriends().joinSocket()
+      useFriends().listenSocket()
     })
 
     useSocket('dm').socket.on(
@@ -135,7 +137,7 @@ export default {
   width: 180px;
   height: 400px;
   position: fixed;
-  bottom: 50px;
+  bottom: 0px;
   right: 10px;
   background-color: grey;
 }

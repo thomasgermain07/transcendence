@@ -33,13 +33,14 @@ export function getFriendsByStatus(
   const onlineFriends = computed(() => {
     return friends.value?.filter(
       (friend: UserType) =>
-        friend.connected && !ignored.value.find((user) => user.id == friend.id),
+        friend.status != 'disconnected' &&
+        !ignored.value.find((user) => user.id == friend.id),
     )
   })
   const offlineFriends = computed(() => {
     return friends.value?.filter(
       (friend: UserType) =>
-        !friend.connected &&
+        friend.status == 'disconnected' &&
         !ignored.value.find((user) => user.id == friend.id),
     )
   })

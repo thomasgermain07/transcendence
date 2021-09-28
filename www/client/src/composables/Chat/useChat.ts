@@ -19,12 +19,6 @@ const { fetchRooms } = getFetchRooms()
 const { fetchUsers } = getFetchUsers()
 
 // -----------------------------------------------------------------------------
-// Sockets
-// -----------------------------------------------------------------------------
-const dmSocket = useSocket('dm').socket
-const chatSocket = useSocket('chat').socket
-
-// -----------------------------------------------------------------------------
 // Constants
 // -----------------------------------------------------------------------------
 
@@ -48,13 +42,13 @@ export function useChat() {
 
   const joinSocket = () => {
     rooms.value.forEach((room: RoomType) => {
-      chatSocket.emit('join', { room_id: room.id })
+      useSocket('chat').socket.emit('join', { room_id: room.id })
     })
-    dmSocket.emit('join')
+    useSocket('dm').socket.emit('join')
   }
 
   const listenSocket = () => {
-    dmSocket.on('message', (message: MessageType) => {
+    useSocket('dm').socket.on('message', (message: MessageType) => {
       if (message.author.id != useAuth().user.id) {
         notifications.value.unshift({
           type: 'dm',
@@ -63,7 +57,7 @@ export function useChat() {
       }
     })
 
-    chatSocket.on('message', (message: MessageType) => {
+    useSocket('chat').socket.on('message', (message: MessageType) => {
       if (message.author.id != useAuth().user.id) {
         notifications.value.unshift({
           type: 'room',
@@ -95,8 +89,6 @@ export function useChat() {
   }
 
   return {
-    dmSocket,
-    chatSocket,
     rooms,
     relatedUsers,
     notifications,

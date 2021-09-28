@@ -25,10 +25,13 @@
       v-contextmenu:contextmenu
     >
       {{ friend.name }}
-      <!-- TODO : connected for status connection -->
       <i
         class="fas fa-circle status"
-        :class="friend.connected ? 'status--connected' : 'status--disconnected'"
+        :class="{
+          'status--connected': friend.status == 'connected',
+          'status--disconnected': friend.status == 'disconnected',
+          'status--ingame': friend.status == 'ingame',
+        }"
       ></i>
     </div>
   </div>
@@ -94,6 +97,10 @@ export default {
 
 .status--connected {
   color: green;
+}
+
+.status--ingame {
+  color: yellow;
 }
 
 .status--disconnected {

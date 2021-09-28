@@ -78,6 +78,7 @@ import requestStatus from '@/composables/requestStatus'
 
 import { getRoomInputs, createRoom } from '@/composables/Chat/Room/createRoom'
 import { useChat } from '@/composables/Chat/useChat'
+import { useSocket } from '@/composables/socket'
 
 export default {
   setup(props, { emit }) {
@@ -85,13 +86,13 @@ export default {
 
     let status = ref(requestStatus.default) // get ride of this
 
-    const { chatSocket, reloadRooms } = useChat()
+    const { reloadRooms } = useChat()
 
     const sendData = () => {
       // TODO : look request weird for me
       createRoom(fields, status)
         .then((res) => {
-          chatSocket.emit('join', { room_id: res.data.id })
+          useSocket('chat').socket.emit('join', { room_id: res.data.id })
           reloadRooms()
           emit('close')
         })
