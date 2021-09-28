@@ -49,28 +49,71 @@ export class UsersService {
   }
 
   async create(create_dto: CreateUserDto): Promise<User> {
-    const achievement_1 = this.achievementsRepository.create({name: AchievementsName.NOVICE, description: AchievementsDescription.NOVICE, image: AchievementsImage.NOVICE });
+    const achievement_1 = this.achievementsRepository.create({
+      name: AchievementsName.NOVICE,
+      description: AchievementsDescription.NOVICE,
+      image: AchievementsImage.NOVICE,
+    })
 
-    const achievement_2 = this.achievementsRepository.create({ name: AchievementsName.TEN_WINS, description: AchievementsDescription.TEN_WINS, image: AchievementsImage.TEN_WINS});
+    const achievement_2 = this.achievementsRepository.create({
+      name: AchievementsName.TEN_WINS,
+      description: AchievementsDescription.TEN_WINS,
+      image: AchievementsImage.TEN_WINS,
+    })
 
-		const achievement_3 = this.achievementsRepository.create({ name: AchievementsName.THIRTY_WINS, description: AchievementsDescription.THIRTY_WINS, image: AchievementsImage.THIRTY_WINS});
+    const achievement_3 = this.achievementsRepository.create({
+      name: AchievementsName.THIRTY_WINS,
+      description: AchievementsDescription.THIRTY_WINS,
+      image: AchievementsImage.THIRTY_WINS,
+    })
 
-		const achievement_4 = this.achievementsRepository.create({ name: AchievementsName.SEVENTY_WINS, description: AchievementsDescription.SEVENTY_WINS, image: AchievementsImage.SEVENTY_WINS});
+    const achievement_4 = this.achievementsRepository.create({
+      name: AchievementsName.SEVENTY_WINS,
+      description: AchievementsDescription.SEVENTY_WINS,
+      image: AchievementsImage.SEVENTY_WINS,
+    })
 
-		const achievement_5 = this.achievementsRepository.create({ name: AchievementsName.HUNDRED_WINS, description: AchievementsDescription.HUNDRED_WINS, image: AchievementsImage.HUNDRED_WINS});
+    const achievement_5 = this.achievementsRepository.create({
+      name: AchievementsName.HUNDRED_WINS,
+      description: AchievementsDescription.HUNDRED_WINS,
+      image: AchievementsImage.HUNDRED_WINS,
+    })
 
-		const achievement_6 = this.achievementsRepository.create({ name: AchievementsName.TWO_HUNDRED_WINS, description: AchievementsDescription.TWO_HUNDRED_WINS, image: AchievementsImage.TWO_HUNDRED_WINS});
+    const achievement_6 = this.achievementsRepository.create({
+      name: AchievementsName.TWO_HUNDRED_WINS,
+      description: AchievementsDescription.TWO_HUNDRED_WINS,
+      image: AchievementsImage.TWO_HUNDRED_WINS,
+    })
 
-		const achievement_7 = this.achievementsRepository.create({ name: AchievementsName.MIDDLE_PLAYER, description: AchievementsDescription.MIDDLE_PLAYER, image: AchievementsImage.MIDDLE_PLAYER});
+    const achievement_7 = this.achievementsRepository.create({
+      name: AchievementsName.MIDDLE_PLAYER,
+      description: AchievementsDescription.MIDDLE_PLAYER,
+      image: AchievementsImage.MIDDLE_PLAYER,
+    })
 
-		const achievement_8 = this.achievementsRepository.create({ name: AchievementsName.HARD_MASTER, description: AchievementsDescription.HARD_MASTER, image: AchievementsImage.HARD_MASTER});
+    const achievement_8 = this.achievementsRepository.create({
+      name: AchievementsName.HARD_MASTER,
+      description: AchievementsDescription.HARD_MASTER,
+      image: AchievementsImage.HARD_MASTER,
+    })
 
-		const achievement_9 = this.achievementsRepository.create({ name: AchievementsName.DEFENSE_MASTER, description: AchievementsDescription.DEFENSE_MASTER, image: AchievementsImage.DEFENSE_MASTER});
+    const achievement_9 = this.achievementsRepository.create({
+      name: AchievementsName.DEFENSE_MASTER,
+      description: AchievementsDescription.DEFENSE_MASTER,
+      image: AchievementsImage.DEFENSE_MASTER,
+    })
 
-		const achievement_10 = this.achievementsRepository.create({ name: AchievementsName.ALL_TERRAIN, description: AchievementsDescription.ALL_TERRAIN, image: AchievementsImage.ALL_TERRAIN});
+    const achievement_10 = this.achievementsRepository.create({
+      name: AchievementsName.ALL_TERRAIN,
+      description: AchievementsDescription.ALL_TERRAIN,
+      image: AchievementsImage.ALL_TERRAIN,
+    })
 
-		const achievement_11 = this.achievementsRepository.create({ name: AchievementsName.DONE, description: AchievementsDescription.DONE, image: AchievementsImage.DONE});
-
+    const achievement_11 = this.achievementsRepository.create({
+      name: AchievementsName.DONE,
+      description: AchievementsDescription.DONE,
+      image: AchievementsImage.DONE,
+    })
 
     const user: User = this.users_repo.create({
       ...create_dto,
@@ -123,15 +166,11 @@ export class UsersService {
     return this.users_repo.find()
   }
 
-  findAllWithNameLike(
-    name: string,
-  )
-    : Promise<User[]>
-  {
+  findAllWithNameLike(name: string): Promise<User[]> {
     return this.users_repo.find({
-      select: [ "name" ],
-      where: { name: Like(`${name}%`) }
-    });
+      select: ['name'],
+      where: { name: Like(`${name}%`) },
+    })
   }
 
   async findOne(data: Object): Promise<User> {
@@ -184,8 +223,8 @@ export class UsersService {
     achievementName: AchievementsName,
   ): Promise<User> {
     const achievement = await this.achievementsRepository
-      .createQueryBuilder("achievement")
-      .leftJoinAndSelect("achievement.users", "users")
+      .createQueryBuilder('achievement')
+      .leftJoinAndSelect('achievement.users', 'users')
       .where(`"users"."id" = :id`, { id: userPlayer.id })
       .andWhere(`"achievement"."name" = :name`, { name: achievementName })
       .getOne()
@@ -201,12 +240,16 @@ export class UsersService {
   }
 
   public async updateGameInvitation(
-    user: User, 
-    inviteStatus: boolean
-  ) : Promise<User> {
+    user: User,
+    inviteStatus: boolean,
+  ): Promise<User> {
     const result = await this.users_repo.update(user.id, {
-      game_invitation_pending: inviteStatus
+      game_invitation_pending: inviteStatus,
     })
     return await this.users_repo.findOne(user.id)
+  }
+
+  public async updateStatus(user: User, status: string): Promise<void> {
+    this.users_repo.update(user.id, { status: status })
   }
 }
