@@ -106,19 +106,18 @@ export class GameRoomsGateway
     return 'Joined ' + roomName;
   }
 
+  @SubscribeMessage('cancelRoom')
   async cancelRoom(
-    room: Room,
+    @MessageBody() data: SocketRoomInfo,
   ): Promise<void> {
     
-    const roomName = `room-${room?.id}`
-
     // notify all players that room has been canceled
-    this.server.to(roomName).emit('roomCanceled')
+    this.server.in(data.room).emit('roomCanceled')
 
     // remove all sockets from room
-    const sockets = await this.server.in(roomName).fetchSockets()
+    const sockets = await this.server.in(data.room).fetchSockets()
     sockets.forEach((socket: Socket | RemoteSocket<any>) => {
-      socket.leave(roomName)
+      socket.leave(data.room)
     });
   }
 

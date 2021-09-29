@@ -11,7 +11,6 @@ import { PlayersService }   from '../players/services/players.service';
 import { RoomsController }  from './controllers/rooms.controller';
 import { RoomsSubscriber }  from './subscribers/rooms.subscribers';
 import { UsersModule }      from 'src/users/users.module';
-import { GameRoomsGateway } from '../gateways/game-rooms.gateway';
 
 
 
@@ -25,7 +24,6 @@ import { GameRoomsGateway } from '../gateways/game-rooms.gateway';
     PurgeService,
     RoomsSubscriber,
     PlayersService,
-    GameRoomsGateway,
   ],
   controllers: [RoomsController],
   exports: [RoomsService]

@@ -143,12 +143,15 @@ export default defineComponent({
     const onCancel = async () => {
       console.log('in cancel')
       try {
-        await useAxios().axios.delete('game/rooms/private', {
+        const res = await useAxios().axios.delete('game/rooms/private', {
           data: { room: room.value },
         })
       } catch (err: AxiosErrType) {
         console.log(err.response?.data?.message)
       }
+      gameRoomsSocket.emit('cancelRoom', {
+        room: roomName,
+      })
     }
 
     const onReady = (): void => {

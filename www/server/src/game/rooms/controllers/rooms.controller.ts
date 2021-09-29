@@ -6,7 +6,6 @@ import { Room } from '../entities/room.entity';
 import { GameMode } from '../../enum/enum';
 
 import { RoomsService } from '../services/rooms.service';
-import { GameRoomsGateway } from '../../gateways/game-rooms.gateway';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { AuthUser } from 'src/auth/decorators/auth-user.decorator';
 import { User } from '../../../users/entities/user.entity';
@@ -22,7 +21,6 @@ export class RoomsController {
 	// ---------------------------------------------------------------------------
 	constructor(
 		private readonly roomsService : RoomsService,
-        private readonly gameRoomsGateway : GameRoomsGateway,
 	)
 	{
 	}
@@ -63,8 +61,6 @@ export class RoomsController {
             throw new BadRequestException('room cannot be deleted')
         }
         
-        this.gameRoomsGateway.cancelRoom(room)
-
         return this.roomsService.remove(room)
     }
 }
