@@ -1,5 +1,17 @@
 <template>
   <div class="room-ctn">
+    <v-contextmenu ref="contextmenu">
+      <v-contextmenu-item @click="eventHandler.onProfile(cm_user)"
+        >View Profile</v-contextmenu-item
+      >
+      <v-contextmenu-item @click="eventHandler.onSendDuel(cm_user)"
+        >Send Duel</v-contextmenu-item
+      >
+      <v-contextmenu-item @click="eventHandler.onBlockUser(cm_user)"
+        >Block</v-contextmenu-item
+      >
+    </v-contextmenu>
+
     <div class="content">
       <Setting
         v-if="open_setting"
@@ -7,26 +19,45 @@
         @leave="$emit('leave')"
         :Room="room"
       />
-
-      <div v-if="!open_setting" class="messages-ctn">
+      <!-- TODO (CSS) : Check why long messages with no space overflow on x axis -->
+      <div class="messages-ctn" v-if="!open_setting">
         <div
           v-for="message in messages"
           :key="message"
           class="msg"
           :class="{ 'msg--from-me': message.author.id == me.id }"
         >
-          <p class="msg__name">{{ message.author.name }}</p>
+          <p
+            v-if="message.author.id != me.id"
+            class="msg__name"
+            v-contextmenu:contextmenu
+            @click.right="cm_user = message.author"
+          >
+            {{ message.author.name }}
+          </p>
+          <p v-else class="msg__name">
+            {{ message.author.name }}
+          </p>
           <span class="msg__content">{{ message.content }}</span>
         </div>
+        <a
+          v-if="!max_msg && messages.length >= 50"
+          class="info info--clickable"
+          @click="loadMoreMessages"
+        >
+          load more</a
+        >
+        <div v-else-if="messages.length" class="info">no more messages</div>
+        <div v-else class="info">No message yet</div>
       </div>
     </div>
 
-    <div class="bar">
+    <div class="bar" v-if="!open_setting">
       <i
         class="fas fa-cogs setting-btn"
         @click="open_setting = !open_setting"
       ></i>
-      <div class="bar__input" v-if="!open_setting">
+      <div class="bar__input">
         <input
           type="text"
           class="input__field"
@@ -41,9 +72,13 @@
 
 <script lang="ts">
 import { onMounted, ref, watch } from 'vue'
-import { useSocket } from '@/composables/socket'
-import { MessageType } from '@/types/chat/message'
+
 import { useAuth } from '@/composables/auth'
+import { useContextMenu } from '@/composables/useContextMenu'
+import { useSocket } from '@/composables/socket'
+
+import { MessageType } from '@/types/chat/message'
+import { UserType } from '@/types/user/user'
 
 import Setting from './Setting.vue'
 
@@ -58,15 +93,29 @@ export default {
   components: {
     Setting,
   },
-  setup(props, { emit }) {
+  setup(props) {
     let open_setting = ref(false)
     let message_field = ref('')
     let me = useAuth().user
+    let max_msg = ref(false)
+    let page = 1
+    let cm_user = ref<UserType>()
 
     let { room, fetchRoom } = getFetchRoom()
 
     const { messages, fetchMessages } = getFetchMessages()
     const { createMessage } = getCreateMessage()
+
+    const eventHandler = useContextMenu()
+
+    const loadMoreMessages = async () => {
+      page += 1
+      let size_before = messages.value.length
+      await fetchMessages(props.RoomId!, page)
+      if (messages.value.length == size_before) {
+        max_msg.value = true
+      }
+    }
 
     const sendMessage = async () => {
       if (message_field.value.length) {
@@ -76,9 +125,12 @@ export default {
     }
 
     const getData = async (id: number) => {
+      max_msg.value = false
+      page = 1
+      messages.value.length = 0
       if (id != 0) {
         await fetchRoom(id)
-        await fetchMessages(id)
+        await fetchMessages(id, 0)
       }
     }
 
@@ -104,7 +156,11 @@ export default {
       me,
       room,
       messages,
+      max_msg,
+      cm_user,
+      eventHandler,
       sendMessage,
+      loadMoreMessages,
     }
   },
 }
@@ -123,6 +179,7 @@ export default {
 
 .messages-ctn {
   overflow-y: auto;
+  overflow-x: hidden;
   height: 100%;
   max-height: 347px;
   display: flex;
@@ -144,6 +201,7 @@ export default {
 
 .msg__name {
   padding: 4px;
+  cursor: default;
 }
 
 .msg__content {
@@ -152,6 +210,14 @@ export default {
   background-color: cadetblue;
   text-align: left;
   max-width: 250px;
+}
+
+.info {
+  align-self: center;
+}
+
+.info--clickable {
+  cursor: pointer;
 }
 
 .bar {

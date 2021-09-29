@@ -45,6 +45,20 @@ export class IgnoredsService
 		})
 	}
 
+	async findOrReverse(
+		user: User,
+		target: User,
+	)
+		: Promise<Ignored>
+	{
+		return this.ignoreds_repo.findOne({
+			where: [
+				{ user: user,   target: target },
+				{ user: target, target: user },
+			]
+		});
+	}
+
 	async remove(
 		user: User,
 		target: User,

@@ -18,11 +18,13 @@
 
 <script lang="ts">
 import { ref } from 'vue'
-import { useAuth } from '@/composables/auth'
 
 import getDeleteSubscription from '@/composables/Chat/Subscription/deleteSubscription'
 
 import AdminSetting from './AdminSetting.vue'
+
+import { useAuth } from '@/composables/auth'
+
 import { useSocket } from '@/composables/socket'
 
 export default {

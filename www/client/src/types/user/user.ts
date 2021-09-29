@@ -7,5 +7,5 @@ export type UserType = {
   email: string
   ladderLevel: number
   isTwoFactorAuthenticationEnabled: boolean
-  connected: boolean
+  status: string
 }

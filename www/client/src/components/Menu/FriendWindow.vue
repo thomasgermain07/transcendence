@@ -1,5 +1,6 @@
 <template>
   <div class="friend-window">
+    <TopBar :Title="'Friends'" @close="$emit('close')" @refresh="loadData" />
     <form class="search-bar-ctn">
       <i class="fas fa-search search-icon"></i>
       <input v-model="searchQuery" class="search-bar" placeholder="Search" />
@@ -7,12 +8,18 @@
     </form>
     <FriendsList
       v-if="searchQuery"
-      :friends="friendsByName"
+      :Friends="friendsByName"
       @open_chat="open_chat"
+      @reload_data="loadData"
     />
 
     <div @click="open_chat" class="open-chat-btn" v-if="!searchQuery">
+      <i class="fas fa-bell notification"></i>
       Open chat
+      <i
+        class="fas fa-bell notification"
+        :class="{ 'notification--visible': notification && !ChatStatus }"
+      ></i>
     </div>
 
     <a
@@ -25,9 +32,11 @@
       <i class="far fa-arrow-alt-circle-down arrow"></i>
     </a>
     <RequestList
-      v-if="showRequest"
-      :requests="requests"
+      v-if="showRequest && !searchQuery"
+      :Requests="requests"
       @request_answered="loadData"
+      @reload_data="loadData"
+      @open_chat="open_chat"
     />
 
     <a
@@ -41,8 +50,9 @@
     </a>
     <FriendsList
       v-if="showOnline && !searchQuery"
-      :friends="onlineFriends"
+      :Friends="onlineFriends"
       @open_chat="open_chat"
+      @reload_data="loadData"
     />
 
     <a
@@ -56,17 +66,30 @@
     </a>
     <FriendsList
       v-if="showOffline && !searchQuery"
-      :friends="offlineFriends"
+      :Friends="offlineFriends"
       @open_chat="open_chat"
+      @reload_data="loadData"
+    />
+
+    <a
+      v-if="!searchQuery"
+      class="roll-menu"
+      :class="{ 'roll-menu--open': showIgnored }"
+      @click="toggle_menu('ignored')"
+    >
+      Blocked
+      <i class="far fa-arrow-alt-circle-down arrow"></i>
+    </a>
+    <IgnoredList
+      v-if="showIgnored && !searchQuery"
+      :Ignored="ignored"
+      @unblocked_user="loadData"
     />
   </div>
 </template>
 
 <script lang="ts">
-import { onMounted } from 'vue'
-
-import getFetchFriends from '@/composables/Friends/fetchFriends'
-import getFetchRequest from '@/composables/Friends/fetchRequest'
+import { onMounted, ref, watch } from 'vue'
 
 import {
   getFriendsByName,
@@ -74,44 +97,63 @@ import {
 } from '@/composables/Friends/getFriendsByFilters'
 import getFriendsWindowInteraction from '@/composables/Window/FriendsWindowInteraction'
 
+import TopBar from './Utils/TopBar.vue'
 import FriendsList from './Friend/Friends/FriendsList.vue'
 import RequestList from './Friend/Request/RequestList.vue'
+import IgnoredList from './Friend/Ignored/IgnoredList.vue'
+
+import { useChat } from '@/composables/Chat/useChat'
+import { useFriends } from '@/composables/Friends/useFriends'
 
 export default {
   components: {
+    TopBar,
     FriendsList,
     RequestList,
+    IgnoredList,
+  },
+  props: {
+    ChatStatus: Boolean,
   },
   setup(props, { emit }) {
-    let { friends, fetchFriends } = getFetchFriends()
-    let { searchQuery, friendsByName } = getFriendsByName(friends)
-    const { onlineFriends, offlineFriends } = getFriendsByStatus(friends)
+    const { loadData, friends, ignored, requests } = useFriends()
 
-    const { requests, fetchRequest } = getFetchRequest()
+    let notification = ref(false)
 
-    let { showOffline, showOnline, showRequest, toggle_menu } =
+    let { searchQuery, friendsByName } = getFriendsByName(friends, ignored)
+    const { onlineFriends, offlineFriends } = getFriendsByStatus(
+      friends,
+      ignored,
+    )
+
+    let { showOffline, showOnline, showRequest, showIgnored, toggle_menu } =
       getFriendsWindowInteraction()
-
-    const loadData = () => {
-      fetchRequest()
-      fetchFriends()
-    }
 
     const open_chat = (userId: Number, userName: String) => {
       emit('open_chat', userId, userName)
     }
 
-    onMounted(() => {
-      loadData()
+    watch(
+      () => useChat().notifications.value.length,
+      (v) => {
+        notification.value = v > 0 ? true : false
+      },
+    )
+
+    onMounted(async () => {
+      await loadData()
     })
 
     return {
       // Variables
       requests,
+      ignored,
       searchQuery,
       showOnline,
       showOffline,
       showRequest,
+      showIgnored,
+      notification,
       // Methods
       toggle_menu,
       loadData,
@@ -122,7 +164,7 @@ export default {
       friendsByName,
     }
   },
-  emits: ['open_chat'],
+  emits: ['open_chat', 'close', 'open_create_invite'],
 }
 </script>
 
@@ -133,6 +175,15 @@ export default {
   max-height: 375px;
 }
 
+.notification {
+  color: red;
+  visibility: hidden;
+}
+
+.notification--visible {
+  visibility: visible;
+}
+
 .search-bar-ctn {
   padding: 2px;
   justify-content: space-around;
@@ -141,6 +192,8 @@ export default {
 }
 
 .open-chat-btn {
+  display: flex;
+  justify-content: space-between;
   border-bottom: 2px solid black;
   padding: 3px;
 }

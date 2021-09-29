@@ -57,14 +57,13 @@
 <script lang="ts">
 import getChangeRoom from '@/composables/Chat/Room/modifyRoom'
 import { ref } from '@vue/reactivity'
-import { computed } from '@vue/runtime-core'
 
 export default {
   props: {
     Room: Object,
   },
   setup(props) {
-    let has_password = computed(() => props.Room!.password)
+    let has_password = props.Room!.password ? true : false
 
     let password = ref('')
 

@@ -10,46 +10,35 @@
 
   <div v-if="open" class="window" :class="{ 'window--chat-open': chat_open }">
     <div class="window-friend">
-      <header class="top-bar">
-        <a @click="toggle_window">
-          <i class="far fa-times-circle top-bar__close"></i>
-        </a>
-        <div class="top-bar__name">Friends</div>
-      </header>
-      <FriendWindow @open_chat="open_chat" />
+      <FriendWindow
+        @open_chat="open_chat"
+        @close="toggle_window"
+        :ChatStatus="chat_open"
+      />
     </div>
     <div v-if="chat_open" class="window-chat">
-      <header class="top-bar chat__top-bar">
-        <a @click="close_chat">
-          <i class="far fa-times-circle top-bar__close"></i>
-        </a>
-        <div class="top-bar__name">Chat - {{ page_title }}</div>
-      </header>
       <ChatWindow
         @set_page_title="set_page_title"
-        @refresh_rooms="refreshRooms"
-        @refresh_related_users="refreshRelatedUsers"
+        @close="close_chat"
         :DmID="dmID"
-        :Notifications="notifications"
-        :Rooms="rooms"
-        :RelatedUsers="relatedUsers"
+        :PageTitle="page_title"
       />
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import { onMounted, ref, watch } from 'vue'
+
 import FriendWindow from './FriendWindow.vue'
 import ChatWindow from './ChatWindow.vue'
-import { ref } from '@vue/reactivity'
-import { onMounted } from '@vue/runtime-core'
-import getFetchRooms from '@/composables/Chat/Rooms/fetchRooms'
+
+import { InvitationType } from '@/types/game/invitation'
+
 import { useSocket } from '@/composables/socket'
-import { RoomType } from '@/types/chat/room'
-import { NotificationType } from '@/types/chat/notification'
-import getFetchUsers from '@/composables/Chat/Dms/fetchUsers'
-import { useAuth } from '@/composables/auth'
-import { MessageType } from '@/types/chat/message'
+import { useGameInvite } from '@/composables/Game/useGameInvite'
+import { useChat } from '@/composables/Chat/useChat'
+import { useFriends } from '@/composables/Friends/useFriends'
 
 export default {
   components: {
@@ -61,12 +50,9 @@ export default {
     let chat_open = ref(false)
     let page_title = ref('')
     let notification = ref(false)
-    let notifications = ref<NotificationType[]>([])
-    let currentID = useAuth().user.id
     let dmID = ref(0)
 
-    let { rooms, fetchRooms } = getFetchRooms()
-    let { relatedUsers, fetchUsers } = getFetchUsers()
+    const { notifications } = useChat()
 
     const toggle_window = () => {
       if (open.value == false) {
@@ -95,38 +81,30 @@ export default {
       page_title.value = title
     }
 
-    const refreshRooms = async () => {
-      await fetchRooms(true)
-    }
-    const refreshRelatedUsers = async () => {
-      await fetchUsers()
-    }
-
     onMounted(async () => {
-      await fetchRooms(true)
-      await fetchUsers()
-
-      const socket = useSocket('chat').socket
-      rooms.value!.forEach((room: RoomType) => {
-        socket.emit('join', { room_id: room.id })
-      })
-
-      useSocket('dm').socket.emit('join')
+      await useChat().loadData()
+      await useFriends().loadData()
+      useChat().joinSocket()
+      useChat().listenSocket()
+      useFriends().joinSocket()
+      useFriends().listenSocket()
     })
 
-    useSocket('chat').socket.on('message', (message: MessageType) => {
-      if (message.author.id != currentID) {
-        notifications.value.unshift({ type: 'room', target: message.room.id })
-        notification.value = true
-      }
-    })
+    useSocket('dm').socket.on(
+      'gameInvitationReceived',
+      (invitation: InvitationType) => {
+        useGameInvite().createInvitationNotification(invitation)
+      },
+    )
 
-    useSocket('dm').socket.on('message', (message: MessageType) => {
-      if (message.author.id != currentID) {
-        notifications.value.unshift({ type: 'dm', target: message.author.id })
-        notification.value = true
-      }
-    })
+    watch(
+      () => notifications.value.length,
+      (now, before) => {
+        if (now > before) {
+          notification.value = true
+        }
+      },
+    )
 
     return {
       open,
@@ -134,11 +112,6 @@ export default {
       page_title,
       dmID,
       notification,
-      notifications,
-      rooms,
-      relatedUsers,
-      refreshRooms,
-      refreshRelatedUsers,
       toggle_window,
       open_chat,
       close_chat,
@@ -185,24 +158,7 @@ export default {
   flex-direction: column;
 }
 
-.top-bar {
-  display: flex;
-  justify-content: flex-start;
-  padding: 4px 4px;
-  background-color: black;
-  color: white;
-}
-
 .chat__top-bar {
   border-right: 2px solid lightgray;
-}
-
-.top-bar__name {
-  flex-grow: 1;
-}
-
-.top-bar__close {
-  color: whitesmoke;
-  cursor: pointer;
 }
 </style>

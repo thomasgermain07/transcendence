@@ -1,18 +1,17 @@
 import { Controller, UseGuards, Post, Body, BadRequestException, NotFoundException } from '@nestjs/common';
 import { Get }                    from '@nestjs/common';
 
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { AuthUser }     from 'src/auth/decorators/auth-user.decorator'
-import { User }         from 'src/users/entities/user.entity';
-import { Room } 		from 'src/game/rooms/entities/room.entity';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
+import { AuthUser } from 'src/auth/decorators/auth-user.decorator'
+import { User } from 'src/users/entities/user.entity'
+import { Room } from 'src/game/rooms/entities/room.entity'
 
-import { DMService }  	from '../services/dm.service';
-import { DMGateway } 	from '../gateways/dm.gateway';
-import { UsersService } from 'src/users/services/users.service';
-import { RoomsService } from 'src/game/rooms/services/rooms.service';
-import { PlayersService } from 'src/game/players/services/players.service';
-import { InvitationDto } from '../dto/invitation.dto';
-
+import { DMService } from '../services/dm.service'
+import { DMGateway } from '../gateways/dm.gateway'
+import { UsersService } from 'src/users/services/users.service'
+import { RoomsService } from 'src/game/rooms/services/rooms.service'
+import { PlayersService } from 'src/game/players/services/players.service'
+import { InvitationDto } from '../dto/invitation.dto'
 
 @UseGuards(JwtAuthGuard)
 @Controller('dm')
@@ -130,5 +129,4 @@ export class DMController
 
 	  return room
 	}
-
 }

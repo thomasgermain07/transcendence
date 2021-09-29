@@ -27,12 +27,18 @@
             </div>
 
             <div class="user-interaction">
-              <button v-if="!isCurrentUser" @click="addFriend(user)">
+              <button
+                v-if="!isCurrentUser && !isAlreadyFriend"
+                @click="onAddFriend"
+              >
                 add friend
               </button>
             </div>
             <div class="user-interaction">
-              <button v-if="!isCurrentUser" @click="removeFriend(user)">
+              <button
+                v-if="!isCurrentUser && isAlreadyFriend"
+                @click="onDeleteFriend"
+              >
                 remove friend
               </button>
             </div>
@@ -69,13 +75,13 @@ import { useAuth } from '@/composables/auth'
 import { useUsers } from '@/composables/users'
 import getFetchUser from '@/composables/User/fetchUser'
 import requestStatus from '@/composables/requestStatus'
-import getFriendInteraction from '@/composables/Friends/getFriendInteraction'
-
 import ErrorPage from '@/components/ErrorPage.vue'
 import GameStats from '@/components/game/GameStats.vue'
 import MatchHistory from '@/components/game/MatchHistory.vue'
 import Achievements from '@/components/game/Achievements.vue'
 import EditProfileWindow from '@/components/edit/EditProfileWindow.vue'
+import getUserInteraction from '@/composables/User/getUserInteraction'
+import { useFriends } from '@/composables/Friends/useFriends'
 
 export default {
   components: {
@@ -86,10 +92,9 @@ export default {
     EditProfileWindow,
   },
   setup() {
-    const route = useRoute()
     let status = ref(requestStatus.loading)
-    const { user, fetchUser } = getFetchUser(status)
-    const { addFriend, removeFriend } = getFriendInteraction()
+
+    const route = useRoute()
     const { users, get } = useUsers()
     const userEdit = ref(false)
 
@@ -101,8 +106,13 @@ export default {
       userEdit.value = false
     }
 
+    const { user, fetchUser } = getFetchUser(status)
+    const { addFriend, removeFriend } = getUserInteraction()
+    const { reloadFriends, reloadRequests, hasPendingInvite, friends } =
+      useFriends()
+
     const isCurrentUser = computed(() => {
-      return user.value.id == useAuth().user.id
+      return user.value!.id == useAuth().user.id
     })
 
     const updateUser = () => {
@@ -118,6 +128,29 @@ export default {
         fetchUser(route.params.id)
       }
     }
+
+    const onAddFriend = async () => {
+      await addFriend(user.value!)
+      reloadRequests()
+      reloadFriends()
+    }
+
+    const onDeleteFriend = async () => {
+      await removeFriend(user.value!)
+      reloadFriends()
+    }
+
+    const isAlreadyFriend = computed(() => {
+      if (
+        friends.value.findIndex((friend) => {
+          return friend.id == user.value!.id
+        }) != -1 ||
+        hasPendingInvite(user.value!)
+      ) {
+        return true
+      }
+      return false
+    })
 
     onBeforeRouteUpdate(() => {
       fetchUserFromRoute()
@@ -136,6 +169,9 @@ export default {
       openEdit,
       closeEdit,
       updateUser,
+      isAlreadyFriend,
+      onAddFriend,
+      onDeleteFriend,
     }
   },
 }

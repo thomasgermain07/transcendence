@@ -5,12 +5,15 @@ import { ref } from 'vue'
 export default function getFetchMessages() {
   let messages = ref<DirectMessageType[]>([])
 
-  const fetchMessages = async (id: Number) => {
+  const fetchMessages = async (id: number, page: number) => {
     try {
-      const { data } = await useAxios().axios.get('dm/messages/', {
-        params: { target: id, page: 0 },
+      const { data } = await useAxios().axios.get('dm/messages', {
+        params: {
+          target: id,
+          page: page,
+        },
       })
-      messages.value = data
+      messages.value = messages.value.concat(data)
     } catch (e) {
       console.log(e)
     }

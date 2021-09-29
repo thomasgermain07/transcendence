@@ -11,7 +11,13 @@ import './assets/css/menu/action-button.css'
 import './assets/css/menu/search-bar.css'
 
 // -----------------------------------------------------------------------------
+// Import Libraries
+// -----------------------------------------------------------------------------
+import contextmenu from 'v-contextmenu'
+import 'v-contextmenu/dist/themes/dark.css'
+
+// -----------------------------------------------------------------------------
 // Start Application
 // -----------------------------------------------------------------------------
-const app = createApp(App).use(router)
+const app = createApp(App).use(router).use(contextmenu)
 const vm = app.mount('#root')

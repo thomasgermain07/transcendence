@@ -48,6 +48,12 @@ export class User {
   })
   public isTwoFactorAuthenticationEnabled: boolean
 
+  @Column({
+    nullable: true,
+    default: "disconnected"
+  })
+  public status: string;
+
   // -------------------------------------------------------------------------
   // Authentication
   // -------------------------------------------------------------------------

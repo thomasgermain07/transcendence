@@ -43,8 +43,8 @@ export class UserGateway
 	// Interfaces implementations
 	// -------------------------------------------------------------------------
 	constructor(
-			private readonly users_svc: UsersService,
-			private readonly friendships_svc: FriendshipsService,
+		private readonly users_svc: UsersService,
+		private readonly friendships_svc: FriendshipsService,
 	) {}
 
 	// -------------------------------------------------------------------------
@@ -55,11 +55,21 @@ export class UserGateway
 	}
 
 	handleConnection(client: Socket, ...args: any[]): void {
-		console.log(`User:Gateway: Connection.`)
+		console.log("User:Gateway:Connection");
 	}
 
 	handleDisconnect(client: Socket): void {
-		console.log(`User:Gateway: Disconnect.`)
+		const user: User = client['user'];
+		const room_name: string = this.getRoomName(user.id);
+
+		if (user)
+		{
+			client.leave(room_name);
+
+			this.handleSetStatus(user, { status: "disconnected" })
+		}
+
+		console.log("User:Gateway:Disconnect");
 	}
 
 	// -------------------------------------------------------------------------
@@ -75,23 +85,21 @@ export class UserGateway
 	{
 		console.log(`User:Gateway: Join`);
 
-		const target: User = (user.id === data.target_id)
-			? user
-			: await this.users_svc.findOne({ id: data.target_id })
+		const target: User = await this.users_svc.findOne({ id: data.target_id });
+
+		if (!target)
+		{
+			console.log(`User:Gateway:Join: Error target not found.`);
+			throw new WsException("Target not found.");
+		}
+
+		const is_friend: boolean = (await this.friendships_svc.findAllOrWithAccepted(user, true))
+			.some((friendship) => (friendship.user.id === target.id || friendship.target.id === target.id))
 		;
 
-		const is_friend: boolean = !!((await this.friendships_svc.findAllOrWithAccepted(user, true))
-			.map((friendship) => (friendship.user.id === user.id)
-				? friendship.target
-				: friendship.user
-			)
-			.filter((friend) => friend.id === target?.id)
-			.length
-		);
-
-		if (!target || (user.id != target.id && !is_friend))
+		if (user.id != target.id && !is_friend)
 		{
-			console.log(`User:Gateway:Join: Error`)
+			console.log(`User:Gateway:Join: Error target is not a friend.`);
 			throw new WsException("You cannot listen to this user.");
 		}
 
@@ -99,9 +107,10 @@ export class UserGateway
 
 		client.join(room_name);
 
-		this._server.to(room_name).emit('join', { user_id: user.id });
+		if (user.id === target.id)
+			this.handleSetStatus(user, { status: "connected" });
 
-		console.log(`User ${user.id} join ${room_name}.`);
+		console.log(`User ${user.id} joined ${room_name}.`);
 	}
 
 	@SubscribeMessage('leave')
@@ -117,8 +126,6 @@ export class UserGateway
 		const room_name: string = this.getRoomName(data.target_id);
 
 		client.leave(room_name);
-
-		this._server.to(room_name).emit('leave', { user_id: user.id });
 
 		console.log(`User ${user.id} left ${room_name}.`);
 	}
@@ -138,6 +145,8 @@ export class UserGateway
 			user_id: user.id,
 			status: data.status
 		});
+
+		await this.users_svc.updateStatus(user, data.status);
 
 		console.log(`User ${user.id} set status to ${data.status}.`);
 	}
