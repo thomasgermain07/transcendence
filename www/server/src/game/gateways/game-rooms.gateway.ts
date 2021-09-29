@@ -110,7 +110,7 @@ export class GameRoomsGateway
     room: Room,
   ): Promise<void> {
     
-    const roomName = `room-${room.id}`
+    const roomName = `room-${room?.id}`
 
     // notify all players that room has been canceled
     this.server.to(roomName).emit('roomCanceled')

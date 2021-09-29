@@ -208,7 +208,7 @@ export class RoomsService {
   }
 
   public async remove(room: Room): Promise<void> {
-    await this.roomsRepository.delete(room);
+    await this.roomsRepository.delete(room.id);
   }
 
   public async clearAll(): Promise<void> {
