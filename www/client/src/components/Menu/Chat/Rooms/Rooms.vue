@@ -22,10 +22,10 @@
     <div class="convs-interaction" @click="$emit('open', 'join')">Join</div>
   </div>
 
-  <div v-if="sortedConvs" class="convs__list">
-    <p v-if="!sortedConvs.length">No rooms registered</p>
+  <div v-if="convs" class="convs__list">
+    <p v-if="!convs.length">No rooms registered</p>
 
-    <div v-for="conv in sortedConvs" :key="conv">
+    <div v-for="conv in convs" :key="conv">
       <div
         class="convs-item"
         @click.left="openConv(conv)"
@@ -46,7 +46,7 @@
 </template>
 
 <script lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { ref } from 'vue'
 import { ConversationType } from '@/types/chat/conversation'
 import { useChat } from '@/composables/Chat/useChat'
 import { useContextMenu } from '@/composables/useContextMenu'
@@ -56,89 +56,22 @@ export default {
     RoomId: Number,
   },
   setup(props, { emit }) {
-    let convs = ref<ConversationType[]>([])
     let cm_conv = ref<ConversationType>()
 
-    const { rooms, relatedUsers, notifications, reloadRelatedUsers, getConvs } =
-      useChat()
+    const { convs, readNotif } = useChat()
 
     const eventHandler = useContextMenu()
 
-    const markNotification = () => {
-      notifications.value.forEach((notif) => {
-        let conv = convs.value.find(
-          (conv) => conv.type == notif.type && conv.target.id == notif.target,
-        )
-        if (conv != undefined) {
-          if (notif.type == 'room' && conv.type == 'room') {
-            conv.target.id != props.RoomId ? (conv.notification = true) : 0
-          } else if (notif.type == 'dm' && conv.type == 'dm') {
-            conv.target.id != props.RoomId ? (conv.notification = true) : 0
-          }
-        } else {
-          reloadRelatedUsers()
-          return
-        }
-      })
-    }
-
-    onMounted(() => {
-      convs.value = getConvs()
-      markNotification()
-    })
-
     const openConv = (conv: ConversationType) => {
-      let index = notifications.value.findIndex(
-        (notif) => notif.type == conv.type && notif.target == conv.target.id,
-      )
-      if (index != undefined && index != -1) {
-        notifications.value.splice(index, 1)
-      }
+      readNotif(conv.target.id)
       emit('open', conv.type, { id: conv.target.id, name: conv.target.name })
     }
 
-    const sortedConvs = computed(() => {
-      convs.value.sort((a, b) => {
-        if (a.notification && !b.notification) {
-          return -1
-        } else if (!a.notification && b.notification) {
-          return 1
-        }
-        return 0
-      })
-      return convs.value
-    })
-
-    watch(
-      () => rooms.value.length,
-      () => {
-        convs.value = getConvs()
-        markNotification()
-      },
-    )
-    watch(
-      () => relatedUsers.value.length,
-      () => {
-        convs.value = getConvs()
-        markNotification()
-      },
-    )
-
-    watch(
-      () => notifications.value.length,
-      () => {
-        convs.value.forEach((conv) => {
-          conv.notification = false
-        })
-        markNotification()
-      },
-    )
-
     return {
-      sortedConvs,
       openConv,
       cm_conv,
       eventHandler,
+      convs,
     }
   },
   emits: ['open'],

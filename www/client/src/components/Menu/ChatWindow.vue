@@ -4,7 +4,7 @@
       class="top-bar"
       :Title="getPageTitle"
       @close="$emit('close')"
-      @refresh="loadData"
+      @refresh="onRefreshData"
     />
     <div class="chat-content">
       <div class="rooms-ctn">
@@ -73,6 +73,10 @@ export default {
       }
     }
 
+    const onRefreshData = async () => {
+      await reloadRooms()
+    }
+
     onMounted(() => openDm(props.DmID!))
 
     watch(
@@ -86,6 +90,7 @@ export default {
       getPageTitle,
       open,
       loadData,
+      onRefreshData,
       close,
       left_room,
     }
