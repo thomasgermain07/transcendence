@@ -1,5 +1,5 @@
-import { Controller, Body, UseGuards, Query, ParseIntPipe }    from '@nestjs/common';
-import { Post, Delete }                          from '@nestjs/common';
+import { Controller, Body, UseGuards, Query, ParseIntPipe } from '@nestjs/common';
+import { Get, Post, Delete } from '@nestjs/common';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 
 import { AuthUser }     from 'src/auth/decorators/auth-user.decorator';
@@ -34,6 +34,26 @@ export class PermissionsController
 	// -------------------------------------------------------------------------
 	// Public methods
 	// -------------------------------------------------------------------------
+	@Get('moderators')
+	async get(
+		@AuthUser() user: User,
+		@Query('room_id', ParseIntPipe) room_id: number,
+	)
+	{
+		const room: Room = await this.rooms_svc.findOne({ id: room_id });
+
+		if (!room)
+			throw new NotFoundException("Room not found.");
+
+		if (!await this.chat_svc.isLeader(user, room) && !await this.chat_svc.isSubscribed(user, room))
+			throw new ForbiddenException("You don't have access to this room.");
+
+		const moderators: User[] = (await this.permissions_svc.findModerators(room))
+			.map((permission) => permission.user);
+
+		return moderators;
+	}
+
 	@Post()
 	async create(
 		@AuthUser() user: User,

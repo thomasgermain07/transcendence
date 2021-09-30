@@ -49,6 +49,18 @@ export class PermissionsService
 		return this.permission_repo.findOne(data);
 	}
 
+	async findModerators(
+		room: Room,
+	)
+	{
+		return this.permission_repo.find({
+			where: {
+				room: room,
+				type: PermissionType.MODERATOR,
+			}
+		});
+	}
+
 	async remove(
 		user: User,
 		room: Room,
