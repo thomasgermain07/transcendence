@@ -60,7 +60,7 @@ export class UserGateway
 
 	handleDisconnect(client: Socket): void {
 		const user: User = client['user'];
-		const room_name: string = this.getRoomName(user.id);
+		const room_name: string = this.getRoomName(user?.id);
 
 		if (user)
 		{

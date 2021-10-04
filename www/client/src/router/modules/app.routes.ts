@@ -14,12 +14,13 @@ export const routes: Array<RouteRecordRaw> = [
     redirect: {
       name: 'home',
     },
+    meta: { requiresAuth: true },
     children: [
       {
         path: 'home',
         name: 'home',
         component: Home,
-        meta: { requiresAuth: true },
+        // meta: { requiresAuth: true },
       },
     ],
   },

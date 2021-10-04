@@ -1,7 +1,7 @@
 <template>
   <div class="users-view">
-    <h1>Users List</h1>
-  
+    <!-- <h1>Users List</h1> -->
+
     <div v-if="status == 'error'">Error Loading content ...</div>
     <div v-else-if="loading">LOADING...</div>
       <div class="users-list">
@@ -16,7 +16,7 @@
             </router-link>
           </div>
         </div>
-        <div v-else> 
+        <div v-else>
           <div class="users-item" v-for="user in users" :key="user">
             <router-link :to="{ name: 'user-profile', params: { id: user.id } }" class="users-link">
               <img :src="user.avatar" class="avatar-logo"/>
@@ -50,7 +50,7 @@ export default {
       }
     }
 
-    watch( 
+    watch(
       () => search.value,
       () => {
           users.value = []
@@ -99,7 +99,7 @@ export default {
   transition: transform 250ms ease-in-out;
   font-size: 14px;
   line-height: 18px;
-  
+
   color: #575756;
   background-color: transparent;
 /*         background-image: url(http://mihaeltomic.com/codepen/input-search/ic_search_black_24px.svg); */
@@ -119,7 +119,7 @@ export default {
   text-transform: uppercase;
   letter-spacing: 1.5px;
 }
-        
+
 .search-input::hover,
 .search-input::focus {
   padding: 12px 0;

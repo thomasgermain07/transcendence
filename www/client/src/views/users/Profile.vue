@@ -209,6 +209,7 @@ export default {
 }
 
 .profile-ctn {
+  margin-top: 2em;
   display: flex;
   flex-direction: column;
 }

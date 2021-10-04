@@ -54,7 +54,7 @@ export default defineComponent({
   top: 0;
   left: 0;
   width: 100%;
-  margin-bottom: 1em;
+  /* margin-bottom: 1em; */
   /* background-color: grey; */
   background-color: white;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
