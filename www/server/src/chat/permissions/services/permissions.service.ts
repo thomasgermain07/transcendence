@@ -49,16 +49,11 @@ export class PermissionsService
 		return this.permission_repo.findOne(data);
 	}
 
-	async findModerators(
-		room: Room,
+	async find(
+		data: Object
 	)
 	{
-		return this.permission_repo.find({
-			where: {
-				room: room,
-				type: PermissionType.MODERATOR,
-			}
-		});
+		return this.permission_repo.find(data);
 	}
 
 	async remove(

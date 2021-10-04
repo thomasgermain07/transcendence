@@ -8,11 +8,12 @@ import { User }         from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/services/users.service';
 import { Room }         from 'src/chat/rooms/entities/room.entity';
 import { RoomsService } from 'src/chat/rooms/services/rooms.service';
+import { ChatService }  from 'src/chat/services/chat.service';
 
 import { CreatePermissionDto } from '../dto/create-permission.dto';
 import { Permission }          from '../entities/permission.entity';
+import { PermissionType }      from "../entities/permission.entity";
 import { PermissionsService }  from '../services/permissions.service';
-import { ChatService } from 'src/chat/services/chat.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('chat/permissions')
@@ -34,12 +35,17 @@ export class PermissionsController
 	// -------------------------------------------------------------------------
 	// Public methods
 	// -------------------------------------------------------------------------
-	@Get('moderators')
+	@Get('filter')
 	async get(
 		@AuthUser() user: User,
 		@Query('room_id', ParseIntPipe) room_id: number,
+		@Query('type') type: string,
 	)
+		: Promise<Permission[]>
 	{
+		if (!this.isValidType(type))
+			throw new ForbiddenException("Invalid permission type.");
+
 		const room: Room = await this.rooms_svc.findOne({ id: room_id });
 
 		if (!room)
@@ -48,10 +54,7 @@ export class PermissionsController
 		if (!await this.chat_svc.isLeader(user, room) && !await this.chat_svc.isSubscribed(user, room))
 			throw new ForbiddenException("You don't have access to this room.");
 
-		const moderators: User[] = (await this.permissions_svc.findModerators(room))
-			.map((permission) => permission.user);
-
-		return moderators;
+		return this.permissions_svc.find({ room: room, type: type });
 	}
 
 	@Post()
@@ -105,6 +108,13 @@ export class PermissionsController
 			throw new ForbiddenException("You can not remove role for other moderator.");
 
 		this.permissions_svc.remove(target, room);
+	}
+
+	private isValidType(
+		type: string
+	)
+	{
+		return (Object.values(PermissionType) as string[]).includes(type);
 	}
 
 }
