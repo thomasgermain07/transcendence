@@ -11,6 +11,7 @@ import { User }         from 'src/users/entities/user.entity';
 import { Room }         from 'src/chat/rooms/entities/room.entity';
 import { RoomsService } from 'src/chat/rooms/services/rooms.service';
 import { ChatService }  from 'src/chat/services/chat.service';
+import { PermissionType } from 'src/chat/permissions/entities/permission.entity';
 
 import { CreateMessageDto } from '../dto/create-message.dto';
 import { Message }          from '../entities/message.entity';
@@ -48,8 +49,17 @@ export class MessagesController
 		if (!room)
 			throw new NotFoundException("Room not found.");
 
-		if (!await this.canPost(user, room))
-			throw new ForbiddenException("You can not post in this room.");
+		if (!await this.chat_svc.isLeader(user, room))
+		{
+			if (!await this.chat_svc.isSubscribed(user, room))
+				throw new ForbiddenException("You are not subscribed to this room.");
+
+			if (await this.chat_svc.hasPermission(user, room, PermissionType.BANNED))
+				throw new ForbiddenException("You can not post in this room (banned).");
+
+			if (await this.chat_svc.hasPermission(user, room, PermissionType.MUTED))
+				throw new ForbiddenException("You can not post in this room (muted).");
+		}
 
 		return this.messages_svc.create(user, room, create_dto);
 	}
@@ -76,21 +86,6 @@ export class MessagesController
 	// -------------------------------------------------------------------------
 	// Private methods
 	// -------------------------------------------------------------------------
-	private async canPost(
-		user: User,
-		room: Room,
-	)
-		: Promise<boolean>
-	{
-		return (
-			   await this.chat_svc.isLeader(user, room)
-			|| (
-				    await this.chat_svc.isSubscribed(user, room)
-				&& !await this.chat_svc.isRestricted(user, room)
-			)
-		);
-	}
-
 	private async canAccess(
 		user: User,
 		room: Room,
