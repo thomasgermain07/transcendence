@@ -8,7 +8,6 @@
           class="msg"
           :class="{ 'msg--from-me': message.author.id == me.id }"
         >
-          <p class="msg__name">{{ message.author.name }}</p>
           <span class="msg__content">{{ message.content }}</span>
         </div>
         <a
@@ -38,7 +37,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, watch, ref } from '@vue/runtime-core'
+import { onMounted, watch, ref, onUnmounted } from '@vue/runtime-core'
 
 import { useAuth } from '@/composables/auth'
 import { useChat } from '@/composables/Chat/useChat'
@@ -83,6 +82,9 @@ export default {
     }
 
     onMounted(() => getData())
+    onUnmounted(() => {
+      useSocket('dm').socket.off('message')
+    })
 
     watch(
       () => props.UserId,
@@ -151,10 +153,6 @@ export default {
 .msg--from-me {
   align-self: flex-end;
   align-items: flex-end;
-}
-
-.msg__name {
-  padding: 4px;
 }
 
 .msg__content {

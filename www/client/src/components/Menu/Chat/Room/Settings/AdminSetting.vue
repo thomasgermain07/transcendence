@@ -1,31 +1,22 @@
 <template>
   <div class="admin-ctn">
-    <div class="change-name">
-      <p>Change this room's name</p>
-      <input
-        type="text"
-        class="field-input"
-        v-model="Room.name"
-        :placeholder="Room.name"
-      />
-    </div>
     <div v-if="has_password" class="change-pw">
       <p>Change this room's password</p>
       <input
         type="password"
         class="field-input"
-        v-model="password"
+        v-model="roomParams.password"
         placeholder="New password"
       />
       <p>or</p>
       <button @click="deletePassword">Delete password</button>
     </div>
-    <div v-if="!has_password" class="set-pw">
+    <div v-if="!has_password">
       <p>Add a password to this room</p>
       <input
         type="password"
         class="field-input"
-        v-model="password"
+        v-model="roomParams.password"
         placeholder="Create password"
       />
     </div>
@@ -34,51 +25,78 @@
       <div class="switch-ctn">
         <div
           class="switch"
-          :class="{ 'switch--selected-yes': Room.visible }"
-          @click="Room.visible = true"
+          :class="{ 'switch--selected-yes': roomParams.visibility }"
+          @click="roomParams.visibility = true"
         >
           Yes
         </div>
         <div
           class="switch"
-          :class="{ 'switch--selected-no': !Room.visible }"
-          @click="Room.visible = false"
+          :class="{ 'switch--selected-no': !roomParams.visibility }"
+          @click="roomParams.visibility = false"
         >
           No
         </div>
       </div>
     </div>
     <div>
-      <button @click="changeRoom(password)">Validate Changes</button>
+      <button @click="onValidateChanges">Validate Changes</button>
     </div>
+  </div>
+  <div class="banned-list">
+    <BannedList />
   </div>
 </template>
 
 <script lang="ts">
+import { reactive } from '@vue/runtime-core'
+
 import getChangeRoom from '@/composables/Chat/Room/modifyRoom'
-import { ref } from '@vue/reactivity'
+
+import { RoomParamsType } from '@/types/chat/room_params'
+import { useRoom } from '@/composables/Chat/Room/useRoom'
+
+import BannedList from './Banned.vue'
 
 export default {
-  props: {
-    Room: Object,
+  components: {
+    BannedList,
   },
-  setup(props) {
-    let has_password = props.Room!.password ? true : false
+  setup(props, { emit }) {
+    let { roomData } = useRoom()
 
-    let password = ref('')
+    let has_password = roomData.room!.password ? true : false
 
-    const { changeRoom } = getChangeRoom(props.Room)
+    let roomParams = reactive<RoomParamsType>({
+      visibility: roomData.room!.visible,
+    })
+
+    const { changeRoom } = getChangeRoom()
 
     const deletePassword = () => {
-      delete props.Room!.password
-      changeRoom()
+      roomParams.password = null
+      onValidateChanges()
+    }
+
+    const onValidateChanges = async () => {
+      try {
+        if (roomParams.password != null && roomParams.password?.length == 0) {
+          delete roomParams.password
+        }
+        await changeRoom(roomData.room!.id, roomParams)
+        await useRoom().reloadRoom()
+        emit('close')
+      } catch (e) {
+        console.log(e)
+      }
     }
 
     return {
       has_password,
-      password,
+      roomParams,
       deletePassword,
       changeRoom,
+      onValidateChanges,
     }
   },
 }
@@ -86,13 +104,19 @@ export default {
 
 <style scoped>
 .admin-ctn {
-  height: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: space-evenly;
 }
 
 .admin-ctn > div {
   padding: 5px;
+  flex-grow: 1;
+}
+
+.banned-list {
+  border-top: 2px solid black;
+  flex-grow: 1;
 }
 
 .switch-ctn {

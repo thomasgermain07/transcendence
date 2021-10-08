@@ -1,28 +1,26 @@
 <template>
   <div class="room-ctn">
     <v-contextmenu ref="contextmenu">
-      <v-contextmenu-item @click="eventHandler.onProfile(cm_user)"
-        >View Profile</v-contextmenu-item
-      >
-      <v-contextmenu-item @click="eventHandler.onSendDuel(cm_user)"
-        >Send Duel</v-contextmenu-item
-      >
-      <v-contextmenu-item @click="eventHandler.onBlockUser(cm_user)"
-        >Block</v-contextmenu-item
-      >
+      <RoomCM
+        :User="cm_user"
+        :IsModerator="isModerator(me.id)"
+        :IsOwner="me.id == roomData.room.owner.id"
+        :Room="roomData.room"
+        @moderators_changes="onModeratorsChanges"
+      />
     </v-contextmenu>
 
     <div class="content">
       <Setting
-        v-if="open_setting"
-        @close="open_setting = false"
+        v-if="roomData.open_setting"
+        @close="roomData.open_setting = false"
         @leave="$emit('leave')"
-        :Room="room"
+        :Room="roomData.room"
       />
       <!-- TODO (CSS) : Check why long messages with no space overflow on x axis -->
-      <div class="messages-ctn" v-if="!open_setting">
+      <div class="messages-ctn" v-if="!roomData.open_setting">
         <div
-          v-for="message in messages"
+          v-for="message in roomData.messages"
           :key="message"
           class="msg"
           :class="{ 'msg--from-me': message.author.id == me.id }"
@@ -34,57 +32,69 @@
             @click.right="cm_user = message.author"
           >
             {{ message.author.name }}
+            <i v-if="isModerator(message.author.id)" class="fas fa-crown"></i>
+            <i
+              v-if="message.author.id == roomData.room.owner.id"
+              class="fas fa-house-user"
+            ></i>
           </p>
           <p v-else class="msg__name">
             {{ message.author.name }}
+            <i v-if="isModerator(message.author.id)" class="fas fa-crown"></i>
+            <i
+              v-if="message.author.id == roomData.room.owner.id"
+              class="fas fa-house-user"
+            ></i>
           </p>
           <span class="msg__content">{{ message.content }}</span>
         </div>
         <a
-          v-if="!max_msg && messages.length >= 50"
+          v-if="!roomData.max_msg && roomData.messages.length >= 50"
           class="info info--clickable"
-          @click="loadMoreMessages"
+          @click="onMoreMsg"
         >
           load more</a
         >
-        <div v-else-if="messages.length" class="info">no more messages</div>
+        <div v-else-if="roomData.messages.length" class="info">
+          no more messages
+        </div>
         <div v-else class="info">No message yet</div>
       </div>
     </div>
 
-    <div class="bar" v-if="!open_setting">
+    <div class="bar" v-if="!roomData.open_setting">
       <i
         class="fas fa-cogs setting-btn"
-        @click="open_setting = !open_setting"
+        @click="roomData.open_setting = !roomData.open_setting"
       ></i>
-      <div class="bar__input">
+      <div class="bar__input" v-if="!isMuted(me.id)">
         <input
           type="text"
           class="input__field"
           v-model="message_field"
-          @keypress.enter="sendMessage"
+          @keypress.enter="onSendMsg"
         />
-        <div class="input__btn" @click="sendMessage">Send</div>
+        <div class="input__btn" @click="onSendMsg">Send</div>
+      </div>
+      <div v-else class="input--muted">
+        you are muted until {{ showDate(isMuted(me.id).expired_at) }}
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 
 import { useAuth } from '@/composables/auth'
-import { useContextMenu } from '@/composables/useContextMenu'
 import { useSocket } from '@/composables/socket'
+import { useRoom } from '@/composables/Chat/Room/useRoom'
 
 import { MessageType } from '@/types/chat/message'
 import { UserType } from '@/types/user/user'
 
-import Setting from './Setting.vue'
-
-import getFetchRoom from '@/composables/Chat/Room/fetchRoom'
-import getFetchMessages from '@/composables/Chat/Messages/fetchMessages'
-import getCreateMessage from '@/composables/Chat/Messages/createMessage'
+import Setting from './Settings/Setting.vue'
+import RoomCM from './RoomCM.vue'
 
 export default {
   props: {
@@ -92,75 +102,99 @@ export default {
   },
   components: {
     Setting,
+    RoomCM,
   },
   setup(props) {
-    let open_setting = ref(false)
     let message_field = ref('')
-    let me = useAuth().user
-    let max_msg = ref(false)
-    let page = 1
     let cm_user = ref<UserType>()
+    let me = useAuth().user
 
-    let { room, fetchRoom } = getFetchRoom()
+    const {
+      roomData,
+      getData,
+      getMessages,
+      sendMessage,
+      getPermissions,
+      isModerator,
+      isMuted,
+      resetData,
+    } = useRoom()
 
-    const { messages, fetchMessages } = getFetchMessages()
-    const { createMessage } = getCreateMessage()
+    const onMoreMsg = async () => {
+      roomData.page += 1
+      let size_before = roomData.messages.length
 
-    const eventHandler = useContextMenu()
+      let newMsg = await getMessages(props.RoomId!, roomData.page)
+      roomData.messages = roomData.messages.concat(newMsg)
 
-    const loadMoreMessages = async () => {
-      page += 1
-      let size_before = messages.value.length
-      await fetchMessages(props.RoomId!, page)
-      if (messages.value.length == size_before) {
-        max_msg.value = true
+      if (
+        roomData.messages.length == size_before ||
+        roomData.messages.length - size_before != 50
+      ) {
+        roomData.max_msg = true
       }
     }
 
-    const sendMessage = async () => {
+    const onSendMsg = async () => {
       if (message_field.value.length) {
-        await createMessage(props.RoomId!, message_field.value)
+        let res = await sendMessage(props.RoomId!, message_field.value)
         message_field.value = ''
+
+        if (res == 'muted') {
+          roomData.muted = await getPermissions(props.RoomId!, 'muted')
+        }
       }
     }
 
-    const getData = async (id: number) => {
-      max_msg.value = false
-      page = 1
-      messages.value.length = 0
-      if (id != 0) {
-        await fetchRoom(id)
-        await fetchMessages(id, 0)
+    const onModeratorsChanges = async () => {
+      try {
+        roomData.moderators = await getPermissions(props.RoomId!, 'moderator')
+        console.log(roomData.moderators)
+      } catch (e) {
+        console.log(e)
       }
     }
 
-    onMounted(() => getData(props.RoomId!))
+    const listenCallback = (message: MessageType) => {
+      if (message.room.id == props.RoomId) {
+        roomData.messages.unshift(message)
+      }
+    }
+
+    onMounted(() => {
+      getData(props.RoomId!)
+      useSocket('chat').socket.on('message', listenCallback)
+    })
+
+    onUnmounted(() => {
+      resetData()
+      useSocket('chat').socket.off('message', listenCallback)
+    })
 
     watch(
       () => props.RoomId,
-      (new_value) => {
-        getData(new_value!)
-        open_setting.value = false
+      () => {
+        resetData()
+        getData(props.RoomId!)
       },
     )
 
-    useSocket('chat').socket.on('message', (message: MessageType) => {
-      if (message.room.id == props.RoomId) {
-        messages.value!.unshift(message)
-      }
-    })
+    const showDate = (date: Date) => {
+      let t = new Date(date)
+      return t.toLocaleString()
+    }
 
     return {
-      open_setting,
+      roomData,
       message_field,
       me,
-      room,
-      messages,
-      max_msg,
       cm_user,
-      eventHandler,
-      sendMessage,
-      loadMoreMessages,
+      isModerator,
+      isMuted,
+      onSendMsg,
+      onMoreMsg,
+      onModeratorsChanges,
+      showDate,
     }
   },
 }
@@ -248,5 +282,9 @@ export default {
   padding: 5px;
   border-right: 2px solid black;
   cursor: pointer;
+}
+
+.fa-crown {
+  font-size: small;
 }
 </style>

@@ -80,6 +80,9 @@ import { getRoomInputs, createRoom } from '@/composables/Chat/Room/createRoom'
 import { useChat } from '@/composables/Chat/useChat'
 import { useSocket } from '@/composables/socket'
 
+// TODO : If time, remake this HTML/CSS side is not the best
+// And should use a reactive object instead of fileds, errors
+
 export default {
   setup(props, { emit }) {
     let { fields, errors, sendable } = getRoomInputs()
@@ -88,18 +91,16 @@ export default {
 
     const { reloadRooms } = useChat()
 
-    const sendData = () => {
-      // TODO : look request weird for me
-      createRoom(fields, status)
-        .then((res) => {
-          useSocket('chat').socket.emit('join', { room_id: res.data.id })
-          reloadRooms()
-          emit('close')
-        })
-        .catch((e) => {
-          status.value = requestStatus.error
-          errors.name.value = e.response.data.message[0]
-        })
+    const sendData = async () => {
+      try {
+        let res = await createRoom(fields, status)
+        useSocket('chat').socket.emit('join', { room_id: res.data.id })
+        reloadRooms()
+        emit('close')
+      } catch (messages) {
+        status.value = requestStatus.error
+        errors.name.value = messages[0]
+      }
     }
 
     return {

@@ -35,6 +35,7 @@ import JoinRoom from './Chat/JoinRoom/JoinRoom.vue'
 import Room from './Chat/Room/Room.vue'
 import Dm from './Chat/Dm/Dm.vue'
 import { useChat } from '@/composables/Chat/useChat'
+import { useRoom } from '@/composables/Chat/Room/useRoom'
 
 export default {
   components: {
@@ -57,6 +58,7 @@ export default {
     )
 
     const { loadData, reloadRooms } = useChat()
+    const { reloadRoom } = useRoom()
 
     const getPageTitle = computed(() => {
       return 'Chat - ' + props.PageTitle
@@ -75,6 +77,7 @@ export default {
 
     const onRefreshData = async () => {
       await reloadRooms()
+      await reloadRoom()
     }
 
     onMounted(() => openDm(props.DmID!))

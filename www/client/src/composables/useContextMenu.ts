@@ -1,16 +1,20 @@
+import { Ref } from 'vue'
+
 import { router } from '@/router'
 import { openModal } from 'jenesius-vue-modal'
 
-import { UserType } from '@/types/user/user'
 import { useAuth } from './auth'
-
+import { useFriends } from './Friends/useFriends'
 import { useGameInvite } from './Game/useGameInvite'
+import { useRoom } from './Chat/Room/useRoom'
 
 import getInvitationInteraction from './Game/invitationInteraction'
 import getUserInteraction from '@/composables/User/getUserInteraction'
 
 import DuelCreaction from '@/components/game/duel/DuelCreation.vue'
-import { useFriends } from './Friends/useFriends'
+
+import { UserType } from '@/types/user/user'
+import { PermissionCreationType } from '@/types/chat/permission'
 
 // -----------------------------------------------------------------------------
 // Api usage
@@ -25,7 +29,7 @@ const { removeFriend, blockUser, unblockUser } = getUserInteraction()
 // -----------------------------------------------------------------------------
 // Composable
 // -----------------------------------------------------------------------------
-export function useContextMenu() {
+export function useContextMenu(refresh?: Ref) {
   const onProfile = (user: UserType) => {
     if (user != undefined) {
       router.push({
@@ -60,11 +64,68 @@ export function useContextMenu() {
     useFriends().reloadIgnored()
   }
 
+  const onSetModerator = async (userID: number, roomID: number) => {
+    let permission: PermissionCreationType = {
+      user_id: userID,
+      room_id: roomID,
+      type: 'moderator',
+      expired_at: null,
+    }
+
+    try {
+      await useRoom().setPermission(permission)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  const onRevokeModerator = async (user: UserType, roomId: number) => {
+    try {
+      await useRoom().revokePermission(user.id, roomId)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  const onMuteUser = async (userID: number, roomID: number, time: Date) => {
+    let permission: PermissionCreationType = {
+      user_id: userID,
+      room_id: roomID,
+      type: 'muted',
+      expired_at: time,
+    }
+
+    try {
+      await useRoom().setPermission(permission)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  const onBanUser = async (userId: number, roomId: number) => {
+    let permission: PermissionCreationType = {
+      user_id: userId,
+      room_id: roomId,
+      type: 'banned',
+      expired_at: null,
+    }
+
+    try {
+      await useRoom().setPermission(permission)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   return {
     onProfile,
     onSendDuel,
     onDeleteFriend,
     onBlockUser,
     onUnblockUser,
+    onSetModerator,
+    onRevokeModerator,
+    onMuteUser,
+    onBanUser,
   }
 }
