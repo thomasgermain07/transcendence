@@ -6,13 +6,14 @@ import { NotFoundException }            from "@nestjs/common";
 import { ForbiddenException }           from "@nestjs/common";
 import { UnprocessableEntityException } from "@nestjs/common";
 
-import { JwtAuthGuard }   from 'src/auth/guards/jwt-auth.guard'
-import { AuthUser }       from 'src/auth/decorators/auth-user.decorator'
-import { User }           from 'src/users/entities/user.entity'
-import { Room }           from 'src/chat/rooms/entities/room.entity'
-import { RoomsService }   from 'src/chat/rooms/services/rooms.service'
-import { ChatService }    from 'src/chat/services/chat.service'
-import { PermissionType } from 'src/chat/permissions/entities/permission.entity'
+import { JwtAuthGuard }       from 'src/auth/guards/jwt-auth.guard'
+import { AuthUser }           from 'src/auth/decorators/auth-user.decorator'
+import { User }               from 'src/users/entities/user.entity'
+import { Room }               from 'src/chat/rooms/entities/room.entity'
+import { RoomsService }       from 'src/chat/rooms/services/rooms.service'
+import { ChatService }        from 'src/chat/services/chat.service'
+import { PermissionType }     from 'src/chat/permissions/entities/permission.entity'
+import { PermissionsService } from "src/chat/permissions/services/permissions.service";
 
 import { CreateSubscriptionDto } from '../dto/create-subscription.dto'
 import { SubscriptionsService }  from '../services/subscriptions.service'
@@ -28,6 +29,7 @@ export class SubscriptionsController
 		private readonly chat_svc: ChatService,
 		private readonly rooms_svc: RoomsService,
 		private readonly subscriptions_svc: SubscriptionsService,
+		private readonly permissions_svc: PermissionsService,
 	) {}
 
 	// -------------------------------------------------------------------------
@@ -65,6 +67,9 @@ export class SubscriptionsController
 		: Promise<void>
 	{
 		const room: Room = await this.rooms_svc.findOne({ id: room_id });
+
+		if (await this.chat_svc.isModerator(user, room))
+			this.permissions_svc.remove(user, room);
 
 		this.subscriptions_svc.remove(user, room)
 	}

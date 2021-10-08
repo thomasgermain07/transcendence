@@ -36,7 +36,7 @@ export class PermissionsService
 		permission.room = room;
 		permission.user = user;
 		permission.type = PermissionType[create_dto.type.toUpperCase()];
-		permission.expired_at = create_dto.expired_at;
+		permission.expired_at = create_dto.expired_at ?? null;
 
 		return this.permission_repo.save(permission);
 	}

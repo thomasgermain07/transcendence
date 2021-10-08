@@ -1,14 +1,15 @@
-import { Controller, Body, UseGuards, Query, ParseIntPipe } from '@nestjs/common';
+import { Controller, Body, UseGuards, Query, Param, ParseIntPipe } from '@nestjs/common';
 import { Get, Post, Delete } from '@nestjs/common';
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 
-import { AuthUser }     from 'src/auth/decorators/auth-user.decorator';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { User }         from 'src/users/entities/user.entity';
-import { UsersService } from 'src/users/services/users.service';
-import { Room }         from 'src/chat/rooms/entities/room.entity';
-import { RoomsService } from 'src/chat/rooms/services/rooms.service';
-import { ChatService }  from 'src/chat/services/chat.service';
+import { AuthUser }             from 'src/auth/decorators/auth-user.decorator';
+import { JwtAuthGuard }         from 'src/auth/guards/jwt-auth.guard';
+import { User }                 from 'src/users/entities/user.entity';
+import { UsersService }         from 'src/users/services/users.service';
+import { Room }                 from 'src/chat/rooms/entities/room.entity';
+import { RoomsService }         from 'src/chat/rooms/services/rooms.service';
+import { ChatService }          from 'src/chat/services/chat.service';
+import { SubscriptionsService } from 'src/chat/subscriptions/services/subscriptions.service';
 
 import { CreatePermissionDto } from '../dto/create-permission.dto';
 import { Permission }          from '../entities/permission.entity';
@@ -27,6 +28,7 @@ export class PermissionsController
 		private readonly users_svc: UsersService,
 		private readonly rooms_svc: RoomsService,
 		private readonly permissions_svc: PermissionsService,
+		private readonly subscriptions_svc: SubscriptionsService,
 	)
 	{
 
@@ -54,7 +56,8 @@ export class PermissionsController
 		if (!await this.chat_svc.isLeader(user, room) && !await this.chat_svc.isSubscribed(user, room))
 			throw new ForbiddenException("You don't have access to this room.");
 
-		return this.permissions_svc.find({ room: room, type: type });
+		return (await this.permissions_svc.find({ room: room, type: type }))
+			.filter(permission => !permission.expired_at || permission.expired_at.getTime() >= Date.now());
 	}
 
 	@Post()
@@ -71,6 +74,9 @@ export class PermissionsController
 			id: create_dto.room_id
 		});
 
+		if (!this.isValidType(create_dto.type))
+			throw new UnprocessableEntityException("Invalid permission type.");
+
 		if (!target || !room)
 			throw new NotFoundException("Room or User not found.");
 
@@ -79,6 +85,9 @@ export class PermissionsController
 
 		if (await this.chat_svc.isModerator(target, room) && !await this.chat_svc.isLeader(user, room))
 			throw new ForbiddenException("You can not add role for other moderator.");
+
+		if (create_dto.type == PermissionType.BANNED)
+			this.subscriptions_svc.remove(target, room);
 
 		return this.permissions_svc.create(target, room, create_dto);
 	}

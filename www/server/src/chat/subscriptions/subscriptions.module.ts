@@ -8,6 +8,7 @@ import { Subscription }            from './entities/subscription.entity';
 import { SubscriptionsService }    from './services/subscriptions.service';
 import { SubscriptionsController } from './controllers/subscriptions.controller';
 import { ChatModule } from '../chat.module';
+import { PermissionsModule } from '../permissions/permissions.module';
 
 @Module({
 	imports: [
@@ -17,6 +18,7 @@ import { ChatModule } from '../chat.module';
 		UsersModule,
 		forwardRef(() => ChatModule),
 		RoomsModule,
+		forwardRef(() => PermissionsModule),
 	],
 	controllers: [
 		SubscriptionsController,
