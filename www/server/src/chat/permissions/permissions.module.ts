@@ -1,14 +1,16 @@
-import { forwardRef, Module }        from '@nestjs/common';
+import { forwardRef }    from '@nestjs/common';
+import { Module }        from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { UsersModule } from 'src/users/users.module';
-import { RoomsModule } from 'src/chat/rooms/rooms.module';
+import { ChatModule }          from 'src/chat/chat.module';
+import { RoomsModule }         from 'src/chat/rooms/rooms.module';
+import { SubscriptionsModule } from 'src/chat/subscriptions/subscriptions.module';
+import { UsersModule }         from 'src/users/users.module';
 
 import { Permission }            from './entities/permission.entity';
-import { PermissionsService }    from './services/permissions.service';
 import { PermissionsController } from './controllers/permissions.controller';
-import { ChatModule } from '../chat.module';
-import { SubscriptionsModule } from '../subscriptions/subscriptions.module';
+import { PermissionsService }    from './services/permissions.service';
+import { PermissionSubscriber }  from './subscribers/permission.subscriber';
 
 @Module({
 	imports: [
@@ -25,11 +27,15 @@ import { SubscriptionsModule } from '../subscriptions/subscriptions.module';
 	],
 	providers: [
 		// Services
-		PermissionsService
+		PermissionsService,
+		// Subscribers
+		PermissionSubscriber,
 	],
 	exports: [
 		// Services
 		PermissionsService,
+		// Subscribers
+		PermissionSubscriber,
 	]
 })
 export class PermissionsModule {}

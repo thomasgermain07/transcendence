@@ -19,6 +19,7 @@ import { ChatService } from '../services/chat.service'
 import { Room } from '../rooms/entities/room.entity'
 import { RoomsService } from '../rooms/services/rooms.service'
 import { Message } from '../messages/entities/message.entity'
+import { Permission } from '../permissions/entities/permission.entity'
 
 type JoinLeaveType = {
   room_id: number
@@ -118,6 +119,22 @@ export class ChatGateway
     const room_name: string = this.getRoomName(message.room.id)
 
     this._server.to(room_name).emit('message', message)
+  }
+
+  setPermission(permission: Permission): void {
+    console.log(`Chat:Gateway:setPermission`)
+
+    const room_name: string = this.getRoomName(permission.room.id)
+
+    this._server.to(room_name).emit('set_permission', permission)
+  }
+
+  removePermission(permission: Permission): void {
+    console.log(`Chat:Gateway:removePermission`)
+
+    const room_name: string = this.getRoomName(permission.room.id)
+
+    this._server.to(room_name).emit('remove_permission', permission)
   }
 
   // -------------------------------------------------------------------------
