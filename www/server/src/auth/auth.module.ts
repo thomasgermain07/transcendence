@@ -11,9 +11,9 @@ import { LocalStrategy } from './strategies/local.strategy'
 import { JwtAuthStrategy } from './strategies/jwt-auth.strategy'
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy'
 import { OAuthMarvinStrategy } from './strategies/oauth-marvin.strategy'
+import { WsJwtStrategy } from './strategies/ws-jwt.strategy'
 import { AuthController } from './controllers/auth.controller'
 import { TwoFactorAuthenticationService } from './services/twoFactorAuthentication.service'
-
 
 @Module({
   imports: [
@@ -35,6 +35,7 @@ import { TwoFactorAuthenticationService } from './services/twoFactorAuthenticati
     JwtAuthStrategy,
     JwtRefreshStrategy,
     OAuthMarvinStrategy,
+    WsJwtStrategy,
   ],
   exports: [
     // Services
@@ -45,6 +46,7 @@ import { TwoFactorAuthenticationService } from './services/twoFactorAuthenticati
     JwtAuthStrategy,
     JwtRefreshStrategy,
     OAuthMarvinStrategy,
+    WsJwtStrategy,
   ],
 })
 export class AuthModule {}

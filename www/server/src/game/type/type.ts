@@ -20,6 +20,13 @@ export type Move = {
 	user_id: number;
 }
 
+export type Pause = {
+	room: string;
+	move: string;
+	user_id: number;
+	roomId: number
+}
+
 export type InGameType = {
 	inGame: boolean,
 	roomRoute: string,

@@ -1,9 +1,9 @@
-import { WebSocketGateway, WebSocketServer, ConnectedSocket } from '@nestjs/websockets';
+import { WebSocketGateway, WebSocketServer, ConnectedSocket, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { SubscribeMessage, MessageBody, WsException }     from "@nestjs/websockets";
 
 import { Server, Socket } from 'socket.io';
 
-import { UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
+import { UseInterceptors, ClassSerializerInterceptor, UseGuards } from '@nestjs/common';
 import { ValidationPipe, UsePipes } from '@nestjs/common';
 
 import { RoomsService } from '../rooms/services/rooms.service';
@@ -14,18 +14,16 @@ import { Player } from '../players/entities/player.entity';
 
 import MatchmakerDto from './dto/matchmaker.dto';
 import { InGameType, SocketRoomInfo, expandRangeType } from '../type/type';
+import { WsJwtGuard } from '../../auth/guards/ws-jwt.guard';
 
 
-
+@UseGuards(WsJwtGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 @WebSocketGateway({
 	namespace: 'matchmaker',
-	cors: {
-		origin: "http://localhost:3000",
-		methods: ["GET", "POST"]
-	}
 })
 export class MatchmakerGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
 
 	@WebSocketServer()
@@ -37,6 +35,23 @@ export class MatchmakerGateway
 
   ) { }
 
+	// -------------------------------------------------------------------------
+	// Interfaces implementations
+	// -------------------------------------------------------------------------
+	afterInit(server: Server): void {
+		console.log(`Matchmaker:Gateway: Initialized.`)
+	}
+
+	handleConnection(client: Socket, ...args: any[]): void {
+		console.log(`Matchmaker:Gateway: Connection.`)
+    // console.log(client.id)
+    console.log(client.rooms)
+	}
+
+	handleDisconnect(client: Socket): void {
+		console.log(`Matchmaker:Gateway: Disconnect.`)
+	}
+
   @UsePipes(new ValidationPipe())
   @SubscribeMessage('searchMatch')
   async matchmaking(
@@ -45,16 +60,16 @@ export class MatchmakerGateway
   ): Promise<Player | void> {
 
     const defaultRange = 3
-    
+
     // Check if user is already in a game room
     const inGame = await this.playerService.checkIfInGame(data.user)
     if (inGame) {
       return inGame
     }
 
-    // Find room that matches the game mode and options 
+    // Find room that matches the game mode and options
     const room = await this.roomsService.findMatchOrCreate(data.mode, data.options, data.user, defaultRange)
-    
+
     // Create and Add player
     const player = await this.playerService.create(room, data.user)
 
@@ -68,7 +83,7 @@ export class MatchmakerGateway
   async checkIfInGame(
     @MessageBody() user: User
   ): Promise<InGameType> {
-    
+
     const player = await this.playerService.checkIfInGame(user)
     if (player) {
       if (!player.room.locked) {
@@ -105,7 +120,7 @@ export class MatchmakerGateway
 
     // remove socket from room
     client.leave(data.room);
-  
+
     return 'Player ' + data.playerId + ' deleted';
   }
 
@@ -115,15 +130,16 @@ export class MatchmakerGateway
     @MessageBody() data: SocketRoomInfo,
   ): Promise<string> {
 
-    // delete player from db
-    await this.playerService.remove(data.playerId)
+    console.log('IN LEAVE LOBBY IN SERVER')
+    // // delete player from db -> done in axios
+    // await this.playerService.remove(data.playerId)
 
     // remove socket from room
     client.leave(data.room);
 
     // send info to other player
     this.server.to(data.room).emit('opponentLeaving')
-  
+
     return 'Player ' + data.playerId + ' deleted';
   }
 
@@ -142,7 +158,7 @@ export class MatchmakerGateway
     if (room && currentRoomId != room.id) {
       await this.playerService.remove(data.player.id)
       client.leave(data.currentRoomName);
-      
+
       player = await this.playerService.create(room, data.user)
       client.emit('joinLobbyInClient', player);
     }
@@ -164,7 +180,7 @@ export class MatchmakerGateway
     if (room && currentRoomId != room.id) {
       await this.playerService.remove(data.player.id)
       client.leave(data.currentRoomName);
-      
+
       player = await this.playerService.create(room, data.user)
       client.emit('joinLobbyInClient', player);
     }

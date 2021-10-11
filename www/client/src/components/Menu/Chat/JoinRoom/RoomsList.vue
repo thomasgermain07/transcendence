@@ -1,6 +1,12 @@
 <template>
   <div class="rooms-ctn">
-    <div class="room" v-for="room in rooms" :key="room">
+    <form class="search-bar-ctn">
+      <i class="fas fa-search search-icon"></i>
+      <input v-model="searchQuery" class="search-bar" placeholder="Search" />
+      <i class="fas fa-times search-reset" @click="resetValue"></i>
+    </form>
+
+    <div class="room" v-for="room in rooms_list" :key="room">
       <span
         class="room__name"
         :class="{ 'room__name--panel-open': open_panel == room.id }"
@@ -12,40 +18,73 @@
       <JoinRoomPanel
         v-if="open_panel == room.id"
         :room="room"
-        @subCreate="$emit('joinned')"
+        @joinned="$emit('joinned')"
       />
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { ref } from '@vue/reactivity'
-import { onMounted } from '@vue/runtime-core'
+import { computed, onMounted, ref } from '@vue/runtime-core'
+
 import JoinRoomPanel from './JoinRoomPanel.vue'
-import requestStatus from '@/composables/requestStatus'
+
 import getFetchRooms from '@/composables/Chat/Rooms/fetchRooms'
 import getJoinPanelInteraction from '@/composables/Chat/WindowInteraction/getJoinPanelInteraction'
+import { getRoomsByName } from '@/composables/Chat/Rooms/getRoomsByFilters'
+import { RoomType } from '@/types/chat/room'
 
 export default {
   components: {
     JoinRoomPanel,
   },
   setup() {
-    let status = ref(requestStatus.loading)
-    let { rooms, fetchRooms } = getFetchRooms(status)
+    const rooms = ref<RoomType[]>([])
+
+    let { fetchRooms } = getFetchRooms()
+    let { searchQuery, roomsByName } = getRoomsByName(rooms)
 
     let { open_panel, openPanel } = getJoinPanelInteraction()
 
-    onMounted(() => fetchRooms(false))
+    const rooms_list = computed(() => {
+      if (searchQuery.value) {
+        return roomsByName()
+      }
+      return rooms.value
+    })
 
-    return { rooms, open_panel, openPanel }
+    const resetValue = () => {
+      searchQuery.value = ''
+      open_panel.value = 0
+    }
+
+    onMounted(async () => {
+      rooms.value = await fetchRooms(false)
+    })
+
+    return {
+      rooms_list,
+      open_panel,
+      searchQuery,
+      openPanel,
+      resetValue,
+    }
   },
 }
 </script>
 
 <style scoped>
+.search-bar-ctn {
+  width: 80%;
+  align-self: center;
+  padding: 2px;
+  justify-content: space-around;
+}
+
 .rooms-ctn {
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .room {

@@ -1,41 +1,144 @@
 <template>
-  <div class="rooms-interaction-ctn">
-    <div class="rooms-interaction" @click="$emit('open', 'create')">Create</div>
-    <div class="rooms-interaction" @click="$emit('open', 'join')">Join</div>
+  <v-contextmenu ref="contextmenu">
+    <v-contextmenu-item
+      v-if="cm_conv.type == 'dm'"
+      @click="eventHandler.onProfile(cm_conv.target)"
+      >View Profile</v-contextmenu-item
+    >
+    <v-contextmenu-item
+      v-if="cm_conv.type == 'dm'"
+      @click="eventHandler.onSendDuel(cm_conv.target)"
+      >Send Duel</v-contextmenu-item
+    >
+    <v-contextmenu-item
+      v-if="cm_conv.type == 'dm'"
+      @click="eventHandler.onBlockUser(cm_conv.target)"
+      >Block</v-contextmenu-item
+    >
+  </v-contextmenu>
+
+  <div class="convs-interaction-ctn">
+    <div class="convs-interaction" @click="$emit('open', 'create')">Create</div>
+    <div class="convs-interaction" @click="$emit('open', 'join')">Join</div>
   </div>
 
-  <div v-if="status == 'loading'">Loading...</div>
+  <div v-if="sortedConvs" class="convs__list">
+    <p v-if="!sortedConvs.length">No rooms registered</p>
 
-  <div class="rooms__list">
-    <p v-if="!rooms.length">No rooms registered</p>
-    <div
-      v-for="room in rooms"
-      :key="room"
-      class="rooms__item"
-      @click="$emit('open', 'room', { id: room.id, name: room.name })"
-    >
-      {{ room.name }}
+    <div v-for="conv in sortedConvs" :key="conv">
+      <div
+        class="convs-item"
+        @click.left="openConv(conv)"
+        @click.right="cm_conv = conv"
+        v-contextmenu:contextmenu
+      >
+        <i v-if="conv.type == 'room'" class="fas fa-users conv-icon"></i>
+        <i v-else-if="conv.type == 'dm'" class="fas fa-user conv-icon"></i>
+
+        <span class="convs-item--name">{{ conv.target.name }}</span>
+        <i
+          class="fas fa-bell notification"
+          :class="{ 'notification--visible': conv.notification }"
+        ></i>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { onMounted, ref } from 'vue'
-import getFetchRooms from '@/composables/Chat/Rooms/fetchRooms'
-import requestStatus from '@/composables/requestStatus'
+import { computed, onMounted, ref, watch } from 'vue'
+import { ConversationType } from '@/types/chat/conversation'
+import { useChat } from '@/composables/Chat/useChat'
+import { useContextMenu } from '@/composables/useContextMenu'
 
 export default {
-  setup() {
-    let status = ref(requestStatus.loading)
+  props: {
+    RoomId: Number,
+  },
+  setup(props, { emit }) {
+    let convs = ref<ConversationType[]>([])
+    let cm_conv = ref<ConversationType>()
 
-    let { rooms, fetchRooms } = getFetchRooms(status)
+    const { rooms, relatedUsers, notifications, reloadRelatedUsers, getConvs } =
+      useChat()
 
-    onMounted(() => fetchRooms(true))
+    const eventHandler = useContextMenu()
+
+    const markNotification = () => {
+      notifications.value.forEach((notif) => {
+        let conv = convs.value.find(
+          (conv) => conv.type == notif.type && conv.target.id == notif.target,
+        )
+        if (conv != undefined) {
+          if (notif.type == 'room' && conv.type == 'room') {
+            conv.target.id != props.RoomId ? (conv.notification = true) : 0
+          } else if (notif.type == 'dm' && conv.type == 'dm') {
+            conv.target.id != props.RoomId ? (conv.notification = true) : 0
+          }
+        } else {
+          reloadRelatedUsers()
+          return
+        }
+      })
+    }
+
+    onMounted(() => {
+      convs.value = getConvs()
+      markNotification()
+    })
+
+    const openConv = (conv: ConversationType) => {
+      let index = notifications.value.findIndex(
+        (notif) => notif.type == conv.type && notif.target == conv.target.id,
+      )
+      if (index != undefined && index != -1) {
+        notifications.value.splice(index, 1)
+      }
+      emit('open', conv.type, { id: conv.target.id, name: conv.target.name })
+    }
+
+    const sortedConvs = computed(() => {
+      convs.value.sort((a, b) => {
+        if (a.notification && !b.notification) {
+          return -1
+        } else if (!a.notification && b.notification) {
+          return 1
+        }
+        return 0
+      })
+      return convs.value
+    })
+
+    watch(
+      () => rooms.value.length,
+      () => {
+        convs.value = getConvs()
+        markNotification()
+      },
+    )
+    watch(
+      () => relatedUsers.value.length,
+      () => {
+        convs.value = getConvs()
+        markNotification()
+      },
+    )
+
+    watch(
+      () => notifications.value.length,
+      () => {
+        convs.value.forEach((conv) => {
+          conv.notification = false
+        })
+        markNotification()
+      },
+    )
 
     return {
-      rooms,
-      status,
-      fetchRooms,
+      sortedConvs,
+      openConv,
+      cm_conv,
+      eventHandler,
     }
   },
   emits: ['open'],
@@ -49,37 +152,55 @@ export default {
   font-weight: bold;
 }
 
-.rooms-interaction-ctn {
+.convs-interaction-ctn {
   display: flex;
   background-color: darkgray;
 }
 
-.rooms-interaction {
+.notification {
+  color: red;
+  visibility: hidden;
+}
+
+.notification--visible {
+  visibility: visible;
+}
+
+.convs-interaction {
   padding: 3px;
   flex-grow: 1;
-  border-top: 2px solid black;
   border-bottom: 2px solid black;
   cursor: pointer;
 }
 
-.rooms-interaction:hover {
+.convs-interaction:hover {
   background-color: white;
 }
 
-.rooms-interaction-ctn > .rooms-interaction:first-child {
+.convs-interaction-ctn > .convs-interaction:first-child {
   border-right: 2px solid black;
 }
 
-.rooms__list {
+.convs__list {
   display: flex;
   flex-direction: column;
 }
 
-.rooms__item {
+.convs-item {
   display: flex;
   justify-content: space-between;
-  padding: 4px;
   border-bottom: 1px solid darkgray;
   cursor: pointer;
+}
+
+.convs-item--name {
+  padding: 4px 0;
+  overflow: hidden !important;
+  text-overflow: ellipsis;
+}
+
+/* TODO : Align conv icon on the center */
+.conv-icon {
+  padding: 2px;
 }
 </style>

@@ -1,26 +1,32 @@
-import {
-  ConnectedSocket,
-  WebSocketGateway,
-  WebSocketServer,
-} from '@nestjs/websockets'
-import {
-  OnGatewayConnection,
-  OnGatewayInit,
-  OnGatewayDisconnect,
-} from '@nestjs/websockets'
-import { SubscribeMessage, MessageBody } from '@nestjs/websockets'
-import { Server } from 'socket.io'
+import { UseGuards } from '@nestjs/common'
+import { ConnectedSocket } from '@nestjs/websockets'
+import { MessageBody } from '@nestjs/websockets'
+import { OnGatewayConnection } from '@nestjs/websockets'
+import { OnGatewayInit } from '@nestjs/websockets'
+import { OnGatewayDisconnect } from '@nestjs/websockets'
+import { SubscribeMessage } from '@nestjs/websockets'
+import { WebSocketGateway } from '@nestjs/websockets'
+import { WebSocketServer } from '@nestjs/websockets'
+import { WsException } from '@nestjs/websockets'
 import { Socket } from 'socket.io'
+import { Server } from 'socket.io'
+
+import { WsJwtGuard } from 'src/auth/guards/ws-jwt.guard'
+import { User } from 'src/users/entities/user.entity'
+import { AuthUser } from 'src/auth/decorators/auth-user.decorator'
 
 import { ChatService } from '../services/chat.service'
+import { Room } from '../rooms/entities/room.entity'
+import { RoomsService } from '../rooms/services/rooms.service'
 import { Message } from '../messages/entities/message.entity'
 
+type JoinLeaveType = {
+  room_id: number
+}
+
+@UseGuards(WsJwtGuard)
 @WebSocketGateway({
   namespace: 'chat',
-  cors: {
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST'],
-  },
 })
 export class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -34,43 +40,88 @@ export class ChatGateway
   // -------------------------------------------------------------------------
   // Interfaces implementations
   // -------------------------------------------------------------------------
-  constructor(private readonly chat_svc: ChatService) {}
+  constructor(
+    private readonly chat_svc: ChatService,
+    private readonly rooms_svc: RoomsService,
+  ) {}
 
   // -------------------------------------------------------------------------
   // Interfaces implementations
   // -------------------------------------------------------------------------
   afterInit(server: Server): void {
-    console.log(`MessagesGateway: Initialized.`)
+    console.log(`Chat:Gateway: Initialized.`)
   }
 
   handleConnection(client: Socket, ...args: any[]): void {
-    console.log(`MessagesGateway: Connection.`)
+    console.log(`Chat:Gateway: Connection.`)
   }
 
   handleDisconnect(client: Socket): void {
-    console.log(`MessagesGateway: Disconnect.`)
+    console.log(`Chat:Gateway: Disconnect.`)
   }
 
   // -------------------------------------------------------------------------
   // Public Methods
   // -------------------------------------------------------------------------
-  broadcast(message: Message): void {
-    this._server
-      // .to(this.getRoomName(message.room.id))
-      .emit('message', message)
+  @SubscribeMessage('join')
+  async handleJoin(
+    @ConnectedSocket() client: Socket,
+    @AuthUser() user: User,
+    @MessageBody() data: JoinLeaveType,
+  ): Promise<void> {
+    console.log(`Chat:Gateway: Join`)
+
+    const room: Room = await this.rooms_svc.findOne({ id: data.room_id })
+
+    if (
+      !room ||
+      (!(await this.chat_svc.isSubscribed(user, room)) &&
+        !(await this.chat_svc.isOwner(user, room)))
+    ) {
+      console.log(`Chat:Gateway:Join: Error`)
+      throw new WsException('You are not subscribed to this room.')
+    }
+
+    const room_name: string = this.getRoomName(room.id)
+
+    client.join(room_name)
+
+    if (!user.is_admin)
+      this._server
+        .to(room_name)
+        .emit('info', { type: 'join', username: user.name })
   }
 
-  @SubscribeMessage('message')
-  handleMessage(
+  @SubscribeMessage('leave')
+  async handleLeave(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: string,
-  ): void {
-    // client.join(this.getRoomName(room_id));
-    this._server.emit('message', data)
+    @AuthUser() user: User,
+    @MessageBody() data: JoinLeaveType,
+  ): Promise<void> {
+    console.log(`Chat:Gateway: Leave`)
+
+    const room_name: string = this.getRoomName(data.room_id)
+
+    client.leave(room_name)
+
+    if (!user.is_admin)
+      this._server
+        .to(room_name)
+        .emit('info', { type: 'leave', username: user.name })
+
+    console.log(`User ${user.id} left chat ${room_name}.`)
+  }
+
+  sendMessage(message: Message): void {
+    console.log(`Chat:Gateway: Message`)
+
+    const room_name: string = this.getRoomName(message.room.id)
+
+    this._server.to(room_name).emit('message', message)
   }
 
   // -------------------------------------------------------------------------
-  // Privte Methods
+  // Private Methods
   // -------------------------------------------------------------------------
   private getRoomName(room_id: number): string {
     return `room_${room_id}`

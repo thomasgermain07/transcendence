@@ -1,253 +1,181 @@
 <template>
   <div class="game-home">
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
-    <h1>PONG GAME</h1>
-    <div class="link-button">
-      <div>
-        <router-link v-bind:to="'/game/duel'" class="link-button-duel">
-          Play Duel
-        </router-link>
+
+    <h1>Ultimate Pong</h1>
+
+    <div class="links-ctn">
+      <div class="link">
+        <router-link to="/game/duel" class="btn duel">Play Duel</router-link>
       </div>
-      <div>
-        <router-link v-bind:to="'/game/ladder'" class="link-button-ladder">
-          Play Ladder
-        </router-link>
+      <div class="link">
+        <router-link to="/game/ladder" class="btn ladder">Play Ladder</router-link>
       </div>
-      <div>
-        <button
-          onclick="document.getElementById('id01').style.display='block'"
-          class="link-button-rules"
-        >
-          Rules
-        </button>
-        <div id="id01" class="w3-modal">
-          <div class="w3-modal-content">
-            <div class="w3-container">
-              <span
-                onclick="document.getElementById('id01').style.display='none'"
-                class="w3-button w3-display-topright"
-                >&times;</span
-              >
-              <h2>Duel Rules</h2>
-              <p>
-                A duel is a one against one pong game. In this mode you can
-                choose between three mapes to fight your opponent and three
-                levels of difficulties. You can also choose if you want to fight
-                with or without bonus options. The first Player with a score of
-                5 win. Be Ready to enter the arena.
-              </p>
-              <h2>Ladder Rules</h2>
-              <p>
-                A Ladder is a one against one pong game. The first Player with a
-                score of 5 win. There is only one mape and one levels for this
-                mode. If you wine in front of someone with a better level, his
-                level became yours but if you are the one with a better level,
-                you gone a loose it
-              </p>
-            </div>
-          </div>
-        </div>
+      <div class="link">
+        <div @click="openRules" class="btn rules">How To Play</div>
       </div>
     </div>
+
+    <div class="rules-modal" v-bind:class="{ active: isActive }">
+
+      <span @click="closeRules" class="closing-btn">
+        x
+      </span>
+
+      <h2>Duel Rules</h2>
+      <p>
+        A duel is a one against one pong game. In this mode you can
+        choose between three maps to fight your opponent and three
+        levels of difficulties. You can also choose if you want to fight
+        with or without bonus options. The first player with a score of
+        5 win. Be Ready to enter the arena.
+      </p>
+      <h2>Ladder Rules</h2>
+      <p>
+        A Ladder is a one against one pong game. The first player with a
+        score of 5 win. There is only one map and one level for this
+        mode. If you win in front of someone with a better level, his
+        level became yours but if you are the one with a better level,
+        you gonna lose it
+      </p>
+    </div>
+
   </div>
 </template>
+
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue';
 
 export default defineComponent({
   name: 'game-home',
 
   setup() {
-    return
+
+    const isActive = ref(false);
+
+    const openRules = () => {
+      console.log('in open rules')
+      isActive.value = true;
+    }
+
+    const closeRules = () => {
+      console.log('in open rules')
+      isActive.value = false;
+    }
+
+    return {
+      openRules,
+      closeRules,
+      isActive,
+    }
   },
 })
 </script>
 
 <style scoped>
-.game-home {
-  height: 1000px;
-  width: 100%;
-  font-size: 200%;
-  /* background-size: 30%; */
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-image: linear-gradient(
-      to bottom,
-      rgba(255, 255, 0, 0.5),
-      rgba(0, 0, 255, 0.5)
-    ),
-    url('../../assets/images/ultimatePong.png');
-  margin: 0;
-  padding: 30px;
-  text-shadow: 1px 1px 2px pink;
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap");
 
-  /* position: center; */
-  /* padding: 0;
-  left: 0; */
+* {
+  font-family: 'Press Start 2P', cursive;
+  box-sizing: border-box;
 }
-.game-home h1 {
+
+/* Title  */
+h1 {
+  font-size: 5vw;
+  text-transform: uppercase;
+  color: var(--primary-color);
+  margin: 30px auto;
   text-align: center;
-  font-size: 100%;
+  text-shadow: 0.1em .1em 0 rgba(0, 0, 0, 0.849);
+}
+
+/* Links */
+.links-ctn {
+  display: flex;
+  flex-direction: column;
+  height: 60vh;
+  background: 
+    linear-gradient(#01012b, #00000f),
+    url(../../assets/images/pong-table.jpg) no-repeat center center;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  background-blend-mode: saturation;
+}
+
+.link {
+  text-transform: uppercase;
+  margin: auto;
+}
+
+.btn {
+  padding: 1em;
+  display: inline-block;
+  text-decoration: none;
+  background-color: hsla(240, 100%, 4%, 0.718);
+  letter-spacing: 3px;
   font-weight: 700;
-  margin-top: 60px;
-}
-.link-button {
-  display: inline-table;
-  width: 100%;
-  /* background: #0a0a0a; */
-  /* border: 4mm ridge rgba(170, 50, 220, .6); */
-  /* margin: 6px auto 0; */
-  padding: 1em;
-  text-decoration: none;
-  border-radius: 40px;
-  text-align: center;
-  font-size: 100%;
-  font-weight: 700;
+  color: var(--secondary-color);
+  text-shadow: 0 0 7px #005678, 0 0 10px #005678, 0 0 21px #005678, 0 0 42px #005678, 0 0 82px #005678; 
+  border: 3px double var(--primary-color);
+  border-radius: 4px;
+  -webkit-box-shadow: 5px 5px 5px 0px #000000, inset 4px 4px 15px 0px #000000, 5px 5px 15px 5px rgba(255,139,253,0); 
+  box-shadow: 5px 5px 5px 0px #000000, inset 4px 4px 15px 0px #000000, 5px 5px 15px 5px rgba(255,139,253,0);
 
-  text-shadow: 0 1px 0px #378ab4, 1px 0 0px #5dabcd, 1px 2px 1px #378ab4,
-    2px 1px 1px #5dabcd, 2px 3px 2px #378ab4, 3px 2px 2px #5dabcd,
-    3px 4px 2px #378ab4, 4px 3px 3px #5dabcd, 4px 5px 3px #378ab4,
-    5px 4px 2px #5dabcd, 5px 6px 2px #378ab4, 6px 5px 2px #5dabcd,
-    6px 7px 1px #378ab4, 7px 6px 1px #5dabcd, 7px 8px 0px #378ab4,
-    8px 7px 0px #5dabcd;
-  /* color: #bc2e1e; */
-  color: #0a0a0a;
-
-  /* box-shadow: 0px 0px 0px 2px rgba(255, 255, 255, 0.16) inset, 0px 0px 10px 0px #DE3964; */
-  background-position: center;
-  background-size: cover;
 }
 
-.link-button-duel {
-  display: inline-table;
-  width: 30%;
-  border: 4mm ridge rgba(170, 50, 220, 0.6);
-  /* margin: 60px auto 0; */
-  padding: 1em;
-  text-decoration: none;
-  border-radius: 40px;
-  /* text-align: center;
-  font-size: 100%;
-  font-weight: 700; */
-
-  /* text-shadow: 0 1px 0px #378ab4, 1px 0 0px #5dabcd, 1px 2px 1px #378ab4, 2px 1px 1px #5dabcd, 2px 3px 2px #378ab4, 3px 2px 2px #5dabcd, 3px 4px 2px #378ab4, 4px 3px 3px #5dabcd, 4px 5px 3px #378ab4, 5px 4px 2px #5dabcd, 5px 6px 2px #378ab4, 6px 5px 2px #5dabcd, 6px 7px 1px #378ab4, 7px 6px 1px #5dabcd, 7px 8px 0px #378ab4, 8px 7px 0px #5dabcd; */
-  /* color: #bc2e1e; */
-  /* color: #0a0a0a; */
-
-  box-shadow: 0px 0px 0px 2px rgba(255, 255, 255, 0.16) inset,
-    0px 0px 10px 0px #de3964;
-  background-image: linear-gradient(
-      to bottom,
-      rgba(255, 255, 0, 0.5),
-      rgba(0, 0, 255, 0.5)
-    ),
-    url('../../assets/images/vs.png');
-  background-position: center;
-  background-size: cover;
-}
-.link-button-duel:hover {
-  box-shadow: 0px 0px 0px 2px rgba(255, 255, 255, 0.16) inset,
-    0px 0px 30px 0px #de3964;
-}
-.link-button-duel:hover:after {
-  -webkit-transform: scale(1);
-  transform: scale(1);
-}
-.link-button-duel:hover:before {
-  -webkit-transform: scale(1.2);
-  transform: scale(1.2);
+.btn:hover {
+  border-color: var(--secondary-color);
+  transform: translate(0.25em, 5%);
+  box-shadow: 0 0 0 2px pink, 0 0 pink;
+  text-shadow: none;
 }
 
-.link-button-ladder {
-  display: inline-table;
-  width: 30%;
-  /* background: #0a0a0a; */
-  border: 4mm ridge rgba(170, 50, 220, 0.6);
-  margin: 20px auto 0;
-  padding: 1em;
-  text-decoration: none;
-  border-radius: 40px;
-  /* text-align: center;
-  font-size: 100%;
-  font-weight: 700;
-  text-shadow: 0 1px 0px #378ab4, 1px 0 0px #5dabcd, 1px 2px 1px #378ab4, 2px 1px 1px #5dabcd, 2px 3px 2px #378ab4, 3px 2px 2px #5dabcd, 3px 4px 2px #378ab4, 4px 3px 3px #5dabcd, 4px 5px 3px #378ab4, 5px 4px 2px #5dabcd, 5px 6px 2px #378ab4, 6px 5px 2px #5dabcd, 6px 7px 1px #378ab4, 7px 6px 1px #5dabcd, 7px 8px 0px #378ab4, 8px 7px 0px #5dabcd;
-  color: #0a0a0a; */
-
-  box-shadow: 0px 0px 0px 2px rgba(255, 255, 255, 0.16) inset,
-    0px 0px 10px 0px #de3964;
-  background-image: linear-gradient(
-      to bottom,
-      rgba(255, 255, 0, 0.5),
-      rgba(0, 0, 255, 0.5)
-    ),
-    url('../../assets/images/levelUp.png');
-  background-position: center;
-  background-size: cover;
-}
-.link-button-ladder:hover {
-  box-shadow: 0px 0px 0px 2px rgba(255, 255, 255, 0.16) inset,
-    0px 0px 30px 0px #de3964;
-}
-.link-button-ladder:hover:after {
-  -webkit-transform: scale(1);
-  transform: scale(1);
-}
-.link-button-ladder:hover:before {
-  -webkit-transform: scale(1.2);
-  transform: scale(1.2);
+.btn.rules {
+  cursor: pointer;
 }
 
-.link-button-rules {
-  display: inline-table;
-  min-width: 30%;
-  /* background: #0a0a0a; */
-  border: 4mm ridge rgba(170, 50, 220, 0.6);
-  margin: 20px auto 0;
-  padding: 1em;
-  text-decoration: none;
-  border-radius: 40px;
-  /* text-align: center;
-  font-size: 100%;
-  font-weight: 700; */
-  text-shadow: 0 1px 0px #378ab4, 1px 0 0px #5dabcd, 1px 2px 1px #378ab4,
-    2px 1px 1px #5dabcd, 2px 3px 2px #378ab4, 3px 2px 2px #5dabcd,
-    3px 4px 2px #378ab4, 4px 3px 3px #5dabcd, 4px 5px 3px #378ab4,
-    5px 4px 2px #5dabcd, 5px 6px 2px #378ab4, 6px 5px 2px #5dabcd,
-    6px 7px 1px #378ab4, 7px 6px 1px #5dabcd, 7px 8px 0px #378ab4,
-    8px 7px 0px #5dabcd;
-  color: #0a0a0a;
 
-  box-shadow: 0px 0px 0px 2px rgba(255, 255, 255, 0.16) inset,
-    0px 0px 10px 0px #de3964;
-  background-image: linear-gradient(
-    to bottom,
-    rgba(255, 255, 0, 0.5),
-    rgba(0, 0, 255, 0.5)
-  );
-  /* background-position: center;
-  background-size: cover; */
+/* Rules Modal */
+.rules-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  height: 400px;
+  max-height: 100%;
+  padding: 20px 50px 20px 20px;
+  transform: translate(-50%, -50%);
+  overflow: scroll;
+  background-color: rgb(231, 234, 238);
+  color: black;
+  line-height: 130%;
+  box-shadow: 0 0 60px 10px rgba(0, 0, 0, 0.9);
+  border-radius: 2px;
+  display: none;
+  z-index: 100;
 }
-.link-button-rules:hover {
-  box-shadow: 0px 0px 0px 2px rgba(255, 255, 255, 0.16) inset,
-    0px 0px 30px 0px #de3964;
+.rules-modal h2 {
+  text-align: left;
+  margin-top: 30px;
 }
-.link-button-rules:hover:after {
-  -webkit-transform: scale(1);
-  transform: scale(1);
+.rules-modal p {
+  text-align: left;
+  margin: 10px 0;
+  font-size: 10px;
 }
-.link-button-rules:hover:before {
-  -webkit-transform: scale(1.2);
-  transform: scale(1.2);
+.rules-modal.active {
+  display: block;
 }
-.w3-modal-content {
-  background-image: linear-gradient(
-    to bottom,
-    rgba(255, 255, 0, 0.5),
-    rgba(0, 0, 255, 0.5)
-  );
-  background-position: center;
-  background-size: cover;
+.closing-btn {
+  cursor: pointer;
+  font-size: 1.3rem;
+  position: absolute;
+  z-index: 1;
+  top: 10px;
+  right: 20px;
 }
+
+
 </style>

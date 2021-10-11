@@ -1,0 +1,21 @@
+.field-input {
+  width: 175px;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid black;
+}
+
+.field-input--invalid {
+  color: red;
+  border: 1px solid red;
+}
+
+.field__error-msg {
+  visibility: hidden;
+  color: red;
+  font-weight: 500;
+}
+
+.field__error-msg--visible {
+  visibility: visible;
+}

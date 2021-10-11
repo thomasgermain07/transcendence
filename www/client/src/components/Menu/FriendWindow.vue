@@ -1,116 +1,170 @@
 <template>
   <div class="friend-window">
-    <form class="search-bar-container">
+    <TopBar :Title="'Friends'" @close="$emit('close')" @refresh="loadData" />
+    <form class="search-bar-ctn">
       <i class="fas fa-search search-icon"></i>
       <input v-model="searchQuery" class="search-bar" placeholder="Search" />
-      <i class="fas fa-times search-reset" @click="resetValue"></i>
+      <i class="fas fa-times search-reset" @click="searchQuery = ''"></i>
     </form>
+    <FriendsList
+      v-if="searchQuery"
+      :Friends="friendsByName"
+      @open_chat="open_chat"
+      @reload_data="loadData"
+    />
 
-    <div class="search-container" v-if="searchQuery">
-      <div
-        class="friend-item"
-        v-for="friend in friendsByName"
-        :key="friend"
-        @click="$emit('open_chat', friend)"
-      >
-        {{ friend.name }}
-        <i
-          v-if="friend.connected"
-          class="fas fa-circle status status--connected"
-        ></i>
-        <i v-else class="fas fa-circle status status--disconnected"></i>
-      </div>
+    <div @click="open_chat" class="open-chat-btn" v-if="!searchQuery">
+      <i class="fas fa-bell notification"></i>
+      Open chat
+      <i
+        class="fas fa-bell notification"
+        :class="{ 'notification--visible': notification && !ChatStatus }"
+      ></i>
     </div>
+
+    <a
+      v-if="!searchQuery && requests.length"
+      class="roll-menu"
+      :class="{ 'roll-menu--open': showRequest }"
+      @click="toggle_menu('request')"
+    >
+      New request(s)
+      <i class="far fa-arrow-alt-circle-down arrow"></i>
+    </a>
+    <RequestList
+      v-if="showRequest && !searchQuery"
+      :Requests="requests"
+      @request_answered="loadData"
+      @reload_data="loadData"
+      @open_chat="open_chat"
+    />
 
     <a
       v-if="!searchQuery"
       class="roll-menu"
       :class="{ 'roll-menu--open': showOnline }"
-      @click="toggle_online"
+      @click="toggle_menu('online')"
     >
       Online
       <i class="far fa-arrow-alt-circle-down arrow"></i>
     </a>
-
-    <div class="friend-container" v-if="showOnline && !searchQuery">
-      <div
-        class="friend-item"
-        v-for="friend in onlineFriends"
-        :key="friend"
-        @click="$emit('open_chat')"
-      >
-        {{ friend.name }}
-        <i class="fas fa-circle status status--connected"></i>
-      </div>
-    </div>
+    <FriendsList
+      v-if="showOnline && !searchQuery"
+      :Friends="onlineFriends"
+      @open_chat="open_chat"
+      @reload_data="loadData"
+    />
 
     <a
       v-if="!searchQuery"
       class="roll-menu"
       :class="{ 'roll-menu--open': showOffline }"
-      @click="toggle_offline"
+      @click="toggle_menu('offline')"
     >
       Offline
       <i class="far fa-arrow-alt-circle-down arrow"></i>
     </a>
+    <FriendsList
+      v-if="showOffline && !searchQuery"
+      :Friends="offlineFriends"
+      @open_chat="open_chat"
+      @reload_data="loadData"
+    />
 
-    <div class="friend-container" v-if="showOffline && !searchQuery">
-      <div
-        class="friend-item"
-        v-for="friend in offlineFriends"
-        :key="friend"
-        @click="$emit('open_chat')"
-      >
-        {{ friend.name }}
-        <i class="fas fa-circle status status--disconnected"></i>
-      </div>
-    </div>
+    <a
+      v-if="!searchQuery"
+      class="roll-menu"
+      :class="{ 'roll-menu--open': showIgnored }"
+      @click="toggle_menu('ignored')"
+    >
+      Blocked
+      <i class="far fa-arrow-alt-circle-down arrow"></i>
+    </a>
+    <IgnoredList
+      v-if="showIgnored && !searchQuery"
+      :Ignored="ignored"
+      @unblocked_user="loadData"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import { onMounted, ref } from 'vue'
-import getFetchFriends from '@/composables/Friends/fetchFriends'
+import { onMounted, ref, watch } from 'vue'
+
 import {
   getFriendsByName,
   getFriendsByStatus,
 } from '@/composables/Friends/getFriendsByFilters'
-import requestStatus from '@/composables/requestStatus'
 import getFriendsWindowInteraction from '@/composables/Window/FriendsWindowInteraction'
 
-export default {
-  setup() {
-    let status = ref(requestStatus.loading)
+import TopBar from './Utils/TopBar.vue'
+import FriendsList from './Friend/Friends/FriendsList.vue'
+import RequestList from './Friend/Request/RequestList.vue'
+import IgnoredList from './Friend/Ignored/IgnoredList.vue'
 
-    let { friends, fetchFriends } = getFetchFriends(status)
-    let { searchQuery, friendsByName } = getFriendsByName(friends)
-    const { onlineFriends, offlineFriends } = getFriendsByStatus(friends)
-    let { showOffline, showOnline, toggle_offline, toggle_online } =
+import { useChat } from '@/composables/Chat/useChat'
+import { useFriends } from '@/composables/Friends/useFriends'
+
+export default {
+  components: {
+    TopBar,
+    FriendsList,
+    RequestList,
+    IgnoredList,
+  },
+  props: {
+    ChatStatus: Boolean,
+  },
+  setup(props, { emit }) {
+    const { loadData, friends, ignored, requests } = useFriends()
+
+    let notification = ref(false)
+
+    let { searchQuery, friendsByName } = getFriendsByName(friends, ignored)
+    const { onlineFriends, offlineFriends } = getFriendsByStatus(
+      friends,
+      ignored,
+    )
+
+    let { showOffline, showOnline, showRequest, showIgnored, toggle_menu } =
       getFriendsWindowInteraction()
 
-    const resetValue = () => {
-      searchQuery.value = ''
+    const open_chat = (userId: Number, userName: String) => {
+      emit('open_chat', userId, userName)
     }
 
-    onMounted(fetchFriends)
+    watch(
+      () => useChat().notifications.value.length,
+      (v) => {
+        notification.value = v > 0 ? true : false
+      },
+    )
+
+    onMounted(async () => {
+      await loadData()
+    })
 
     return {
       // Variables
+      requests,
+      ignored,
       searchQuery,
       showOnline,
       showOffline,
-      status, // TODO : Handle status error in templates
+      showRequest,
+      showIgnored,
+      notification,
       // Methods
-      fetchFriends,
-      resetValue,
-      toggle_online,
-      toggle_offline,
+      toggle_menu,
+      loadData,
+      open_chat,
       // Computed
       onlineFriends,
       offlineFriends,
       friendsByName,
     }
   },
+  emits: ['open_chat', 'close', 'open_create_invite'],
 }
 </script>
 
@@ -118,30 +172,30 @@ export default {
 .friend-window {
   overflow-y: auto;
   overflow-x: hidden;
+  max-height: 375px;
 }
 
-.search-bar-container {
+.notification {
+  color: red;
+  visibility: hidden;
+}
+
+.notification--visible {
+  visibility: visible;
+}
+
+.search-bar-ctn {
   padding: 2px;
-  display: flex;
   justify-content: space-around;
-  height: 25px;
+  height: 24px;
   border-bottom: 2px solid black;
 }
 
-.search-bar {
-  width: 75%;
-  border: 1px solid black;
-  border-radius: 5px;
-  background-color: lightgray;
-}
-
-.search-icon {
-  align-self: center;
-}
-
-.search-reset {
-  align-self: center;
-  cursor: pointer;
+.open-chat-btn {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px solid black;
+  padding: 3px;
 }
 
 .roll-menu {
@@ -151,6 +205,7 @@ export default {
   padding: 0.3em;
   cursor: pointer;
   background-color: darkgrey;
+  border-bottom: 1px solid black;
 }
 
 .roll-menu--open {
@@ -164,32 +219,5 @@ export default {
 
 .roll-menu--open .arrow {
   transform: rotate(180deg);
-}
-
-.friend-container {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.friend-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px;
-  border-bottom: 1px solid darkgray;
-  cursor: pointer;
-}
-
-.status {
-  font-size: 0.7em;
-  align-self: center;
-}
-
-.status--connected {
-  color: green;
-}
-
-.status--disconnected {
-  color: red;
 }
 </style>

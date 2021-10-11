@@ -17,7 +17,8 @@
         :to="{ name: 'user-profile' }"
         class="link"
       >
-        <i class="fas fa-user"></i>
+        <img v-if="currentUser" :src="currentUser.avatar" class="avatar-logo"/>
+        <!-- <i class="fas fa-user"></i> -->
       </router-link>
       <router-link
         v-if="is_authenticated"
@@ -32,12 +33,34 @@
 
 <script lang="ts">
 import { defineComponent } from '@vue/runtime-core'
+import { ref, reactive, watch } from 'vue'
 import { useAuth } from '@/composables/auth'
+import { useUsers } from '../composables/users'
+import { UserType } from '../types/user/user'
+
 export default defineComponent({
   name: 'navigation',
+
   setup() {
     const { is_authenticated } = useAuth()
-    return { is_authenticated }
+    const { users, get } = useUsers()
+        
+    let currentUser = ref<UserType>()
+
+    watch(
+      () => is_authenticated.value,
+      () => {
+        if (is_authenticated.value)
+        {
+          get()
+        }
+
+      },
+    )
+    return { 
+      currentUser: users,
+      is_authenticated,
+    }
   },
 })
 </script>
@@ -50,8 +73,11 @@ export default defineComponent({
   top: 0;
   left: 0;
   width: 100%;
-  margin-bottom: 1em;
-  background-color: grey;
+  /* margin-bottom: 1em; */
+  /* background-color: grey; */
+  background-color: white;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
+  z-index: 2;
 }
 .navigation {
   display: flex;
@@ -59,11 +85,18 @@ export default defineComponent({
 .link {
   padding: 14px 23px;
   text-align: center;
-  color: white;
+  /* color: white; */
+  color: var(--tertiary-color);
   text-decoration: none;
   cursor: pointer;
 }
 .link:hover {
-  background-color: black;
+  /* background-color: black; */
+  background-color: var(--primary-color);
+}
+.avatar-logo {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
 }
 </style>

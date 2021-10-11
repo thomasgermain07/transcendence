@@ -22,6 +22,7 @@ export interface IMapPaddleState {
     begin: boolean
     map: string
     count: number
+    interval: ReturnType<typeof setInterval>
   
   }
   

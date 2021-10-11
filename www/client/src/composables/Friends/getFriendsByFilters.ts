@@ -1,26 +1,48 @@
 import { computed, ref, Ref } from 'vue'
-import { IFriend } from './fetchFriends'
+import { UserType } from '@/types/user/user'
 
-export function getFriendsByName(friends: any) {
+function getFriendsWithoutIgnored(friends: UserType[], ignored: UserType[]) {
+  return friends.filter((friend: UserType) => {
+    return ignored.find((user) => user.id == friend.id) != undefined ? 0 : 1
+  })
+}
+
+export function getFriendsByName(
+  friends: Ref<UserType[]>,
+  ignored: Ref<UserType[]>,
+) {
   let searchQuery = ref('')
 
   const friendsByName = computed(() => {
-    return friends.value?.filter((friend: any) => {
-      return friend.name
-        .toLowerCase()
-        .includes(searchQuery.value.trim().toLowerCase())
-    })
+    return getFriendsWithoutIgnored(friends.value, ignored.value).filter(
+      (friend: UserType) => {
+        return friend.name
+          .toLowerCase()
+          .includes(searchQuery.value.trim().toLowerCase())
+      },
+    )
   })
 
   return { searchQuery, friendsByName }
 }
 
-export function getFriendsByStatus(friends: Ref) {
+export function getFriendsByStatus(
+  friends: Ref<UserType[]>,
+  ignored: Ref<UserType[]>,
+) {
   const onlineFriends = computed(() => {
-    return friends.value?.filter((friend: IFriend) => friend.connected)
+    return friends.value?.filter(
+      (friend: UserType) =>
+        friend.status != 'disconnected' &&
+        !ignored.value.find((user) => user.id == friend.id),
+    )
   })
   const offlineFriends = computed(() => {
-    return friends.value?.filter((friend: IFriend) => !friend.connected)
+    return friends.value?.filter(
+      (friend: UserType) =>
+        friend.status == 'disconnected' &&
+        !ignored.value.find((user) => user.id == friend.id),
+    )
   })
 
   return { onlineFriends, offlineFriends }

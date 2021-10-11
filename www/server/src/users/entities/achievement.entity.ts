@@ -3,7 +3,6 @@ import { PrimaryGeneratedColumn } from 'typeorm'
 import { IsEnum, IsBoolean } from 'class-validator';
 import { User } from './user.entity';
 
-
 export enum AchievementsDescription {
 	DEFENSE_MASTER = "You won a match without taking any goal !",
 	TEN_WINS = "You have won 10 games !",
@@ -11,7 +10,7 @@ export enum AchievementsDescription {
 	SEVENTY_WINS = "You have won 70 games !",
 	HUNDRED_WINS = "You have won 100 games !",
 	TWO_HUNDRED_WINS = "You have won 200 games !",
-	ALL_TERRAIN = "You played and won in all 3 maps in duel mode!",
+	ALL_TERRAIN = "You played and won in all 3 maps in duel mode !",
 	NOVICE = "You won your first match !",
 	MIDDLE_PLAYER = "You won a match with medium difficulty !",
 	HARD_MASTER = "You won a match with Hard difficulty !",
@@ -29,9 +28,36 @@ export enum AchievementsName {
 	NOVICE = "Novice Achievement",
 	MIDDLE_PLAYER = "Player In The Middle Achievement",
 	HARD_MASTER = "Hardcore Player Achievement",
-	DONE = "Done Achievement",
+	DONE = "All Done Achievement",
 }
 
+export enum AchievementsImage {
+	DEFENSE_MASTER = "http://localhost:8080/api/users/achievements/images/defense.png",
+	TEN_WINS = "http://localhost:8080/api/users/achievements/images/wins-ten.png",
+	THIRTY_WINS = "http://localhost:8080/api/users/achievements/images/wins-thirty.png",
+	SEVENTY_WINS = "http://localhost:8080/api/users/achievements/images/wins-seventy.png",
+	HUNDRED_WINS = "http://localhost:8080/api/users/achievements/images/wins-hundred.png",
+	TWO_HUNDRED_WINS = "http://localhost:8080/api/users/achievements/images/wins-two-hundred.png",
+	ALL_TERRAIN = "http://localhost:8080/api/users/achievements/images/all-terrain.png",
+	NOVICE = "http://localhost:8080/api/users/achievements/images/novice.png",
+	MIDDLE_PLAYER = "http://localhost:8080/api/users/achievements/images/medium.png",
+	HARD_MASTER = "http://localhost:8080/api/users/achievements/images/hard.png",
+	DONE = "http://localhost:8080/api/users/achievements/images/done.png",
+}
+
+export const defaultAchievements = [
+	{  name: AchievementsName.DEFENSE_MASTER, description: AchievementsDescription.DEFENSE_MASTER, image: AchievementsImage.DEFENSE_MASTER },
+	{  name: AchievementsName.TEN_WINS, description: AchievementsDescription.TEN_WINS, image: AchievementsImage.TEN_WINS },
+	{  name: AchievementsName.THIRTY_WINS, description: AchievementsDescription.THIRTY_WINS, image: AchievementsImage.THIRTY_WINS },
+	{  name: AchievementsName.SEVENTY_WINS, description: AchievementsDescription.SEVENTY_WINS, image: AchievementsImage.SEVENTY_WINS },
+	{  name: AchievementsName.HUNDRED_WINS, description: AchievementsDescription.HUNDRED_WINS, image: AchievementsImage.HUNDRED_WINS },
+	{  name: AchievementsName.TWO_HUNDRED_WINS, description: AchievementsDescription.TWO_HUNDRED_WINS, image: AchievementsImage.TWO_HUNDRED_WINS },
+	{  name: AchievementsName.ALL_TERRAIN, description: AchievementsDescription.ALL_TERRAIN, image: AchievementsImage.ALL_TERRAIN },
+	{  name: AchievementsName.NOVICE, description: AchievementsDescription.NOVICE, image: AchievementsImage.NOVICE },
+	{  name: AchievementsName.MIDDLE_PLAYER, description: AchievementsDescription.MIDDLE_PLAYER, image: AchievementsImage.MIDDLE_PLAYER },
+	{  name: AchievementsName.HARD_MASTER, description: AchievementsDescription.HARD_MASTER, image: AchievementsImage.HARD_MASTER },
+	{  name: AchievementsName.DONE, description: AchievementsDescription.DONE, image: AchievementsImage.DONE },
+]
 
 
 @Entity()
@@ -60,13 +86,13 @@ export class Achievement
     description: AchievementsDescription;
 
     @IsBoolean()
-    @Column({ default: false })
+    @Column({ default: true })
     locked: boolean;
 
     @Column({ default: ""})
 	public image : string;
-	
+
 	@ManyToMany(() => User, user => user.achievements)
     users: User[];
-        
+
 }

@@ -25,7 +25,6 @@ export class AuthService {
     return this.users_svc.create(create_dto)
   }
 
-  // Todo: Verify empty args (password / token)
   async authenticate(data: AuthenticationPayload): Promise<User> {
     const credentials = {}
     data.id ? (credentials['id'] = data.id) : null
@@ -61,7 +60,7 @@ export class AuthService {
     if (data.name && data.new_name && data.name == user.name) {
       await this.users_svc.updateName(user.id, data.new_name)
     }
-    
+
     return user
   }
 

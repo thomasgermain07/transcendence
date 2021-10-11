@@ -63,7 +63,7 @@ export class AuthController {
     // const qrcode =  await this.twoFactorAuthenticationService.pipeQrCodeStream(otpauthUrl)
     // console.log(qrcode)
     await this.twoFactorAuthenticationService.turnOffTwoFactorAuthentication(user)
-    
+
   }
 
   @UseGuards(JwtAuthGuard)
@@ -88,8 +88,6 @@ export class AuthController {
     const refresh = this.cookies_svc.getJwtTokenCookie(user, CookieType.REFRESH)
 
     this.auth_svc.refresh(user, refresh.token)
-
-    // request.res.setHeader('Set-Cookie', [auth.cookie, refresh.cookie])
 
     if (user.isTwoFactorAuthenticationEnabled) {
       console.log(user)
@@ -131,13 +129,9 @@ export class AuthController {
     this.auth_svc.refresh(user, refresh.token)
 
     request.res.setHeader('Set-Cookie', [auth.cookie, refresh.cookie])
-    if (user.isTwoFactorAuthenticationEnabled) {
-      return {
-        two_factor_enabled: true,
-      }
-    }
+
     return {
-      two_factor_enabled: false,
+      two_factor_enabled: user.isTwoFactorAuthenticationEnabled,
     }
   }
 

@@ -23,7 +23,6 @@ export class CookiesService {
   getJwtTokenCookie(
     user: User,
     type: CookieType,
-    isSecondFactorAuthenticated = false,
   ): { token: string; cookie: string } {
     const secret =
       type === CookieType.AUTHENTICATION
@@ -33,8 +32,7 @@ export class CookiesService {
       type === CookieType.AUTHENTICATION
         ? process.env.VITE_JWT_ACCESS_LIFETIME
         : process.env.VITE_JWT_REFRESH_LIFETIME
-
-    const payload: TokenPayload = { user_id: user.id, isSecondFactorAuthenticated }
+    const payload: TokenPayload = { user_id: user.id }
 
     const token = this.getJwtToken(payload, secret, lifetime)
     const cookie = this.getJwtCookie(type, token, lifetime)

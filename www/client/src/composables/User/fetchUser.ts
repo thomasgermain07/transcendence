@@ -1,21 +1,24 @@
+import { UserType } from '@/types/user/user'
 import { Ref, ref } from 'vue'
 import { useAxios } from '../axios'
 import requestStatus from '../requestStatus'
 
-export default function getFetchUser(status: Ref) {
-  let user = ref()
+export default function getFetchUser(status?: Ref) {
+  let user = ref<UserType>()
 
   const fetchUser: any = async (id: number) => {
     const { axios } = useAxios()
 
-    console.log(`fetching user ${id}`)
-
     try {
       const { data } = await axios.get(`users/${id}`)
       user.value = data
-      status.value = requestStatus.success
+      if (status) {
+        status.value = requestStatus.success
+      }
     } catch (e) {
-      status.value = requestStatus.error
+      if (status) {
+        status.value = requestStatus.error
+      }
     }
   }
 

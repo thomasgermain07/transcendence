@@ -1,22 +1,16 @@
-import { Ref, ref } from 'vue'
-import requestStatus from '@/composables/requestStatus'
 import { useAxios } from '@/composables/axios'
 
-export default function getFetchRooms(status: Ref) {
-  let rooms = ref([])
-
+export default function getFetchRooms() {
   const fetchRooms = async (related: boolean) => {
-    const { axios } = useAxios()
     try {
-      const { data } = await axios.get('chat/rooms', {
+      const { data } = await useAxios().axios.get('chat/rooms', {
         params: { related: related },
       })
-      rooms.value = data
-      status.value = requestStatus.success
+      return data
     } catch (e) {
-      status.value = requestStatus.error
+      console.log(e)
     }
   }
 
-  return { rooms, fetchRooms }
+  return { fetchRooms }
 }

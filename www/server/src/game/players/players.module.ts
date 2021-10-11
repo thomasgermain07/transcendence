@@ -1,4 +1,4 @@
-import { Module }        from '@nestjs/common';
+import { Module, forwardRef }        from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { RoomsModule } from '../rooms/rooms.module';
@@ -15,8 +15,8 @@ import { RemoveInactiveService } from './services/remove-inactive.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Player]),
-    RoomsModule,
-    UsersModule
+    forwardRef(() => RoomsModule),
+    forwardRef(() => UsersModule)
   ],
   controllers: [PlayersController],
   providers: [

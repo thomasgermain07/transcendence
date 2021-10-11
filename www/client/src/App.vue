@@ -1,5 +1,6 @@
 <template>
   <div class="root">
+    <widget-container-modal />
     <Navigation />
 
     <span v-if="starting">
@@ -11,22 +12,22 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
 import { ref } from 'vue'
 
 import Navigation from '@/components/Navigation.vue'
 import Menu from '@/components/Menu/MenuWindow.vue'
+import { container } from 'jenesius-vue-modal'
 
 import { useApp } from '@/composables/app'
 import { useAuth } from '@/composables/auth'
 
-export default defineComponent({
+export default {
   name: 'root',
   components: {
     Navigation,
     Menu,
+    WidgetContainerModal: container,
   },
-
   setup() {
     const starting = ref(true)
     const message = ref('Starting the application...')
@@ -60,7 +61,7 @@ export default defineComponent({
       is_authenticated,
     }
   },
-})
+}
 </script>
 
 <style>
@@ -71,5 +72,12 @@ export default defineComponent({
   text-align: center;
   color: #2c3e50;
   position: relative;
+
+  --primary-color: #ff2a6d;
+  --secondary-color: #d1f7ff;
+  --tertiary-color: #01012b;
+  /* --primary-color: #ff2a6d;
+  --secondary-color: black; */
+  box-sizing: border-box;
 }
 </style>

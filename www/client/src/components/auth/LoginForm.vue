@@ -1,35 +1,32 @@
 <template>
-	<div>
+	<div class="auth-login-form">
 		<GoogleAuth
 			v-if="googleCode.visible"
 			@submit="submit"
 			>
 		</GoogleAuth>
-		<div class="auth-login-form">
-			<h3>Connect with credentials:</h3>
+		<h3>Connect with credentials:</h3>
 
-			<div v-if="message">
-				{{ message }}
-			</div>
-			<form @submit.prevent="submit">
-				<div>
-					<label for="email">Email</label>
-					<input type="text" name="email" id="email" v-model="credentials.email">
-				</div>
-				<div>
-					<label for="password">Password</label>
-					<input type="password" name="password" id="password" v-model="credentials.password">
-				</div>
-
-				<button type="submit">Log in</button>
-			</form>
+		<div v-if="message">
+			{{ message }}
 		</div>
-	</div>
+		<form @submit.prevent="submit">
+			<div>
+				<label for="email">Email</label>
+				<input type="text" name="email" id="email" v-model="credentials.email">
+			</div>
+			<div>
+				<label for="password">Password</label>
+				<input type="password" name="password" id="password" v-model="credentials.password">
+			</div>
 
+			<button type="submit">Log in</button>
+		</form>
+	</div>
 </template>
 
 <script lang='ts'>
-	import { defineComponent }         from "vue";
+	import { defineComponent, watch }         from "vue";
 	import { ref, reactive, readonly } from "vue";
 
 	import { LoginType } from "@/composables/auth";
@@ -57,6 +54,11 @@
 					})
 				;
 			};
+
+			watch(
+				() => googleCode.visible,
+				() => {},
+			)
 
 			return {
 				// Datas

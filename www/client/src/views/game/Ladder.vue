@@ -12,20 +12,26 @@
       >
         <template v-slot:header> Hi {{ currentUser.name }} </template>
       </GameLobby>
-      <h2>Ladder Game</h2>
-      <figure class="circle">
-        <p>LEVEL {{ currentUser.ladderLevel }}</p>
-      </figure>
-      <div class="in-game" v-if="checkInGame.inGame">
-        <h4>Player is already in game</h4>
-        <router-link :to="checkInGame.roomRoute">Go to game room</router-link>
-      </div>
-      <div class="play-ladder-game">
-        <img src="../../assets/images/mapDefault.png" />
-        <button @click="onPlayLadder">Play Ladder</button>
-      </div>
-      <h3>Ladder Stream</h3>
-      <WatchRooms :rooms="rooms" />
+      <section class="ladder-play">
+        <div class="ladder-start-game">
+          <h1>Ladder Mode</h1>
+          <button class="start-button" @click="onPlayLadder">Start Game</button>
+          <div class="in-game" v-if="checkInGame.inGame">
+          <!-- <div class="in-game"> -->
+            <p>YOU ARE ALREADY IN A GAME.</p>
+            <p>CLICK <router-link :to="checkInGame.roomRoute">HERE</router-link> TO GO TO THE GAME ROOM.</p>
+          </div>
+        </div>
+        <div class="ladder-level">
+          <p>Current Ladder Level</p>
+          <div class="box"> {{ currentUser.ladderLevel }}</div>
+        </div>
+      </section>
+
+      <section class="game-stream-list">
+        <div class="title">LIVE STREAMS ></div>
+        <WatchRooms :rooms="rooms" />
+      </section>
     </div>
   </div>
 </template>
@@ -40,7 +46,8 @@ import WatchRooms from '../../components/game/WatchRooms.vue'
 import useAllGameRoom from '../../composables/Game/useAllGameRoom'
 import useMatchmaker from '../../composables/Game/useMatchmaker'
 import { useUsers } from '../../composables/users'
-import useSockets from '../../store/sockets'
+import { useSocket } from '../../composables/socket'
+import { useAuth } from '../../composables/auth'
 
 export default defineComponent({
   name: 'game-ladder',
@@ -56,7 +63,8 @@ export default defineComponent({
 
     const { rooms, loadGameRooms } = useAllGameRoom('ladder')
 
-    const { matchmakingSocket, gameRoomsSocket } = useSockets()
+    const matchmakingSocket = useSocket('matchmaker').socket
+    const gameRoomsSocket = useSocket('game-rooms').socket
 
     const {
       lobby,
@@ -84,14 +92,16 @@ export default defineComponent({
 
     // --- SOCKETS LISTENERS ---
     matchmakingSocket.on('connect', () => {
-      console.log('connected')
-      console.log(matchmakingSocket.id)
+      console.log('matchmakingSocket connected')
+      // console.log(matchmakingSocket.id)
+      console.log(matchmakingSocket.rooms)
     })
     matchmakingSocket.io.on('reconnect', () => {
-      console.log('reconnected')
+      console.log('matchmakingSocket reconnected')
+      console.log(matchmakingSocket.rooms)
     })
     matchmakingSocket.on('disconnect', () => {
-      console.log(`disconnected`)
+      console.log(`matchmakingSocket disconnected`)
     })
     matchmakingSocket.on('exception', (err) => {
       console.log('IN EXCEPTION')
@@ -115,6 +125,13 @@ export default defineComponent({
 
     // --- NAVIGATION GUARDS ---
     onBeforeRouteLeave((to, from) => {
+
+      const { is_authenticated } = useAuth()
+      if (!is_authenticated.value && lobby.visible) {
+        leaveLobby()
+        return
+      }
+
       if (lobby.visible) {
         const answer = window.confirm(
           'Do you really want to leave? You will be removed from the queue!',
@@ -160,72 +177,96 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.geme-mode a {
-  margin: 50% auto;
-}
-figure {
-  display: inline-block;
-  border-radius: 50%;
-  height: 300px;
-  width: 300px;
-  max-width: 100%;
-  background: radial-gradient(circle at 100px 100px, #5cabff, #000);
-  /* font-size: 300%; */
-  text-align: center;
-  color: #000000;
-  margin: 0px;
-}
-figure p {
-  font-size: 100%;
-  text-align: center;
-  margin-top: 3em;
-}
+
+@import url('http://fonts.cdnfonts.com/css/karmatic-arcade');
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
 .ladder-game {
-  /* width: 100%; */
-  min-width: fit-content;
-  font-size: 200%;
-  /* background-size: 30%; */
-  background-image: linear-gradient(
+  font-family: "Press Start 2P", cursive;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-align: justify;
+  color: var(--secondary-color);
+}
+
+h1 {
+  font-size: 64px;
+  letter-spacing: -1px;
+}
+
+.ladder-play {
+  background: linear-gradient(
       to bottom,
-      rgba(255, 255, 0, 0.5),
-      rgba(0, 0, 255, 0.5)
+      rgba(25, 24, 26, 0.562),
+      rgba(17, 17, 19, 0.5)
     ),
-    url('../../assets/images/levelUp.png');
-  background-position: center;
-  /* background-size: cover; */
-  background-size: 30%;
-  padding: 30px;
-  /* text-shadow: 1px 1px 2px pink; */
-  text-shadow: pink 0.1em 0.1em 0.2em;
-  /* font-family: 'PixelFaceOnFire', sans-serif; */
-  /* font-family: 'Messing Lettern', sans-serif; */
-  /* font-family: 'Gunmetal', sans-serif; */
-  font-family: 'Karmatic Arcade', sans-serif;
-
-  color: #000000;
-}
-.play-ladder-game img {
-  /* width: %; */
-  height: auto;
-  max-width: 50%;
-  margin-top: 20px;
+    url(../../assets/images/levelUp.png) no-repeat center center;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+    /* url(../../assets/images/levelUp.png) center center; */
+  display: flex;
+  margin-bottom: 20px;
+  min-height: 300px;
 }
 
-button {
-  display: block;
-  background: #0a0a0a;
-  border: none;
-  margin: 70px auto 0;
-  padding: 0.7em;
-  color: #f1f1f1;
+@media only screen and (max-width: 768px) {
+  .ladder-play {
+    flex-direction: column;
+    text-align: center;
+  }
 }
 
-button:hover {
-  background: #aa6bdd;
+.ladder-start-game {
+  padding: 25px;
+  flex: 1;
+}
+
+.start-button {
+  padding: 15px;
+  margin: 30px 0;
+  font-size: 16px;
+  font-family: "Press Start 2P", cursive;
+  color: var(--secondary-color);
+  background-color: var(--primary-color);
+  border-radius: 4%;
+}
+
+.start-button:hover {
+  color: var(--primary-color);
+  background-color: var(--secondary-color);
+  cursor: pointer;
+}
+
+.ladder-start-game p {
+  color: var(--primary-color);
+  line-height: 180%;
 }
 
 .in-game a {
-  color: hotpink;
-  font-size: 2rem;
+  color: var(--secondary-color);
 }
+
+.ladder-level {
+  flex: 2;
+  margin: auto;
+  text-align: center;
+  font-size: 24px;
+}
+
+.ladder-level .box {
+  width: 10%;
+  margin: 50px auto;
+  padding: 20px;
+  border: solid 8px var(--secondary-color);
+  border-radius: 100px;
+}
+
+.game-stream-list .title {
+  font-size: 16px;
+  margin: 50px 0 0 20px;
+  color: var(--tertiary-color);
+}
+
 </style>

@@ -1,46 +1,32 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { IsOptional, IsInt, Min, Max, IsString, IsEmail, MinLength } from 'class-validator';
-import { IsUnique } from '../decorators/is-unique.decorator';
+import { PartialType } from '@nestjs/mapped-types'
+import { IsOptional } from 'class-validator'
+import { IsBoolean, IsInt, Min } from 'class-validator'
+import { IsString } from 'class-validator'
 
-import { CreateUserDto } from "./create-user.dto";
+import { CreateUserDto } from './create-user.dto'
 
-export class UpdateUserDto
-	extends PartialType(CreateUserDto)
-{
-	@IsInt()
-	id: number
+export class UpdateUserDto extends PartialType(CreateUserDto) {
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  ladderLevel?: number
 
-	@IsUnique('email')
-	@IsEmail()
-	email?: string
+  @IsBoolean()
+  @IsOptional()
+  is_admin?: boolean[]
 
-	@IsUnique('name')
-	@MinLength(3)
-	@IsString()
-	name?: string
+  // @IsOptional()
+  // @IsString()
+  // twoFactorAuthenticationSecret?: string
 
-	@MinLength(6)
-	@IsString()
-	@IsOptional()
-	password?: string
-	
-    @IsOptional()
-    @IsInt()
-	@Min(1)
-	ladderLevel?: number
+  @IsOptional()
+  @IsString()
+  isTwoFactorAuthenticationEnabled?: boolean
 
-	@IsOptional()
-    @IsString()
-	avatar?: string
+  @IsOptional()
+  @IsString()
+  status?: string
 
-	@IsOptional()
-    @IsString()
-	twoFactorAuthenticationSecret?: string
-
-	@IsOptional()
-    @IsString()
-	isTwoFactorAuthenticationEnabled?: boolean
-
-	// @IsOptional()
-	// achievements?: Achievements[];
+  // @IsOptional()
+  // achievements?: Achievements[];
 }

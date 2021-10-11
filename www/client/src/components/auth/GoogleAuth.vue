@@ -1,6 +1,14 @@
 <template>
   <div class="modal-backdrop">
     <div class="modal">
+      <div>
+        <a @click="closeWindow">
+          <i class="far fa-times-circle cross__icon"></i>
+        </a>
+      </div>
+      <div  class="wrong__code" v-if="message">
+			  {{ message }}
+		  </div>
       <header class="modal-header">
         <h1> Google Authenticator </h1>
       </header>
@@ -36,19 +44,23 @@ export default defineComponent({
   setup() {
     
 
-    const messages = ref([]);
+    const message = ref();
     const { verifyCode, googleCode } = useAuth();
 
     const google = reactive<GoogleAuthType>({
 				visible: true,
         code: '',
         user_id: googleCode.user_id,
-			});
+      });
+      
+    const closeWindow = () => {
+      googleCode.visible = false
+    }
 
     const submit = () => {
       verifyCode(google)
         .catch((err) => {
-          messages.value = err.response?.data.message;
+          message.value = err.response?.data.message;
         })
       ;
     };
@@ -57,15 +69,17 @@ export default defineComponent({
       // Datas
       google,
       googleCode,
-      messages,
+      message,
       // Functions
       submit,
+      closeWindow,
     };
   },
 })
 </script>
 
 <style scoped>
+
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -79,6 +93,12 @@ export default defineComponent({
   /* z position  */
 }
 
+.cross__icon {
+  padding: 4px 4px;
+  cursor: pointer;
+  float: right;
+}
+
 .modal {
   background: #ffffff;
   box-shadow: 2px 2px 20px 1px;
@@ -89,6 +109,12 @@ export default defineComponent({
   max-height: 70%;
   /* font-family: 'Courier New', Courier, monospace; */
   font-size: 2vh;
+}
+
+.wrong__code {
+  background: #b91414;
+  color: #eeeeee;
+  box-shadow: 2px 2px 20px 1px;
 }
 
 .modal-header,

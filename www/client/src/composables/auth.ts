@@ -6,12 +6,14 @@ import { useUsers } from '@/composables/users'
 
 import { AxiosErrType } from './axios'
 import { UserType } from '../types/user/user'
+import { useSocket } from './socket'
 
 // -----------------------------------------------------------------------------
 // Constants
 // -----------------------------------------------------------------------------
 const EXPIRATION = parseInt(import.meta.env.VITE_JWT_ACCESS_LIFETIME)
 const TIMEOUT = Math.max(10, EXPIRATION - (EXPIRATION > 600 ? 300 : 30))
+const namespaces = ['matchmaker', 'game-rooms']
 
 // -----------------------------------------------------------------------------
 // Types
@@ -47,12 +49,14 @@ const user = reactive<UserType>({
   email: '',
   ladderLevel: 1,
   isTwoFactorAuthenticationEnabled: false,
+  connected: true,
 })
 const is_authenticated = computed(() => !(user.id === 0))
 
 const googleCode = reactive<GoogleAuthType>({
   visible: false,
-  user_id: null,
+  user_id: 0,
+  code: '',
 })
 // -----------------------------------------------------------------------------
 // Composable
@@ -61,19 +65,20 @@ export function useAuth() {
   // -------------------------------------------------------------------------
   // Functions
   // -------------------------------------------------------------------------
-  async function register(payload: RegisterType): Promise<string> {
+  async function register(payload: RegisterType): Promise<void> {
     try {
       const res = await AuthService.register(payload)
 
       console.log('useAuth.register: Done.')
 
       router.push({ name: 'auth-login' })
-      return res
     } catch (err: AxiosErrType) {
       console.log('useAuth.register: Fail.')
 
       throw err
     }
+
+    return
   }
 
   async function login(payload: LoginType): Promise<void> {
@@ -82,17 +87,13 @@ export function useAuth() {
 
       console.log('useAuth.login: Done.')
 
-      // setUser(users.value)
-      // setAuthenticated(true)
-
       if (!res.data || !res.data.two_factor_enabled) {
         const { users, get } = useUsers()
         await get()
         setUser(users.value)
         setAuthenticated(true)
         router.replace({ name: 'index' })
-      }
-      else {
+      } else {
         console.log(res)
         googleCode.user_id = res.data.user_id
         googleCode.visible = true
@@ -118,8 +119,7 @@ export function useAuth() {
         setUser(users.value)
         setAuthenticated(true)
         router.replace({ name: 'index' })
-      }
-      else {
+      } else {
         googleCode.user_id = res.data.user_id
         googleCode.visible = true
       }
@@ -147,13 +147,18 @@ export function useAuth() {
       }
 
       setAuthenticated(true)
-
-      // router.replace({ name: 'index' });
     } catch (err: AxiosErrType) {
       console.log('useAuth.refresh: Fail.')
 
       logout(true)
+      return
     }
+
+    // Refresh the socket connections
+    // const namespaces = ['chat', 'matchmaker', 'game-rooms']
+    namespaces.forEach((nsp) => {
+      useSocket(nsp).refresh()
+    })
 
     return
   }
@@ -180,8 +185,13 @@ export function useAuth() {
     setUser()
     setAuthenticated(false)
     googleCode.visible = false
-    googleCode.user_id = null
+    googleCode.user_id = 0
     router.replace({ name: 'auth-login' })
+
+    // const namespaces = ['chat', 'matchmaker', 'game-rooms']
+    namespaces.forEach((nsp) => {
+      useSocket(nsp).close()
+    })
 
     return
   }
@@ -189,10 +199,12 @@ export function useAuth() {
   async function edit(payload: EditType): Promise<void> {
     try {
       const res = await AuthService.edit(payload)
-
+      if (res) {
+        const { users, get } = useUsers()
+        await get()
+        setUser(users.value)
+      }
       console.log('useAuth.editing: Done.')
-
-      router.push({ name: 'auth-login' })
     } catch (err: AxiosErrType) {
       console.log('useAuth.editing: Fail.')
 
@@ -205,6 +217,11 @@ export function useAuth() {
   async function activateTwoFa(): Promise<string> {
     try {
       const res = await AuthService.activate2Fa()
+      if (res) {
+        const { users, get } = useUsers()
+        await get()
+        setUser(users.value)
+      }
       console.log('useAuth.activate2fa: Done.')
 
       return res
@@ -218,6 +235,11 @@ export function useAuth() {
   async function deactivateTwoFa(): Promise<string> {
     try {
       const res = await AuthService.deactivate2Fa()
+      if (res) {
+        const { users, get } = useUsers()
+        await get()
+        setUser(users.value)
+      }
       console.log('useAuth.deactivate2fa: Done.')
 
       return res
@@ -235,7 +257,7 @@ export function useAuth() {
       const { users, get } = useUsers()
 
       await get()
-      
+
       console.log('useAuth.verifyCode: Done.')
       setUser(users.value)
       setAuthenticated(true)
@@ -251,11 +273,6 @@ export function useAuth() {
   function isPreviouslyAuthenticated(): boolean {
     return localStorage.getItem('auth') === true.toString()
   }
-
-
-
-  
-
 
   // -------------------------------------------------------------------------
   // Exposes
@@ -278,7 +295,6 @@ export function useAuth() {
     activateTwoFa,
     deactivateTwoFa,
     verifyCode,
-
     isPreviouslyAuthenticated,
   }
 }
@@ -295,5 +311,7 @@ function setUser(data: UserType | undefined = undefined) {
   user.name = data?.name ?? ''
   user.email = data?.email ?? ''
   user.ladderLevel = data?.ladderLevel ?? 1
-  user.isTwoFactorAuthenticationEnabled = data?.isTwoFactorAuthenticationEnabled ?? false
+  user.isTwoFactorAuthenticationEnabled =
+    data?.isTwoFactorAuthenticationEnabled ?? false
+  user.status = data?.status ?? "disconnected"
 }

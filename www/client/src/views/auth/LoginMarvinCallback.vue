@@ -1,15 +1,13 @@
 <template>
-	<div>
+	<div class="auth-login-marvin-callback">
 		<GoogleAuth
 			v-if="googleCode.visible"
 			@submit="submit"
 			>
 		</GoogleAuth>
-		<div class="auth-login-marvin-callback">
-			<h2>Auth-Login-Marvin-Callback</h2>
+		<h2>Auth-Login-Marvin-Callback</h2>
 
-			{{ message }}
-		</div>
+		{{ message }}
 	</div>
 </template>
 
@@ -19,6 +17,7 @@
 	import { useRoute }        from "vue-router";
 
 	import { useAuth } from "@/composables/auth";
+
 	import GoogleAuth from "@/components/auth/GoogleAuth.vue";
 
 	export default defineComponent({

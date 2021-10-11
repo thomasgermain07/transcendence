@@ -1,23 +1,32 @@
 <template>
   <div class="game-board">
+    <div class="game-pause" v-if="props.roomState == 'pause'">
+      <div class="loader-ctn">
+        <div class="loader"></div>
+          <p>
+            Your Opponent has been disconnected he has 30s to be reconnected
+          </p>
+          <p class="timer">{{ props.timer }}</p>
+      </div>
+    </div>
     <div id="screen"></div>
     <canvas id="canvas" width="600" height="400"></canvas>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted } from 'vue'
+import { defineComponent, onMounted, onUnmounted, watch, ref } from 'vue'
 import { DifficultyLevel, MapType } from '../../types/game/gameOptions'
 import { IBonusState, IGameState } from '../../views/GameRoom.vue'
 import { Ball } from '../../types/game/ball'
 import { Player } from '../../types/game/player'
 import { IMapPaddleState } from '../../types/game/paddle'
-import useSockets from '../../store/sockets'
 import { useAuth } from '../../composables/auth'
+import { useSocket } from '../../composables/socket'
 
 export default defineComponent({
   name: 'GameBoard',
-  props: ['roomName', 'isPlayer'],
+  props: ['roomName', 'isPlayer', 'roomState', 'timer'],
   setup(props) {
     let player_left: Player = {
       id: 0,
@@ -77,7 +86,7 @@ export default defineComponent({
     let ctx = null
     let screen = null
 
-    const { gameRoomsSocket } = useSockets()
+    const gameRoomsSocket = useSocket('game-rooms').socket
     const roomName = props.roomName
     const isPlayer = props.isPlayer
 
@@ -130,21 +139,21 @@ export default defineComponent({
       draw()
     }
     function keydown(event: KeyboardEvent) {
-      console.log('KEY PRESS')
+      // console.log('KEY PRESS')
       if (event.key === 'ArrowUp') {
         gameRoomsSocket.emit('move', {
           move: 'up',
           user_id: currentUser.id,
           room: roomName,
         })
-        console.log('KEY UP')
+        // console.log('KEY UP')
       } else if (event.key === 'ArrowDown') {
         gameRoomsSocket.emit('move', {
           move: 'down',
           user_id: currentUser.id,
           room: roomName,
         })
-        console.log('KEY Down')
+        // console.log('KEY Down')
       }
       event.preventDefault()
       gameRoomsSocket.off('move')
@@ -156,14 +165,14 @@ export default defineComponent({
           user_id: currentUser.id,
           room: roomName,
         })
-        console.log('KEY UP')
+        // console.log('KEY UP')
       } else if (event.key === 'ArrowDown') {
         gameRoomsSocket.emit('move', {
           move: 'not',
           user_id: currentUser.id,
           room: roomName,
         })
-        console.log('KEY Down')
+        // console.log('KEY Down')
       }
       event.preventDefault()
       gameRoomsSocket.off('move')
@@ -295,7 +304,9 @@ export default defineComponent({
         unsetEventListeners()
       }
     })
-    // return { canvas }
+    return { 
+      props
+      }
   },
 })
 </script>
@@ -304,5 +315,30 @@ export default defineComponent({
 #screen {
   max-width: 600px;
   max-height: 400px;
+}
+.loader-ctn {
+  padding-right: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.timer {
+  padding-top: 5px;
+}
+.loader {
+  border: 6px solid white;
+  border-top: 6px solid red;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  animation: spin 2s linear infinite;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

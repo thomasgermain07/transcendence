@@ -40,7 +40,8 @@ import { AchievementsName } from 'src/users/entities/achievement.entity';
     }
   
     async afterRemove(event: RemoveEvent<Player>) {
-      console.log(`AFT ENTITY WITH ID ${event.entityId} REMOVED: `, event.entity);
+      console.log("---------__AFTER REMOVE PLAYER-------------")
+      // console.log(`AFT ENTITY WITH ID ${event.entityId} REMOVED: `, event.entity);
       if (event.entity?.room?.state === GameState.WAITING) {
         await this.roomsService.update(event.entity.room.id, {locked: false})
       }
@@ -48,9 +49,9 @@ import { AchievementsName } from 'src/users/entities/achievement.entity';
 
     async afterUpdate(event: UpdateEvent<Player>) {
       console.log("---------__AFTER UPDATE PLAYER-------------")
-      if (event.entity.winner) {
+      if (event.entity.winner && event.entity.mode != 'private') {
         const player: Player = await this.playersService.findOne(event.entity.id)
-        console.log(player);
+        // console.log(player);
         await this.usersService.updateAchievements(player.user, AchievementsName.NOVICE)        
       }
     }
