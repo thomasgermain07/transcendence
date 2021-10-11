@@ -455,6 +455,10 @@ export class GameRoomsGateway
           server.to(room).emit('begin', {player_left: player_left, player_right: player_right, ball: ball, info: info, map_paddle: map_paddle, bonus: bonus});
           myVar = setTimeout(function() {game_loop(game, room, server, playerService, roomsService, userService)}, 1000/60)
         }
+        else if (game.info.status == GameState.PAUSE)
+        {
+          return
+        }
         else {
           clearTimeout(myVar);
           if (game.info.status == GameState.PLAYING && game.player_left.getScore() == maxScore) {
