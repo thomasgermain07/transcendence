@@ -47,6 +47,7 @@ const user = reactive<UserType>({
   id: 0,
   name: '',
   email: '',
+  avatar: '',
   ladderLevel: 1,
   isTwoFactorAuthenticationEnabled: false,
   connected: true,
@@ -310,6 +311,7 @@ function setUser(data: UserType | undefined = undefined) {
   user.id = data?.id ?? 0
   user.name = data?.name ?? ''
   user.email = data?.email ?? ''
+  user.avatar = data?.avatar ?? ''
   user.ladderLevel = data?.ladderLevel ?? 1
   user.isTwoFactorAuthenticationEnabled =
     data?.isTwoFactorAuthenticationEnabled ?? false

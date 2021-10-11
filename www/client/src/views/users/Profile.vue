@@ -95,6 +95,7 @@ export default {
     let status = ref(requestStatus.loading)
 
     const route = useRoute()
+    const { edit } = useAuth()
     const { users, get } = useUsers()
     const userEdit = ref(false)
 
@@ -117,6 +118,7 @@ export default {
 
     const updateUser = () => {
       fetchUserFromRoute()
+      edit()
     }
 
     const fetchUserFromRoute = async () => {
