@@ -49,7 +49,7 @@ export class PermissionSubscriber
 		this.chat_gtw.setPermission(event.databaseEntity);
 	}
 
-	afterDelete(
+	afterRemove(
 		event: RemoveEvent<Permission>
 	)
 		: void
