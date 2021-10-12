@@ -86,7 +86,9 @@ export class GameRoomsGateway
 
 	handleConnection(client: Socket, ...args: any[]): void {
 		console.log(`GameRoom:Gateway: Connection.`)
-    console.log(client.id)
+    if (!client.handshake?.headers?.cookie) {
+      client.disconnect()
+    }
 	}
 
 	handleDisconnect(client: Socket): void {

@@ -44,8 +44,9 @@ export class MatchmakerGateway
 
 	handleConnection(client: Socket, ...args: any[]): void {
 		console.log(`Matchmaker:Gateway: Connection.`)
-    // console.log(client.id)
-    console.log(client.rooms)
+    if (!client.handshake?.headers?.cookie) {
+      client.disconnect()
+    }
 	}
 
 	handleDisconnect(client: Socket): void {

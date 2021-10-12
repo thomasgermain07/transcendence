@@ -56,6 +56,9 @@ export class UserGateway
 
 	handleConnection(client: Socket, ...args: any[]): void {
 		console.log("User:Gateway:Connection");
+		if (!client.handshake?.headers?.cookie) {
+			client.disconnect()
+		}
 	}
 
 	handleDisconnect(client: Socket): void {
