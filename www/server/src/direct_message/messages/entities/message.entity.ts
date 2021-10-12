@@ -15,13 +15,15 @@ export class Message
 
 	@ManyToOne(() => User, user => user.dm_messages_sent, {
 		nullable: false,
-		eager: true
+		eager: true,
+		onDelete: 'CASCADE',
 	})
 	public author: User;
 
 	@ManyToOne(() => User, user => user.dm_messages_received, {
 		nullable: false,
-		eager: true
+		eager: true,
+		onDelete: 'CASCADE',
 	})
 	public target: User;
 
