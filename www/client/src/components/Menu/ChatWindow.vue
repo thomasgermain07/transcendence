@@ -14,7 +14,12 @@
         <Rooms @open="open" :RoomId="open_id" />
       </div>
       <div class="chat-ctn">
-        <Room v-if="openned == 'room'" :RoomId="open_id" @leave="left_room" />
+        <Room
+          v-if="openned == 'room'"
+          :RoomId="open_id"
+          @leave="left_room"
+          @close="close"
+        />
         <Dm v-if="openned == 'dm'" :UserId="open_id" />
         <CreateRoom v-if="openned == 'create'" @close="close" />
         <JoinRoom v-if="openned == 'join'" @close="close" />

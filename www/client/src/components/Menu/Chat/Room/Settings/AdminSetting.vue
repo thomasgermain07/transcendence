@@ -40,6 +40,7 @@
       </div>
     </div>
     <div>
+      <button @click="onDeleteRoom">Delete Room</button>
       <button @click="onValidateChanges">Validate Changes</button>
     </div>
   </div>
@@ -91,14 +92,22 @@ export default {
       }
     }
 
+    const onDeleteRoom = async () => {
+      await useRoom().destroyRoom()
+      emit('delete')
+      emit('close')
+    }
+
     return {
       has_password,
       roomParams,
       deletePassword,
       changeRoom,
       onValidateChanges,
+      onDeleteRoom,
     }
   },
+  emits: ['close', 'delete'],
 }
 </script>
 

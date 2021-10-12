@@ -1,45 +1,53 @@
 <template>
   <div class="content">
     <p>List of banned users</p>
+    <div v-if="bannedUsers.length == 0">No banned user for this room</div>
+
     <div v-for="user in bannedUsers" :key="user">
       {{ user.name }}
+      <button @click="onClickUnban(user.id)">unban</button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { computed, onMounted } from 'vue'
-import getFetchPermissions from '@/composables/Chat/Room/fetchPermissions'
-import { PermissionType } from '@/types/chat/permission'
+import { computed } from 'vue'
 import { useRoom } from '@/composables/Chat/Room/useRoom'
 import { UserType } from '@/types/user/user'
+import { useContextMenu } from '@/composables/useContextMenu'
 
 export default {
   setup() {
-    const { fetchPermissions } = getFetchPermissions()
+    const { onUnbanUser } = useContextMenu()
 
-    let banned: PermissionType[] = []
     let { roomData } = useRoom()
-
-    onMounted(async () => {
-      await fetchPermissions(roomData.room!.id as number, 'banned')
-    })
 
     const bannedUsers = computed(() => {
       let users: UserType[] = []
 
-      banned.forEach((perm) => {
+      roomData.banned.forEach((perm) => {
         users.unshift(perm.user)
       })
 
       return users
     })
 
+    const onClickUnban = async (id: number) => {
+      await onUnbanUser(id, roomData.room!.id as number)
+
+      let index = roomData.banned.findIndex((perm) => perm.user.id == id)
+      if (index != -1) {
+        roomData.banned.splice(index, 1)
+      }
+    }
+
     return {
-      banned,
+      banned: roomData.banned,
       bannedUsers,
+      onClickUnban,
     }
   },
+  emits: ['close'],
 }
 </script>
 

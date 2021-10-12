@@ -6,7 +6,11 @@
       <i class="fas fa-arrow-left window-bar__separator"></i>
     </header>
     <div class="content">
-      <AdminSetting v-if="is_owner" @close="$emit('close')" />
+      <AdminSetting
+        v-if="is_owner"
+        @close="$emit('close')"
+        @delete="$emit('leave')"
+      />
 
       <div class="btn-ctn" v-if="!is_owner">
         <p class="label">Do you want to leave this room ?</p>
@@ -48,6 +52,7 @@ export default {
       onLeave,
     }
   },
+  emit: ['close', 'leave'],
 }
 </script>
 

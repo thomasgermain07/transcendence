@@ -6,7 +6,6 @@
         :IsModerator="isModerator(me.id)"
         :IsOwner="me.id == roomData.room.owner.id"
         :Room="roomData.room"
-        @moderators_changes="onModeratorsChanges"
       />
     </v-contextmenu>
 
@@ -15,12 +14,11 @@
         v-if="roomData.open_setting"
         @close="roomData.open_setting = false"
         @leave="$emit('leave')"
-        :Room="roomData.room"
       />
       <!-- TODO (CSS) : Check why long messages with no space overflow on x axis -->
       <div class="messages-ctn" v-if="!roomData.open_setting">
         <div
-          v-for="message in roomData.messages"
+          v-for="message in messages"
           :key="message"
           class="msg"
           :class="{ 'msg--from-me': message.author.id == me.id }"
@@ -48,6 +46,7 @@
           </p>
           <span class="msg__content">{{ message.content }}</span>
         </div>
+
         <a
           v-if="!roomData.max_msg && roomData.messages.length >= 50"
           class="info info--clickable"
@@ -84,7 +83,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import { useAuth } from '@/composables/auth'
 import { useSocket } from '@/composables/socket'
@@ -95,6 +94,11 @@ import { UserType } from '@/types/user/user'
 
 import Setting from './Settings/Setting.vue'
 import RoomCM from './RoomCM.vue'
+import { PermissionType } from '@/types/chat/permission'
+import { useChat } from '@/composables/Chat/useChat'
+import { useFriends } from '@/composables/Friends/useFriends'
+
+// TODO : Don't display messages from a blocked user
 
 export default {
   props: {
@@ -104,7 +108,7 @@ export default {
     Setting,
     RoomCM,
   },
-  setup(props) {
+  setup(props, { emit }) {
     let message_field = ref('')
     let cm_user = ref<UserType>()
     let me = useAuth().user
@@ -114,12 +118,14 @@ export default {
       getData,
       getMessages,
       sendMessage,
-      getPermissions,
       isModerator,
       isMuted,
       resetData,
     } = useRoom()
 
+    // -----------------------------------------------------------------------------
+    // Event function
+    // -----------------------------------------------------------------------------
     const onMoreMsg = async () => {
       roomData.page += 1
       let size_before = roomData.messages.length
@@ -137,66 +143,171 @@ export default {
 
     const onSendMsg = async () => {
       if (message_field.value.length) {
-        let res = await sendMessage(props.RoomId!, message_field.value)
+        await sendMessage(props.RoomId!, message_field.value)
         message_field.value = ''
-
-        if (res == 'muted') {
-          roomData.muted = await getPermissions(props.RoomId!, 'muted')
-        }
       }
     }
 
-    const onModeratorsChanges = async () => {
-      try {
-        roomData.moderators = await getPermissions(props.RoomId!, 'moderator')
-        console.log(roomData.moderators)
-      } catch (e) {
-        console.log(e)
-      }
-    }
+    // -----------------------------------------------------------------------------
+    // Socket and socket callbacks
+    // -----------------------------------------------------------------------------
+    let socket = useSocket('chat').socket
 
-    const listenCallback = (message: MessageType) => {
+    const listenMessage = (message: MessageType) => {
       if (message.room.id == props.RoomId) {
         roomData.messages.unshift(message)
       }
     }
 
-    onMounted(() => {
-      getData(props.RoomId!)
-      useSocket('chat').socket.on('message', listenCallback)
+    const listenSetPermission = (permission: PermissionType) => {
+      if (permission.room.id != roomData.room!.id) {
+        if (permission.type == 'banned' && permission.user.id == me.id) {
+          useChat().reloadRooms()
+        }
+        return
+      }
+
+      if (permission.type == 'muted') {
+        if (permission.user.id == me.id) {
+          roomData.muted.unshift(permission)
+          if (permission.expired_at) {
+            startCountDown(permission.expired_at!)
+          }
+        }
+      } else if (permission.type == 'moderator') {
+        roomData.moderators.unshift(permission)
+      } else if (permission.type == 'banned') {
+        if (isModerator(permission.user.id)) {
+          let index = roomData.moderators.findIndex(
+            (mod) => mod.user.id == permission.user.id,
+          )
+          if (index != -1) {
+            roomData.moderators.splice(index, 1)
+          }
+        }
+
+        roomData.banned.unshift(permission)
+
+        if (permission.user.id == me.id) {
+          useChat().getBanFrom(roomData.room!.id as number)
+          emit('close')
+        }
+      }
+    }
+
+    const listenRevokePermission = (permission: PermissionType) => {
+      if (permission.room.id != roomData.room!.id) {
+        return
+      }
+
+      if (permission.type == 'moderator') {
+        let index = roomData.moderators.findIndex(
+          (perm) => perm.user.id == permission.user.id,
+        )
+        if (index != -1) {
+          roomData.moderators.splice(index, 1)
+        }
+      }
+    }
+
+    // -----------------------------------------------------------------------------
+    // Life Circles function
+    // -----------------------------------------------------------------------------
+    onMounted(async () => {
+      if ((await getData(props.RoomId!)) == 'error') {
+        emit('close')
+      }
+      socket.on('message', listenMessage)
+      socket.on('set_permission', listenSetPermission)
+      socket.on('remove_permission', listenRevokePermission)
+      checkIfMuted()
     })
 
     onUnmounted(() => {
+      stopTimer()
       resetData()
-      useSocket('chat').socket.off('message', listenCallback)
+      socket.off('message', listenMessage)
+      socket.off('set_permission', listenSetPermission)
+      socket.off('remove_permission', listenRevokePermission)
     })
 
     watch(
       () => props.RoomId,
-      () => {
+      async () => {
         resetData()
-        getData(props.RoomId!)
+        await getData(props.RoomId!)
+        checkIfMuted()
       },
     )
+
+    // -----------------------------------------------------------------------------
+    // Muted Timer
+    // -----------------------------------------------------------------------------
+    let interval = 0
+
+    const startCountDown = (until: Date) => {
+      let date = new Date(until)
+      let counter = (date.getTime() - Date.now()) / 1000
+
+      interval = setInterval(() => {
+        counter--
+
+        if (counter < 0) {
+          stopTimer()
+          let index = roomData.muted.findIndex((perm) => perm.user.id == me.id)
+          if (index != -1) {
+            roomData.muted.splice(index, 1)
+          }
+        }
+      }, 1000)
+    }
+
+    const stopTimer = () => {
+      clearInterval(interval)
+      interval = 0
+    }
+
+    // -----------------------------------------------------------------------------
+    // Utils functions
+    // -----------------------------------------------------------------------------
+    const checkIfMuted = () => {
+      let perm = isMuted(me.id)
+
+      if (perm != undefined) {
+        startCountDown(perm.expired_at!)
+      }
+    }
 
     const showDate = (date: Date) => {
       let t = new Date(date)
       return t.toLocaleString()
     }
 
+    const messages = computed(() => {
+      let data = roomData.messages.filter(
+        (msg) =>
+          useFriends().ignored.value.findIndex(
+            (user) => user.id == msg.author.id,
+          ) == -1,
+      )
+      console.log(data)
+      return data
+    })
+
     return {
       roomData,
       message_field,
+      messages,
       me,
       cm_user,
       isModerator,
       isMuted,
       onSendMsg,
       onMoreMsg,
-      onModeratorsChanges,
       showDate,
     }
   },
+  emits: ['close', 'leave'],
 }
 </script>
 

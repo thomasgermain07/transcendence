@@ -4,13 +4,13 @@
   >
 
   <v-contextmenu-item
-    v-if="IsOwner && !isModerator(User.id)"
+    v-if="IsOwner && !isModerator(User.id) && !isBanned(User.id)"
     @click="onSetModerator"
     >Set Moderator</v-contextmenu-item
   >
 
   <v-contextmenu-item
-    v-if="IsOwner && isModerator(User.id)"
+    v-if="IsOwner && isModerator(User.id) && !isBanned(User.id)"
     @click="onRevokeModerator"
     >Revoke Moderator</v-contextmenu-item
   >
@@ -19,7 +19,8 @@
     v-if="
       (IsOwner || IsModerator) &&
       User.id != Room.owner.id &&
-      !isModerator(User.id)
+      !isModerator(User.id) &&
+      !isBanned(User.id)
     "
     title="Mute"
   >
@@ -32,10 +33,11 @@
 
   <v-contextmenu-item
     v-if="
-      IsOwner ||
-      (IsModerator && User.id != Room.owner.id && !isModerator(User.id))
+      (IsOwner ||
+        (IsModerator && User.id != Room.owner.id && !isModerator(User.id))) &&
+      !isBanned(User.id)
     "
-    @click="eventHandler.onBanUser(User)"
+    @click="eventHandler.onBanUser(User.id, Room.id)"
   >
     Ban
   </v-contextmenu-item>
@@ -44,8 +46,13 @@
     >Send Duel</v-contextmenu-item
   >
 
-  <v-contextmenu-item @click="eventHandler.onBlockUser(User)"
+  <v-contextmenu-item
+    v-if="eventHandler.isBlocked(User.id)"
+    @click="eventHandler.onBlockUser(User)"
     >Block</v-contextmenu-item
+  >
+  <v-contextmenu-item v-else @click="eventHandler.onUnblockUser(User)"
+    >Unblock</v-contextmenu-item
   >
 </template>
 
@@ -65,10 +72,10 @@ export default {
     IsOwner: Boolean,
     Room: Object as PropType<RoomType>,
   },
-  setup(props, { emit }) {
+  setup(props) {
     const eventHandler = useContextMenu()
 
-    const { isModerator } = useRoom()
+    const { isModerator, isBanned } = useRoom()
 
     const onSetModerator = async () => {
       try {
@@ -76,7 +83,6 @@ export default {
           props.User!.id,
           props.Room!.id as number,
         )
-        emit('moderators_changes')
       } catch (e) {
         console.log(e)
       }
@@ -88,7 +94,6 @@ export default {
           props.User!,
           props.Room!.id as number,
         )
-        emit('moderators_changes')
       } catch (e) {
         console.log(e)
       }
@@ -106,8 +111,8 @@ export default {
       onRevokeModerator,
       onMuteUser,
       isModerator,
+      isBanned,
     }
   },
-  emits: ['moderators_changes'],
 }
 </script>

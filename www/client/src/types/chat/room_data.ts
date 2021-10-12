@@ -7,6 +7,7 @@ export type RoomDataType = {
   messages: MessageType[]
   moderators: PermissionType[]
   muted: PermissionType[]
+  banned: PermissionType[]
   page: number
   max_msg: boolean
   open_setting: boolean

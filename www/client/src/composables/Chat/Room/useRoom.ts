@@ -10,12 +10,14 @@ import getFetchPermissions from './fetchPermissions'
 import getFetchRoom from './fetchRoom'
 import getDeletePermission from './deletePermission'
 import getDeleteSubscription from '@/composables/Chat/Subscription/deleteSubscription'
+import getDeleteRoom from '@/composables/Chat/Room/deleteRoom'
 
 import { PermissionCreationType } from '@/types/chat/permission'
 import { RoomDataType } from '@/types/chat/room_data'
 import { AxiosErrType } from '@/composables/axios'
 
 import { useSocket } from '@/composables/socket'
+import { useChat } from '../useChat'
 
 // -----------------------------------------------------------------------------
 // Api usage
@@ -27,6 +29,7 @@ const { fetchPermissions } = getFetchPermissions()
 const { createPermission } = getCreatePermission()
 const { deletePermission } = getDeletePermission()
 const { deleteSubscription } = getDeleteSubscription()
+const { deleteRoom } = getDeleteRoom()
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -37,6 +40,7 @@ let roomData = reactive<RoomDataType>({
   messages: [],
   moderators: [],
   muted: [],
+  banned: [],
   page: 1,
   max_msg: false,
   open_setting: false,
@@ -52,8 +56,11 @@ export function useRoom() {
       roomData.messages = await fetchMessages(id, 1)
       roomData.moderators = await fetchPermissions(id, 'moderator')
       roomData.muted = await fetchPermissions(id, 'muted')
-    } catch (e) {
-      console.log(e)
+      roomData.banned = await fetchPermissions(id, 'banned')
+    } catch (e: AxiosErrType) {
+      createToast(e.response.data.message, { type: 'danger' })
+      await useChat().reloadRooms()
+      return 'error'
     }
   }
 
@@ -72,25 +79,15 @@ export function useRoom() {
     }
   }
 
-  const getPermissions = async (
-    room_id: number,
-    permission: 'moderator' | 'banned' | 'muted',
-  ) => {
-    try {
-      let data = await fetchPermissions(room_id, permission)
-      return data
-    } catch (e) {
-      throw e
-    }
-  }
-
   const sendMessage = async (room_id: number, msg: string) => {
     try {
       let res = await createMessage(room_id, msg)
       return res
     } catch (e: AxiosErrType) {
-      console.log(e.response)
-      return 'muted'
+      createToast(e.response.data.message, {
+        type: 'success',
+      })
+      return e.response
     }
   }
 
@@ -111,12 +108,15 @@ export function useRoom() {
   }
 
   const isModerator = (userID: number) => {
-    let index = roomData.moderators.findIndex((perm) => perm.user.id == userID)
-    return index != -1
+    return roomData.moderators.findIndex((perm) => perm.user.id == userID) != -1
   }
 
   const isMuted = (userID: number) => {
     return roomData.muted.find((perm) => perm.user.id == userID)
+  }
+
+  const isBanned = (userId: number) => {
+    return roomData.banned.findIndex((perm) => perm.user.id == userId) != -1
   }
 
   const leave = async () => {
@@ -128,9 +128,20 @@ export function useRoom() {
     await deleteSubscription(roomId as number).then(() => {
       useSocket('chat').socket.emit('leave', { room_id: roomId })
       createToast('Successfully left the room', {
-        type: 'warning',
+        type: 'success',
       })
     })
+  }
+
+  const destroyRoom = async () => {
+    try {
+      await deleteRoom(roomData.room!.id as number)
+      createToast('Successfuly deleted the room', {
+        type: 'success',
+      })
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   const resetData = () => {
@@ -141,20 +152,22 @@ export function useRoom() {
     roomData.messages = []
     roomData.moderators = []
     roomData.muted = []
+    roomData.banned = []
   }
 
   return {
     roomData,
     getData,
     getMessages,
-    getPermissions,
     reloadRoom,
     sendMessage,
     setPermission,
     revokePermission,
     isModerator,
     isMuted,
+    isBanned,
     leave,
     resetData,
+    destroyRoom,
   }
 }

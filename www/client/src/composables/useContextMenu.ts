@@ -29,7 +29,7 @@ const { removeFriend, blockUser, unblockUser } = getUserInteraction()
 // -----------------------------------------------------------------------------
 // Composable
 // -----------------------------------------------------------------------------
-export function useContextMenu(refresh?: Ref) {
+export function useContextMenu() {
   const onProfile = (user: UserType) => {
     if (user != undefined) {
       router.push({
@@ -117,6 +117,19 @@ export function useContextMenu(refresh?: Ref) {
     }
   }
 
+  const onUnbanUser = async (userId: number, roomId: number) => {
+    try {
+      await useRoom().revokePermission(userId, roomId)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  const isBlocked = (id: number) => {
+    console.log(useFriends().ignored.value)
+    return useFriends().ignored.value.findIndex((user) => user.id == id) == -1
+  }
+
   return {
     onProfile,
     onSendDuel,
@@ -127,5 +140,7 @@ export function useContextMenu(refresh?: Ref) {
     onRevokeModerator,
     onMuteUser,
     onBanUser,
+    onUnbanUser,
+    isBlocked,
   }
 }

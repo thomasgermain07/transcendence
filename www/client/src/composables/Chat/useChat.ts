@@ -53,7 +53,6 @@ export function useChat() {
         return
       }
 
-      // Add user if the dm comes for the first time
       let user = relatedUsers.value.find((user) => user.id == message.author.id)
       if (user == undefined) {
         relatedUsers.value.push(message.author)
@@ -99,7 +98,6 @@ export function useChat() {
       convs.push({ type: 'dm', target: user })
     })
 
-    // Mark Notifications
     notifications.value.forEach((notif) => {
       let conv = convs.find((conv) => {
         return conv.type == notif.type && conv.target.id == notif.target
@@ -115,6 +113,13 @@ export function useChat() {
     return convs
   })
 
+  const getBanFrom = (id: number) => {
+    let index = rooms.value.findIndex((room) => room.id == id)
+    if (index != -1) {
+      rooms.value.splice(index, 1)
+    }
+  }
+
   return {
     rooms,
     relatedUsers,
@@ -126,5 +131,6 @@ export function useChat() {
     reloadRooms,
     reloadRelatedUsers,
     readNotif,
+    getBanFrom,
   }
 }
