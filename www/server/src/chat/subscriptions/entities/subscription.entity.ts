@@ -13,6 +13,7 @@ export class Subscription {
     nullable: false,
     primary: true,
     eager: true,
+    onDelete: 'CASCADE',
   })
   @Type(() => User)
   public user: User
@@ -21,6 +22,7 @@ export class Subscription {
     nullable: false,
     primary: true,
     eager: true,
+    onDelete: 'CASCADE',
   })
   @Type(() => Room)
   public room: Room

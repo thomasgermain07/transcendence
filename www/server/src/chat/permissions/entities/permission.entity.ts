@@ -20,6 +20,7 @@ export class Permission {
     nullable: false,
     primary: true,
     eager: true,
+    onDelete: 'CASCADE',
   })
   @Type(() => User)
   public user: User
@@ -28,6 +29,7 @@ export class Permission {
     nullable: false,
     primary: true,
     eager: true,
+    onDelete: 'CASCADE',
   })
   @Type(() => Room)
   public room: Room

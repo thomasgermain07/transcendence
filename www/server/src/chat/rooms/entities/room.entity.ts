@@ -18,6 +18,7 @@ export class Room {
   @ManyToOne(() => User, (user) => user.chat_rooms, {
     nullable: false,
     eager: true,
+    onDelete: 'CASCADE',
   })
   @Type(() => User)
   public owner: User

@@ -12,6 +12,7 @@ export class Friendship {
     nullable: false,
     eager: true,
     primary: true,
+    onDelete: 'CASCADE',
   })
   public user: User;
 
@@ -19,6 +20,7 @@ export class Friendship {
     nullable: false,
     eager: true,
     primary: true,
+    onDelete: 'CASCADE',
   })
   public target: User;
 
