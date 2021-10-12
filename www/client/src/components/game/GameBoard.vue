@@ -36,6 +36,7 @@ export default defineComponent({
       score: 0,
       winner: false,
       isReady: false,
+      isPause: false,
       paddle: {
         x: 0,
         y: 0,
@@ -51,6 +52,7 @@ export default defineComponent({
       score: 0,
       winner: false,
       isReady: false,
+      isPause: false,
       paddle: {
         x: 0,
         y: 0,

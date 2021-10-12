@@ -10,7 +10,6 @@ import { PurgeService }     from './services/purge.service';
 import { PlayersService }   from '../players/services/players.service';
 import { RoomsController }  from './controllers/rooms.controller';
 import { RoomsSubscriber }  from './subscribers/rooms.subscribers';
-import { UsersModule }      from 'src/users/users.module';
 import { UsersService } from 'src/users/services/users.service';
 import { User } from 'src/users/entities/user.entity';
 import { Achievement } from 'src/users/entities/achievement.entity';

@@ -32,6 +32,7 @@ export class State implements IGameState {
   begin: boolean
   readonly map: string
   count: number
+  count_pause: number
   interval: ReturnType<typeof setInterval>
   constructor (
     status: string,
@@ -49,6 +50,7 @@ export class State implements IGameState {
     this.begin = begin;
     this.map = map;
     this.count = count;
+    this.count_pause = -1;
     this.interval = null;
   }
 }
@@ -248,12 +250,12 @@ export class GameRoomsGateway
   ): Promise<void> {
 
       const player: Player = await this.playerService.update(data.playerId, { isReady: true, isPause: false })
-     
+      const room: Room = await this.roomsService.findOne(player.room.id)
       this.server.to(data.room).emit('updateRoomInClient',
-        {room: player.room} )
+        {room: room} )
 
       client.to(data.room).emit('checkStopPause',
-        {room: player.room} );
+        {room: room} );
   }
 
   @SubscribeMessage('notReady')
@@ -355,6 +357,8 @@ export class GameRoomsGateway
       }
       else {
         this.game[data["socketRoomName"]].info.count = 3
+        this.game[data["socketRoomName"]].info.count_pause = -1
+        this.game[data["socketRoomName"]].info.status = GameState.PLAYING
         clearInterval(this.game[data["socketRoomName"]].info.interval)
       }
 
@@ -367,13 +371,13 @@ export class GameRoomsGateway
         let map_paddle = game.map_paddle;
         const info = game.info;
         let bonus = game.bonus;
-
-        if (info.count >= 0) {
+        
+       if (game.info.count >= 0) {
           server.to(room).emit('begin', {player_left: player_left, player_right: player_right, ball: ball, info: info, map_paddle: map_paddle, bonus: bonus});
           setTimeout(function() {start(game, room, server, playerService, roomsService, userService)}, 1000)
           game.info.count -= 1
         }
-        else {
+        else if (game.info.count_pause < 0) {
           await playerService.update(player_left.getId(), { isReady: true, isPause: false })
           await playerService.update(player_right.getId(), { isReady: true, isPause: false })
           game.info.status = GameState.PLAYING
@@ -472,6 +476,7 @@ export class GameRoomsGateway
           }
           end_game(game, room, server, playerService, roomsService, userService)
           server.to(room).emit('begin', {player_left: player_left, player_right: player_right, ball: ball, info: info, map_paddle: map_paddle, bonus: bonus});
+          return
         }
     }
 
@@ -650,43 +655,48 @@ export class GameRoomsGateway
 	)
 		: Promise<void>
 	{
-    console.log("-----------_PAUSE-----------")
-    console.log(event)
+    
+    this.game[event.room].info.count_pause = 30
+    this.game[event.room].info.count = -1
     if ( this.game[event.room].player_left.getUserId() == event.user_id ||
         this.game[event.room].player_right.getUserId() == event.user_id
-      ){
-      this.game[event.room].info.status = GameState.PAUSE;
-      let player: Player 
+    ){
       if (this.game[event.room].player_left.getUserId() == event.user_id) {
-        player = await this.playerService.update(this.game[event.room].player_left.getId(), { isReady: true, isPause: true })
+        await this.playerService.update(this.game[event.room].player_left.getId(), { isReady: true, isPause: true })
       }
       else {
-        player = await this.playerService.update(this.game[event.room].player_right.getId(), { isReady: true, isPause: true })
+        await this.playerService.update(this.game[event.room].player_right.getId(), { isReady: true, isPause: true })
       }
-
-      this.updateRoom({
+      if (this.game[event.room].info.status === GameState.PAUSE)
+      {
+        return
+      }
+      this.game[event.room].info.status = GameState.PAUSE;
+      await this.updateRoom({
         socketRoomName: event.room,
         roomId: event.roomId,
         dto: { state: GameState.PAUSE }
       })
-      this.game[event.room].info.count = 30
+
       this.game[event.room].info.interval = setInterval(async () => {
-        this.game[event.room].info.count--
-      if (  this.game[event.room].info.count < 0) {
+        this.game[event.room].info.count_pause--
+      if (  this.game[event.room].info.count_pause <= 0) {
           clearInterval(this.game[event.room].info.interval)
           
-          await this.playerService.update(player.id, { isReady: true, isPause: false })
+          await this.playerService.update(this.game[event.room].player_left.getId(), { isReady: true, isPause: false })
+          await this.playerService.update(this.game[event.room].player_right.getId(), { isReady: true, isPause: false })
           this.game[event.room].info.status = GameState.PLAYING;
 
-          this.updateRoom({
+          await this.updateRoom({
             socketRoomName: event.room,
             roomId: event.roomId,
             dto: { state: GameState.PLAYING }
           })
           this.handleInit({socketRoomName: event.room})
+          return 
       }
       else {
-        this.server.to(event.room).emit('onPause', {count: this.game[event.room].info.count})
+        this.server.to(event.room).emit('onPause', {count: this.game[event.room].info.count_pause})
       }
     }, 1000)
     }

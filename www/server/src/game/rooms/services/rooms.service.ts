@@ -203,24 +203,13 @@ export class RoomsService {
     const rooms = await this.roomsRepository.createQueryBuilder("room")
       .leftJoinAndSelect("room.players", "players")
       .leftJoinAndSelect("players.user", "users")
-      .where("room.state = :state", { state: GameState.PLAYING })
+      .where("room.state = :playing OR room.state = :pause", { playing: GameState.PLAYING, pause: GameState.PAUSE})
       .andWhere("players.user.id = :userId", {userId: user.id})
       .getMany() // TODO: replace by getCount
 
     return rooms;
   }
 
-  public async findAllMatchPauseByUser(user: User) : Promise<Room[]> {
-
-    const rooms = await this.roomsRepository.createQueryBuilder("room")
-      .leftJoinAndSelect("room.players", "players")
-      .leftJoinAndSelect("players.user", "users")
-      .where("room.state = :state", { state: GameState.PAUSE })
-      .andWhere("players.user.id = :userId", {userId: user.id})
-      .getMany() // TODO: replace by getCount
-
-    return rooms;
-  }
 
   public async update(id: number, roomDto: UpdateRoomDto): Promise<Room> {
     const room = await this.roomsRepository.save({

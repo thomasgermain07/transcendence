@@ -34,24 +34,21 @@ import { AchievementsName } from 'src/users/entities/achievement.entity';
 		async afterUpdate(event: UpdateEvent<Room>) {
 			console.log("---------__AFTER UPDATE ROOM-------------")
 			// console.log(event.entity);
-			let player: Player = null;
+			let player: Player;
 			const room: Room = await this.roomsService.findOne(event.entity.id);
 
-			console.log(room);
-
 			if (event.entity.state 
-				&& event.entity.state == "over"
+				&& event.entity.state === "over"
 				&& room.mode != "private") {
-				player = await this.defenseAchievements(room, player)
-				console.log(player);
+				let players: Player = await this.defenseAchievements(room, player)
 
-				await this.difficultyAchievements(player)
+				await this.difficultyAchievements(players)
 			
-				await this.winneAcchivements(player);
+				await this.winneAcchivements(players);
 
-				await this.allTerrainAchievements(player)
+				await this.allTerrainAchievements(players)
 
-				await this.doneAchievements(player)
+				await this.doneAchievements(players)
 			}
 		}
 		

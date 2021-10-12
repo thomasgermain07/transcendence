@@ -143,6 +143,11 @@ export default defineComponent({
   color: #6ded8a;
   font-style: italic;
 }
+.status .pause {
+  display: block;
+  color: #6ded8a;
+  font-style: italic;
+}
 
 @media (max-width: 600px) {
   .player-details {

@@ -17,6 +17,7 @@ const useGameRoom = () => {
     error: null,
     currentPlayer: null,
     isActive: false,
+    isPause: false,
   })
 
   const room = ref({})
@@ -40,7 +41,7 @@ const useGameRoom = () => {
       state.currentPlayer = response.data.players.find(
         (player: Player) => player.user.id === currentUser.value.id,
       )
-
+      console.log(state.currentPlayer)
       // protect room access according to state
       if (
         (!state.currentPlayer && response.data.state === GameState.WAITING) ||
@@ -53,6 +54,9 @@ const useGameRoom = () => {
       // for ready button
       if (state.currentPlayer && state.currentPlayer.isReady === true) {
         state.isActive = true
+      }
+      if (state.currentPlayer && state.currentPlayer.isPause === true) {
+        state.isPause = true
       }
 
       state.isLoading = false

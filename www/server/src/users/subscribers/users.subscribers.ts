@@ -37,15 +37,17 @@ import { GameRoomsGateway } from 'src/game/gateways/game-rooms.gateway';
             {
                 const user: User = await this.usersService.findOne(event.entity.id)
                 const rooms: Room[] = await this.roomsService.findAllMatchPlayingByUser(user)
-                rooms.forEach((room: Room) => {
-                    const room_name: string = this.getRoomName(room.id);
-                    this.game_rooms_gtw.sendPause({
-                        move: 'pause',
-                        user_id: event.entity.id,
-                        room: room_name,
-                        roomId: room.id,
-                    })
-                });
+                if (rooms && user) {
+                  rooms.forEach((room: Room) => {
+                      const room_name: string = this.getRoomName(room.id);
+                      this.game_rooms_gtw.sendPause({
+                          move: 'pause',
+                          user_id: event.entity.id,
+                          room: room_name,
+                          roomId: room.id,
+                      })
+                  });
+                }
             }
 		}
 		

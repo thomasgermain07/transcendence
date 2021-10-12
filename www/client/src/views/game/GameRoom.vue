@@ -61,10 +61,10 @@
           >Cancel</GameButton
         >
         <GameButton
-          v-if="isPause"
+          v-if="state.currentPlayer.isPause && isPause"
           @click="offPause('stopPause')"
           :colorStyle="'#6ded8a'"
-          >Ready</GameButton
+          >Resume</GameButton
         >
       </div>
     </div>
@@ -84,6 +84,7 @@ import GameButton from '../../components/game/GameButton.vue'
 import { GameState, Room, GameMode } from '../../types/game/gameRoom'
 import { useSocket } from '../../composables/socket'
 import { AxiosErrType, useAxios } from '../../composables/axios'
+import { Player } from '../../types/game/player'
 
 export interface IGameState {
   status: string
@@ -114,7 +115,6 @@ export default defineComponent({
     const gameRoomsSocket = useSocket('game-rooms').socket
 
     let timer = ref('')
-    let interval = 0
     // --- FETCH ---
     loadRoom(route.params.id)
 
@@ -217,6 +217,9 @@ export default defineComponent({
 
     const updateRoom = (updatedRoom: Room): void => {
       room.value = { ...updatedRoom }
+      if (state.currentPlayer) {
+        state.currentPlayer = room.value.players.find((player: Player) => player.id == state.currentPlayer.id)
+      }
     }
 
     // check if both players are ready
@@ -347,7 +350,6 @@ export default defineComponent({
 
     onUnmounted(() => {
       console.log('In unmount - gameRooms Socket.off')
-      clearInterval(interval)
       gameRoomsSocket.off()
       
       // leave room ?
