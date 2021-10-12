@@ -76,6 +76,7 @@ import GameButton from '../../components/game/GameButton.vue'
 import { GameState, Room, GameMode } from '../../types/game/gameRoom'
 import { useSocket } from '../../composables/socket'
 import { AxiosErrType, useAxios } from '../../composables/axios'
+// import { createToast } from 'mosha-vue-toastify'
 
 export interface IGameState {
   status: string
@@ -100,7 +101,14 @@ export default defineComponent({
   setup() {
     const route = useRoute()
     const router = useRouter()
-    const { state, room, loadRoom } = useGameRoom()
+    const {
+      state,
+      room,
+      loadRoom,
+      toastOppLeaving,
+      toastGameCanceled,
+      redirectToGameView,
+    } = useGameRoom()
 
     const roomName = `room-${route.params.id}`
     const gameRoomsSocket = useSocket('game-rooms').socket
@@ -245,19 +253,13 @@ export default defineComponent({
 
     gameRoomsSocket.on('opponentLeaving', () => {
       console.log('someone left the room')
-      // TODO: change alert to custom notif toast
-      alert(
-        'The other player left the game room - you will be redirected to the game view',
-      )
-      room.value.mode === 'duel'
-        ? router.push('/game/duel')
-        : router.push('/game/ladder')
+      toastOppLeaving()
+      redirectToGameView()
     })
 
     gameRoomsSocket.on('roomCanceled', () => {
       console.log('someone canceled the private room')
-      // TODO: change alert to custom notif toast
-      alert('Game canceled - you will be redirected to the game view')
+      toastGameCanceled()
       router.push('/game')
     })
 

@@ -4,10 +4,13 @@ import { Player } from '../../types/game/player'
 import { GameState } from '../../types/game/gameRoom'
 
 import { useAxios } from '../axios'
+import { useRouter } from 'vue-router'
 import { useUsers } from '@/composables/users'
+import { createToast } from 'mosha-vue-toastify'
 
 const useGameRoom = () => {
   const { axios } = useAxios()
+  const router = useRouter()
 
   const { users, get } = useUsers()
   const currentUser = users
@@ -59,10 +62,45 @@ const useGameRoom = () => {
     }
   }
 
+  const redirectToGameView = () => {
+    room.value.mode === 'duel'
+      ? router.push('/game/duel')
+      : router.push('/game/ladder')
+  }
+
+  const toastOppLeaving = () => {
+    createToast(
+      {
+        title: 'Your opponent left the game room',
+        description: 'We are putting you back in the queue',
+      },
+      {
+        timeout: 3000,
+        type: 'info',
+      },
+    )
+  }
+
+  const toastGameCanceled = () => {
+    createToast(
+      {
+        title: 'Game canceled',
+        description: 'You have been redirected to the game view',
+      },
+      {
+        timeout: 3000,
+        type: 'info',
+      },
+    )
+  }
+
   return {
     state,
     room,
     loadRoom,
+    toastOppLeaving,
+    toastGameCanceled,
+    redirectToGameView,
   }
 }
 
