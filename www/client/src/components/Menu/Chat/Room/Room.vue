@@ -98,8 +98,6 @@ import { PermissionType } from '@/types/chat/permission'
 import { useChat } from '@/composables/Chat/useChat'
 import { useFriends } from '@/composables/Friends/useFriends'
 
-// TODO : Don't display messages from a blocked user
-
 export default {
   props: {
     RoomId: Number,
@@ -284,14 +282,12 @@ export default {
     }
 
     const messages = computed(() => {
-      let data = roomData.messages.filter(
+      return roomData.messages.filter(
         (msg) =>
           useFriends().ignored.value.findIndex(
             (user) => user.id == msg.author.id,
           ) == -1,
       )
-      console.log(data)
-      return data
     })
 
     return {
