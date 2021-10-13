@@ -23,7 +23,8 @@ export class User {
   public id: number
 
   @Column({
-    unique: true,
+    // Todo:
+    // unique: true,
   })
   public email: string
 
@@ -37,11 +38,12 @@ export class User {
   })
   public avatar?: string
 
-  @Column({
-    nullable: true,
-    default: false,
-  })
-  public is_admin: boolean
+  // Todo:
+  // @Column({
+  //   nullable: true,
+  //   default: false,
+  // })
+  // public is_admin: boolean
 
   @Column({
     nullable: true,

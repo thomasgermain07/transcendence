@@ -166,10 +166,13 @@ export class UsersService {
     return this.users_repo.find()
   }
 
-  findAllWithNameLike(name: string): Promise<User[]> {
-    return this.users_repo.find({
-      select: ['name'],
+  findLastWithNameLike(name: string): Promise<User> {
+    return this.users_repo.findOne({
+      select: ['id'],
       where: { name: Like(`${name}%`) },
+      order: {
+        id: 'DESC',
+      },
     })
   }
 

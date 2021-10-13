@@ -8,7 +8,7 @@ RUN yarn global add @nestjs/cli
 
 WORKDIR /workspace
 
-VOLUME ["/workspace", "/workspace/node_modules"]
+VOLUME ["/workspace"]
 
 COPY server.sh	/usr/local/bin/server.sh
 RUN  chmod +x	/usr/local/bin/server.sh
