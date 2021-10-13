@@ -138,7 +138,6 @@ export class UsersService {
 
   public async updateAvatar(userId: number, file: any): Promise<User> {
     const path: string = 'http://localhost:8080/api/users/images/' + file
-    console.log(path)
     await this.users_repo.update(userId, { avatar: path })
 
     return await this.users_repo.findOne(userId)

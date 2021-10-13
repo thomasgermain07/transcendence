@@ -131,10 +131,6 @@ export class MatchmakerGateway
     @MessageBody() data: SocketRoomInfo,
   ): Promise<string> {
 
-    console.log('IN LEAVE LOBBY IN SERVER')
-    // // delete player from db -> done in axios
-    // await this.playerService.remove(data.playerId)
-
     // remove socket from room
     client.leave(data.room);
 
