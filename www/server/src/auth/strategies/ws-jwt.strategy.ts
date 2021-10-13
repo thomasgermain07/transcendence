@@ -39,6 +39,7 @@ export class WsJwtStrategy extends PassportStrategy(Strategy, 'ws-jwt') {
       ]),
       secretOrKey: ACCESS_SECRET,
       passReqToCallback: true,
+      ignoreExpiration: true,
     })
   }
 

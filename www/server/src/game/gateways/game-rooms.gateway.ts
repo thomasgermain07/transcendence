@@ -358,10 +358,13 @@ export class GameRoomsGateway
         this.game[data["socketRoomName"]] = new Game(player_left, player_right, ball, info, map_paddle, bonus);
       }
       else {
+        clearInterval(this.game[data["socketRoomName"]].info.interval)
+        if (this.game[data["socketRoomName"]].info.status === GameState.PLAYING) {
+          return
+        }
         this.game[data["socketRoomName"]].info.count = 3
         this.game[data["socketRoomName"]].info.count_pause = -1
         this.game[data["socketRoomName"]].info.status = GameState.PLAYING
-        clearInterval(this.game[data["socketRoomName"]].info.interval)
       }
 
       start(this.game[data["socketRoomName"]], data["socketRoomName"], this.server, this.playerService, this.roomsService, this.userService);
@@ -687,7 +690,7 @@ export class GameRoomsGateway
           
           await this.playerService.update(this.game[event.room].player_left.getId(), { isReady: true, isPause: false })
           await this.playerService.update(this.game[event.room].player_right.getId(), { isReady: true, isPause: false })
-          this.game[event.room].info.status = GameState.PLAYING;
+          // this.game[event.room].info.status = GameState.PLAYING;
 
           await this.updateRoom({
             socketRoomName: event.room,
