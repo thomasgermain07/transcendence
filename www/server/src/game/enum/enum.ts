@@ -9,6 +9,7 @@ export enum GameState {
 	PLAYING = "playing",
 	CANCELLED = "cancelled",
 	OVER = "over",
+	PAUSE = "pause",
 }
 
 export enum GameMode {

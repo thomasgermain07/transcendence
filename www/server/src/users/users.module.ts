@@ -10,13 +10,19 @@ import { Achievement } from './entities/achievement.entity'
 import { StatsService } from './services/stats.service';
 import { UserGateway } from './gateways/user.gateway';
 import { FriendshipsModule } from 'src/relations/friendships/friendships.module'
+import { UsersSubscriber } from './subscribers/users.subscribers'
+import { Room } from 'src/game/rooms/entities/room.entity'
+import { Option } from 'src/game/rooms/entities/option.entity'
+import { Player } from 'src/game/players/entities/player.entity'
+import { GameModule } from 'src/game/game.module'
 
 @Module({
   imports: [
     // Database
-    TypeOrmModule.forFeature([User, Achievement]),
+    TypeOrmModule.forFeature([User, Achievement, Room, Option, Player]),
     // Modules
-		forwardRef(() => FriendshipsModule),
+    forwardRef(() => FriendshipsModule),
+    forwardRef(() => GameModule),
   ],
   controllers: [
     // Controllers
@@ -31,6 +37,8 @@ import { FriendshipsModule } from 'src/relations/friendships/friendships.module'
     // Decorators
     IsUniqueUserConstraint,
     ExistsUserConstraint,
+    //Subscribers
+    UsersSubscriber,
   ],
   exports: [
     // Gateway

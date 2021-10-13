@@ -102,9 +102,17 @@ export class UsersService {
   }
 
   async setRefreshToken(user: User, token: string): Promise<void> {
-    this.users_repo.update(user.id, {
-      refresh_token: token,
-    })
+    if (!token) {
+      this.users_repo.update(user.id, {
+        refresh_token: token,
+        status: "disconnected",
+      })
+    }
+    else {
+      this.users_repo.update(user.id, {
+        refresh_token: token,
+      })
+    }
   }
 
   async update(user: User, update_dto: UpdateUserDto): Promise<User> {
@@ -205,7 +213,9 @@ export class UsersService {
       return users as any as User[]
 
     }
-  public async updateStatus(user: User, status: string): Promise<void> {
-    this.users_repo.update(user.id, { status: status })
+
+  public async updateStatus(user: User, update_dto: UpdateUserDto): Promise<User> {
+    Object.assign(user, update_dto)
+    return await this.users_repo.save( user )
   }
 }

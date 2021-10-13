@@ -38,4 +38,8 @@ export class CreateUserDto {
   @ValidateNested()
   @Type(() => CreateAchievementDto)
   achievements?: CreateAchievementDto
+
+  @IsOptional()
+  @IsString()
+  public status?: string
 }

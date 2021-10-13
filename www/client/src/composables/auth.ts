@@ -13,7 +13,7 @@ import { useSocket } from './socket'
 // -----------------------------------------------------------------------------
 const EXPIRATION = parseInt(import.meta.env.VITE_JWT_ACCESS_LIFETIME)
 const TIMEOUT = Math.max(10, EXPIRATION - (EXPIRATION > 600 ? 300 : 30))
-const namespaces = ['matchmaker', 'game-rooms']
+// const namespaces = ['matchmaker', 'game-rooms']
 
 // -----------------------------------------------------------------------------
 // Types
@@ -157,9 +157,9 @@ export function useAuth() {
 
     // Refresh the socket connections
     // const namespaces = ['chat', 'matchmaker', 'game-rooms']
-    namespaces.forEach((nsp) => {
-      useSocket(nsp).refresh()
-    })
+    // namespaces.forEach((nsp) => {
+    //   useSocket(nsp).refresh()
+    // })
 
     return
   }
@@ -189,7 +189,7 @@ export function useAuth() {
     googleCode.user_id = 0
     router.replace({ name: 'auth-login' })
 
-    // const namespaces = ['chat', 'matchmaker', 'game-rooms']
+    const namespaces = ['user', 'dm', 'chat', 'matchmaker', 'game-rooms']
     namespaces.forEach((nsp) => {
       useSocket(nsp).close()
     })

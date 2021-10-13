@@ -38,13 +38,23 @@ export class WsJwtStrategy extends PassportStrategy(Strategy, 'ws-jwt') {
         },
       ]),
       secretOrKey: ACCESS_SECRET,
+      passReqToCallback: true,
+      ignoreExpiration: true,
     })
   }
 
   // -------------------------------------------------------------------------
   // Public methods
   // -------------------------------------------------------------------------
-  async validate(payload: TokenPayload): Promise<User> {
+  async validate(request: any, payload: TokenPayload): Promise<User> {
+    if (request['user']) {
+      const cookies: any = tokenizeCookies(request.handshake.headers.cookie)
+      return this.auth_svc.authenticate({
+        id: request['user']?.id,
+        refresh_token: cookies.Refresh
+      });
+    }
+
     return this.auth_svc.authenticate({
       id: payload.user_id,
     })

@@ -26,6 +26,7 @@
         <span
           v-bind:class="{
             playing: props.roomState === 'playing',
+            pause: props.roomState === 'pause',
             over: props.roomState === 'over',
           }"
         >
@@ -70,6 +71,8 @@ export default defineComponent({
         return 'playing'
       } else if (props.roomState === GameState.OVER) {
         return 'FINAL'
+      } else if (props.roomState === GameState.PAUSE) {
+        return 'pause'
       } else {
         return ''
       }
@@ -139,6 +142,11 @@ export default defineComponent({
   display: block;
   color: #6ded8a;
   font-style: italic;
+}
+.status .pause {
+  display: block;
+  color: #6ded8a;
+  text-transform: uppercase;
 }
 
 @media (max-width: 600px) {

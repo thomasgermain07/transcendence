@@ -56,6 +56,9 @@ export class UserGateway
 
 	handleConnection(client: Socket, ...args: any[]): void {
 		console.log("User:Gateway:Connection");
+		if (!client.handshake?.headers?.cookie) {
+			client.disconnect()
+		}
 	}
 
 	handleDisconnect(client: Socket): void {
@@ -126,7 +129,7 @@ export class UserGateway
 		const room_name: string = this.getRoomName(data.target_id);
 
 		client.leave(room_name);
-
+		this.handleSetStatus(user, { status: "disconnected" });
 		console.log(`User ${user.id} left ${room_name}.`);
 	}
 
@@ -146,7 +149,7 @@ export class UserGateway
 			status: data.status
 		});
 
-		await this.users_svc.updateStatus(user, data.status);
+		await this.users_svc.updateStatus(user, {status: data.status});
 
 		console.log(`User ${user.id} set status to ${data.status}.`);
 	}

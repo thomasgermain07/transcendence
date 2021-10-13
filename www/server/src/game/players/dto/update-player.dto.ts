@@ -16,6 +16,9 @@ export class UpdatePlayerDto {
     // @IsOptional()
     @IsBoolean()
     isReady?: boolean
+
+    @IsBoolean()
+    isPause?: boolean
     
     @IsString()
     mode?: string

@@ -12,7 +12,7 @@ import { Player }         from '../players/entities/player.entity';
 import { Room }           from '../rooms/entities/room.entity';
 import { UsersService } from 'src/users/services/users.service';
 import { GameState, DifficultyLevel, MapType, Direction, GameMode } from '../enum/enum';
-import { SocketRoomInfo, UpdateRoomType, Move } from '../type/type';
+import { SocketRoomInfo, UpdateRoomType, Move, Pause } from '../type/type';
 import { IGameInfoState, IBonusState, IGameState, Game } from '../interface/interface';
 import { Ball } from './ball';
 import { Bonus } from './bonus'
@@ -32,6 +32,8 @@ export class State implements IGameState {
   begin: boolean
   readonly map: string
   count: number
+  count_pause: number
+  interval: ReturnType<typeof setInterval>
   constructor (
     status: string,
     difficulty: string,
@@ -48,6 +50,8 @@ export class State implements IGameState {
     this.begin = begin;
     this.map = map;
     this.count = count;
+    this.count_pause = -1;
+    this.interval = null;
   }
 }
 
@@ -82,7 +86,9 @@ export class GameRoomsGateway
 
 	handleConnection(client: Socket, ...args: any[]): void {
 		console.log(`GameRoom:Gateway: Connection.`)
-    console.log(client.id)
+    if (!client.handshake?.headers?.cookie) {
+      client.disconnect()
+    }
 	}
 
 	handleDisconnect(client: Socket): void {
@@ -154,8 +160,8 @@ export class GameRoomsGateway
     // TODO: update game room state depending of the situation
     let playerL: Player = null;
     let playerR: Player = null;
-    console.log(room.players[0].id);
-    console.log(data.playerId);
+    // console.log(room.players[0].id);
+    // console.log(data.playerId);
     if ( room.players[0].id == data.playerId) {
       playerL = await this.playerService.update( room.players[0].id ,{ winner: false, mode: room.mode })
       playerR = await this.playerService.update( room.players[1].id, { winner: true, mode: room.mode })
@@ -230,13 +236,28 @@ export class GameRoomsGateway
     @MessageBody() data: SocketRoomInfo
   ): Promise<void> {
 
-      const player: Player = await this.playerService.update(data.playerId, { isReady: true })
+      const player: Player = await this.playerService.update(data.playerId, { isReady: true, isPause: false })
 
       this.server.to(data.room).emit('updateRoomInClient',
         {room: player.room} )
 
       client.to(data.room).emit('checkReady',
         {room: player.room} );
+  }
+
+  @SubscribeMessage('stopPause')
+  async stopPause(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: SocketRoomInfo
+  ): Promise<void> {
+
+      const player: Player = await this.playerService.update(data.playerId, { isReady: true, isPause: false })
+      const room: Room = await this.roomsService.findOne(player.room.id)
+      this.server.to(data.room).emit('updateRoomInClient',
+        {room: room} )
+
+      client.to(data.room).emit('checkStopPause',
+        {room: room} );
   }
 
   @SubscribeMessage('notReady')
@@ -246,7 +267,7 @@ export class GameRoomsGateway
   ): Promise<void> {
 
     try {
-      await this.playerService.update(data.playerId, { isReady: false })
+      await this.playerService.update(data.playerId, { isReady: false, isPause: false })
     } catch (error) {
       console.log('In not ready Exception - player not found')
     }
@@ -273,67 +294,77 @@ export class GameRoomsGateway
 	)
 		: void
 	{
-      let player_left: GamePlayer = null;
-      let player_right: GamePlayer = null;
-      let bonus: Bonus = null;
-      let paddle_left: Paddle = null;
-      let paddle_right: Paddle = null;
-      let ball: Ball = null;
-      let map_paddle = new Array<Paddle>();
+      if (!this.game[data["socketRoomName"]]) {
 
-      let info = new State(GameState.PLAYING, data['room'].option.difficulty, data['room'].mode, data['room'].option.powerUps, true, data['room'].option.map, 3);
+        let player_left: GamePlayer = null;
+        let player_right: GamePlayer = null;
+        let bonus: Bonus = null;
+        let paddle_left: Paddle = null;
+        let paddle_right: Paddle = null;
+        let ball: Ball = null;
+        let map_paddle = new Array<Paddle>();
 
-      if ( info.map != MapType.DEFAULT ) {
-        if ( info.map == MapType.MAP1 ) {
-          map_paddle = [];
-          let map1_paddle1 = new Paddle(HEIGHT/2, 0, 2.5, Direction.NOT, 0);
-          let map1_paddle2 = new Paddle(HEIGHT/2,  WIDTH - 160, 2.5, Direction.NOT, 0);
-          map_paddle.push(map1_paddle1, map1_paddle2);
+        let info = new State(GameState.PLAYING, data['room'].option.difficulty, data['room'].mode, data['room'].option.powerUps, true, data['room'].option.map, 3);
+
+        if ( info.map != MapType.DEFAULT ) {
+          if ( info.map == MapType.MAP1 ) {
+            map_paddle = [];
+            let map1_paddle1 = new Paddle(HEIGHT/2, 0, 2.5, Direction.NOT, 0);
+            let map1_paddle2 = new Paddle(HEIGHT/2,  WIDTH - 160, 2.5, Direction.NOT, 0);
+            map_paddle.push(map1_paddle1, map1_paddle2);
+          }
+          else if ( info.map == MapType.MAP2 ) {
+            map_paddle = [];
+            let map2_paddle1 = new Paddle(HEIGHT/10 + 100, WIDTH/2 - 40, 5, Direction.UP, 5);
+            let map2_paddle2 = new Paddle(HEIGHT/1.1 - 100,  WIDTH/2 - 40, 5, Direction.DOWN, 5);
+            map_paddle.push(map2_paddle1, map2_paddle2);
+          }
         }
-        else if ( info.map == MapType.MAP2 ) {
-          map_paddle = [];
-          let map2_paddle1 = new Paddle(HEIGHT/10 + 100, WIDTH/2 - 40, 5, Direction.UP, 5);
-          let map2_paddle2 = new Paddle(HEIGHT/1.1 - 100,  WIDTH/2 - 40, 5, Direction.DOWN, 5);
-          map_paddle.push(map2_paddle1, map2_paddle2);
-        }
-      }
-      if ( info.addons ) {
-        bonus = new Bonus(Math.random() * (WIDTH - 200) + 200, Math.random() * (200 - 100) + 100, 8, 0, true, Date.now());
-      }
-      else {
-        bonus = new Bonus(0, 0, 0, 0, false, 0);
-      }
-
-      switch ( info.difficulty ) {
-
-        case DifficultyLevel.EASY:
-          ball = new Ball(5, 3, 3);
-          paddle_left = new Paddle(HEIGHT/10, WIDTH/2 - 40, 5, Direction.NOT, 7);
-          paddle_right = new Paddle(HEIGHT/1.1, WIDTH/2 - 40, 5, Direction.NOT, 7);
-          break;
-        case DifficultyLevel.MEDIUM:
-          ball = new Ball(9, 6, 6);
-          paddle_left = new Paddle(HEIGHT/10, WIDTH/2 - 40, 5, Direction.NOT, 8);
-          paddle_right = new Paddle(HEIGHT/1.1, WIDTH/2 - 40, 5, Direction.NOT, 8);
-          break;
-        case DifficultyLevel.HARD:
-          ball = new Ball(11, 7, 7);
-          paddle_left = new Paddle(HEIGHT/10, WIDTH/2 - 40, 5, Direction.NOT, 9);
-          paddle_right = new Paddle(HEIGHT/1.1, WIDTH/2 - 40, 5, Direction.NOT, 9);
-          break;
-      }
-      data['players'].forEach(player => {
-
-        if ( player.position == 'left' ) {
-          player_left = new GamePlayer(player.id, player.user.id, 'left', 0, null, true, paddle_left, 0);
+        if ( info.addons ) {
+          bonus = new Bonus(Math.random() * (WIDTH - 200) + 200, Math.random() * (200 - 100) + 100, 8, 0, true, Date.now());
         }
         else {
-          player_right = new GamePlayer(player.id, player.user.id, 'right', 0, null, true, paddle_right, 0);
+          bonus = new Bonus(0, 0, 0, 0, false, 0);
         }
 
-      });
-      if (!this.game[data["socketRoomName"]]) {
+        switch ( info.difficulty ) {
+
+          case DifficultyLevel.EASY:
+            ball = new Ball(5, 3, 3);
+            paddle_left = new Paddle(HEIGHT/10, WIDTH/2 - 40, 5, Direction.NOT, 7);
+            paddle_right = new Paddle(HEIGHT/1.1, WIDTH/2 - 40, 5, Direction.NOT, 7);
+            break;
+          case DifficultyLevel.MEDIUM:
+            ball = new Ball(9, 6, 6);
+            paddle_left = new Paddle(HEIGHT/10, WIDTH/2 - 40, 5, Direction.NOT, 8);
+            paddle_right = new Paddle(HEIGHT/1.1, WIDTH/2 - 40, 5, Direction.NOT, 8);
+            break;
+          case DifficultyLevel.HARD:
+            ball = new Ball(11, 7, 7);
+            paddle_left = new Paddle(HEIGHT/10, WIDTH/2 - 40, 5, Direction.NOT, 9);
+            paddle_right = new Paddle(HEIGHT/1.1, WIDTH/2 - 40, 5, Direction.NOT, 9);
+            break;
+        }
+        data['players'].forEach(player => {
+
+          if ( player.position == 'left' ) {
+            player_left = new GamePlayer(player.id, player.user.id, 'left', 0, null, true, paddle_left, 0);
+          }
+          else {
+            player_right = new GamePlayer(player.id, player.user.id, 'right', 0, null, true, paddle_right, 0);
+          }
+
+        });
         this.game[data["socketRoomName"]] = new Game(player_left, player_right, ball, info, map_paddle, bonus);
+      }
+      else {
+        clearInterval(this.game[data["socketRoomName"]].info.interval)
+        if (this.game[data["socketRoomName"]].info.status === GameState.PLAYING) {
+          return
+        }
+        this.game[data["socketRoomName"]].info.count = 3
+        this.game[data["socketRoomName"]].info.count_pause = -1
+        this.game[data["socketRoomName"]].info.status = GameState.PLAYING
       }
 
       start(this.game[data["socketRoomName"]], data["socketRoomName"], this.server, this.playerService, this.roomsService, this.userService);
@@ -345,13 +376,16 @@ export class GameRoomsGateway
         let map_paddle = game.map_paddle;
         const info = game.info;
         let bonus = game.bonus;
-
-        if (info.count >= 0) {
+        
+       if (game.info.count >= 0) {
           server.to(room).emit('begin', {player_left: player_left, player_right: player_right, ball: ball, info: info, map_paddle: map_paddle, bonus: bonus});
           setTimeout(function() {start(game, room, server, playerService, roomsService, userService)}, 1000)
           game.info.count -= 1
         }
-        else {
+        else if (game.info.count_pause < 0) {
+          await playerService.update(player_left.getId(), { isReady: true, isPause: false })
+          await playerService.update(player_right.getId(), { isReady: true, isPause: false })
+          game.info.status = GameState.PLAYING
           game_loop(game, room, server, playerService, roomsService, userService)
         }
       }
@@ -430,6 +464,10 @@ export class GameRoomsGateway
           server.to(room).emit('begin', {player_left: player_left, player_right: player_right, ball: ball, info: info, map_paddle: map_paddle, bonus: bonus});
           myVar = setTimeout(function() {game_loop(game, room, server, playerService, roomsService, userService)}, 1000/60)
         }
+        else if (game.info.status == GameState.PAUSE)
+        {
+          return
+        }
         else {
           clearTimeout(myVar);
           if (game.info.status == GameState.PLAYING && game.player_left.getScore() == maxScore) {
@@ -443,6 +481,7 @@ export class GameRoomsGateway
           }
           end_game(game, room, server, playerService, roomsService, userService)
           server.to(room).emit('begin', {player_left: player_left, player_right: player_right, ball: ball, info: info, map_paddle: map_paddle, bonus: bonus});
+          return
         }
     }
 
@@ -543,7 +582,6 @@ export class GameRoomsGateway
 
     async function end_game(game: IGameInfoState, roomName: string, server: Server, playerService: PlayersService, roomsService: RoomsService, userService: UsersService): Promise<void>  {
 
-      // console.log("END " + game.player_left.winner + game.player_right.winner );
       const roomId = await playerService.findRoomNumber(game.player_left.getId())
       const playerL: Player = await playerService.update(game.player_left.getId(), { winner: game.player_left.getWinner(), mode: game.info.mode })
       const playerR: Player = await playerService.update(game.player_right.getId(), { winner: game.player_right.getWinner(), mode: game.info.mode })
@@ -558,12 +596,6 @@ export class GameRoomsGateway
       if (game.info.mode == "ladder") {
         const ladder_left: number =  await userService.findOneLadderLevel(game.player_left.getUserId())
         const ladder_right: number =  await userService.findOneLadderLevel(game.player_right.getUserId())
-        console.log("----------LADDER LEFT-----------")
-        console.log(ladder_left)
-
-        console.log("----------LADDER RIGHT-----------")
-        console.log(ladder_right)
-        console.log(game.player_right.getWinner());
 
         if (game.player_left.getWinner() && ladder_left >= ladder_right
           || game.player_right.getWinner() && ladder_right >= ladder_left) {
@@ -613,14 +645,71 @@ export class GameRoomsGateway
 	)
 		: void
 	{
-        console.log(event);
-        if ( this.game[event.room].player_left.getUserId() == event.user_id ) {
-            this.game[event.room].player_left.paddle.move = event.move;
-        }
-        else if ( this.game[event.room].player_right.getUserId() == event.user_id ) {
-            this.game[event.room].player_right.paddle.move = event.move;
-        }
+    // console.log(event);
+    if ( this.game[event.room].player_left.getUserId() == event.user_id ) {
+        this.game[event.room].player_left.paddle.move = event.move;
     }
+    else if ( this.game[event.room].player_right.getUserId() == event.user_id ) {
+        this.game[event.room].player_right.paddle.move = event.move;
+    }
+  }
+
+  @SubscribeMessage('pause')
+	async handlePause(
+		@MessageBody() event: Pause
+	)
+		: Promise<void>
+	{
+    
+    this.game[event.room].info.count_pause = 30
+    this.game[event.room].info.count = -1
+    if ( this.game[event.room].player_left.getUserId() == event.user_id ||
+        this.game[event.room].player_right.getUserId() == event.user_id
+    ){
+      if (this.game[event.room].player_left.getUserId() == event.user_id) {
+        await this.playerService.update(this.game[event.room].player_left.getId(), { isReady: true, isPause: true })
+      }
+      else {
+        await this.playerService.update(this.game[event.room].player_right.getId(), { isReady: true, isPause: true })
+      }
+      if (this.game[event.room].info.status === GameState.PAUSE)
+      {
+        return
+      }
+      this.game[event.room].info.status = GameState.PAUSE;
+      await this.updateRoom({
+        socketRoomName: event.room,
+        roomId: event.roomId,
+        dto: { state: GameState.PAUSE }
+      })
+
+      this.game[event.room].info.interval = setInterval(async () => {
+        this.game[event.room].info.count_pause--
+      if (  this.game[event.room].info.count_pause <= 0) {
+          clearInterval(this.game[event.room].info.interval)
+          
+          await this.playerService.update(this.game[event.room].player_left.getId(), { isReady: true, isPause: false })
+          await this.playerService.update(this.game[event.room].player_right.getId(), { isReady: true, isPause: false })
+          // this.game[event.room].info.status = GameState.PLAYING;
+
+          await this.updateRoom({
+            socketRoomName: event.room,
+            roomId: event.roomId,
+            dto: { state: GameState.PLAYING }
+          })
+          this.handleInit({socketRoomName: event.room})
+          return 
+      }
+      else {
+        this.server.to(event.room).emit('onPause', {count: this.game[event.room].info.count_pause})
+      }
+    }, 1000)
+    }
+  }
+
+  sendPause(event: Pause): void {
+    this.handlePause(event)
+  }
 
     // TODO: if game end: disconnect all client sockets from game room
   }

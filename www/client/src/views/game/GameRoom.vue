@@ -24,11 +24,18 @@
             <p>Match will start once both players are ready</p>
           </div>
         </div>
-
+        <GameButton
+          v-if="state.currentPlayer.isPause && isPause"
+          @click="offPause('stopPause')"
+          :colorStyle="'#6ded8a'"
+          >Resume</GameButton
+        >
         <GameBoard
-          v-if="room.state == 'playing'"
+          v-if="room.state == 'playing' || room.state == 'pause'"
           :roomName="roomName"
           :isPlayer="!isWatching"
+          :roomState="room.state"
+          :timer="timer"
         />
 
         <GameButton
@@ -76,7 +83,7 @@ import GameButton from '../../components/game/GameButton.vue'
 import { GameState, Room, GameMode } from '../../types/game/gameRoom'
 import { useSocket } from '../../composables/socket'
 import { AxiosErrType, useAxios } from '../../composables/axios'
-// import { createToast } from 'mosha-vue-toastify'
+import { Player } from '../../types/game/player'
 
 export interface IGameState {
   status: string
@@ -113,6 +120,7 @@ export default defineComponent({
     const roomName = `room-${route.params.id}`
     const gameRoomsSocket = useSocket('game-rooms').socket
 
+    let timer = ref('')
     // --- FETCH ---
     loadRoom(route.params.id)
 
@@ -126,6 +134,13 @@ export default defineComponent({
     const isPlaying = computed(() => {
       if (state.currentPlayer)
         return room.value.state == GameState.PLAYING ? true : false
+      return false
+    })
+
+    const isPause = computed(() => {
+      if (state.currentPlayer) {
+        return room.value.state == GameState.PAUSE ? true : false
+      }
       return false
     })
 
@@ -171,6 +186,15 @@ export default defineComponent({
       })
     }
 
+    const offPause = (): void => {
+      console.log(`Player ${state.currentPlayer.id} READY AFTER PAUSE`)
+      gameRoomsSocket.emit('stopPause', {
+        playerId: state.currentPlayer.id,
+        roomId: room.id,
+        room: roomName,
+      })
+    }
+
     const onLeave = (leaveType: string): void => {
       console.log(leaveType)
       gameRoomsSocket.emit(
@@ -198,6 +222,11 @@ export default defineComponent({
 
     const updateRoom = (updatedRoom: Room): void => {
       room.value = { ...updatedRoom }
+      if (state.currentPlayer) {
+        state.currentPlayer = room.value.players.find(
+          (player: Player) => player.id == state.currentPlayer.id,
+        )
+      }
     }
 
     // check if both players are ready
@@ -221,6 +250,32 @@ export default defineComponent({
       }
     }
 
+    const stopPause = (room: Room): void => {
+      if (room.players.every((player) => player.isPause === false)) {
+        console.log('Both players are back')
+
+        // update Room state to playing
+        // clearInterval(interval)
+        timer.value = 0
+        gameRoomsSocket.emit('updateRoomInServer', {
+          socketRoomName: roomName,
+          roomId: room.id,
+          dto: { state: GameState.PLAYING },
+        })
+
+        // start game
+        gameRoomsSocket.emit('init', {
+          socketRoomName: roomName,
+          room: room,
+          players: room.players,
+        })
+      }
+    }
+
+    const startCountDown = (counter: number) => {
+      timer.value = new Date(counter * 1000).toISOString().substr(14, 5)
+    }
+
     // --- SOCKETS ---
     gameRoomsSocket.on('connect', () => {
       console.log('game-room socket connected')
@@ -241,9 +296,19 @@ export default defineComponent({
       updateRoom(room)
     })
 
+    gameRoomsSocket.on('onPause', ({ count }) => {
+      console.log(`in pause room`)
+      startCountDown(count)
+    })
+
     gameRoomsSocket.on('checkReady', ({ room }) => {
       console.log(`in check ready`)
       checkReady(room)
+    })
+
+    gameRoomsSocket.on('checkStopPause', ({ room }) => {
+      console.log(`in stop pause`)
+      stopPause(room)
     })
 
     gameRoomsSocket.on('roomJoined', (roomRet) => {
@@ -294,13 +359,16 @@ export default defineComponent({
       route,
       state,
       room,
+      timer,
       roomName,
       isPlayerWaiting,
       isPlaying,
       isOver,
+      isPause,
       isWatching,
       onReady,
       onLeave,
+      offPause,
       isPrivate,
       onCancel,
     }
