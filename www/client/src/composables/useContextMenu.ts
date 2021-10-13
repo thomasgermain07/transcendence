@@ -1,5 +1,3 @@
-import { Ref } from 'vue'
-
 import { router } from '@/router'
 import { openModal } from 'jenesius-vue-modal'
 
@@ -15,6 +13,7 @@ import DuelCreaction from '@/components/game/duel/DuelCreation.vue'
 
 import { UserType } from '@/types/user/user'
 import { PermissionCreationType } from '@/types/chat/permission'
+import { useWindowInteraction } from './Chat/WindowInteraction/windowInteraction'
 
 // -----------------------------------------------------------------------------
 // Api usage
@@ -39,9 +38,23 @@ export function useContextMenu() {
     }
   }
 
+  const onOpenDm = (user: UserType) => {
+    useWindowInteraction().openDm(user)
+  }
+
   const onSendDuel = async (user: UserType) => {
+    if (user.status != 'connected') {
+      if (user.status == 'disconnected') {
+        useGameInvite().inviteError(user.name + ' is disconnected')
+      }
+      return
+    }
+
+    useWindowInteraction().closeChat()
     if (await hasPendingInvite(useAuth().user.id)) {
-      useGameInvite().alreadySendInvite()
+      useGameInvite().inviteError(
+        'You already sent a game invite to ' + user.name,
+      )
       return
     }
     openModal(DuelCreaction, {
@@ -132,6 +145,7 @@ export function useContextMenu() {
 
   return {
     onProfile,
+    onOpenDm,
     onSendDuel,
     onDeleteFriend,
     onBlockUser,

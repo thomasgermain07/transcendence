@@ -1,25 +1,11 @@
 <template>
   <v-contextmenu ref="contextmenu">
-    <v-contextmenu-item
-      v-if="cm_conv.type == 'dm'"
-      @click="eventHandler.onProfile(cm_conv.target)"
-      >View Profile</v-contextmenu-item
-    >
-    <v-contextmenu-item
-      v-if="cm_conv.type == 'dm'"
-      @click="eventHandler.onSendDuel(cm_conv.target)"
-      >Send Duel</v-contextmenu-item
-    >
-    <v-contextmenu-item
-      v-if="cm_conv.type == 'dm'"
-      @click="eventHandler.onBlockUser(cm_conv.target)"
-      >Block</v-contextmenu-item
-    >
+    <RoomsCM :Conv="cm_conv" />
   </v-contextmenu>
 
   <div class="convs-interaction-ctn">
-    <div class="convs-interaction" @click="$emit('open', 'create')">Create</div>
-    <div class="convs-interaction" @click="$emit('open', 'join')">Join</div>
+    <div class="convs-interaction" @click="openCreate">Create</div>
+    <div class="convs-interaction" @click="openJoin">Join</div>
   </div>
 
   <div v-if="convs" class="convs__list">
@@ -28,7 +14,7 @@
     <div v-for="conv in convs" :key="conv">
       <div
         class="convs-item"
-        @click.left="openConv(conv)"
+        @click.left="onOpenConv(conv)"
         @click.right="cm_conv = conv"
         v-contextmenu:contextmenu
       >
@@ -47,34 +33,47 @@
 
 <script lang="ts">
 import { ref } from 'vue'
-import { ConversationType } from '@/types/chat/conversation'
+
 import { useChat } from '@/composables/Chat/useChat'
-import { useContextMenu } from '@/composables/useContextMenu'
+import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/windowInteraction'
+
+import { ConversationType } from '@/types/chat/conversation'
+import { UserType } from '@/types/user/user'
+import { RoomType } from '@/types/chat/room'
+
+import RoomsCM from './RoomsCM.vue'
 
 export default {
   props: {
     RoomId: Number,
   },
-  setup(props, { emit }) {
+  components: {
+    RoomsCM,
+  },
+  setup() {
     let cm_conv = ref<ConversationType>()
 
     const { convs, readNotif } = useChat()
+    const { openDm, openRoom, openCreate, openJoin } = useWindowInteraction()
 
-    const eventHandler = useContextMenu()
-
-    const openConv = (conv: ConversationType) => {
+    const onOpenConv = (conv: ConversationType) => {
       readNotif(conv.target.id)
-      emit('open', conv.type, { id: conv.target.id, name: conv.target.name })
+
+      if (conv.type == 'dm') {
+        openDm(conv.target as UserType)
+      } else if (conv.type == 'room') {
+        openRoom(conv.target as RoomType)
+      }
     }
 
     return {
-      openConv,
+      onOpenConv,
+      openCreate,
+      openJoin,
       cm_conv,
-      eventHandler,
       convs,
     }
   },
-  emits: ['open'],
 }
 </script>
 

@@ -1,24 +1,23 @@
 <template>
   <div class="friend-window">
-    <TopBar :Title="'Friends'" @close="$emit('close')" @refresh="loadData" />
+    <TopBar :Title="'Friends'" @close="closeWindow" @refresh="loadData" />
     <form class="search-bar-ctn">
       <i class="fas fa-search search-icon"></i>
       <input v-model="searchQuery" class="search-bar" placeholder="Search" />
       <i class="fas fa-times search-reset" @click="searchQuery = ''"></i>
     </form>
-    <FriendsList
-      v-if="searchQuery"
-      :Friends="friendsByName"
-      @open_chat="open_chat"
-      @reload_data="loadData"
-    />
+    <FriendsList v-if="searchQuery" :Friends="friendsByName" />
 
-    <div @click="open_chat" class="open-chat-btn" v-if="!searchQuery">
+    <div
+      @click="openChat"
+      class="open-chat-btn"
+      v-if="!searchQuery && !chat_open"
+    >
       <i class="fas fa-bell notification"></i>
       Open chat
       <i
         class="fas fa-bell notification"
-        :class="{ 'notification--visible': notification && !ChatStatus }"
+        :class="{ 'notification--visible': notification }"
       ></i>
     </div>
 
@@ -48,12 +47,7 @@
       Online
       <i class="far fa-arrow-alt-circle-down arrow"></i>
     </a>
-    <FriendsList
-      v-if="showOnline && !searchQuery"
-      :Friends="onlineFriends"
-      @open_chat="open_chat"
-      @reload_data="loadData"
-    />
+    <FriendsList v-if="showOnline && !searchQuery" :Friends="onlineFriends" />
 
     <a
       v-if="!searchQuery"
@@ -64,12 +58,7 @@
       Offline
       <i class="far fa-arrow-alt-circle-down arrow"></i>
     </a>
-    <FriendsList
-      v-if="showOffline && !searchQuery"
-      :Friends="offlineFriends"
-      @open_chat="open_chat"
-      @reload_data="loadData"
-    />
+    <FriendsList v-if="showOffline && !searchQuery" :Friends="offlineFriends" />
 
     <a
       v-if="!searchQuery"
@@ -89,7 +78,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, watch } from 'vue'
 
 import {
   getFriendsByName,
@@ -104,6 +93,7 @@ import IgnoredList from './Friend/Ignored/IgnoredList.vue'
 
 import { useChat } from '@/composables/Chat/useChat'
 import { useFriends } from '@/composables/Friends/useFriends'
+import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/windowInteraction'
 
 export default {
   components: {
@@ -112,13 +102,8 @@ export default {
     RequestList,
     IgnoredList,
   },
-  props: {
-    ChatStatus: Boolean,
-  },
   setup(props, { emit }) {
     const { loadData, friends, ignored, requests } = useFriends()
-
-    let notification = ref(false)
 
     let { searchQuery, friendsByName } = getFriendsByName(friends, ignored)
     const { onlineFriends, offlineFriends } = getFriendsByStatus(
@@ -129,9 +114,8 @@ export default {
     let { showOffline, showOnline, showRequest, showIgnored, toggle_menu } =
       getFriendsWindowInteraction()
 
-    const open_chat = (userId: Number, userName: String) => {
-      emit('open_chat', userId, userName)
-    }
+    const { notification, chat_open, closeWindow, openChat } =
+      useWindowInteraction()
 
     watch(
       () => useChat().notifications.value.length,
@@ -157,14 +141,18 @@ export default {
       // Methods
       toggle_menu,
       loadData,
-      open_chat,
       // Computed
       onlineFriends,
       offlineFriends,
       friendsByName,
+
+      // New
+      chat_open,
+      closeWindow,
+      openChat,
     }
   },
-  emits: ['open_chat', 'close', 'open_create_invite'],
+  emits: ['open_create_invite'],
 }
 </script>
 

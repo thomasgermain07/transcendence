@@ -2,27 +2,22 @@
   <a
     class="open-btn"
     :class="{ 'open-btn--notif': notification }"
-    v-if="!open"
-    @click="toggle_window"
+    v-if="!window_open"
+    @click="openWindow"
   >
     <i class="fas fa-comments fa-2x"></i>
   </a>
 
-  <div v-if="open" class="window" :class="{ 'window--chat-open': chat_open }">
+  <div
+    v-if="window_open"
+    class="window"
+    :class="{ 'window--chat-open': chat_open }"
+  >
     <div class="window-friend">
-      <FriendWindow
-        @open_chat="open_chat"
-        @close="toggle_window"
-        :ChatStatus="chat_open"
-      />
+      <FriendWindow />
     </div>
     <div v-if="chat_open" class="window-chat">
-      <ChatWindow
-        @set_page_title="set_page_title"
-        @close="close_chat"
-        :DmID="dmID"
-        :PageTitle="page_title"
-      />
+      <ChatWindow />
     </div>
   </div>
 </template>
@@ -39,6 +34,7 @@ import { useSocket } from '@/composables/socket'
 import { useGameInvite } from '@/composables/Game/useGameInvite'
 import { useChat } from '@/composables/Chat/useChat'
 import { useFriends } from '@/composables/Friends/useFriends'
+import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/windowInteraction'
 
 export default {
   components: {
@@ -46,40 +42,10 @@ export default {
     ChatWindow,
   },
   setup() {
-    let open = ref(false)
-    let chat_open = ref(false)
-    let page_title = ref('')
-    let notification = ref(false)
-    let dmID = ref(0)
+    const { window_open, chat_open, notification, openWindow, closeWindow } =
+      useWindowInteraction()
 
     const { notifications } = useChat()
-
-    const toggle_window = () => {
-      if (open.value == false) {
-        if (notification.value) {
-          chat_open.value = true
-        }
-      } else {
-        notification.value = false
-      }
-      open.value = !open.value
-    }
-
-    const open_chat = (userID?: number, userName?: string) => {
-      if (userID && userName) {
-        dmID.value = userID
-        set_page_title(userName)
-      }
-      chat_open.value = true
-    }
-
-    const close_chat = () => {
-      chat_open.value = false
-    }
-
-    const set_page_title = (title: string) => {
-      page_title.value = title
-    }
 
     onMounted(async () => {
       await useChat().loadData()
@@ -107,15 +73,11 @@ export default {
     )
 
     return {
-      open,
+      window_open,
       chat_open,
-      page_title,
-      dmID,
       notification,
-      toggle_window,
-      open_chat,
-      close_chat,
-      set_page_title,
+      openWindow,
+      closeWindow,
     }
   },
 }

@@ -30,8 +30,8 @@ let invitationsList: Array<InvitationTab> = []
 // Composable
 // -----------------------------------------------------------------------------
 export function useGameInvite() {
-  const alreadySendInvite = () => {
-    createToast(withProps(Error, { Msg: 'You already sent an invitation' }), {
+  const inviteError = (msg: string) => {
+    createToast(withProps(Error, { Msg: msg }), {
       timeout: 5000,
       type: 'danger',
     })
@@ -107,7 +107,7 @@ export function useGameInvite() {
   }
 
   return {
-    alreadySendInvite,
+    inviteError,
     invitationExpired,
     createInviteNotification,
     closeInviteNotification,

@@ -3,7 +3,7 @@
     <TopBar
       class="top-bar"
       :Title="getPageTitle"
-      @close="$emit('close')"
+      @close="closeChat"
       @refresh="onRefreshData"
     />
     <div class="chat-content">
@@ -11,27 +11,27 @@
         <header class="window-title">
           <p>Rooms</p>
         </header>
-        <Rooms @open="open" :RoomId="open_id" />
+        <Rooms :RoomId="conv_id" />
       </div>
       <div class="chat-ctn">
         <Room
-          v-if="openned == 'room'"
-          :RoomId="open_id"
+          v-if="chat_view == 'room'"
+          :RoomId="conv_id"
           @leave="left_room"
-          @close="close"
+          @close="closeChatView"
         />
-        <Dm v-if="openned == 'dm'" :UserId="open_id" />
-        <CreateRoom v-if="openned == 'create'" @close="close" />
-        <JoinRoom v-if="openned == 'join'" @close="close" />
+        <Dm v-if="chat_view == 'dm'" :UserId="conv_id" />
+        <CreateRoom v-if="chat_view == 'create'" @close="closeChatView" />
+        <JoinRoom v-if="chat_view == 'join'" @close="closeChatView" />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { computed, onMounted, watch } from '@vue/runtime-core'
+import { computed } from '@vue/runtime-core'
 
-import getChatWindowInteraction from '@/composables/Chat/WindowInteraction/windowInteraction'
+import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/windowInteraction'
 
 import TopBar from './Utils/TopBar.vue'
 import Rooms from './Chat/Rooms/Rooms.vue'
@@ -51,33 +51,20 @@ export default {
     JoinRoom,
     Dm,
   },
-  props: {
-    PageTitle: String,
-    DmID: Number,
-  },
-  setup(props, { emit }) {
-    let { open_id, openned, open, close } = getChatWindowInteraction(
-      (title: String) => {
-        emit('set_page_title', title)
-      },
-    )
+  setup() {
+    let { conv_id, chat_view, page_title, closeChat, closeChatView } =
+      useWindowInteraction()
 
     const { loadData, reloadRooms } = useChat()
     const { reloadRoom } = useRoom()
 
     const getPageTitle = computed(() => {
-      return 'Chat - ' + props.PageTitle
+      return 'Chat - ' + page_title.value
     })
 
     const left_room = () => {
       reloadRooms()
-      close()
-    }
-
-    const openDm = (id: number) => {
-      if (id != 0) {
-        open('dm', { id: id })
-      }
+      closeChatView()
     }
 
     const onRefreshData = async () => {
@@ -85,21 +72,14 @@ export default {
       await reloadRoom()
     }
 
-    onMounted(() => openDm(props.DmID!))
-
-    watch(
-      () => props.DmID,
-      (new_id) => openDm(new_id!),
-    )
-
     return {
-      open_id,
-      openned,
+      conv_id,
+      chat_view,
       getPageTitle,
-      open,
+      closeChat,
+      closeChatView,
       loadData,
       onRefreshData,
-      close,
       left_room,
     }
   },

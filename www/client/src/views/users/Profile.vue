@@ -41,6 +41,9 @@
               >
                 remove friend
               </button>
+              <button v-if="!isCurrentUser" @click="openDm(user)">
+                Send Message
+              </button>
             </div>
           </div>
         </div>
@@ -98,6 +101,7 @@ import getUserInteraction from '@/composables/User/getUserInteraction'
 import EditProfileForm from '@/components/edit/EditProfileForm.vue'
 import GoogleAuthenticator from '@/components/auth/TwoAuth.vue'
 import { useFriends } from '@/composables/Friends/useFriends'
+import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/windowInteraction'
 
 export default {
   components: {
@@ -121,6 +125,8 @@ export default {
 
     const { reloadFriends, reloadRequests, hasPendingInvite, friends } =
       useFriends()
+
+    const { openDm } = useWindowInteraction()
 
     const isCurrentUser = computed(() => {
       return user.value!.id == useAuth().user.id
@@ -191,6 +197,7 @@ export default {
       isAlreadyFriend,
       onAddFriend,
       onDeleteFriend,
+      openDm,
     }
   },
 }
