@@ -50,10 +50,12 @@ export class SubscriptionsController
 		if (await this.chat_svc.isOwner(user, room))
 			throw new UnprocessableEntityException("You can not subscribe to your own room.")
 
-		if (!user.is_admin && !(await this.rooms_svc.verifyPassword(room, create_dto.password)))
+		// Todo:
+		if (/* !user.is_admin &&  */!(await this.rooms_svc.verifyPassword(room, create_dto.password)))
 			throw new UnprocessableEntityException('Wrong password provided.')
 
-		if (!user.is_admin && await this.chat_svc.hasPermission(user, room, PermissionType.BANNED))
+		// Todo:
+		if (/* !user.is_admin &&  */await this.chat_svc.hasPermission(user, room, PermissionType.BANNED))
 			throw new ForbiddenException('You are banned from this room.')
 
 		return (await this.subscriptions_svc.create(user, room)).room

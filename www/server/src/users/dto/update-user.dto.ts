@@ -11,9 +11,10 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @Min(1)
   ladderLevel?: number
 
-  @IsBoolean()
-  @IsOptional()
-  is_admin?: boolean[]
+  // Todo:
+  // @IsBoolean()
+  // @IsOptional()
+  // is_admin?: boolean[]
 
   // @IsOptional()
   // @IsString()

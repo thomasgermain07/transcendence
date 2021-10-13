@@ -87,10 +87,9 @@ export class ChatGateway
 
     client.join(room_name)
 
-    if (!user.is_admin)
-      this._server
-        .to(room_name)
-        .emit('info', { type: 'join', username: user.name })
+    // Todo:
+    // if (!user.is_admin)
+    this._server.to(room_name).emit('info', { type: 'join', username: user.name })
   }
 
   @SubscribeMessage('leave')
@@ -105,10 +104,9 @@ export class ChatGateway
 
     client.leave(room_name)
 
-    if (!user.is_admin)
-      this._server
-        .to(room_name)
-        .emit('info', { type: 'leave', username: user.name })
+    // Todo:
+    // if (!user.is_admin)
+    this._server.to(room_name).emit('info', { type: 'leave', username: user.name })
 
     console.log(`User ${user.id} left chat ${room_name}.`)
   }

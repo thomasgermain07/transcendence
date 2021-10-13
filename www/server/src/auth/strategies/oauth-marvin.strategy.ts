@@ -64,30 +64,33 @@ export class OAuthMarvinStrategy
 		if (user)
 			return user;
 
-		const name_already_taken: boolean = !!(await this.users_svc.findOne({ name: data.login }));
-
-		let username: string = data.login;
-		if (name_already_taken)
-		{
-			const users: User[] = await this.users_svc.findAllWithNameLike(data.login);
-
-			for (let i = 1; i < Number.MAX_SAFE_INTEGER; ++i)
-			{
-				username = `${data.login}_${i}`;
-
-				if (!users.some(u => u.name === username))
-					break;
-			}
-		}
-
 		const create_dto: CreateUserDto = {
 			email: data.email,
-			name: username,
+			name: await this.getUniqueName(data.login),
 			marvin_id: data.id,
 			avatar: data.image_url,
 		};
 
 		return this.auth_svc.register(create_dto);
+	}
+
+
+	// -------------------------------------------------------------------------
+	// Private methods
+	// -------------------------------------------------------------------------
+	private async getUniqueName(
+		login: string,
+	)
+		: Promise<string>
+	{
+		const found: User = await this.users_svc.findOne({ name: login });
+
+		if (!found)
+			return login;
+
+		const last: User = await this.users_svc.findLastWithNameLike(login);
+
+		return `${login}#${last?.id + 1}`;
 	}
 
 }
