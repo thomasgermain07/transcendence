@@ -21,7 +21,6 @@ export const storage = {
 	storage: diskStorage({
 		destination: './images',
 		filename: (req, file, cb) => {
-			console.log("------------STORAGE-----------")
 			const filename: string = path.parse(file.originalname).name.replace(/\s/g, '') + uuidv4();
 			const extension: string = path.parse(file.originalname).ext;
 
@@ -36,14 +35,11 @@ export const storage = {
 
 async function checkFileExtension(fullFilePath: string) : Promise<boolean> {
 	const fileExtensionAndMimeType = await FileType.fromFile(fullFilePath)
-	console.log(fileExtensionAndMimeType)
 	if (!fileExtensionAndMimeType) {
 		return false;
 	}
 	const isFileTypeLegit = validFileExtensions.includes(fileExtensionAndMimeType.ext)
 	const isMimeTypeLegit = validMimeTypes.includes(fileExtensionAndMimeType.mime)
-	console.log(isFileTypeLegit)
-	console.log(isMimeTypeLegit)
 	if (isFileTypeLegit && isMimeTypeLegit)
 		return true
 	return false

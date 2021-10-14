@@ -31,9 +31,7 @@ export class WsJwtStrategy extends PassportStrategy(Strategy, 'ws-jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: any) => {
-          console.log('IN WS AUTH STRAT')
           const cookies: any = tokenizeCookies(request.handshake.headers.cookie)
-          console.log('Auth cookie: ' + cookies.Authentication)
           return cookies.Authentication
         },
       ]),
