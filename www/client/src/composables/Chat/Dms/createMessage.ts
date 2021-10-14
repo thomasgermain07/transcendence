@@ -8,7 +8,7 @@ export default function getCreateMessage() {
         content: content,
       })
     } catch (e) {
-      console.log(e)
+      throw e
     }
   }
 
