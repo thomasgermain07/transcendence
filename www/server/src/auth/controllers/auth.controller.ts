@@ -59,9 +59,6 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('deactivate2Fa')
   async deactivate2Fa(@AuthUser() user: User): Promise<void> {
-    // const { otpauthUrl } = await this.twoFactorAuthenticationService.generateTwoFactorAuthenticationSecret(user)
-    // const qrcode =  await this.twoFactorAuthenticationService.pipeQrCodeStream(otpauthUrl)
-    // console.log(qrcode)
     await this.twoFactorAuthenticationService.turnOffTwoFactorAuthentication(user)
 
   }
@@ -70,8 +67,6 @@ export class AuthController {
   // @UseGuards(JwtTwoFactorGuard)
   @Post('edit')
   async edit(@AuthUser() user: User, @Body() edit_info: EditProfilePayload): Promise<User> {
-    console.log("----------POST EDIT---------")
-    console.log(user)
     return this.auth_svc.edit(user, edit_info)
   }
 
@@ -90,13 +85,11 @@ export class AuthController {
     this.auth_svc.refresh(user, refresh.token)
 
     if (user.isTwoFactorAuthenticationEnabled) {
-      console.log(user)
       return {
         user_id: user.id,
         two_factor_enabled: true,
       }
     }
-    console.log(user)
     request.res.setHeader('Set-Cookie', [auth.cookie, refresh.cookie])
     return {
       two_factor_enabled: false,
@@ -108,15 +101,11 @@ export class AuthController {
     @Body() twoFactorAuthenticationCode: GoogleAuthPayload,
     @Req() request: Request,
   ): Promise<LoginResponseType> {
-    console.log(twoFactorAuthenticationCode.user_id)
     const user: User = await this.usersService.findOne({id: twoFactorAuthenticationCode.user_id})
     if ( !user ) {
       throw new NotFoundException("User Not found");
     }
-    console.log("---------CODE VALID-------")
-    console.log(twoFactorAuthenticationCode)
     const isCodeValid = this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(twoFactorAuthenticationCode, user)
-    console.log(isCodeValid)
     if (!isCodeValid) {
         throw new UnauthorizedException("Wrong authentication code");
     }

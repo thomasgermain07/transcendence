@@ -23,6 +23,9 @@ export class Player {
   @Column({ default: false })
   isReady: boolean;
 
+  @Column({ default: false })
+  isPause: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 

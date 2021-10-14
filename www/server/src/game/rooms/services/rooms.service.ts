@@ -198,6 +198,18 @@ export class RoomsService {
     return false;
   }
 
+  public async findAllMatchPlayingByUser(user: User) : Promise<Room[]> {
+
+    const rooms = await this.roomsRepository.createQueryBuilder("room")
+      .leftJoinAndSelect("room.players", "players")
+      .leftJoinAndSelect("players.user", "users")
+      .where("room.state = :playing OR room.state = :pause", { playing: GameState.PLAYING, pause: GameState.PAUSE})
+      .andWhere("players.user.id = :userId", {userId: user.id})
+      .getMany() // TODO: replace by getCount
+
+    return rooms;
+  }
+
 
   public async update(id: number, roomDto: UpdateRoomDto): Promise<Room> {
     const room = await this.roomsRepository.save({
@@ -207,8 +219,8 @@ export class RoomsService {
     return this.findOne(room.id)
   }
 
-  public async remove(id: string): Promise<void> {
-    await this.roomsRepository.delete(id);
+  public async remove(room: Room): Promise<void> {
+    await this.roomsRepository.delete(room.id);
   }
 
   public async clearAll(): Promise<void> {
@@ -220,6 +232,19 @@ export class RoomsService {
   public async checkIfMatchFound(id: number): Promise<boolean> {
     const room = await this.roomsRepository.findOne(id)
     if (room && room.players.length == 2) {
+      return true
+    }
+    return false
+  }
+
+  public async checkIfFromRoom(user: User, room: Room): Promise<boolean> {
+    const result = await this.roomsRepository.createQueryBuilder("room")
+      .leftJoinAndSelect("room.players", "players")
+      .leftJoinAndSelect("players.user", "users")
+      .where("room.id = :id", { id: room.id })
+      .andWhere("players.user.id = :userId", {userId: user.id})
+      .getOne()
+    if (result) {
       return true
     }
     return false

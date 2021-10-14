@@ -5,25 +5,27 @@ import { Room }   from './entities/room.entity';
 import { Option } from './entities/option.entity';
 import { Player } from '../players/entities/player.entity';
 
-import { RoomsService }    from './services/rooms.service';
-import { PurgeService }    from './services/purge.service';
-import { PlayersService }  from '../players/services/players.service';
-import { RoomsController } from './controllers/rooms.controller';
-import { RoomsSubscriber } from './subscribers/rooms.subscribers';
-import { UsersModule } from 'src/users/users.module';
+import { RoomsService }     from './services/rooms.service';
+import { PurgeService }     from './services/purge.service';
+import { PlayersService }   from '../players/services/players.service';
+import { RoomsController }  from './controllers/rooms.controller';
+import { RoomsSubscriber }  from './subscribers/rooms.subscribers';
+import { UsersService } from 'src/users/services/users.service';
+import { User } from 'src/users/entities/user.entity';
+import { Achievement } from 'src/users/entities/achievement.entity';
 
 
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Room, Option, Player]),
-    UsersModule,
+    TypeOrmModule.forFeature([User, Achievement, Room, Option, Player]),
   ],
   providers: [
     RoomsService,
     PurgeService,
     RoomsSubscriber,
     PlayersService,
+    UsersService,
   ],
   controllers: [RoomsController],
   exports: [RoomsService]

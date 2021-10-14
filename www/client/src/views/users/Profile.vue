@@ -16,14 +16,14 @@
             <p class="info__name">{{ user.name }}</p>
             <p class="ladder__level">Ladder Level : {{ user.ladderLevel }}</p>
 
-            <!-- TODO: add edit profile button  -->
-            <div class="update-avatar">
-              <input
-                v-if="isCurrentUser"
-                type="file"
-                @change="onFileSelected"
+            <button v-if="isCurrentUser && !userEdit" @click="openEdit">
+              Edit Profile
+            </button>
+            <div v-if="isCurrentUser && userEdit" class="user-edit">
+              <edit-profile-window
+                v-on:closeWindow="closeEdit"
+                v-on:update-user="updateUser"
               />
-              <button v-if="isCurrentUser" @click="onUpload">Upload</button>
             </div>
 
             <div class="user-interaction">
@@ -61,24 +61,12 @@
           <hr />
           <GameStats :user="user" />
         </div>
-        <!-- TODO: Achievements  -->
         <div class="user-achievements">
           <h1 class="info-header">ACHIEVEMENTS ></h1>
           <hr />
           <Achievements :user="user" />
         </div>
       </section>
-
-      <hr class="separator" />
-
-      <div class="edit-profile" v-if="isCurrentUser">
-        <edit-profile-form :user="user" />
-      </div>
-
-      <hr class="separator" />
-      <div class="google-authenticator" v-if="isCurrentUser">
-        <google-authenticator />
-      </div>
     </div>
   </div>
 </template>
@@ -87,19 +75,15 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, onBeforeRouteUpdate } from 'vue-router'
 import { useAuth } from '@/composables/auth'
-
-import ErrorPage from '@/components/ErrorPage.vue'
-
+import { useUsers } from '@/composables/users'
 import getFetchUser from '@/composables/User/fetchUser'
 import requestStatus from '@/composables/requestStatus'
-import { useUsers } from '../../composables/users'
-import GameStats from '../../components/game/GameStats.vue'
-import MatchHistory from '../../components/game/MatchHistory.vue'
-import Achievements from '../../components/game/Achievements.vue'
-import { useAxios } from '../../composables/axios'
+import ErrorPage from '@/components/ErrorPage.vue'
+import GameStats from '@/components/game/GameStats.vue'
+import MatchHistory from '@/components/game/MatchHistory.vue'
+import Achievements from '@/components/game/Achievements.vue'
+import EditProfileWindow from '@/components/edit/EditProfileWindow.vue'
 import getUserInteraction from '@/composables/User/getUserInteraction'
-import EditProfileForm from '@/components/edit/EditProfileForm.vue'
-import GoogleAuthenticator from '@/components/auth/TwoAuth.vue'
 import { useFriends } from '@/composables/Friends/useFriends'
 import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/windowInteraction'
 
@@ -108,21 +92,27 @@ export default {
     ErrorPage,
     GameStats,
     MatchHistory,
-    EditProfileForm,
-    GoogleAuthenticator,
     Achievements,
+    EditProfileWindow,
   },
   setup() {
     let status = ref(requestStatus.loading)
 
     const route = useRoute()
+    const { edit } = useAuth()
     const { users, get } = useUsers()
-    const { axios } = useAxios()
+    const userEdit = ref(false)
+
+    const openEdit = () => {
+      userEdit.value = true
+    }
+
+    const closeEdit = () => {
+      userEdit.value = false
+    }
 
     const { user, fetchUser } = getFetchUser(status)
     const { addFriend, removeFriend } = getUserInteraction()
-    let imageFile = ref('')
-
     const { reloadFriends, reloadRequests, hasPendingInvite, friends } =
       useFriends()
 
@@ -132,27 +122,18 @@ export default {
       return user.value!.id == useAuth().user.id
     })
 
+    const updateUser = () => {
+      fetchUserFromRoute()
+      edit()
+    }
+
     const fetchUserFromRoute = async () => {
       await get()
+      useAuth().refresh()
       if (!route.params.id) {
         fetchUser(users?.value?.id)
       } else {
         fetchUser(route.params.id)
-      }
-    }
-
-    const onFileSelected = (event: any) => {
-      imageFile.value = event.target.files[0]
-    }
-    const onUpload = async () => {
-      let data = new FormData()
-      data.append('file', imageFile.value)
-      const res = await axios.post('users/upload', data).catch((err: any) => {
-        alert(`${err.response?.data.message}`)
-      })
-      if (res) {
-        user.value = res.data
-        console.log(user.value)
       }
     }
 
@@ -192,8 +173,10 @@ export default {
       addFriend,
       removeFriend,
       isCurrentUser,
-      onFileSelected,
-      onUpload,
+      userEdit,
+      openEdit,
+      closeEdit,
+      updateUser,
       isAlreadyFriend,
       onAddFriend,
       onDeleteFriend,
@@ -218,7 +201,6 @@ export default {
 }
 
 @media only screen and (max-width: 768px) {
-  /* @media only screen and (max-width: 600px) { */
   .user-info {
     flex-direction: column;
     text-align: center;
@@ -236,20 +218,17 @@ export default {
 }
 
 .profile-ctn {
+  margin-top: 2em;
   display: flex;
   flex-direction: column;
 }
 
 .user-ctn {
-  /* border: solid 1px red; */
   display: flex;
   flex-direction: row;
   justify-content: center;
-  /* flex: 1; */
 }
 .user-ctn__pp {
-  /* border: solid 1px green; */
-  /* flex: 1; */
   margin: auto 0;
 }
 
@@ -283,31 +262,18 @@ export default {
   justify-content: space-evenly;
 }
 
-.separator {
-  width: 50%;
-  border-top: 2px solid lightgray;
-  margin-top: 80px;
-}
-
 .info-header {
-  /* font-size: 26px; */
   font-size: 16px;
   font-weight: 800;
   padding: 20px;
   text-align: left;
-  /* color: var(--secondary-color);
-  background-color: #173f5f; */
 }
 
 .user-stats,
 .user-achievements {
   flex: 1;
-  /* border: solid 1px black; */
   margin: 0 30px 20px 30px;
   padding: 20px 50px;
-  /* color: var(--secondary-color); */
-  /* background-color: var(--tertiary-color); */
-  /* background-color: #173f5f; */
   color: var(--tertiary-color);
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.4);
   border-radius: 4px;
@@ -316,21 +282,29 @@ export default {
 }
 
 .user-match-history {
-  /* flex: 4; */
   margin: 0 30px 20px 30px;
   padding: 20px 50px;
   color: var(--secondary-color);
-  /* background-color: var(--tertiary-color); */
   background-color: #060b1f;
-  /* box-shadow: 0 0 50px rgba(0, 0, 0, 0.4); */
   border-radius: 4px;
-  /* height: 60vh;
-  overflow: scroll; */
 }
 
-hr {
-  border-top: 0.5px solid white;
-  margin: 20px;
-  margin-top: 0;
+.user-edit {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 80vw;
+  height: 80vh;
+  max-width: 800px;
+  max-height: 100%;
+  padding: 20px 50px 20px 20px;
+  transform: translate(-50%, -50%);
+  overflow: scroll;
+  background-color: rgb(231, 234, 238);
+  color: black;
+  line-height: 130%;
+  box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.9);
+  border-radius: 2px;
+  z-index: 100;
 }
 </style>

@@ -4,19 +4,23 @@ import { Player } from '../../types/game/player'
 import { GameState } from '../../types/game/gameRoom'
 
 import { useAxios } from '../axios'
-import { useAuth } from '../auth'
+import { useRouter } from 'vue-router'
+import { useUsers } from '@/composables/users'
+import { createToast } from 'mosha-vue-toastify'
 
 const useGameRoom = () => {
   const { axios } = useAxios()
+  const router = useRouter()
 
-  const { user } = useAuth()
-  const currentUser = user
+  const { users, get } = useUsers()
+  const currentUser = users
 
   const state = reactive({
     isLoading: false,
     error: null,
     currentPlayer: null,
     isActive: false,
+    isPause: false,
   })
 
   const room = ref({})
@@ -30,14 +34,16 @@ const useGameRoom = () => {
         state.isLoading = false
       })
     if (response) {
+      // refresh current user data
+      await get()
+
       // transfer data into room
       room.value = response.data
 
       // find if current user is a player of the room
       state.currentPlayer = response.data.players.find(
-        (player: Player) => player.user.id === currentUser.id, // CHECK: currentUser.value.id?
+        (player: Player) => player.user.id === currentUser.value.id,
       )
-
       // protect room access according to state
       if (
         (!state.currentPlayer && response.data.state === GameState.WAITING) ||
@@ -51,15 +57,53 @@ const useGameRoom = () => {
       if (state.currentPlayer && state.currentPlayer.isReady === true) {
         state.isActive = true
       }
+      if (state.currentPlayer && state.currentPlayer.isPause === true) {
+        state.isPause = true
+      }
 
       state.isLoading = false
     }
+  }
+
+  const redirectToGameView = () => {
+    room.value.mode === 'duel'
+      ? router.push('/game/duel')
+      : router.push('/game/ladder')
+  }
+
+  const toastOppLeaving = () => {
+    createToast(
+      {
+        title: 'Your opponent left the game room',
+        description: 'We are putting you back in the queue',
+      },
+      {
+        timeout: 3000,
+        type: 'info',
+      },
+    )
+  }
+
+  const toastGameCanceled = () => {
+    createToast(
+      {
+        title: 'Game canceled',
+        description: 'You have been redirected to the game view',
+      },
+      {
+        timeout: 3000,
+        type: 'info',
+      },
+    )
   }
 
   return {
     state,
     room,
     loadRoom,
+    toastOppLeaving,
+    toastGameCanceled,
+    redirectToGameView,
   }
 }
 

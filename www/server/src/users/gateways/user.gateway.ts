@@ -33,121 +33,136 @@ type SetStatusType = {
 export class UserGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  // -------------------------------------------------------------------------
-  // Attributes
-  // -------------------------------------------------------------------------
-  @WebSocketServer()
-  private _server: Server
+	// -------------------------------------------------------------------------
+	// Attributes
+	// -------------------------------------------------------------------------
+	@WebSocketServer()
+	private _server: Server
 
-  // -------------------------------------------------------------------------
-  // Interfaces implementations
-  // -------------------------------------------------------------------------
-  constructor(
-    private readonly users_svc: UsersService,
-    private readonly friendships_svc: FriendshipsService,
-  ) {}
+	// -------------------------------------------------------------------------
+	// Interfaces implementations
+	// -------------------------------------------------------------------------
+	constructor(
+		private readonly users_svc: UsersService,
+		private readonly friendships_svc: FriendshipsService,
+	) {}
 
-  // -------------------------------------------------------------------------
-  // Interfaces implementations
-  // -------------------------------------------------------------------------
-  afterInit(server: Server): void {
-    console.log(`User:Gateway: Initialized.`)
-  }
+	// -------------------------------------------------------------------------
+	// Interfaces implementations
+	// -------------------------------------------------------------------------
+	afterInit(server: Server): void {
+		console.log(`User:Gateway: Initialized.`)
+	}
 
-  handleConnection(client: Socket, ...args: any[]): void {
-    console.log('User:Gateway:Connection')
-  }
+	handleConnection(client: Socket, ...args: any[]): void {
+		console.log("User:Gateway:Connection");
+		if (!client.handshake?.headers?.cookie) {
+			client.disconnect()
+		}
+	}
 
-  handleDisconnect(client: Socket): void {
-    const user: User = client['user']
+	handleDisconnect(client: Socket): void {
+		const user: User = client['user'];
+		const room_name: string = this.getRoomName(user?.id);
 
-    if (user) {
-      const room_name: string = this.getRoomName(user.id)
-      client.leave(room_name)
+		if (user)
+		{
+			client.leave(room_name);
 
-      this.handleSetStatus(user, { status: 'disconnected' })
-    }
+			this.handleSetStatus(user, { status: "disconnected" })
+		}
 
-    console.log('User:Gateway:Disconnect')
-  }
+		console.log("User:Gateway:Disconnect");
+	}
 
-  // -------------------------------------------------------------------------
-  // Public Methods
-  // -------------------------------------------------------------------------
-  @SubscribeMessage('join')
-  async handleJoin(
-    @ConnectedSocket() client: Socket,
-    @AuthUser() user: User,
-    @MessageBody() data: JoinLeaveType,
-  ): Promise<void> {
-    console.log(`User:Gateway: Join`)
+	// -------------------------------------------------------------------------
+	// Public Methods
+	// -------------------------------------------------------------------------
+	@SubscribeMessage('join')
+	async handleJoin(
+		@ConnectedSocket() client: Socket,
+		@AuthUser() user: User,
+		@MessageBody() data: JoinLeaveType,
+	)
+		: Promise<void>
+	{
+		console.log(`User:Gateway: Join`);
 
-    const target: User = await this.users_svc.findOne({ id: data.target_id })
+		const target: User = await this.users_svc.findOne({ id: data.target_id });
 
-    if (!target) {
-      console.log(`User:Gateway:Join: Error target not found.`)
-      throw new WsException('Target not found.')
-    }
+		if (!target)
+		{
+			console.log(`User:Gateway:Join: Error target not found.`);
+			throw new WsException("Target not found.");
+		}
 
-    const is_friend: boolean = (
-      await this.friendships_svc.findAllOrWithAccepted(user, true)
-    ).some(
-      (friendship) =>
-        friendship.user.id === target.id || friendship.target.id === target.id,
-    )
-    if (user.id != target.id && !is_friend) {
-      console.log(`User:Gateway:Join: Error target is not a friend.`)
-      throw new WsException('You cannot listen to this user.')
-    }
+		const is_friend: boolean = (await this.friendships_svc.findAllOrWithAccepted(user, true))
+			.some((friendship) => (friendship.user.id === target.id || friendship.target.id === target.id))
+		;
 
-    const room_name: string = this.getRoomName(target.id)
+		if (user.id != target.id && !is_friend)
+		{
+			console.log(`User:Gateway:Join: Error target is not a friend.`);
+			throw new WsException("You cannot listen to this user.");
+		}
 
-    client.join(room_name)
+		const room_name: string = this.getRoomName(target.id);
 
-    if (user.id === target.id)
-      this.handleSetStatus(user, { status: 'connected' })
+		client.join(room_name);
 
-    console.log(`User ${user.id} joined ${room_name}.`)
-  }
+		if (user.id === target.id)
+			this.handleSetStatus(user, { status: "connected" });
 
-  @SubscribeMessage('leave')
-  async handleLeave(
-    @ConnectedSocket() client: Socket,
-    @AuthUser() user: User,
-    @MessageBody() data: JoinLeaveType,
-  ): Promise<void> {
-    console.log(`User:Gateway: Leave`)
+		console.log(`User ${user.id} joined ${room_name}.`);
+	}
 
-    const room_name: string = this.getRoomName(data.target_id)
+	@SubscribeMessage('leave')
+	async handleLeave(
+		@ConnectedSocket() client: Socket,
+		@AuthUser() user: User,
+		@MessageBody() data: JoinLeaveType,
+	)
+		: Promise<void>
+	{
+		console.log(`User:Gateway: Leave`);
 
-    client.leave(room_name)
+		const room_name: string = this.getRoomName(data.target_id);
 
-    console.log(`User ${user.id} left ${room_name}.`)
-  }
+		client.leave(room_name);
+		this.handleSetStatus(user, { status: "disconnected" });
+		console.log(`User ${user.id} left ${room_name}.`);
+	}
 
-  @SubscribeMessage('set_status')
-  async handleSetStatus(
-    @AuthUser() user: User,
-    @MessageBody() data: SetStatusType,
-  ): Promise<void> {
-    console.log(`User:Gateway: Set status`)
+	@SubscribeMessage('set_status')
+	async handleSetStatus(
+		@AuthUser() user: User,
+		@MessageBody() data: SetStatusType,
+	)
+		: Promise<void>
+	{
+		console.log(`User:Gateway: Set status`);
 
-    const room_name: string = this.getRoomName(user.id)
+		const room_name: string = this.getRoomName(user.id);
 
-    this._server.to(room_name).emit('set_status', {
-      user_id: user.id,
-      status: data.status,
-    })
+		this._server.to(room_name).emit('set_status', {
+			user_id: user.id,
+			status: data.status
+		});
 
-    await this.users_svc.updateStatus(user, data.status)
+		await this.users_svc.updateStatus(user, data.status);
 
-    console.log(`User ${user.id} set status to ${data.status}.`)
-  }
+		console.log(`User ${user.id} set status to ${data.status}.`);
+	}
 
-  // -------------------------------------------------------------------------
-  // Private Methods
-  // -------------------------------------------------------------------------
-  private getRoomName(target_id: number): string {
-    return `user_${target_id}`
-  }
+
+	// -------------------------------------------------------------------------
+	// Private Methods
+	// -------------------------------------------------------------------------
+	private getRoomName(
+		target_id: number,
+	)
+		: string
+	{
+		return `user_${target_id}`
+	}
 }

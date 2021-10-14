@@ -3,7 +3,7 @@ import { User } from '../../users/entities/user.entity';
 import { Player } from '../players/entities/player.entity';
 
 export type SocketRoomInfo = {
-	playerId: number, // replace number by update player dto?
+	playerId: number,
 	room: string,
 	roomId: number,
 }
@@ -18,6 +18,13 @@ export type Move = {
 	room: string;
 	move: string;
 	user_id: number;
+}
+
+export type Pause = {
+	room: string;
+	move: string;
+	user_id: number;
+	roomId: number
 }
 
 export type InGameType = {

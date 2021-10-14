@@ -15,12 +15,22 @@
           <div class="match_info">
             <div class="team_name">
               <div class="team1">
-                <img class="avatar" :src="match.room.players[0].user.avatar" alt="logo" srcset="">
+                <img
+                  class="avatar"
+                  :src="match.room.players[0].user.avatar"
+                  alt="logo"
+                  srcset=""
+                />
                 <h3>{{ match.room.players[0].user.name.slice(0, 5) }}</h3>
                 <h3 class="score">{{ match.room.players[0].score }}</h3>
               </div>
               <div class="team2">
-                <img class="avatar" :src="match.room.players[1].user.avatar" alt="logo" srcset="">
+                <img
+                  class="avatar"
+                  :src="match.room.players[1].user.avatar"
+                  alt="logo"
+                  srcset=""
+                />
                 <h3>{{ match.room.players[1].user.name.slice(0, 5) }}</h3>
                 <h3 class="score">{{ match.room.players[1].score }}</h3>
               </div>
@@ -37,13 +47,15 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue'
-import { useAxios } from '../../composables/axios'
+import { Data } from 'vue'
+import { AxiosErrType, useAxios } from '../../composables/axios'
+import { Player } from '../../types/game/player'
 
 export default defineComponent({
   name: 'MatchHistory',
   props: ['user'],
 
-  setup(props) {
+  setup(props: Data) {
     const { axios } = useAxios()
     const loading = ref(true)
     const user = ref(props.user)
@@ -53,20 +65,21 @@ export default defineComponent({
       loading.value = true
       const response = await axios
         .get(`game/players/history/${user.value.id}`)
-        .catch((err) => {
+        .catch((err: AxiosErrType) => {
           console.log(err)
         })
 
       if (response) {
-        console.log('Fetching match history from user: ' + user.value.id)
         loading.value = false
         matchHistory.value = response.data
       }
     }
 
-    const userIsWinner = (players): boolean => {
-      const player = players.find(player => player.user.name === user.value.name)
-      return player.winner;
+    const userIsWinner = (players: Player[]): boolean => {
+      const player = players.find(
+        (player) => player.user.name === user.value.name,
+      )
+      return player?.winner
     }
 
     fetchUserMatchHistory()
@@ -78,7 +91,7 @@ export default defineComponent({
         fetchUserMatchHistory()
       },
     )
-    
+
     return {
       loading,
       user,
@@ -90,8 +103,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-
-
 * {
   padding: 0;
   margin: 0;
@@ -119,7 +130,8 @@ export default defineComponent({
   padding: 5px 10px;
 }
 
-.card_title, .mode {
+.card_title,
+.mode {
   text-align: right;
   padding: 5px 10px;
 }
@@ -152,5 +164,4 @@ export default defineComponent({
 .defeat {
   color: green;
 }
-
 </style>

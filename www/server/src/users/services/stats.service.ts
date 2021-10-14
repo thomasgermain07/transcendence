@@ -33,7 +33,7 @@ export class StatsService
 
 		const leaderboard = await this.usersRepository
 			.createQueryBuilder('user')
-			.select(['user.name', 'user.ladderLevel', 'user.avatar'])
+			.select(['user.id', 'user.name', 'user.ladderLevel', 'user.avatar'])
 			.addSelect('ROW_NUMBER () OVER (ORDER BY "ladderLevel" DESC) as "rank"')
 			.offset(offset)
 			.limit(limit)

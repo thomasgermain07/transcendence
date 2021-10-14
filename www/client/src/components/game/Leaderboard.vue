@@ -3,7 +3,6 @@
     <h1>LEADERBOARD</h1>
     <div v-if="loading">LOADING...</div>
     <div v-else>
-      <!-- {{ leaderboard }} -->
       <table>
         <thead>
           <tr>
@@ -14,11 +13,15 @@
           </tr>
         </thead>
         <tbody>
-          <!-- <tr v-for="user in test" v-bind:key="user.rank"> -->
-          <tr v-for="user in leaderboard" v-bind:key="user.rank">
+          <tr
+            class="user"
+            v-for="user in leaderboard"
+            v-bind:key="user.rank"
+            @click="goToProfile(user.user_id)"
+          >
             <td data-title="Rank">{{ user.rank }}</td>
             <td data-title="Avatar">
-              <img :src="user.user_avatar" alt="avatar" class="avatar-logo"/>
+              <img :src="user.user_avatar" alt="avatar" class="avatar-logo" />
             </td>
             <td data-title="Username">{{ user.user_name }}</td>
             <td data-title="Ladder Level">{{ user.user_ladderLevel }}</td>
@@ -36,12 +39,14 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import { useAxios } from '../../composables/axios'
+import { useRouter } from 'vue-router'
 
 export default defineComponent({
   name: 'Leaderboard',
 
   setup() {
     const { axios } = useAxios()
+    const router = useRouter()
     const loading = ref(true)
     const leaderboard = ref([])
     const offset = ref(0)
@@ -58,7 +63,9 @@ export default defineComponent({
         })
 
       if (response) {
-        console.log(`Fetching leaderboard, offset: ${offset.value}, limit: ${limit}`)
+        console.log(
+          `Fetching leaderboard, offset: ${offset.value}, limit: ${limit}`,
+        )
         loading.value = false
         leaderboard.value = response.data
       }
@@ -78,20 +85,9 @@ export default defineComponent({
 
     fetchLeaderboard()
 
-
-    // const test = [ 
-    //   { "user_name": "kelly", "user_avatar": "https://image.flaticon.com/icons/png/512/5570/5570639.png", "user_ladderLevel": 500, "rank": 1 }, 
-    //   { "user_name": "karl", "user_avatar": "http://localhost:8080/api/users/images/map-2df138c8f-388b-455c-bcb8-c62d859d0d25.png", "user_ladderLevel": 340, "rank": 2 },
-    //   { "user_name": "carlos", "user_avatar": "https://image.flaticon.com/icons/png/512/5569/5569251.png", "user_ladderLevel": 150, "rank": 3 }, 
-    //   { "user_name": "tim", "user_avatar": "https://image.flaticon.com/icons/png/512/5570/5570639.png", "user_ladderLevel": 140, "rank": 4 }, 
-    //   { "user_name": "helo", "user_avatar": "https://image.flaticon.com/icons/png/512/5570/5570639.png", "user_ladderLevel": 60, "rank": 5 }, 
-    //   { "user_name": "bob", "user_avatar": "https://image.flaticon.com/icons/png/512/5570/5570639.png", "user_ladderLevel": 55, "rank": 6 }, 
-    //   { "user_name": "tartuffe", "user_avatar": "https://image.flaticon.com/icons/png/512/5570/5570639.png", "user_ladderLevel": 50, "rank": 7 }, 
-    //   { "user_name": "ewngown", "user_avatar": "https://image.flaticon.com/icons/png/512/5570/5570639.png", "user_ladderLevel": 40, "rank": 8 }, 
-    //   { "user_name": "lalala", "user_avatar": "https://image.flaticon.com/icons/png/512/5570/5570639.png", "user_ladderLevel": 30, "rank": 9 }, 
-    //   { "user_name": "deref", "user_avatar": "https://image.flaticon.com/icons/png/512/5570/5570639.png", "user_ladderLevel": 20, "rank": 10 }, 
-    //   { "user_name": "theo", "user_avatar": "https://image.flaticon.com/icons/png/512/5569/5569251.png", "user_ladderLevel": 10, "rank": 11 }, 
-    // ]
+    const goToProfile = (id: number) => {
+      router.push(`/users/${id}/profile`)
+    }
 
     return {
       loading,
@@ -100,19 +96,18 @@ export default defineComponent({
       next,
       offset,
       limit,
-      // test
+      goToProfile,
     }
   },
 })
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap");
-
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap');
 
 * {
   box-sizing: border-box;
-  font-family: "Inconsolata", monospace;
+  font-family: 'Inconsolata', monospace;
 }
 
 body {
@@ -142,7 +137,7 @@ table tr {
 }
 
 table tbody tr:nth-of-type(odd) {
-	background-color: rgba(105, 105, 105, 0.205);
+  background-color: rgba(105, 105, 105, 0.205);
 }
 
 table th,
@@ -184,7 +179,7 @@ table td {
     left: 0;
   }
   table tbody tr:nth-of-type(odd) {
-	  background-color: white;
+    background-color: white;
   }
 }
 
@@ -200,4 +195,7 @@ table td {
   font-weight: 800;
 }
 
+.user {
+  cursor: pointer;
+}
 </style>

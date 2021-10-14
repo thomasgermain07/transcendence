@@ -42,10 +42,27 @@ export class UsersController {
     return this.users_svc.findAll()
   }
 
+  @Get('users')
+  async getUsers(@Query() { offset, limit, search })
+    : Promise<User[]>
+  {
+    if (search) {
+      return await this.users_svc.getUsersSearch(search,offset, limit).catch(err => {
+        throw new BadRequestException(err.message)
+      })
+    }
+    else {
+      return await this.users_svc.getUsers(offset, limit).catch(err => {
+        throw new BadRequestException(err.message)
+      })
+    }
+  }
+
   @Get('me')
   async me(@AuthUser() user: User): Promise<User> {
     return user
   }
+
 
   // ex: http://localhost:8080/api/users/leaderboard?offset=0&limit=20
   @Get('leaderboard')
@@ -59,7 +76,6 @@ export class UsersController {
 
   @Get('/images/:avatar')
   async findAvatarImage(@Param('avatar') avatar, @Res() res): Promise<Object> {
-    console.log("----------_GET IMAGE--------------")
     return res.sendFile(join(process.cwd(), '/images/' + avatar))
   }
 
@@ -109,16 +125,13 @@ export class UsersController {
   @UseInterceptors(FileInterceptor('file', storage ))
   async uploadFile(@AuthUser() user: User,
   @UploadedFile() file): Promise<User> {
-    console.log("-------_UPLOAD FILE---------")
 
     const fileName = file?.filename;
 
     if (!fileName) {
-      console.log("!!!!FileNam " + file)
       throw new ForbiddenException('File must be png, jpg/jpeg')
     }
 
-    console.log(file)
     const imagesFolderPath = join(process.cwd(), 'images')
     const fullImagePath = join(imagesFolderPath + '/' + file.filename)
     if (await isFileExtensionSafe(fullImagePath)) {
