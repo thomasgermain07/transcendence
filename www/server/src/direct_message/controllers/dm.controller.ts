@@ -1,12 +1,5 @@
-import {
-  Controller,
-  UseGuards,
-  Post,
-  Body,
-  BadRequestException,
-  NotFoundException,
-} from '@nestjs/common'
-import { Get } from '@nestjs/common'
+import { Controller, UseGuards, Post, Body, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Get }                    from '@nestjs/common';
 
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
 import { AuthUser } from 'src/auth/decorators/auth-user.decorator'
@@ -22,102 +15,118 @@ import { InvitationDto } from '../dto/invitation.dto'
 
 @UseGuards(JwtAuthGuard)
 @Controller('dm')
-export class DMController {
-  // -------------------------------------------------------------------------
-  // Constructor
-  // -------------------------------------------------------------------------
-  constructor(
-    private readonly dm_svc: DMService,
-    private readonly dm_gtw: DMGateway,
-    private readonly users_svc: UsersService,
-    private readonly game_rooms_svc: RoomsService,
-    private readonly players_svc: PlayersService,
-  ) {}
+export class DMController
+{
+	// -------------------------------------------------------------------------
+	// Constructor
+	// -------------------------------------------------------------------------
+	constructor(
+		private readonly dm_svc: DMService,
+		private readonly dm_gtw: DMGateway,
+		private readonly users_svc: UsersService,
+		private readonly game_rooms_svc: RoomsService,
+		private readonly players_svc: PlayersService,
+	)
+	{
 
-  // -------------------------------------------------------------------------
-  // Public methods
-  // -------------------------------------------------------------------------
-  @Get('users')
-  async findRelatedUsers(@AuthUser() user: User): Promise<User[]> {
-    return this.dm_svc.findRelatedUsers(user)
-  }
+	}
 
-  @Post('send-invitation')
-  async sendGameInvite(
-    @Body() invitation: InvitationDto,
-  ): Promise<InvitationDto> {
-    // Change game_invitation_pending of the host user to true
-    try {
-      await this.users_svc.updateGameInvitation(invitation.host, true)
-    } catch (error) {
-      throw new BadRequestException('Bad request')
-    }
+	// -------------------------------------------------------------------------
+	// Public methods
+	// -------------------------------------------------------------------------
+	@Get('users')
+	async findRelatedUsers(
+		@AuthUser() user: User,
+	)
+		: Promise<User[]>
+	{
+		return this.dm_svc.findRelatedUsers(user);
+	}
 
-    // Send invite notification to guest
-    this.dm_gtw.sendGameInvitation(invitation)
+	@Post('send-invitation')
+	async sendGameInvite(
+	  @Body() invitation: InvitationDto
+	)
+	: Promise<InvitationDto>
+	{
+	  // Change game_invitation_pending of the host user to true
+	  try {
+		  await this.users_svc.updateGameInvitation(invitation.host, true)
+	  } catch (error) {
+		  throw new BadRequestException('Bad request')
+	  }
 
-    return invitation
-  }
+	  // Send invite notification to guest
+	  this.dm_gtw.sendGameInvitation(invitation)
 
-  @Post('refuse-invitation')
-  async refuseGameInvite(@Body() invitation: InvitationDto): Promise<void> {
-    // Check if invitation has expired
-    if (
-      (await this.users_svc.findOne(invitation.host.id))
-        .game_invitation_pending === false
-    ) {
-      throw new NotFoundException('Invitation expired')
-    }
+	  return invitation
+	}
 
-    // Send answer notification to host
-    this.dm_gtw.answerGameInvitation({
-      reply: 'Game Invitation Refused',
-      ...invitation,
-    })
+	@Post('refuse-invitation')
+	async refuseGameInvite(
+	  @Body() invitation: InvitationDto
+	)
+	: Promise<void>
+	{
+		// Check if invitation has expired
+		if ((await this.users_svc.findOne(invitation.host.id)).game_invitation_pending === false) {
+			throw new NotFoundException("Invitation expired")
+		}
 
-    // Switch game_invitation_pending of the host user back to false
-    await this.users_svc.updateGameInvitation(invitation.host, false)
-  }
+		// Send answer notification to host
+		this.dm_gtw.answerGameInvitation({
+			reply: 'Game Invitation Refused',
+			...invitation
+		})
+		
+		// Switch game_invitation_pending of the host user back to false
+		await this.users_svc.updateGameInvitation(invitation.host, false)
+	}
 
-  @Post('accept-invitation')
-  async acceptGameInvite(@Body() invitation: InvitationDto): Promise<Room> {
-    // Check if invitation has expired
-    if (
-      (await this.users_svc.findOne(invitation.host.id))
-        .game_invitation_pending === false
-    ) {
-      throw new NotFoundException('Invitation expired')
-    }
+	@Post('cancel-invitation')
+	async cancelGameInvite(
+		@AuthUser() user: User
+	)
+	: Promise<void>
+	{	
+		// Switch game_invitation_pending of the host user back to false
+		await this.users_svc.updateGameInvitation(user, false)
+	}
 
-    // create game room
-    const room = await this.game_rooms_svc.createPrivate(invitation.gameOptions)
+	@Post('accept-invitation')
+	async acceptGameInvite(
+	  @Body() invitation: InvitationDto,
+	)
+	: Promise<Room>
+	{
+	  // Check if invitation has expired
+	  if ((await this.users_svc.findOne(invitation.host.id)).game_invitation_pending === false) {
+	  	throw new NotFoundException("Invitation expired")
+	  }
 
-    // add both players
-    try {
-      const guest = await this.users_svc.findOne(invitation.guestId)
-      await this.players_svc.create(room, invitation.host)
-      await this.players_svc.create(room, guest)
-    } catch (error) {
-      console.log(error)
-      throw new BadRequestException('User does not exist')
-    }
+	  // create game room
+	  const room = await this.game_rooms_svc.createPrivate(invitation.gameOptions)
 
-    // Send answer notification to host
-    this.dm_gtw.answerGameInvitation({
-      reply: 'Game Invitation Accepted',
-      gameRoom: room,
-      ...invitation,
-    })
+	  // add both players
+	  try {
+	  	const guest = await this.users_svc.findOne(invitation.guestId)
+	  	await this.players_svc.create(room, invitation.host)
+	  	await this.players_svc.create(room, guest)
+	  } catch (error) {
+	  	console.log(error)
+	  	throw new BadRequestException('User does not exist')
+	  }
 
-    // Switch game_invitation_pending of the host user back to false
-    await this.users_svc.updateGameInvitation(invitation.host, false)
+	  // Send answer notification to host
+	  this.dm_gtw.answerGameInvitation({
+		  reply: 'Game Invitation Accepted',
+		  gameRoom: room,
+		  ...invitation,
+	  })
+		
+      // Switch game_invitation_pending of the host user back to false
+	  await this.users_svc.updateGameInvitation(invitation.host, false)
 
-    return room
-  }
-
-  @Post('cancel-invitation')
-  async cancelGameInvite(@AuthUser() user: User): Promise<void> {
-    // Switch game_invitation_pending of the host user back to false
-    await this.users_svc.updateGameInvitation(user, false)
-  }
+	  return room
+	}
 }

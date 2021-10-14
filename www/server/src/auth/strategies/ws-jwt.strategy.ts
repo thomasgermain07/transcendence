@@ -31,20 +31,28 @@ export class WsJwtStrategy extends PassportStrategy(Strategy, 'ws-jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: any) => {
-          console.log('IN WS AUTH STRAT')
           const cookies: any = tokenizeCookies(request.handshake.headers.cookie)
-          console.log('Auth cookie: ' + cookies.Authentication)
           return cookies.Authentication
         },
       ]),
       secretOrKey: ACCESS_SECRET,
+      passReqToCallback: true,
+      ignoreExpiration: true,
     })
   }
 
   // -------------------------------------------------------------------------
   // Public methods
   // -------------------------------------------------------------------------
-  async validate(payload: TokenPayload): Promise<User> {
+  async validate(request: any, payload: TokenPayload): Promise<User> {
+    if (request['user']) {
+      const cookies: any = tokenizeCookies(request.handshake.headers.cookie)
+      return this.auth_svc.authenticate({
+        id: request['user']?.id,
+        refresh_token: cookies.Refresh
+      });
+    }
+
     return this.auth_svc.authenticate({
       id: payload.user_id,
     })

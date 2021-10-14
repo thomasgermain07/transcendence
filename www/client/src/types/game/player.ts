@@ -12,6 +12,7 @@ export interface Player {
   score: number
   winner: boolean | null
   isReady: boolean
+  isPause: boolean
   user: UserType
   room: Room
   paddle: IMapPaddleState

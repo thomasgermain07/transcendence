@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common'
 import { authenticator } from 'otplib'
 import { User } from '../../users/entities/user.entity'
 import { UsersService } from '../../users/services/users.service'
-import { DatabaseConfigService } from 'src/app/services/database-config.service'
-import { Response } from 'express'
 import { toDataURL } from 'qrcode'
 import { GoogleAuthPayload } from 'src/auth/interfaces/google-code-payload.interface'
 
@@ -14,8 +12,6 @@ export class TwoFactorAuthenticationService {
     ) {}
 
     public isTwoFactorAuthenticationCodeValid(twoFactorAuthenticationCode: GoogleAuthPayload, user: User) {
-        console.log(twoFactorAuthenticationCode.code)
-        console.log(authenticator.verify({token: twoFactorAuthenticationCode.code, secret: user.twoFactorAuthenticationSecret}))
         return authenticator.verify({token: twoFactorAuthenticationCode.code, secret: user.twoFactorAuthenticationSecret})
     }
 
@@ -33,10 +29,6 @@ export class TwoFactorAuthenticationService {
     }
 
     public async pipeQrCodeStream(otpauthUrl: string) {
-        console.log("--------------QRCODE----------------")
-        console.log(await toDataURL(otpauthUrl))
-        // console.log(await toString(otpauthUrl))
-        // return await toString(otpauthUrl)
         return await toDataURL(otpauthUrl)
     }
 

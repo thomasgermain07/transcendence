@@ -1,93 +1,105 @@
 <template>
-	<div class="google-authenticator">
-	    <h3>Activate Google Authenticator</h3>
-        <div class="switch">
-            <input id="switch-1" type="checkbox" class="switch-input" v-model="switchTwoFa.state"/>
-            <label for="switch-1" class="switch-label">Switch</label>
-        </div>
-        <div v-if="qrcode" class="qrcode">
-          <img v-bind:src="qrcode" class="qrcode_picture" alt='qrcode' />
-        </div>
-	</div>
+  <div class="google-authenticator">
+    <h3>Activate Google Authenticator</h3>
+    <div class="switch">
+      <input
+        id="switch-1"
+        type="checkbox"
+        class="switch-input"
+        v-model="switchTwoFa.state"
+      />
+      <label for="switch-1" class="switch-label">Switch</label>
+    </div>
+    <div class="qrcode" v-bind:class="{ active: switchTwoFa.state }">
+       <div v-if="qrcodeActive" class="alert-qrcode-window">
+          <alert-message-qrcode
+            v-on:close-alert="closeMessage"
+          />
+       </div>
+      <img v-if="qrcode" v-bind:src="qrcode" class="qrcode_picture" alt="qrcode" />
+    </div>
+  </div>
 </template>
 
-<script lang='ts'>
-import { defineComponent }         from "vue";
-import { ref, reactive, readonly, watch } from "vue";
+<script lang="ts">
+import { defineComponent } from 'vue'
+import { ref, reactive, watch } from 'vue'
 
-import { useAuth } from "@/composables/auth";
+import { useAuth } from '@/composables/auth'
+import { AxiosResType, AxiosErrType } from '@/composables/axios'
+import AlertMessageQrcode from '@/components/edit/AlertMessageQrcode.vue'
 
 export default defineComponent({
-    name: 'google-authenticator',
+  name: 'google-authenticator',
+  components: {
+    AlertMessageQrcode,
+  },
+  setup() {
+    const messages = ref([])
+    const qrcode = ref()
+    const qrcodeActive = ref(false)
+    const { activateTwoFa, deactivateTwoFa, user } = useAuth()
 
-    setup()
-    {
-        const messages = ref([]);
-        const qrcode = ref();
+    const switchTwoFa = reactive({
+      state: user.isTwoFactorAuthenticationEnabled,
+    })
 
-        const { activateTwoFa, deactivateTwoFa, user } = useAuth();
-        const switchTwoFa = reactive({
-            state: user.isTwoFactorAuthenticationEnabled
-        })
-        // const submit = () => {
-        //     console.log("----------------HERRE-------")
-        //     activateTwoFa()
-        //         .then((response) => {
-        //             console.log("------")
-        //             console.log(response)
-        //             qrcode.value = response.data
-        //         })
-        //         .catch((err) => {
-        //             messages.value = err.response?.data.message;
-        //         });
-        // };
-        watch(
-            () => switchTwoFa.state,
-            () => {
-                if (switchTwoFa.state === true) {
-                    activateTwoFa()
-                        .then((response) => {
-                            console.log("------")
-                            console.log(response)
-                            qrcode.value = response.data
-                        })
-                        .catch((err) => {
-                            messages.value = err.response?.data.message;
-                        });
-                }
-                else {
-                    deactivateTwoFa()
-                        .then((response) => {
-                            console.log("------")
-                            console.log(response)
-                        })
-                        .catch((err) => {
-                            messages.value = err.response?.data.message;
-                        });
-                }
-            }
-        )
-
-        return {
-            // Datas
-            messages,
-            qrcode,
-            user,
-            // Functions
-            switchTwoFa,
-        };
+    const closeMessage = () => {
+      qrcodeActive.value = false
     }
 
-});
+
+    watch(
+      () => switchTwoFa.state,
+      () => {
+        if (switchTwoFa.state === true) {
+          activateTwoFa()
+            .then((response: AxiosResType) => {
+              qrcode.value = response.data
+              qrcodeActive.value = true
+            })
+            .catch((err: AxiosErrType) => {
+              messages.value = err.response?.data.message
+            })
+        } else {
+          deactivateTwoFa()
+            .then(() => {
+              qrcode.value = null
+            })
+            .catch((err: AxiosErrType) => {
+              messages.value = err.response?.data.message
+            })
+        }
+      },
+    )
+
+    return {
+      // Datas
+      messages,
+      qrcode,
+      qrcodeActive,
+      user,
+      // Functions
+      switchTwoFa,
+      closeMessage,
+    }
+  },
+})
 </script>
 
 <style scoped>
-.google-authenticator  {
-    background: rgb(230, 163, 64);
+.google-authenticator {
+  padding: 20px;
+}
+.qrcode {
+  display: none;
+}
+.qrcode.active {
+  display: block;
 }
 .qrcode_picture {
-  width: 50%;
-  height: 50%;
+  width: 250px;
+  height: 250px;
 }
 /* Power Ups Switch button */
 .switch {
@@ -109,7 +121,7 @@ export default defineComponent({
 }
 .switch-label::before,
 .switch-label::after {
-  content: "";
+  content: '';
   display: block;
   position: absolute;
   cursor: pointer;
@@ -139,4 +151,35 @@ export default defineComponent({
 .switch-input:checked + .switch-label::after {
   left: 24px;
 }
+.alert-qrcode-window {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 20vw;
+  height: 20vh;
+  max-width: 800px;
+  max-height: 100%;
+  padding: 50px 50px 50px 50px;
+  transform: translate(-50%, -50%);
+  overflow: scroll;
+  line-height: 130%;
+  box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.9);
+  border-radius: 2px;
+  z-index: 100;
+  text-align: center;
+	font-family: Helvetica, Arial,
+  sans-serif;
+	align-items: center;
+  filter: drop-shadow(0 0 8px #070707);
+  border: 1px solid rgba(241, 142, 6, 0.81);
+  background-color: rgba(220, 128, 1, 0.16);
+  box-shadow: 0px 0px 2px #ffb103;
+  color: #ffb103;
+  text-shadow: 2px 1px #00040a;
+  transition:0.5s;
+  cursor:pointer;
+  background: #303133;
+
+}
+
 </style>

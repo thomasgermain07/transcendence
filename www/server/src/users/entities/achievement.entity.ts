@@ -3,7 +3,6 @@ import { PrimaryGeneratedColumn } from 'typeorm'
 import { IsEnum, IsBoolean } from 'class-validator';
 import { User } from './user.entity';
 
-
 export enum AchievementsDescription {
 	DEFENSE_MASTER = "You won a match without taking any goal !",
 	TEN_WINS = "You have won 10 games !",
@@ -46,6 +45,19 @@ export enum AchievementsImage {
 	DONE = "http://localhost:8080/api/users/achievements/images/done.png",
 }
 
+export const defaultAchievements = [
+	{  name: AchievementsName.DEFENSE_MASTER, description: AchievementsDescription.DEFENSE_MASTER, image: AchievementsImage.DEFENSE_MASTER },
+	{  name: AchievementsName.TEN_WINS, description: AchievementsDescription.TEN_WINS, image: AchievementsImage.TEN_WINS },
+	{  name: AchievementsName.THIRTY_WINS, description: AchievementsDescription.THIRTY_WINS, image: AchievementsImage.THIRTY_WINS },
+	{  name: AchievementsName.SEVENTY_WINS, description: AchievementsDescription.SEVENTY_WINS, image: AchievementsImage.SEVENTY_WINS },
+	{  name: AchievementsName.HUNDRED_WINS, description: AchievementsDescription.HUNDRED_WINS, image: AchievementsImage.HUNDRED_WINS },
+	{  name: AchievementsName.TWO_HUNDRED_WINS, description: AchievementsDescription.TWO_HUNDRED_WINS, image: AchievementsImage.TWO_HUNDRED_WINS },
+	{  name: AchievementsName.ALL_TERRAIN, description: AchievementsDescription.ALL_TERRAIN, image: AchievementsImage.ALL_TERRAIN },
+	{  name: AchievementsName.NOVICE, description: AchievementsDescription.NOVICE, image: AchievementsImage.NOVICE },
+	{  name: AchievementsName.MIDDLE_PLAYER, description: AchievementsDescription.MIDDLE_PLAYER, image: AchievementsImage.MIDDLE_PLAYER },
+	{  name: AchievementsName.HARD_MASTER, description: AchievementsDescription.HARD_MASTER, image: AchievementsImage.HARD_MASTER },
+	{  name: AchievementsName.DONE, description: AchievementsDescription.DONE, image: AchievementsImage.DONE },
+]
 
 
 @Entity()
@@ -79,8 +91,8 @@ export class Achievement
 
     @Column({ default: ""})
 	public image : string;
-	
+
 	@ManyToMany(() => User, user => user.achievements)
     users: User[];
-        
+
 }

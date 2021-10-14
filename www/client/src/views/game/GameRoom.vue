@@ -7,7 +7,11 @@
     </div>
     <div v-else>
       <div class="game-room">
-        <PlayersDisplay :players="room.players" :roomState="room.state" />
+        <PlayersDisplay
+          :players="room.players"
+          :roomState="room.state"
+          :roomMode="room.mode"
+        />
         <!-- @checkReady="onReady" -->
         <div class="game-ready" v-if="isPlayerWaiting">
           <GameButton
@@ -20,15 +24,22 @@
             <p>Match will start once both players are ready</p>
           </div>
         </div>
-
+        <GameButton
+          v-if="state.currentPlayer.isPause && isPause"
+          @click="offPause('stopPause')"
+          :colorStyle="'#6ded8a'"
+          >Resume</GameButton
+        >
         <GameBoard
-          v-if="room.state == 'playing'"
+          v-if="room.state == 'playing' || room.state == 'pause'"
           :roomName="roomName"
           :isPlayer="!isWatching"
+          :roomState="room.state"
+          :timer="timer"
         />
 
         <GameButton
-          v-if="isPlayerWaiting"
+          v-if="isPlayerWaiting && room.mode != 'private'"
           @click="onLeave('leaveRoom')"
           :colorStyle="'#ed3833'"
           >Quit</GameButton
@@ -51,6 +62,9 @@
           :colorStyle="'#1645f5'"
           >Leave Stream</GameButton
         >
+        <GameButton v-if="isPrivate" @click="onCancel" :colorStyle="'#ed3833'"
+          >Cancel</GameButton
+        >
       </div>
     </div>
   </div>
@@ -66,8 +80,10 @@ import PlayersDisplay from '../../components/game/PlayersDisplay.vue'
 import GameBoard from '../../components/game/GameBoard.vue'
 import GameButton from '../../components/game/GameButton.vue'
 
-import { GameState, Room } from '../../types/game/gameRoom'
+import { GameState, Room, GameMode } from '../../types/game/gameRoom'
 import { useSocket } from '../../composables/socket'
+import { AxiosErrType, useAxios } from '../../composables/axios'
+import { Player } from '../../types/game/player'
 
 export interface IGameState {
   status: string
@@ -92,11 +108,19 @@ export default defineComponent({
   setup() {
     const route = useRoute()
     const router = useRouter()
-    const { state, room, loadRoom } = useGameRoom()
+    const {
+      state,
+      room,
+      loadRoom,
+      toastOppLeaving,
+      toastGameCanceled,
+      redirectToGameView,
+    } = useGameRoom()
 
     const roomName = `room-${route.params.id}`
     const gameRoomsSocket = useSocket('game-rooms').socket
 
+    let timer = ref('')
     // --- FETCH ---
     loadRoom(route.params.id)
 
@@ -113,6 +137,13 @@ export default defineComponent({
       return false
     })
 
+    const isPause = computed(() => {
+      if (state.currentPlayer) {
+        return room.value.state == GameState.PAUSE ? true : false
+      }
+      return false
+    })
+
     const isWatching = computed(() => {
       return state.currentPlayer == null ? true : false
     })
@@ -123,11 +154,43 @@ export default defineComponent({
       return false
     })
 
+    const isPrivate = computed(() => {
+      if (
+        room.value.state == GameState.WAITING &&
+        room.value.mode == GameMode.PRIVATE
+      )
+        return state.currentPlayer ? true : false
+      return false
+    })
+
+    const onCancel = async () => {
+      console.log('in cancel')
+      try {
+        const res = await useAxios().axios.delete('game/rooms/private', {
+          data: { room: room.value },
+        })
+      } catch (err: AxiosErrType) {
+        console.log(err.response?.data?.message)
+      }
+      gameRoomsSocket.emit('cancelRoom', {
+        room: roomName,
+      })
+    }
+
     const onReady = (): void => {
       console.log(`Player ${state.currentPlayer.id} READY`)
       state.isActive = true
       gameRoomsSocket.emit('getReady', {
         playerId: state.currentPlayer.id,
+        room: roomName,
+      })
+    }
+
+    const offPause = (): void => {
+      console.log(`Player ${state.currentPlayer.id} READY AFTER PAUSE`)
+      gameRoomsSocket.emit('stopPause', {
+        playerId: state.currentPlayer.id,
+        roomId: room.id,
         room: roomName,
       })
     }
@@ -140,7 +203,7 @@ export default defineComponent({
           playerId: state?.currentPlayer?.id,
           room: roomName,
         },
-        (message) => {
+        (message: string) => {
           console.log(message)
           router.push('/game')
         },
@@ -159,6 +222,11 @@ export default defineComponent({
 
     const updateRoom = (updatedRoom: Room): void => {
       room.value = { ...updatedRoom }
+      if (state.currentPlayer) {
+        state.currentPlayer = room.value.players.find(
+          (player: Player) => player.id == state.currentPlayer.id,
+        )
+      }
     }
 
     // check if both players are ready
@@ -182,6 +250,32 @@ export default defineComponent({
       }
     }
 
+    const stopPause = (room: Room): void => {
+      if (room.players.every((player) => player.isPause === false)) {
+        console.log('Both players are back')
+
+        // update Room state to playing
+        // clearInterval(interval)
+        timer.value = 0
+        gameRoomsSocket.emit('updateRoomInServer', {
+          socketRoomName: roomName,
+          roomId: room.id,
+          dto: { state: GameState.PLAYING },
+        })
+
+        // start game
+        gameRoomsSocket.emit('init', {
+          socketRoomName: roomName,
+          room: room,
+          players: room.players,
+        })
+      }
+    }
+
+    const startCountDown = (counter: number) => {
+      timer.value = new Date(counter * 1000).toISOString().substr(14, 5)
+    }
+
     // --- SOCKETS ---
     gameRoomsSocket.on('connect', () => {
       console.log('game-room socket connected')
@@ -202,9 +296,19 @@ export default defineComponent({
       updateRoom(room)
     })
 
+    gameRoomsSocket.on('onPause', ({ count }) => {
+      console.log(`in pause room`)
+      startCountDown(count)
+    })
+
     gameRoomsSocket.on('checkReady', ({ room }) => {
       console.log(`in check ready`)
       checkReady(room)
+    })
+
+    gameRoomsSocket.on('checkStopPause', ({ room }) => {
+      console.log(`in stop pause`)
+      stopPause(room)
     })
 
     gameRoomsSocket.on('roomJoined', (roomRet) => {
@@ -214,15 +318,20 @@ export default defineComponent({
 
     gameRoomsSocket.on('opponentLeaving', () => {
       console.log('someone left the room')
-      // TODO: change alert to custom notif toast
-      alert(
-        'The other player left the game room - you will be redirected to the game view',
-      )
-      // onLeave('leaveRoom') // router.push .. to put back in matchmaking queue
-      room.value.mode === 'duel'
-        ? router.push('/game/duel')
-        : router.push('/game/ladder')
+      toastOppLeaving()
+      redirectToGameView()
     })
+
+    gameRoomsSocket.on('roomCanceled', () => {
+      console.log('someone canceled the private room')
+      toastGameCanceled()
+      router.push('/game')
+    })
+
+    // TO CHECK: reload room on route change
+    // onBeforeRouteUpdate(() => {
+    //   loadRoom(route.params.id)
+    // })
 
     onBeforeRouteLeave(() => {
       if (state.currentPlayer && room.value.state == GameState.WAITING) {
@@ -250,20 +359,25 @@ export default defineComponent({
       route,
       state,
       room,
+      timer,
       roomName,
       isPlayerWaiting,
       isPlaying,
       isOver,
+      isPause,
       isWatching,
       onReady,
       onLeave,
+      offPause,
+      isPrivate,
+      onCancel,
     }
   },
 })
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap');
 
 .game-ready {
   position: relative;
@@ -286,11 +400,10 @@ export default defineComponent({
   visibility: hidden;
   transition-duration: 2s;
   opacity: 0%;
-  font-family: "Inconsolata", monospace;
+  font-family: 'Inconsolata', monospace;
   font-weight: 800;
   font-size: 16px;
 }
-
 
 .game-ready .game-button.active {
   visibility: hidden;
@@ -301,5 +414,4 @@ export default defineComponent({
   visibility: visible;
   opacity: 100%;
 }
-
 </style>
