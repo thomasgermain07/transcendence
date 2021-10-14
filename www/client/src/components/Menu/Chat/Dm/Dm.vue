@@ -39,6 +39,9 @@
 <script lang="ts">
 import { onMounted, watch, ref, onUnmounted } from '@vue/runtime-core'
 
+import { createToast } from 'mosha-vue-toastify'
+import 'mosha-vue-toastify/dist/style.css'
+
 import { useAuth } from '@/composables/auth'
 import { useChat } from '@/composables/Chat/useChat'
 import { useSocket } from '@/composables/socket'
@@ -95,11 +98,16 @@ export default {
       if (message_field.value.length) {
         try {
           await createMessage(props.UserId!, message_field.value)
-          message_field.value = ''
         } catch (e) {
-          console.log(e)
+          console.log(e.response)
+          if (e.response.status == 422) {
+            createToast(e.response.data.message, {
+              type: 'warning',
+            })
+          }
         }
       }
+      message_field.value = ''
     }
 
     useSocket('dm').socket.on('message', (message: DirectMessageType) => {
