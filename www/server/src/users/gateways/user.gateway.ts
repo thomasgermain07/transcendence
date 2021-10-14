@@ -149,7 +149,7 @@ export class UserGateway
 			status: data.status
 		});
 
-		await this.users_svc.updateStatus(user, {status: data.status});
+		await this.users_svc.updateStatus(user, data.status);
 
 		console.log(`User ${user.id} set status to ${data.status}.`);
 	}

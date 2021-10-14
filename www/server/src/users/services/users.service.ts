@@ -213,8 +213,7 @@ export class UsersService {
 
     }
 
-  public async updateStatus(user: User, update_dto: UpdateUserDto): Promise<User> {
-    Object.assign(user, update_dto)
-    return await this.users_repo.save( user )
+  public async updateStatus(user: User, status: string ): Promise<void> {
+    this.users_repo.update( user.id, { id: user.id, status: status } );
   }
 }
