@@ -5,7 +5,7 @@ export default function getDeleteSubscription() {
     try {
       await useAxios().axios.delete(`chat/subscriptions?room_id=${id}`)
     } catch (e) {
-      console.log(e)
+      throw e
     }
   }
 

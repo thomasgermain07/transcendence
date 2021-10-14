@@ -1,4 +1,4 @@
-import { Controller, Get, Delete, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards }                  from '@nestjs/common';
 import { Param, ParseIntPipe }                         from '@nestjs/common';
 import { UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
 
@@ -6,6 +6,7 @@ import { Room } from '../entities/room.entity';
 import { GameMode } from '../../enum/enum';
 
 import { RoomsService } from '../services/rooms.service';
+import { PlayersService } from 'src/game/players/services/players.service';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 
 
@@ -18,7 +19,8 @@ export class RoomsController {
 	// Constructor
 	// ---------------------------------------------------------------------------
 	constructor(
-		private readonly roomsService : RoomsService
+		private readonly roomsService : RoomsService,
+        private readonly playersService : PlayersService,
 	)
 	{
 	}

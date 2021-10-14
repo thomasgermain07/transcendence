@@ -1,6 +1,6 @@
 import { Ref, ref, watch, computed } from 'vue'
 import requestStatus from '@/composables/requestStatus'
-import { useAxios } from '@/composables/axios'
+import { AxiosErrType, useAxios } from '@/composables/axios'
 
 export function getRoomInputs() {
   let name_f = ref('')
@@ -49,9 +49,11 @@ export async function createRoom(fields: any, status: Ref) {
     params.password = fields.password.value
   }
 
-  const res = await axios.post('chat/rooms', params)
-  if (res.status == 201) {
+  try {
+    const res = await axios.post('chat/rooms', params)
     status.value = requestStatus.success
+    return res
+  } catch (e: AxiosErrType) {
+    throw e.response.data.message
   }
-  return res
 }

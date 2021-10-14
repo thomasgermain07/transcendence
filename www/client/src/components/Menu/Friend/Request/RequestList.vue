@@ -1,7 +1,28 @@
 <template>
   <div class="friend-container">
-    <div class="friend-item" v-for="request in requests" :key="request">
-      {{ request.user.name }}
+    <v-contextmenu ref="contextmenu">
+      <v-contextmenu-item @click="onProfile(cm_user)"
+        >View Profile</v-contextmenu-item
+      >
+      <v-contextmenu-item @click="onOpenDm(cm_user)"
+        >Send Message</v-contextmenu-item
+      >
+      <v-contextmenu-item
+        @click="onBlockUser(cm_user) && refuseRequest(cm_user)"
+        >Block</v-contextmenu-item
+      >
+    </v-contextmenu>
+
+    <div class="friend-item" v-for="request in Requests" :key="request">
+      <div
+        @click.left="openDm(request.user)"
+        @click.right="onRightClick(request.user)"
+        v-contextmenu:contextmenu
+      >
+        <div>
+          {{ request.user.name }}
+        </div>
+      </div>
       <div class="request-btn">
         <i
           class="fas fa-check-square accept-btn"
@@ -17,15 +38,24 @@
 </template>
 
 <script lang="ts">
-import getFriendInteraction from '@/composables/Friends/getFriendInteraction'
+import { ref } from 'vue'
+import getUserInteraction from '@/composables/User/getUserInteraction'
 import { UserType } from '@/types/user/user'
+import { useContextMenu } from '@/composables/useContextMenu'
 
 export default {
   props: {
-    requests: Object,
+    Requests: Object,
   },
   setup(props, { emit }) {
-    const { addFriend, removeFriend } = getFriendInteraction()
+    let cm_user = ref()
+
+    const { addFriend, removeFriend } = getUserInteraction()
+    const { onProfile, onBlockUser, onOpenDm } = useContextMenu()
+
+    const onRightClick = (user: UserType) => {
+      cm_user.value = user
+    }
 
     const acceptRequest = async (user: UserType) => {
       await addFriend(user)
@@ -37,7 +67,15 @@ export default {
       emit('request_answered')
     }
 
-    return { acceptRequest, refuseRequest }
+    return {
+      cm_user,
+      onRightClick,
+      onProfile,
+      onBlockUser,
+      onOpenDm,
+      acceptRequest,
+      refuseRequest,
+    }
   },
 }
 </script>

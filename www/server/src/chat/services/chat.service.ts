@@ -56,7 +56,8 @@ export class ChatService
 
 		return subscriptions
 			.map((subscription) => subscription.user)
-			.filter((user) => !user.is_admin)
+			// Todo:
+			// .filter((user) => !user.is_admin)
 		;
 	}
 
@@ -94,7 +95,8 @@ export class ChatService
 	)
 		: Promise<boolean>
 	{
-		return (user.is_admin || await this.isOwner(user, room));
+		// Todo:
+		return (/* user.is_admin ||  */await this.isOwner(user, room));
 	}
 
 	async isModerator(

@@ -1,6 +1,6 @@
 import { IsEmail, IsOptional } from 'class-validator'
 import { IsString, IsPositive } from 'class-validator'
-import { MinLength } from 'class-validator'
+import { MinLength, Matches } from 'class-validator'
 import { ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { IsUnique } from '../decorators/is-unique.decorator'
@@ -9,11 +9,16 @@ export class CreateUserDto {
   // -------------------------------------------------------------------------
   // Attributes
   // -------------------------------------------------------------------------
-  @IsUnique('email')
+  // Todo:
+  // @IsUnique('email')
   @IsEmail()
   public email: string
 
   @IsUnique('name')
+  // Todo:
+  @Matches(/^\w+$/, {
+    message: "Name can only contains letters (a-z, A-Z), numbers (0-9) and underscore (_)."
+  })
   @MinLength(3)
   @IsString()
   public name: string

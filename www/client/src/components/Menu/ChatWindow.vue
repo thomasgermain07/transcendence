@@ -1,97 +1,85 @@
 <template>
   <div class="chat-window">
-    <div class="rooms-ctn">
-      <header class="window-title">
-        <p>Rooms</p>
-      </header>
-      <Rooms
-        @open="open"
-        @refresh_related_users="refresh_related_users"
-        :RoomId="open_id"
-        :Notifications="Notifications"
-        :Rooms="Rooms"
-        :RelatedUsers="RelatedUsers"
-      />
-    </div>
-    <div class="chat-ctn">
-      <Room v-if="openned == 'room'" :RoomId="open_id" @leave="left_room" />
-      <Dm
-        v-if="openned == 'dm'"
-        @refresh_related_users="refresh_related_users"
-        :UserId="open_id"
-      />
-      <CreateRoom
-        v-if="openned == 'create'"
-        @close="close"
-        @refresh_rooms="$emit('refresh_rooms')"
-      />
-      <JoinRoom
-        v-if="openned == 'join'"
-        @close="close"
-        @refresh_rooms="$emit('refresh_rooms')"
-      />
+    <TopBar
+      class="top-bar"
+      :Title="getPageTitle"
+      @close="closeChat"
+      @refresh="onRefreshData"
+    />
+    <div class="chat-content">
+      <div class="rooms-ctn">
+        <header class="window-title">
+          <p>Rooms</p>
+        </header>
+        <Rooms :RoomId="conv_id" />
+      </div>
+      <div class="chat-ctn">
+        <Room
+          v-if="chat_view == 'room'"
+          :RoomId="conv_id"
+          @leave="left_room"
+          @close="closeChatView"
+        />
+        <Dm v-if="chat_view == 'dm'" :UserId="conv_id" />
+        <CreateRoom v-if="chat_view == 'create'" @close="closeChatView" />
+        <JoinRoom v-if="chat_view == 'join'" @close="closeChatView" />
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import { computed } from '@vue/runtime-core'
+
+import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/windowInteraction'
+
+import TopBar from './Utils/TopBar.vue'
 import Rooms from './Chat/Rooms/Rooms.vue'
 import CreateRoom from './Chat/CreateRoom/CreateRoom.vue'
 import JoinRoom from './Chat/JoinRoom/JoinRoom.vue'
 import Room from './Chat/Room/Room.vue'
 import Dm from './Chat/Dm/Dm.vue'
-import getChatWindowInteraction from '@/composables/Chat/WindowInteraction/windowInteraction'
-import { onMounted, watch } from '@vue/runtime-core'
+import { useChat } from '@/composables/Chat/useChat'
+import { useRoom } from '@/composables/Chat/Room/useRoom'
 
 export default {
   components: {
+    TopBar,
     Rooms,
     Room,
     CreateRoom,
     JoinRoom,
     Dm,
   },
-  props: {
-    Notifications: Array,
-    Rooms: Array,
-    RelatedUsers: Array,
-    DmID: Number,
-  },
-  setup(props, { emit }) {
-    let { open_id, openned, open, close } = getChatWindowInteraction(
-      (title: String) => {
-        emit('set_page_title', title)
-      },
-    )
+  setup() {
+    let { conv_id, chat_view, page_title, closeChat, closeChatView } =
+      useWindowInteraction()
+
+    const { loadData, reloadRooms } = useChat()
+    const { reloadRoom } = useRoom()
+
+    const getPageTitle = computed(() => {
+      return 'Chat - ' + page_title.value
+    })
 
     const left_room = () => {
-      emit('refresh_rooms')
-      close()
+      reloadRooms()
+      closeChatView()
     }
 
-    const openDm = (id: number) => {
-      if (id != 0) {
-        open('dm', { id: id })
-      }
+    const onRefreshData = async () => {
+      await reloadRooms()
+      await reloadRoom()
     }
-
-    const refresh_related_users = () => {
-      emit('refresh_related_users')
-    }
-
-    onMounted(() => openDm(props.DmID!))
-
-    watch(
-      () => props.DmID,
-      (new_id) => openDm(new_id!),
-    )
 
     return {
-      open_id,
-      openned,
-      open,
-      refresh_related_users,
-      close,
+      conv_id,
+      chat_view,
+      getPageTitle,
+      closeChat,
+      closeChatView,
+      loadData,
+      onRefreshData,
       left_room,
     }
   },
@@ -100,6 +88,16 @@ export default {
 
 <style scoped>
 .chat-window {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.top-bar {
+  border-right: 2px solid lightgray;
+}
+
+.chat-content {
   display: flex;
   flex-grow: 1;
   border-left: 2px solid black;

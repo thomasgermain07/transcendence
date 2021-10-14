@@ -6,54 +6,68 @@
       <ErrorPage />
     </div>
 
-  <div v-if="status == 'success'" class="profile-ctn">
+    <div v-if="status == 'success'" class="profile-ctn">
+      <section class="user-info">
+        <div class="user-ctn__pp">
+          <img v-bind:src="user.avatar" class="profile_picture" />
+        </div>
+        <div class="user-ctn">
+          <div class="user-ctn__info">
+            <p class="info__name">{{ user.name }}</p>
+            <p class="ladder__level">Ladder Level : {{ user.ladderLevel }}</p>
 
-    <section class="user-info">
-      <div class="user-ctn__pp">
-        <img v-bind:src="user.avatar" class="profile_picture" />
-      </div>
-      <div class="user-ctn">
-        <div class="user-ctn__info">
-          <p class="info__name">{{ user.name }}</p>
-          <p class="ladder__level">Ladder Level : {{ user.ladderLevel }}</p>
+            <!-- TODO: add edit profile button  -->
+            <div class="update-avatar">
+              <input
+                v-if="isCurrentUser"
+                type="file"
+                @change="onFileSelected"
+              />
+              <button v-if="isCurrentUser" @click="onUpload">Upload</button>
+            </div>
 
-          <!-- TODO: add edit profile button  -->
-          <div class="update-avatar">
-            <input v-if="isCurrentUser" type="file" @change="onFileSelected">
-            <button v-if="isCurrentUser" @click="onUpload">Upload</button>
-          </div>
-
-          <div class="user-interaction">
-            <button v-if="!isCurrentUser" @click="addFriend(user)">add friend</button>
-          </div>
-          <div class="user-interaction">
-            <button v-if="!isCurrentUser" @click="removeFriend(user)">
-              remove friend
-            </button>
+            <div class="user-interaction">
+              <button
+                v-if="!isCurrentUser && !isAlreadyFriend"
+                @click="onAddFriend"
+              >
+                add friend
+              </button>
+            </div>
+            <div class="user-interaction">
+              <button
+                v-if="!isCurrentUser && isAlreadyFriend"
+                @click="onDeleteFriend"
+              >
+                remove friend
+              </button>
+              <button v-if="!isCurrentUser" @click="openDm(user)">
+                Send Message
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="user-match-history">
-      <h1 class="info-header">MATCH HISTORY ></h1>
-      <hr>
-      <MatchHistory class="matches" :user="user" />
-    </section>
+      <section class="user-match-history">
+        <h1 class="info-header">MATCH HISTORY ></h1>
+        <hr />
+        <MatchHistory class="matches" :user="user" />
+      </section>
 
-    <section class="user-game-info">
-      <div class="user-stats">
-        <h1 class="info-header">GAME STATS ></h1>
-        <hr>
-        <GameStats :user="user" />
-      </div>
-      <!-- TODO: Achievements  -->
-      <div class="user-achievements">
-        <h1 class="info-header">ACHIEVEMENTS ></h1>
-        <hr>
-        <Achievements :user="user" />
-      </div>
-    </section>
+      <section class="user-game-info">
+        <div class="user-stats">
+          <h1 class="info-header">GAME STATS ></h1>
+          <hr />
+          <GameStats :user="user" />
+        </div>
+        <!-- TODO: Achievements  -->
+        <div class="user-achievements">
+          <h1 class="info-header">ACHIEVEMENTS ></h1>
+          <hr />
+          <Achievements :user="user" />
+        </div>
+      </section>
 
       <hr class="separator" />
 
@@ -83,9 +97,11 @@ import GameStats from '../../components/game/GameStats.vue'
 import MatchHistory from '../../components/game/MatchHistory.vue'
 import Achievements from '../../components/game/Achievements.vue'
 import { useAxios } from '../../composables/axios'
-import getFriendInteraction from '@/composables/Friends/getFriendInteraction'
+import getUserInteraction from '@/composables/User/getUserInteraction'
 import EditProfileForm from '@/components/edit/EditProfileForm.vue'
 import GoogleAuthenticator from '@/components/auth/TwoAuth.vue'
+import { useFriends } from '@/composables/Friends/useFriends'
+import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/windowInteraction'
 
 export default {
   components: {
@@ -97,16 +113,23 @@ export default {
     Achievements,
   },
   setup() {
-    const route = useRoute()
     let status = ref(requestStatus.loading)
-    const { user, fetchUser } = getFetchUser(status)
-    const { addFriend, removeFriend } = getFriendInteraction()
+
+    const route = useRoute()
     const { users, get } = useUsers()
     const { axios } = useAxios()
+
+    const { user, fetchUser } = getFetchUser(status)
+    const { addFriend, removeFriend } = getUserInteraction()
     let imageFile = ref('')
 
+    const { reloadFriends, reloadRequests, hasPendingInvite, friends } =
+      useFriends()
+
+    const { openDm } = useWindowInteraction()
+
     const isCurrentUser = computed(() => {
-      return user.value.id == useAuth().user.id
+      return user.value!.id == useAuth().user.id
     })
 
     const fetchUserFromRoute = async () => {
@@ -133,6 +156,29 @@ export default {
       }
     }
 
+    const onAddFriend = async () => {
+      await addFriend(user.value!)
+      reloadRequests()
+      reloadFriends()
+    }
+
+    const onDeleteFriend = async () => {
+      await removeFriend(user.value!)
+      reloadFriends()
+    }
+
+    const isAlreadyFriend = computed(() => {
+      if (
+        friends.value.findIndex((friend) => {
+          return friend.id == user.value!.id
+        }) != -1 ||
+        hasPendingInvite(user.value!)
+      ) {
+        return true
+      }
+      return false
+    })
+
     onBeforeRouteUpdate(() => {
       fetchUserFromRoute()
     })
@@ -148,18 +194,21 @@ export default {
       isCurrentUser,
       onFileSelected,
       onUpload,
+      isAlreadyFriend,
+      onAddFriend,
+      onDeleteFriend,
+      openDm,
     }
   },
 }
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap");
-
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap');
 
 * {
   box-sizing: border-box;
-  font-family: "Inconsolata", monospace;
+  font-family: 'Inconsolata', monospace;
 }
 
 .user-info {
@@ -168,9 +217,8 @@ export default {
   margin-top: 0;
 }
 
-
 @media only screen and (max-width: 768px) {
-/* @media only screen and (max-width: 600px) { */
+  /* @media only screen and (max-width: 600px) { */
   .user-info {
     flex-direction: column;
     text-align: center;
@@ -251,7 +299,8 @@ export default {
   background-color: #173f5f; */
 }
 
-.user-stats, .user-achievements {
+.user-stats,
+.user-achievements {
   flex: 1;
   /* border: solid 1px black; */
   margin: 0 30px 20px 30px;

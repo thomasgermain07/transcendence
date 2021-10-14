@@ -1,4 +1,4 @@
-import { IsBoolean, IsOptional } from 'class-validator';
+import { IsBoolean, IsString } from 'class-validator';
 import { IsInt, Min, Max } from 'class-validator';
 
 export class UpdatePlayerDto {
@@ -15,7 +15,10 @@ export class UpdatePlayerDto {
     
     // @IsOptional()
     @IsBoolean()
-	isReady?: boolean
+    isReady?: boolean
+    
+    @IsString()
+    mode?: string
 }
 
 export default UpdatePlayerDto;

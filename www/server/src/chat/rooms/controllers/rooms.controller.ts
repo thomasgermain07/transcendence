@@ -53,8 +53,9 @@ export class RoomsController
 		if (related)
 			return rooms;
 
-		if (user.is_admin)
-			return this.rooms_svc.findNotIn(rooms);
+		// Todo:
+		// if (user.is_admin)
+		// 	return this.rooms_svc.findNotIn(rooms);
 
 		return this.rooms_svc.findVisibleNotIn(rooms);
 	}

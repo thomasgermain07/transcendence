@@ -16,12 +16,14 @@ export class Message {
   @ManyToOne(() => User, (user) => user.chat_messages, {
     nullable: false,
     eager: true,
+    onDelete: 'CASCADE',
   })
   public author: User
 
   @ManyToOne(() => Room, (room) => room.messages, {
     nullable: false,
     eager: true,
+    onDelete: 'CASCADE',
   })
   public room: Room
 

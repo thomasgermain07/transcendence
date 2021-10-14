@@ -18,30 +18,30 @@
       <JoinRoomPanel
         v-if="open_panel == room.id"
         :room="room"
-        @subCreate="$emit('joinned')"
+        @joinned="$emit('joinned')"
       />
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { ref } from '@vue/reactivity'
-import { computed, onMounted } from '@vue/runtime-core'
+import { computed, onMounted, ref } from '@vue/runtime-core'
 
 import JoinRoomPanel from './JoinRoomPanel.vue'
 
-import requestStatus from '@/composables/requestStatus'
 import getFetchRooms from '@/composables/Chat/Rooms/fetchRooms'
 import getJoinPanelInteraction from '@/composables/Chat/WindowInteraction/getJoinPanelInteraction'
 import { getRoomsByName } from '@/composables/Chat/Rooms/getRoomsByFilters'
+import { RoomType } from '@/types/chat/room'
 
 export default {
   components: {
     JoinRoomPanel,
   },
   setup() {
-    let status = ref(requestStatus.loading)
-    let { rooms, fetchRooms } = getFetchRooms(status)
+    const rooms = ref<RoomType[]>([])
+
+    let { fetchRooms } = getFetchRooms()
     let { searchQuery, roomsByName } = getRoomsByName(rooms)
 
     let { open_panel, openPanel } = getJoinPanelInteraction()
@@ -58,9 +58,17 @@ export default {
       open_panel.value = 0
     }
 
-    onMounted(() => fetchRooms(false))
+    onMounted(async () => {
+      rooms.value = await fetchRooms(false)
+    })
 
-    return { rooms_list, open_panel, searchQuery, openPanel, resetValue }
+    return {
+      rooms_list,
+      open_panel,
+      searchQuery,
+      openPanel,
+      resetValue,
+    }
   },
 }
 </script>

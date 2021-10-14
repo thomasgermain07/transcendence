@@ -43,7 +43,7 @@ export class MessagesService {
       ],
       order: { id: 'DESC' },
       take: PAGE_SIZE,
-      skip: page <= 1 ? 0 : PAGE_SIZE * page,
+      skip: page <= 1 ? 0 : PAGE_SIZE * (page - 1),
     })
   }
 }

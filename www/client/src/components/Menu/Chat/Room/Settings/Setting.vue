@@ -2,15 +2,19 @@
   <div class="setting-ctn">
     <header class="window-header">
       <i class="fas fa-arrow-left" @click="$emit('close')"></i>
-      <p class="window-title">{{ Room.name }} settings</p>
+      <p class="window-title">{{ room.name }} settings</p>
       <i class="fas fa-arrow-left window-bar__separator"></i>
     </header>
     <div class="content">
-      <AdminSetting v-if="is_owner" :Room="Room" />
+      <AdminSetting
+        v-if="is_owner"
+        @close="$emit('close')"
+        @delete="$emit('leave')"
+      />
 
       <div class="btn-ctn" v-if="!is_owner">
         <p class="label">Do you want to leave this room ?</p>
-        <button class="action-btn" @click="leave">Leave</button>
+        <button class="action-btn" @click="onLeave">Leave</button>
       </div>
     </div>
   </div>
@@ -18,35 +22,37 @@
 
 <script lang="ts">
 import { ref } from 'vue'
-import { useAuth } from '@/composables/auth'
-
-import getDeleteSubscription from '@/composables/Chat/Subscription/deleteSubscription'
 
 import AdminSetting from './AdminSetting.vue'
-import { useSocket } from '@/composables/socket'
+
+import { useAuth } from '@/composables/auth'
+
+import { useRoom } from '@/composables/Chat/Room/useRoom'
 
 export default {
   components: {
     AdminSetting,
   },
-  props: {
-    Room: Object,
-  },
   setup(props, { emit }) {
-    let is_owner = ref(useAuth().user.id == props.Room?.owner.id ? true : false)
+    const { roomData, leave } = useRoom()
 
-    const { deleteSubscription } = getDeleteSubscription()
+    let is_owner = ref(
+      useAuth().user.id == roomData.room!.owner.id ? true : false,
+    )
 
-    const leave = async () => {
-      await deleteSubscription(props.Room!.id).then(() => {
-        useSocket('chat').socket.emit('leave', { room_id: props.Room!.id })
-      })
+    const onLeave = async () => {
+      await leave()
       emit('leave')
       emit('close')
     }
 
-    return { is_owner, leave }
+    return {
+      is_owner,
+      room: roomData.room,
+      onLeave,
+    }
   },
+  emit: ['close', 'leave'],
 }
 </script>
 

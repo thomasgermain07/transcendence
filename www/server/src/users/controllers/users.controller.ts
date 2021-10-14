@@ -95,6 +95,16 @@ export class UsersController {
 		}
 	}
 
+  @Get(':id/game-invite-pending')
+  async getGameInvite(@Param('id', ParseIntPipe) id: number): Promise<boolean> 
+  {
+    const user: User = await this.users_svc.findOne(id)
+    if (!user) {
+      throw new NotFoundException('User not found')
+    }
+    return user.game_invitation_pending
+  }
+
   @Post('/upload')
   @UseInterceptors(FileInterceptor('file', storage ))
   async uploadFile(@AuthUser() user: User,
@@ -139,8 +149,9 @@ export class UsersController {
 		if (!this.canModify(user, target))
 			throw new ForbiddenException('You can not update this user.');
 
-		if (!this.canModifyRole(user))
-			delete update_dto.is_admin;
+		// Todo:
+		// if (!this.canModifyRole(user))
+		// 	delete update_dto.is_admin;
 
 		return this.users_svc.update(target, update_dto);
   }
@@ -166,15 +177,17 @@ export class UsersController {
   // Private methods
   // -------------------------------------------------------------------------
   private async canModify(user: User, target: User): Promise<boolean> {
-      return (user.is_admin || user.id === target.id);
+		// Todo:
+      return (/* user.is_admin ||  */user.id === target.id);
   }
 
-	private canModifyRole(
-		user: User,
-	)
-		: boolean
-	{
-		return user.is_admin;
-	}
+  // Todo:
+	// private canModifyRole(
+	// 	user: User,
+	// )
+	// 	: boolean
+	// {
+	// 	return user.is_admin;
+	// }
 
 }

@@ -73,30 +73,43 @@
 
 <script lang="ts">
 import { ref } from 'vue'
-import { getRoomInputs, createRoom } from '@/composables/Chat/Room/createRoom'
+
 import requestStatus from '@/composables/requestStatus'
+
+import { getRoomInputs, createRoom } from '@/composables/Chat/Room/createRoom'
+import { useChat } from '@/composables/Chat/useChat'
 import { useSocket } from '@/composables/socket'
+
+// TODO : If time, remake this HTML/CSS side is not the best
+// And should use a reactive object instead of fileds, errors
 
 export default {
   setup(props, { emit }) {
     let { fields, errors, sendable } = getRoomInputs()
 
-    let status = ref(requestStatus.default)
+    let status = ref(requestStatus.default) // get ride of this
 
-    const sendData = () => {
-      createRoom(fields, status)
-        .then((res) => {
-          useSocket('chat').socket.emit('join', { room_id: res.data.id })
-          emit('refresh_rooms')
-          emit('close')
-        })
-        .catch((e) => {
-          status.value = requestStatus.error
-          errors.name.value = e.response.data.message[0]
-        })
+    const { reloadRooms } = useChat()
+
+    const sendData = async () => {
+      try {
+        let res = await createRoom(fields, status)
+        useSocket('chat').socket.emit('join', { room_id: res.data.id })
+        reloadRooms()
+        emit('close')
+      } catch (messages) {
+        status.value = requestStatus.error
+        errors.name.value = messages[0]
+      }
     }
 
-    return { fields, errors, status, sendData, sendable }
+    return {
+      fields,
+      errors,
+      status,
+      sendData,
+      sendable,
+    }
   },
 }
 </script>

@@ -19,6 +19,7 @@ import { ChatService } from '../services/chat.service'
 import { Room } from '../rooms/entities/room.entity'
 import { RoomsService } from '../rooms/services/rooms.service'
 import { Message } from '../messages/entities/message.entity'
+import { Permission } from '../permissions/entities/permission.entity'
 
 type JoinLeaveType = {
   room_id: number
@@ -86,10 +87,9 @@ export class ChatGateway
 
     client.join(room_name)
 
-    if (!user.is_admin)
-      this._server
-        .to(room_name)
-        .emit('info', { type: 'join', username: user.name })
+    // Todo:
+    // if (!user.is_admin)
+    this._server.to(room_name).emit('info', { type: 'join', username: user.name })
   }
 
   @SubscribeMessage('leave')
@@ -104,10 +104,9 @@ export class ChatGateway
 
     client.leave(room_name)
 
-    if (!user.is_admin)
-      this._server
-        .to(room_name)
-        .emit('info', { type: 'leave', username: user.name })
+    // Todo:
+    // if (!user.is_admin)
+    this._server.to(room_name).emit('info', { type: 'leave', username: user.name })
 
     console.log(`User ${user.id} left chat ${room_name}.`)
   }
@@ -118,6 +117,22 @@ export class ChatGateway
     const room_name: string = this.getRoomName(message.room.id)
 
     this._server.to(room_name).emit('message', message)
+  }
+
+  setPermission(permission: Permission): void {
+    console.log(`Chat:Gateway:setPermission`)
+
+    const room_name: string = this.getRoomName(permission.room.id)
+
+    this._server.to(room_name).emit('set_permission', permission)
+  }
+
+  removePermission(permission: Permission): void {
+    console.log(`Chat:Gateway:removePermission`)
+
+    const room_name: string = this.getRoomName(permission.room.id)
+
+    this._server.to(room_name).emit('remove_permission', permission)
   }
 
   // -------------------------------------------------------------------------

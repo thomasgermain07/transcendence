@@ -1,41 +1,60 @@
 <template>
   <div class="friend-container">
+    <v-contextmenu ref="contextmenu">
+      <FriendsListCM :User="cm_user" />
+    </v-contextmenu>
+
     <div
       class="friend-item"
-      v-for="friend in friends"
+      v-for="friend in Friends"
       :key="friend"
-      @click="$emit('open_chat', getFriend(friend).id, getFriend(friend).name)"
+      @click.left="openDm(friend)"
+      @click.right="onRightClick(friend)"
+      v-contextmenu:contextmenu
     >
-      {{ getFriend(friend).name }}
-      <!-- TODO : getFriend(connected) for status conne -->
+      {{ friend.name }}
       <i
         class="fas fa-circle status"
-        :class="
-          getFriend(friend).connected
-            ? 'status--connected'
-            : 'status--disconnected'
-        "
+        :class="{
+          'status--connected': friend.status == 'connected',
+          'status--disconnected': friend.status == 'disconnected',
+          'status--ingame': friend.status == 'ingame',
+        }"
       ></i>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { useAuth } from '@/composables/auth'
-import { FriendType } from '@/types/friend/friend'
+import { PropType, ref } from 'vue'
+
+import FriendsListCM from './FriendsListCM.vue'
+
+import { UserType } from '@/types/user/user'
+
+import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/windowInteraction'
 
 export default {
   props: {
-    friends: Object,
+    Friends: Array as PropType<Array<UserType>>,
   },
-  setup() {
-    let me = useAuth().user
+  components: {
+    FriendsListCM,
+  },
+  setup(props, { emit }) {
+    let cm_user = ref<UserType>()
 
-    const getFriend = (friend: FriendType) => {
-      return friend.user.id == me.id ? friend.target : friend.user
+    const { openDm } = useWindowInteraction()
+
+    const onRightClick = (user: UserType) => {
+      cm_user.value = user
     }
 
-    return { getFriend }
+    return {
+      cm_user,
+      openDm,
+      onRightClick,
+    }
   },
 }
 </script>
@@ -63,6 +82,10 @@ export default {
 
 .status--connected {
   color: green;
+}
+
+.status--ingame {
+  color: yellow;
 }
 
 .status--disconnected {

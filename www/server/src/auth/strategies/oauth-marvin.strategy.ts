@@ -8,6 +8,7 @@ import { CreateUserDto } from "src/users/dto/create-user.dto";
 import { User }          from "src/users/entities/user.entity";
 
 import { AuthService } from "../services/auth.service";
+import { UsersService } from "src/users/services/users.service";
 
 const CLIENT_ID     = process.env.VITE_FT_ID;
 const CLIENT_SECRET = process.env.VITE_FT_SECRET;
@@ -23,6 +24,7 @@ export class OAuthMarvinStrategy
 	constructor(
 		private readonly http_svc: HttpService,
 		private readonly auth_svc: AuthService,
+		private readonly users_svc: UsersService,
 	)
 	{
 		super({
@@ -64,12 +66,31 @@ export class OAuthMarvinStrategy
 
 		const create_dto: CreateUserDto = {
 			email: data.email,
-			name: data.login,
+			name: await this.getUniqueName(data.login),
 			marvin_id: data.id,
 			avatar: data.image_url,
 		};
 
 		return this.auth_svc.register(create_dto);
+	}
+
+
+	// -------------------------------------------------------------------------
+	// Private methods
+	// -------------------------------------------------------------------------
+	private async getUniqueName(
+		login: string,
+	)
+		: Promise<string>
+	{
+		const found: User = await this.users_svc.findOne({ name: login });
+
+		if (!found)
+			return login;
+
+		const last: User = await this.users_svc.findLastWithNameLike(login);
+
+		return `${login}#${last?.id + 1}`;
 	}
 
 }

@@ -39,7 +39,9 @@ import { AchievementsName } from 'src/users/entities/achievement.entity';
 
 			console.log(room);
 
-			if (event.entity.state && event.entity.state == "over") {
+			if (event.entity.state 
+				&& event.entity.state == "over"
+				&& room.mode != "private") {
 				player = await this.defenseAchievements(room, player)
 				console.log(player);
 

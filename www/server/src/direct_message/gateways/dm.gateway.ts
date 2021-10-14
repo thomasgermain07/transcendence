@@ -12,9 +12,26 @@ import { Server } from 'socket.io'
 import { WsJwtGuard } from 'src/auth/guards/ws-jwt.guard'
 import { AuthUser } from 'src/auth/decorators/auth-user.decorator'
 import { User } from 'src/users/entities/user.entity'
+import { Ignored } from 'src/relations/ignoreds/entities/ignored.entity'
+import { IgnoredsService } from 'src/relations/ignoreds/services/ignoreds.service'
 
 import { Message } from '../messages/entities/message.entity'
-import { MessagesService } from '../messages/services/messages.service'
+
+import { Option } from 'src/game/rooms/entities/option.entity'
+import { Room } from 'src/game/rooms/entities/room.entity'
+
+
+interface GameInvitation {
+  host: User,
+  guestId: number,
+  gameOptions: Option,
+}
+
+interface GameInvitationAnswer extends GameInvitation {
+  reply: string,
+  gameRoom?: Room,
+}
+
 
 @UseGuards(WsJwtGuard)
 @WebSocketGateway({
@@ -32,7 +49,9 @@ export class DMGateway
   // -------------------------------------------------------------------------
   // Constructor
   // -------------------------------------------------------------------------
-  constructor(private readonly messages_svc: MessagesService) {}
+  constructor(
+    private readonly ignoreds_svc: IgnoredsService,
+  ) {}
 
   // -------------------------------------------------------------------------
   // Interfaces implementations
@@ -66,14 +85,37 @@ export class DMGateway
     console.log(`User ${user.id} left Room ${this.getRoomName(user)}.`)
   }
 
-  sendMessage(message: Message): void {
+  async sendMessage(message: Message): Promise<void> {
+    const ignoreds: Ignored[] = await this.ignoreds_svc.findAll(message.target);
+
+    let targets = this._server.to(this.getRoomName(message.author));
+
+    if (!ignoreds.some((ignored) => ignored.target.id === message.author.id))
+      targets = targets.to(this.getRoomName(message.target));
+
+    targets.emit('message', message);
+
+    console.log(`DM:Message sent to ${message.author.id} and ${message.target.id}.`)
+  }
+
+  sendGameInvitation(invitation: GameInvitation): void {
     this._server
-      .to(this.getRoomName(message.author))
-      .to(this.getRoomName(message.target))
-      .emit('message', message)
+      .to(`dm_${invitation.guestId}`)
+      .emit('gameInvitationReceived', invitation)
 
     console.log(
-      `Message sent to ${message.author.id} and ${message.target.id}.`,
+      `Invitation sent from ${invitation.host.id} to user id ${invitation.guestId}.`
+    )
+    console.log(invitation.gameOptions)
+  }
+
+  answerGameInvitation(answer: GameInvitationAnswer): void {
+    this._server
+      .to(this.getRoomName(answer.host))
+      .emit('gameInvitationAnswered', answer)
+
+    console.log(
+      `Invitation answered from ${answer.guestId} to ${answer.host.id} with ${answer?.reply}.`
     )
   }
 

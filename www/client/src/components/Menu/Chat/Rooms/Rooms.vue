@@ -1,14 +1,23 @@
 <template>
+  <v-contextmenu ref="contextmenu">
+    <RoomsCM :Conv="cm_conv" />
+  </v-contextmenu>
+
   <div class="convs-interaction-ctn">
-    <div class="convs-interaction" @click="$emit('open', 'create')">Create</div>
-    <div class="convs-interaction" @click="$emit('open', 'join')">Join</div>
+    <div class="convs-interaction" @click="openCreate">Create</div>
+    <div class="convs-interaction" @click="openJoin">Join</div>
   </div>
 
-  <div v-if="sortedConvs" class="convs__list">
-    <p v-if="!sortedConvs.length">No rooms registered</p>
+  <div v-if="convs" class="convs__list">
+    <p v-if="!convs.length">No rooms registered</p>
 
-    <div v-for="conv in sortedConvs" :key="conv">
-      <div class="convs-item" @click="openConv(conv)">
+    <div v-for="conv in convs" :key="conv">
+      <div
+        class="convs-item"
+        @click.left="onOpenConv(conv)"
+        @click.right="cm_conv = conv"
+        v-contextmenu:contextmenu
+      >
         <i v-if="conv.type == 'room'" class="fas fa-users conv-icon"></i>
         <i v-else-if="conv.type == 'dm'" class="fas fa-user conv-icon"></i>
 
@@ -23,104 +32,48 @@
 </template>
 
 <script lang="ts">
-import { computed, onMounted, PropType, ref, watch } from 'vue'
+import { ref } from 'vue'
+
+import { useChat } from '@/composables/Chat/useChat'
+import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/windowInteraction'
+
 import { ConversationType } from '@/types/chat/conversation'
-import { NotificationType } from '@/types/chat/notification'
-import { RoomType } from '@/types/chat/room'
 import { UserType } from '@/types/user/user'
+import { RoomType } from '@/types/chat/room'
+
+import RoomsCM from './RoomsCM.vue'
 
 export default {
   props: {
     RoomId: Number,
-    Notifications: Array as PropType<Array<NotificationType>>,
-    Rooms: Array as PropType<Array<RoomType>>,
-    RelatedUsers: Array as PropType<Array<UserType>>,
   },
-  setup(props, { emit }) {
-    let convs = ref<ConversationType[]>([])
+  components: {
+    RoomsCM,
+  },
+  setup() {
+    let cm_conv = ref<ConversationType>()
 
-    const markNotification = () => {
-      props.Notifications?.forEach((notif) => {
-        let conv = convs.value.find(
-          (conv) => conv.type == notif.type && conv.target.id == notif.target,
-        )
-        if (conv != undefined) {
-          if (notif.type == 'room' && conv.type == 'room') {
-            conv.target.id != props.RoomId ? (conv.notification = true) : 0
-          } else if (notif.type == 'dm' && conv.type == 'dm') {
-            conv.target.id != props.RoomId ? (conv.notification = true) : 0
-          }
-        } else {
-          emit('refresh_related_users')
-          return
-        }
-      })
-    }
+    const { convs, readNotif } = useChat()
+    const { openDm, openRoom, openCreate, openJoin } = useWindowInteraction()
 
-    const getConvs = () => {
-      convs.value = []
+    const onOpenConv = (conv: ConversationType) => {
+      readNotif(conv.target.id)
 
-      props.Rooms!.forEach((room) => {
-        convs.value.push({ type: 'room', target: room })
-      })
-      props.RelatedUsers!.forEach((user) => {
-        convs.value.push({ type: 'dm', target: user })
-      })
-
-      markNotification()
-    }
-
-    onMounted(() => {
-      getConvs()
-    })
-
-    const openConv = (conv: ConversationType) => {
-      let index = props.Notifications?.findIndex(
-        (notif) => notif.type == conv.type && notif.target == conv.target.id,
-      )
-      if (index != undefined && index != -1) {
-        props.Notifications?.splice(index, 1)
+      if (conv.type == 'dm') {
+        openDm(conv.target as UserType)
+      } else if (conv.type == 'room') {
+        openRoom(conv.target as RoomType)
       }
-      emit('open', conv.type, { id: conv.target.id, name: conv.target.name })
     }
-
-    const sortedConvs = computed(() => {
-      convs.value.sort((a, b) => {
-        if (a.notification && !b.notification) {
-          return -1
-        } else if (!a.notification && b.notification) {
-          return 1
-        }
-        return 0
-      })
-      return convs.value
-    })
-
-    watch(
-      () => props.Rooms?.length,
-      () => getConvs(),
-    )
-    watch(
-      () => props.RelatedUsers?.length,
-      () => getConvs(),
-    )
-
-    watch(
-      () => props.Notifications?.length,
-      () => {
-        convs.value.forEach((conv) => {
-          conv.notification = false
-        })
-        markNotification()
-      },
-    )
 
     return {
-      sortedConvs,
-      openConv,
+      onOpenConv,
+      openCreate,
+      openJoin,
+      cm_conv,
+      convs,
     }
   },
-  emits: ['open', 'refresh_related_users'],
 }
 </script>
 

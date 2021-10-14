@@ -23,7 +23,8 @@ export class User {
   public id: number
 
   @Column({
-    unique: true,
+    // Todo:
+    // unique: true,
   })
   public email: string
 
@@ -37,11 +38,18 @@ export class User {
   })
   public avatar?: string
 
+  // Todo:
+  // @Column({
+  //   nullable: true,
+  //   default: false,
+  // })
+  // public is_admin: boolean
+
   @Column({
     nullable: true,
-    default: false,
+    default: "disconnected"
   })
-  public is_admin: boolean
+  public status: string;
 
   // -------------------------------------------------------------------------
   // Authentication
@@ -171,4 +179,7 @@ export class User {
     lazy: true,
   })
   public dm_messages_received: Promise<DMMessage[]>
+
+  @Column({ default: false })
+  public game_invitation_pending: boolean
 }

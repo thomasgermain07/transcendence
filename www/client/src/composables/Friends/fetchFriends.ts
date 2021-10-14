@@ -1,21 +1,14 @@
-import { FriendType } from '@/types/friend/friend'
-import { ref } from 'vue'
 import { useAxios } from '../axios'
 
 export default function getFetchFriends() {
-  let friends = ref([])
-
   const fetchFriends = async () => {
-    const { axios } = useAxios()
     try {
-      const { data } = await axios.get('friends')
-      friends.value = data
-      friends.value?.map((friend: FriendType) => {
-        friend.user.connected = true
-        friend.target.connected = true
-      }) // TODEL : when friend status handled
-    } catch (e) {}
+      const { data } = await useAxios().axios.get('friends')
+      return data
+    } catch (e) {
+      console.log(e)
+    }
   }
 
-  return { friends, fetchFriends }
+  return { fetchFriends }
 }
