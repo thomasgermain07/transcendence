@@ -6,7 +6,6 @@
       </p>
       <div class="join-section">
         <button class="btn" @click="onJoinRoom">Join Room</button>
-        <button class="btn" @click="onCancel">Cancel</button>
       </div>
     </div>
     <div class="logo">
@@ -33,13 +32,8 @@ export default {
       closeInviteNotification()
     }
 
-    const onCancel = () => {
-      // TODO : Make quit the gameRoom
-    }
-
     return {
       onJoinRoom,
-      onCancel,
     }
   },
 }
