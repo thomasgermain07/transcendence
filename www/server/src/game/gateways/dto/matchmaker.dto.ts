@@ -1,23 +1,17 @@
-import { ValidateNested, IsEnum, IsOptional } from 'class-validator';
-import { User } from '../../../users/entities/user.entity';
-import { Option } from '../../rooms/entities/option.entity';
-import { GameMode } from '../../enum/enum';
+import { ValidateNested, IsEnum, IsOptional } from 'class-validator'
+import { Option } from '../../rooms/entities/option.entity'
+import { GameMode } from '../../enum/enum'
 
 export class MatchmakerDto {
+  @IsEnum(GameMode)
+  mode: GameMode
 
-    // nested or exists?
-    @ValidateNested()
-    user: User;
-    
-    @IsEnum(GameMode)
-    mode: GameMode;
-    
-    @IsOptional()
-    @ValidateNested()
-	options: Option
+  @IsOptional()
+  @ValidateNested()
+  options: Option
 
-    @IsOptional()
-	range: number
+  @IsOptional()
+  range: number
 }
 
-export default MatchmakerDto;
+export default MatchmakerDto

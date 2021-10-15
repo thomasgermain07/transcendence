@@ -6,8 +6,9 @@ import { LobbyType, InGameType } from '../../types/game/game'
 import { Player } from '../../types/game/player'
 import { GameMode } from '../../types/game/gameRoom'
 import { GameOptions } from '../../types/game/gameOptions'
-import { useSocket } from '../socket';
-import { useAxios } from '../axios';
+import { useSocket } from '../socket'
+import { useAxios, AxiosErrType } from '../axios'
+import { createToast } from 'mosha-vue-toastify'
 
 const useMatchmaker = () => {
   const matchmakingSocket = useSocket('matchmaker').socket
@@ -33,6 +34,13 @@ const useMatchmaker = () => {
     inGame: false,
     roomRoute: '',
   })
+
+  const toastException = (message: string) => {
+    createToast(message, {
+      timeout: 3000,
+      type: 'warning',
+    })
+  }
 
   // open modal
   const showLobby = () => {
@@ -72,16 +80,20 @@ const useMatchmaker = () => {
 
   const leaveLobby = async () => {
     console.log('In leave lobby Duel view')
-    await axios.delete(`game/players/${ lobby.player.id}`).catch((err: any)=> {
+    await axios.delete(`game/players/${lobby.player.id}`).catch((err: any) => {
       console.log(err)
     })
-    matchmakingSocket.emit('leaveLobbyInServer', {
-      room: roomName.value,
-      playerId: lobby.player.id,
-    }, (message: string) => {
-      console.log(message)
-      closeLobby()
-    })
+    matchmakingSocket.emit(
+      'leaveLobbyInServer',
+      {
+        room: roomName.value,
+        playerId: lobby.player.id,
+      },
+      (message: string) => {
+        console.log(message)
+        closeLobby()
+      },
+    )
   }
 
   const goToRoom = () => {
@@ -93,10 +105,8 @@ const useMatchmaker = () => {
 
   const checkIfInGameOrQueue = async (): Promise<void> => {
     const response = await axios
-    .get(`game/players/checkIfInGameOrQueue/${currentUser.id}`)
-    .catch((error: any) => {
-  
-    })
+      .get(`game/players/checkIfInGameOrQueue/${currentUser.id}`)
+      .catch((error: any) => {})
     if (response) {
       console.log(response)
       checkInGame.inGame = response.data.inGame
@@ -145,18 +155,21 @@ const useMatchmaker = () => {
     )
   }
 
-  const playGame = (mode: GameMode, options: GameOptions | null): void => {
-    matchmakingSocket.emit(
-      'searchMatch',
-      {
-        user: currentUser,
+  const playGame = async (
+    mode: GameMode,
+    options: GameOptions | null,
+  ): Promise<void> => {
+    const response = await axios
+      .post(`game/rooms/matchmaking`, {
         mode: mode,
         options: options,
-      },
-      (player: Player) => {
-        alert(`${player.user.name} already in Game`)
-      },
-    )
+      })
+      .catch((err: AxiosErrType) => {
+        toastException(err.response?.data?.message)
+      })
+    if (response) {
+      joinLobby(response.data)
+    }
   }
 
   return {
