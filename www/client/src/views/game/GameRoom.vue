@@ -25,8 +25,8 @@
           </div>
         </div>
         <GameButton
-          v-if="state.currentPlayer.isPause && isPause"
-          @click="offPause('stopPause')"
+          v-if="state.currentPlayer?.isPause && isPause"
+          @click="offPause()"
           :colorStyle="'#6ded8a'"
           >Resume</GameButton
         >

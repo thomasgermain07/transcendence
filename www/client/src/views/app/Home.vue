@@ -16,7 +16,7 @@
       </router-link>
     </div>
     <div class="leaderboard">
-      <Leaderboard />
+      <Leaderboard v-if="is_authenticated" />
       <button @click="reset">reset</button>
     </div>
   </div>
@@ -35,10 +35,11 @@ export default defineComponent({
   components: { Leaderboard, ErrorPage },
 
   setup() {
-    const { user } = useAuth()
+    const { user, is_authenticated } = useAuth()
 
     return {
       user,
+      is_authenticated,
       reset: () => {
         getInvitationInteraction().deleteInvitation()
       },
