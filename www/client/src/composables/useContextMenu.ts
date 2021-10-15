@@ -1,12 +1,9 @@
 import { router } from '@/router'
 import { openModal } from 'jenesius-vue-modal'
 
-import { useAuth } from './auth'
 import { useFriends } from './Friends/useFriends'
-import { useGameInvite } from './Game/useGameInvite'
 import { useRoom } from './Chat/Room/useRoom'
 
-import getInvitationInteraction from './Game/invitationInteraction'
 import getUserInteraction from '@/composables/User/getUserInteraction'
 
 import DuelCreaction from '@/components/game/duel/DuelCreation.vue'
@@ -14,11 +11,16 @@ import DuelCreaction from '@/components/game/duel/DuelCreation.vue'
 import { UserType } from '@/types/user/user'
 import { PermissionCreationType } from '@/types/chat/permission'
 import { useWindowInteraction } from './Chat/WindowInteraction/windowInteraction'
+import getInvitationInteraction from './Game/invitationInteraction'
+import { useAuth } from './auth'
+
+import { createToast } from 'mosha-vue-toastify'
+import 'mosha-vue-toastify/dist/style.css'
+import { useGameInvite } from './Game/useGameInvite'
 
 // -----------------------------------------------------------------------------
 // Api usage
 // -----------------------------------------------------------------------------
-const { hasPendingInvite } = getInvitationInteraction()
 const { removeFriend, blockUser, unblockUser } = getUserInteraction()
 
 // -----------------------------------------------------------------------------
@@ -43,20 +45,13 @@ export function useContextMenu() {
   }
 
   const onSendDuel = async (user: UserType) => {
-    if (user.status != 'connected') {
-      if (user.status == 'disconnected') {
-        useGameInvite().inviteError(user.name + ' is disconnected')
-      }
-      return
-    }
-
-    useWindowInteraction().closeChat()
-    if (await hasPendingInvite(useAuth().user.id)) {
+    if (await getInvitationInteraction().hasPendingInvite(useAuth().user.id)) {
       useGameInvite().inviteError(
         'You already sent a game invite to ' + user.name,
       )
-      return
+      return false
     }
+    useWindowInteraction().closeChat()
     openModal(DuelCreaction, {
       Target: user,
     })

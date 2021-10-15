@@ -16,6 +16,15 @@ export default function getInvitationInteraction() {
     }
   }
 
+  const isInGameOrQueue = async (id: number) => {
+    try {
+      let { data } = await axios.get(`game/players/checkIfInGameOrQueue/${id}`)
+      return data
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   const createInvitation = async (
     gameOptions: GameOptions,
     guestId: Number,
@@ -60,6 +69,7 @@ export default function getInvitationInteraction() {
 
   return {
     hasPendingInvite,
+    isInGameOrQueue,
     createInvitation,
     deleteInvitation,
     refuseInvitation,
