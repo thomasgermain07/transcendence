@@ -35,7 +35,6 @@
       :Requests="requests"
       @request_answered="loadData"
       @reload_data="loadData"
-      @open_chat="open_chat"
     />
 
     <a
