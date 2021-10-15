@@ -10,14 +10,14 @@
     >
       <template v-slot:header> {{ currentUser.name }} </template>
       <template v-slot:map>
-          <p>{{ lobby.player.room.option.map }}</p>
+        <p>{{ lobby.player.room.option.map }}</p>
       </template>
       <template v-slot:difficulty>
-          <p>{{ lobby.player.room.option.difficulty }}</p>
+        <p>{{ lobby.player.room.option.difficulty }}</p>
       </template>
       <template v-slot:power-ups>
-          <p v-if="lobby.player.room.option.powerUps">yes</p>
-          <p v-else>no</p>
+        <p v-if="lobby.player.room.option.powerUps">yes</p>
+        <p v-else>no</p>
       </template>
     </GameLobby>
     <section class="duel-play">
@@ -26,7 +26,10 @@
         <button class="start-button" @click="onPlayDuel">Start Game</button>
         <div class="in-game" v-if="checkInGame.inGame">
           <p>YOU ARE ALREADY IN A GAME.</p>
-          <p>CLICK <router-link :to="checkInGame.roomRoute">HERE</router-link> TO GO TO THE GAME ROOM.</p>
+          <p>
+            CLICK <router-link :to="checkInGame.roomRoute">HERE</router-link> TO
+            GO TO THE GAME ROOM.
+          </p>
         </div>
       </div>
       <div class="duel-game-options">
@@ -34,26 +37,45 @@
         <div class="options">
           <div class="map">
             <p>MAP</p>
-              <div class="tabs">
-                <div class="tab">
-                  <input type="radio" value="default" id="tab-1" name="tab-group-1" checked v-model="duelOptions.map" />
-                  <label for="tab-1">Default</label>
-                  <div class="content">
-                      <img src="../../assets/images/mapDefault.png" />
-                  </div>
+            <div class="tabs">
+              <div class="tab">
+                <input
+                  type="radio"
+                  value="default"
+                  id="tab-1"
+                  name="tab-group-1"
+                  checked
+                  v-model="duelOptions.map"
+                />
+                <label for="tab-1">Default</label>
+                <div class="content">
+                  <img src="../../assets/images/mapDefault.png" />
                 </div>
-                <div class="tab">
-                  <input type="radio" value="map1" id="tab-2" name="tab-group-1" v-model="duelOptions.map" />
-                  <label for="tab-2">Map 1</label>
-                  <div class="content">
-                      <img src="../../assets/images/map1.png" />
-                  </div>
+              </div>
+              <div class="tab">
+                <input
+                  type="radio"
+                  value="map1"
+                  id="tab-2"
+                  name="tab-group-1"
+                  v-model="duelOptions.map"
+                />
+                <label for="tab-2">Map 1</label>
+                <div class="content">
+                  <img src="../../assets/images/map1.png" />
                 </div>
-                <div class="tab">
-                  <input type="radio" value="map2" id="tab-3" name="tab-group-1" v-model="duelOptions.map" />
-                  <label for="tab-3">Map 2</label>
-                  <div class="content">
-                      <img src="../../assets/images/map2.png" />
+              </div>
+              <div class="tab">
+                <input
+                  type="radio"
+                  value="map2"
+                  id="tab-3"
+                  name="tab-group-1"
+                  v-model="duelOptions.map"
+                />
+                <label for="tab-3">Map 2</label>
+                <div class="content">
+                  <img src="../../assets/images/map2.png" />
                 </div>
               </div>
             </div>
@@ -62,15 +84,30 @@
             <p>DIFFICULTY</p>
             <ul>
               <li>
-                <input id="r1" type="radio" value="easy" v-model="duelOptions.difficulty" />
+                <input
+                  id="r1"
+                  type="radio"
+                  value="easy"
+                  v-model="duelOptions.difficulty"
+                />
                 <label for="r1">Easy</label>
               </li>
               <li>
-                <input id="r2" type="radio" value="medium" v-model="duelOptions.difficulty"/>
+                <input
+                  id="r2"
+                  type="radio"
+                  value="medium"
+                  v-model="duelOptions.difficulty"
+                />
                 <label for="r2">Medium</label>
               </li>
               <li>
-                <input id="r3" type="radio" value="hard" v-model="duelOptions.difficulty"/>
+                <input
+                  id="r3"
+                  type="radio"
+                  value="hard"
+                  v-model="duelOptions.difficulty"
+                />
                 <label for="r3">Hard</label>
               </li>
             </ul>
@@ -78,11 +115,16 @@
           <div class="power-ups">
             <p>POWER UPS</p>
             <div class="switch">
-              <input id="switch-1" type="checkbox" class="switch-input" v-model="duelOptions.powerUps"/>
+              <input
+                id="switch-1"
+                type="checkbox"
+                class="switch-input"
+                v-model="duelOptions.powerUps"
+              />
               <label for="switch-1" class="switch-label">Switch</label>
             </div>
           </div>
-        </div>        
+        </div>
       </div>
     </section>
 
@@ -90,8 +132,6 @@
       <div class="title">LIVE STREAMS ></div>
       <WatchRooms :rooms="rooms" />
     </section>
-
-
   </div>
 </template>
 
@@ -147,7 +187,6 @@ export default defineComponent({
     })
 
     const onPlayDuel = (): void => {
-      // console.log(duelOptions)
       playGame(GameMode.DUEL, duelOptions)
     }
 
@@ -157,48 +196,20 @@ export default defineComponent({
     }
 
     // --- SOCKETS LISTENERS ---
-    matchmakingSocket.on('connect', () => {
-      console.log('matchmakingSocket connected')
-      // console.log(matchmakingSocket.id)
-      console.log(matchmakingSocket.rooms)
-    })
-    matchmakingSocket.io.on('reconnect', () => {
-      console.log('matchmakingSocket reconnected')
-      // console.log(matchmakingSocket.id)
-      console.log(matchmakingSocket.rooms)
-    })
-    matchmakingSocket.on('disconnect', () => {
-      console.log(`matchmakingSocket disconnected`)
-    })
-    matchmakingSocket.on('exception', (err) => {
-      console.log('IN EXCEPTION DUEL')
-      console.log(err)
-    })
-
     matchmakingSocket.on('joinLobbyInClient', (player: Player) => {
-      console.log('Joining lobby')
       joinLobby(player)
     })
 
     matchmakingSocket.on('matchFound', () => {
-      console.log('Match found')
       updateMatchedState(true)
     })
 
-    // For inactive users
-    // matchmakingSocket.on('closeLobbyModal', () => {
-    //   closeLobby()
-    // })
-
     gameRoomsSocket.on('updateWatchRoomInClient', ({ rooms }) => {
-      console.log(`in update Watch room`)
-      console.log(rooms)
       updateWatchRooms(rooms)
     })
 
     // --- NAVIGATION GUARDS ---
     onBeforeRouteLeave((to, from) => {
-
       // if soft logout
       const { is_authenticated } = useAuth()
       if (!is_authenticated.value && lobby.visible) {
@@ -221,19 +232,16 @@ export default defineComponent({
 
     // --- LIFECYCLE HOOKS ---
     onMounted(() => {
-      console.log('In mount matchmaker - socket id: ' + matchmakingSocket.id)
       checkIfInGameOrQueue()
     })
 
     onUnmounted(() => {
-      console.log('In unmount - matchmaker matchmakingSocket.off')
       if (roomName.value) {
         matchmakingSocket.emit('leaveLobbySocket', {
           room: roomName.value,
         })
       }
-      matchmakingSocket.off() // -> could be problematic between vues
-      // gameRoomsSocket.off() ????
+      matchmakingSocket.off()
     })
 
     return {
@@ -252,14 +260,11 @@ export default defineComponent({
 </script>
 
 <style scoped>
-/* @import url('http://fonts.cdnfonts.com/css/pixelfaceonfire');
-@import url('http://fonts.cdnfonts.com/css/messing-lettern');
-@import url('http://fonts.cdnfonts.com/css/gun-metal'); */
 @import url('http://fonts.cdnfonts.com/css/karmatic-arcade');
-@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 .duel-game {
-  font-family: "Press Start 2P", cursive;
+  font-family: 'Press Start 2P', cursive;
   font-size: 10px;
   letter-spacing: 1px;
   text-align: justify;
@@ -271,9 +276,7 @@ h1 {
   letter-spacing: -1px;
 }
 
-
 .duel-play {
-  /* background-color: rgba(1, 1, 2, 0.37); */
   background: linear-gradient(
       to bottom,
       rgba(25, 24, 26, 0.562),
@@ -298,7 +301,6 @@ h1 {
     flex-direction: column;
     align-items: center;
   }
-
 }
 
 .duel-start-game {
@@ -310,7 +312,7 @@ h1 {
   padding: 15px;
   margin: 30px 0;
   font-size: 16px;
-  font-family: "Press Start 2P", cursive;
+  font-family: 'Press Start 2P', cursive;
   color: var(--secondary-color);
   background-color: var(--primary-color);
   border-radius: 4%;
@@ -366,12 +368,12 @@ h1 {
   float: left;
 }
 
-.tab [type="radio"] ~ label {
+.tab [type='radio'] ~ label {
   position: relative;
   font-size: 10px;
 }
 
-.tab [type="radio"] {
+.tab [type='radio'] {
   opacity: 0;
 }
 .content {
@@ -395,18 +397,13 @@ h1 {
   display: block;
 }
 
-.tab [type="radio"]:checked ~ label {
+.tab [type='radio']:checked ~ label {
   border-bottom: 1px solid white;
-  /* z-index: 2; */
 }
-/* .tab [type="radio"]:checked ~ label ~ .content {
-  z-index: 1;
-} */
-.tab [type="radio"]:checked ~ label ~ .content > * {
+.tab [type='radio']:checked ~ label ~ .content > * {
   opacity: 1;
   transform: translateX(0);
 }
-
 
 /* Difficulty select list  */
 ul {
@@ -423,7 +420,7 @@ li {
 }
 
 @supports (-webkit-appearance: none) or (-moz-appearance: none) {
-  input[type="radio"] {
+  input[type='radio'] {
     --active: #ff2a6d;
     --active-inner: #fff;
     --focus: 2px rgba(255, 42, 109, 0.3);
@@ -445,8 +442,8 @@ li {
     background: var(--b, var(--background));
     transition: background 0.3s, border-color 0.3s, box-shadow 0.2s;
   }
-  input[type="radio"]:after {
-    content: "";
+  input[type='radio']:after {
+    content: '';
     display: block;
     left: 0;
     top: 0;
@@ -454,41 +451,41 @@ li {
     transition: transform var(--d-t, 0.3s) var(--d-t-e, ease),
       opacity var(--d-o, 0.2s);
   }
-  input[type="radio"]:checked {
+  input[type='radio']:checked {
     --b: var(--active);
     --bc: var(--active);
     --d-o: 0.3s;
     --d-t: 0.6s;
     --d-t-e: cubic-bezier(0.2, 0.85, 0.32, 1.2);
   }
-  input[type="radio"]:disabled {
+  input[type='radio']:disabled {
     --b: var(--disabled);
     cursor: not-allowed;
     opacity: 0.9;
   }
-  input[type="radio"]:disabled:checked {
+  input[type='radio']:disabled:checked {
     --b: var(--disabled-inner);
     --bc: var(--border);
   }
-  input[type="radio"]:disabled + label {
+  input[type='radio']:disabled + label {
     cursor: not-allowed;
   }
-  input[type="radio"]:hover:not(:checked):not(:disabled) {
+  input[type='radio']:hover:not(:checked):not(:disabled) {
     --bc: var(--border-hover);
   }
-  input[type="radio"]:focus {
+  input[type='radio']:focus {
     box-shadow: 0 0 0 var(--focus);
   }
-  input[type="radio"]:not(.switch) {
+  input[type='radio']:not(.switch) {
     width: 21px;
   }
-  input[type="radio"]:not(.switch):after {
+  input[type='radio']:not(.switch):after {
     opacity: var(--o, 0);
   }
-  input[type="radio"]:not(.switch):checked {
+  input[type='radio']:not(.switch):checked {
     --o: 1;
   }
-  input[type="radio"] + label {
+  input[type='radio'] + label {
     font-size: 12px;
     line-height: 21px;
     display: inline-block;
@@ -496,10 +493,10 @@ li {
     cursor: pointer;
     margin-left: 4px;
   }
-  input[type="radio"] {
+  input[type='radio'] {
     border-radius: 50%;
   }
-  input[type="radio"]:after {
+  input[type='radio']:after {
     width: 19px;
     height: 19px;
     border-radius: 50%;
@@ -507,7 +504,7 @@ li {
     opacity: 0;
     transform: scale(var(--s, 0.7));
   }
-  input[type="radio"]:checked {
+  input[type='radio']:checked {
     --s: 0.5;
   }
 }
@@ -532,7 +529,7 @@ li {
 }
 .switch-label::before,
 .switch-label::after {
-  content: "";
+  content: '';
   display: block;
   position: absolute;
   cursor: pointer;
@@ -568,5 +565,4 @@ li {
   margin: 50px 0 0 20px;
   color: var(--tertiary-color);
 }
-
 </style>

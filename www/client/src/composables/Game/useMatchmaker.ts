@@ -44,23 +44,19 @@ const useMatchmaker = () => {
 
   // open modal
   const showLobby = () => {
-    console.log('In Show Lobby')
     lobby.visible = true
   }
 
   // close modal
   const closeLobby = () => {
-    console.log('In Close Lobby')
     lobby.visible = false
   }
 
   const updateMatchedState = (value: boolean) => {
-    console.log('in update matched state')
     lobby.matched = value
   }
 
   const joinLobby = (player: Player): void => {
-    console.log('Join lobby from client')
     showLobby()
     lobby.player = player
     matchmakingSocket.emit(
@@ -79,10 +75,11 @@ const useMatchmaker = () => {
   }
 
   const leaveLobby = async () => {
-    console.log('In leave lobby Duel view')
-    await axios.delete(`game/players/${lobby.player.id}`).catch((err: any) => {
-      console.log(err)
-    })
+    await axios
+      .delete(`game/players/${lobby.player.id}`)
+      .catch((err: AxiosErrType) => {
+        console.log(err.response?.data)
+      })
     matchmakingSocket.emit(
       'leaveLobbyInServer',
       {
@@ -98,8 +95,6 @@ const useMatchmaker = () => {
 
   const goToRoom = () => {
     closeLobby()
-    console.log('Redirection to game room')
-    console.log(lobby.player.room.id)
     router.push(`/game/room/${lobby.player.room.id}`)
   }
 
@@ -108,7 +103,6 @@ const useMatchmaker = () => {
       .get(`game/players/checkIfInGameOrQueue/${currentUser.id}`)
       .catch((error: any) => {})
     if (response) {
-      console.log(response)
       checkInGame.inGame = response.data.inGame
       checkInGame.roomRoute = response.data.roomRoute
       // show matchmaking window if player in unlocked game room
@@ -121,8 +115,6 @@ const useMatchmaker = () => {
 
   // FOR LADDER ONLY
   const expandRange = (range: number): void => {
-    console.log('in expand range in ladder view')
-    console.log('Received range: ' + range)
     matchmakingSocket.emit(
       'expandSearchRange',
       {
@@ -132,7 +124,6 @@ const useMatchmaker = () => {
         range: range,
       },
       (player: Player) => {
-        console.log(player)
         lobby.player = player
       },
     )
@@ -140,7 +131,6 @@ const useMatchmaker = () => {
 
   // FOR DUEL ONLY
   const renewSearch = (): void => {
-    console.log('in renew Search in duel view')
     matchmakingSocket.emit(
       'renewSearchDuel',
       {
@@ -149,7 +139,6 @@ const useMatchmaker = () => {
         currentRoomName: roomName.value,
       },
       (player: Player) => {
-        console.log(player)
         lobby.player = player
       },
     )

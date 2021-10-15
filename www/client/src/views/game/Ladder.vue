@@ -17,14 +17,17 @@
           <h1>Ladder Mode</h1>
           <button class="start-button" @click="onPlayLadder">Start Game</button>
           <div class="in-game" v-if="checkInGame.inGame">
-          <!-- <div class="in-game"> -->
             <p>YOU ARE ALREADY IN A GAME.</p>
-            <p>CLICK <router-link :to="checkInGame.roomRoute">HERE</router-link> TO GO TO THE GAME ROOM.</p>
+            <p>
+              CLICK
+              <router-link :to="checkInGame.roomRoute">HERE</router-link> TO GO
+              TO THE GAME ROOM.
+            </p>
           </div>
         </div>
         <div class="ladder-level">
           <p>Current Ladder Level</p>
-          <div class="box"> {{ currentUser.ladderLevel }}</div>
+          <div class="box">{{ currentUser.ladderLevel }}</div>
         </div>
       </section>
 
@@ -91,41 +94,20 @@ export default defineComponent({
     }
 
     // --- SOCKETS LISTENERS ---
-    matchmakingSocket.on('connect', () => {
-      console.log('matchmakingSocket connected')
-      // console.log(matchmakingSocket.id)
-      console.log(matchmakingSocket.rooms)
-    })
-    matchmakingSocket.io.on('reconnect', () => {
-      console.log('matchmakingSocket reconnected')
-      console.log(matchmakingSocket.rooms)
-    })
-    matchmakingSocket.on('disconnect', () => {
-      console.log(`matchmakingSocket disconnected`)
-    })
-    matchmakingSocket.on('exception', (err) => {
-      console.log('IN EXCEPTION')
-      console.log(err)
-    })
-
     matchmakingSocket.on('joinLobbyInClient', (player: Player) => {
-      console.log('Joining lobby')
       joinLobby(player)
     })
 
     matchmakingSocket.on('matchFound', () => {
-      console.log('Match found')
       updateMatchedState(true)
     })
 
     gameRoomsSocket.on('updateWatchRoomInClient', ({ rooms }) => {
-      console.log(`in update Watch room`)
       updateWatchRooms(rooms)
     })
 
     // --- NAVIGATION GUARDS ---
     onBeforeRouteLeave((to, from) => {
-
       const { is_authenticated } = useAuth()
       if (!is_authenticated.value && lobby.visible) {
         leaveLobby()
@@ -147,13 +129,10 @@ export default defineComponent({
 
     // --- LIFEHCYCLE HOOKS ---
     onMounted(() => {
-      console.log('In mount matchmaker')
-      console.log(matchmakingSocket.id)
       checkIfInGameOrQueue()
     })
 
     onUnmounted(() => {
-      console.log('In unmount - matchmaker matchmakingSocket.off')
       matchmakingSocket.emit('leaveLobbySocket', {
         room: roomName.value,
       })
@@ -177,12 +156,11 @@ export default defineComponent({
 </script>
 
 <style scoped>
-
 @import url('http://fonts.cdnfonts.com/css/karmatic-arcade');
-@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 .ladder-game {
-  font-family: "Press Start 2P", cursive;
+  font-family: 'Press Start 2P', cursive;
   font-size: 10px;
   letter-spacing: 1px;
   text-align: justify;
@@ -205,7 +183,6 @@ h1 {
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
-    /* url(../../assets/images/levelUp.png) center center; */
   display: flex;
   margin-bottom: 20px;
   min-height: 300px;
@@ -227,7 +204,7 @@ h1 {
   padding: 15px;
   margin: 30px 0;
   font-size: 16px;
-  font-family: "Press Start 2P", cursive;
+  font-family: 'Press Start 2P', cursive;
   color: var(--secondary-color);
   background-color: var(--primary-color);
   border-radius: 4%;
@@ -268,5 +245,4 @@ h1 {
   margin: 50px 0 0 20px;
   color: var(--tertiary-color);
 }
-
 </style>

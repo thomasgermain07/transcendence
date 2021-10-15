@@ -49,7 +49,6 @@ const useGameRoom = () => {
         (!state.currentPlayer && response.data.state === GameState.WAITING) ||
         (state.currentPlayer && response.data.locked === false)
       ) {
-        // console.log('NOT A PLAYER or ROOM INCOMPLETE')
         state.error = 'Not authorized'
       }
 

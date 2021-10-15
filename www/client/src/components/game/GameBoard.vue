@@ -139,21 +139,18 @@ export default defineComponent({
       draw()
     }
     function keydown(event: KeyboardEvent) {
-      // console.log('KEY PRESS')
       if (event.key === 'ArrowUp') {
         gameRoomsSocket.emit('move', {
           move: 'up',
           user_id: currentUser.id,
           room: roomName,
         })
-        // console.log('KEY UP')
       } else if (event.key === 'ArrowDown') {
         gameRoomsSocket.emit('move', {
           move: 'down',
           user_id: currentUser.id,
           room: roomName,
         })
-        // console.log('KEY Down')
       }
       event.preventDefault()
       gameRoomsSocket.off('move')
@@ -165,14 +162,12 @@ export default defineComponent({
           user_id: currentUser.id,
           room: roomName,
         })
-        // console.log('KEY UP')
       } else if (event.key === 'ArrowDown') {
         gameRoomsSocket.emit('move', {
           move: 'not',
           user_id: currentUser.id,
           room: roomName,
         })
-        // console.log('KEY Down')
       }
       event.preventDefault()
       gameRoomsSocket.off('move')
@@ -289,17 +284,12 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      console.log('In mount game-board')
-      console.log(gameRoomsSocket.id)
-      // console.log(`is player: ${isPlayer}`)
       if (isPlayer) {
         setEventListeners()
       }
     })
     onUnmounted(() => {
-      console.log('In unmount - game-board')
       gameRoomsSocket.off()
-      // console.log(`is player: ${isPlayer}`)
       if (isPlayer) {
         unsetEventListeners()
       }

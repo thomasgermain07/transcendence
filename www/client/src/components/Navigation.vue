@@ -48,7 +48,6 @@
 <script lang="ts">
 import { defineComponent } from '@vue/runtime-core'
 import { useAuth } from '@/composables/auth'
-import { watch } from 'vue'
 
 export default defineComponent({
   name: 'navigation',
@@ -56,13 +55,6 @@ export default defineComponent({
   setup() {
     const { is_authenticated, user } = useAuth()
 
-    watch(
-      () => user,
-      () => {
-        console.log('in nav modif user')
-        console.log(user)
-      },
-    )
     return { is_authenticated, user }
   },
 })

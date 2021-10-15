@@ -12,7 +12,6 @@
           :roomState="room.state"
           :roomMode="room.mode"
         />
-        <!-- @checkReady="onReady" -->
         <div class="game-ready" v-if="isPlayerWaiting">
           <GameButton
             v-bind:class="{ active: state.isActive }"
@@ -164,7 +163,6 @@ export default defineComponent({
     })
 
     const onCancel = async () => {
-      console.log('in cancel')
       try {
         const res = await useAxios().axios.delete('game/rooms/private', {
           data: { room: room.value },
@@ -178,7 +176,6 @@ export default defineComponent({
     }
 
     const onReady = (): void => {
-      console.log(`Player ${state.currentPlayer.id} READY`)
       state.isActive = true
       gameRoomsSocket.emit('getReady', {
         playerId: state.currentPlayer.id,
@@ -187,7 +184,6 @@ export default defineComponent({
     }
 
     const offPause = (): void => {
-      console.log(`Player ${state.currentPlayer.id} READY AFTER PAUSE`)
       gameRoomsSocket.emit('stopPause', {
         playerId: state.currentPlayer.id,
         roomId: room.id,
@@ -196,7 +192,6 @@ export default defineComponent({
     }
 
     const onLeave = (leaveType: string): void => {
-      console.log(leaveType)
       gameRoomsSocket.emit(
         leaveType,
         {
@@ -204,7 +199,6 @@ export default defineComponent({
           room: roomName,
         },
         (message: string) => {
-          console.log(message)
           router.push('/game')
         },
       )
@@ -212,7 +206,6 @@ export default defineComponent({
 
     // --- HELPER FUNCTIONS ---
     const joinRoom = (): void => {
-      console.log('in join room function ')
       gameRoomsSocket.emit(
         'joinRoom',
         parseInt(route.params.id),
@@ -232,8 +225,6 @@ export default defineComponent({
     // check if both players are ready
     const checkReady = (room: Room): void => {
       if (room.players.every((player) => player.isReady === true)) {
-        console.log('Both players are ready')
-
         // update Room state to playing
         gameRoomsSocket.emit('updateRoomInServer', {
           socketRoomName: roomName,
@@ -252,8 +243,6 @@ export default defineComponent({
 
     const stopPause = (room: Room): void => {
       if (room.players.every((player) => player.isPause === false)) {
-        console.log('Both players are back')
-
         // update Room state to playing
         // clearInterval(interval)
         timer.value = 0
@@ -278,60 +267,38 @@ export default defineComponent({
 
     // --- SOCKETS ---
     gameRoomsSocket.on('connect', () => {
-      console.log('game-room socket connected')
-      console.log(gameRoomsSocket.id)
       joinRoom()
-    })
-    gameRoomsSocket.io.on('reconnect', () => {
-      console.log('gameRoomsSocket reconnected')
-    })
-    gameRoomsSocket.on('disconnect', () => {
-      console.log(`gameRoomsSocket disconnected`)
-      // gameRoomsSocket.off()
     })
 
     gameRoomsSocket.on('updateRoomInClient', ({ room }) => {
-      console.log(`in update room`)
-      console.log(room)
       updateRoom(room)
     })
 
     gameRoomsSocket.on('onPause', ({ count }) => {
-      console.log(`in pause room`)
       startCountDown(count)
     })
 
     gameRoomsSocket.on('checkReady', ({ room }) => {
-      console.log(`in check ready`)
       checkReady(room)
     })
 
     gameRoomsSocket.on('checkStopPause', ({ room }) => {
-      console.log(`in stop pause`)
       stopPause(room)
     })
 
     gameRoomsSocket.on('roomJoined', (roomRet) => {
-      console.log('someone joined the room ' + roomName)
       updateRoom(roomRet)
     })
 
     gameRoomsSocket.on('opponentLeaving', () => {
-      console.log('someone left the room')
       toastOppLeaving()
       redirectToGameView()
     })
 
     gameRoomsSocket.on('roomCanceled', () => {
-      console.log('someone canceled the private room')
       toastGameCanceled()
       router.push('/game')
     })
-
-    // TO CHECK: reload room on route change
-    // onBeforeRouteUpdate(() => {
-    //   loadRoom(route.params.id)
-    // })
 
     onBeforeRouteLeave(() => {
       if (state.currentPlayer && room.value.state == GameState.WAITING) {
@@ -342,17 +309,13 @@ export default defineComponent({
     })
 
     onMounted(() => {
-      console.log('In mount game-room')
-      console.log(gameRoomsSocket.id)
       if (gameRoomsSocket.id) {
         joinRoom()
       }
     })
 
     onUnmounted(() => {
-      console.log('In unmount - gameRooms Socket.off')
       gameRoomsSocket.off()
-      // leave room ?
     })
 
     return {
