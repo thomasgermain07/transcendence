@@ -1,7 +1,5 @@
 <template>
-  <div class="auth-logout">
-    <h2>Auth-Logout</h2>
-
+  <div>
     <span> Cleaning your session... </span>
   </div>
 </template>
@@ -30,7 +28,4 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.auth-logout {
-  background: rgb(230, 163, 64);
-}
 </style>

@@ -1,11 +1,6 @@
 <template>
   <div class="app-home">
     <div class="profile-ctn">
-      <link
-        href="https://fonts.googleapis.com/css?family=Sacramento:400"
-        rel="stylesheet"
-        type="text/css"
-      />
       <h1 class="neonText">Welcome {{ user.name }}</h1>
       <p class="info__general">
         From now you are available to play pong with others players and try to
