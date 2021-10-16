@@ -1,11 +1,6 @@
 <template>
-	<div class="auth-login-marvin-callback">
-		<GoogleAuth
-			v-if="googleCode.visible"
-			@submit="submit"
-			>
-		</GoogleAuth>
-		<h2>Auth-Login-Marvin-Callback</h2>
+	<div>
+		<GoogleAuth v-if="googleCode.visible" @submit="submit"></GoogleAuth>
 
 		{{ message }}
 	</div>
@@ -55,7 +50,4 @@
 </script>
 
 <style scoped>
-	.auth-login-marvin-callback {
-		background: rgb(230, 163, 64);
-	}
 </style>

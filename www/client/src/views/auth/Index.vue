@@ -1,7 +1,6 @@
 <template>
-	<div class="auth">
-		<h1>Auth</h1>
-
+	<div>
+		<h1>Transcendence</h1>
 		<router-view />
 	</div>
 </template>
@@ -21,7 +20,10 @@
 </script>
 
 <style scoped>
-	.auth {
-		background: rgb(184, 62, 184);
+	h1 {
+		margin: 10vh 0;
+		color: var(--tertiary-color);
+		font-size: 2.5rem;
+		font-family: 'Press Start 2P', cursive;
 	}
 </style>

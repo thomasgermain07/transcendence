@@ -1,23 +1,22 @@
 <template>
   <div class="modal-backdrop">
     <div class="modal">
-      <div>
+      <header class="modal-header">
+        <h3>Google Authenticator</h3>
         <a @click="closeWindow">
           <i class="far fa-times-circle cross__icon"></i>
         </a>
-      </div>
-      <div class="wrong__code" v-if="message">
-        {{ message }}
-      </div>
-      <header class="modal-header">
-        <h1>Google Authenticator</h1>
       </header>
       <div>
+        <div class="form__error" v-if="message">
+          {{ message }}
+        </div>
         <form @submit.prevent="submit">
-          <div>
+          <div class="form__field">
             <label for="code">Code</label>
             <input type="text" name="code" id="code" v-model="google.code" />
           </div>
+
           <button type="submit">Submit</button>
         </form>
       </div>
@@ -66,85 +65,46 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(0, 0, 0, 0.808);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  /* z position  */
-}
+  .modal-backdrop {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.808);
+  }
 
-.cross__icon {
-  padding: 4px 4px;
-  cursor: pointer;
-  float: right;
-}
+  .modal {
+    padding: 1em;
+    background: white;
+  }
 
-.modal {
-  background: #ffffff;
-  box-shadow: 2px 2px 20px 1px;
-  overflow-x: auto;
-  display: flex;
-  flex-direction: column;
-  width: 80%;
-  max-height: 70%;
-  /* font-family: 'Courier New', Courier, monospace; */
-  font-size: 2vh;
-}
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1em;
+    color: var(--tertiary-color);
+  }
 
-.wrong__code {
-  background: #b91414;
-  color: #eeeeee;
-  box-shadow: 2px 2px 20px 1px;
-}
+  .cross__icon {
+    cursor: pointer;
+    float: right;
+  }
 
-.modal-header,
-.modal-footer {
-  padding: 15px;
-  display: flex;
-}
+  .form__error {
+		color: var(--primary-color);
+	}
+	.form__error:last-of-type {
+		margin-bottom: 1em;
+	}
 
-.modal-header {
-  position: relative;
-  border-bottom: 1px solid #eeeeee;
-  color: #4aae9b;
-  justify-content: space-between;
-}
-
-.modal-footer {
-  border-top: 1px solid #eeeeee;
-  flex-direction: column;
-  justify-content: flex-end;
-}
-
-.modal-body {
-  position: relative;
-  padding: 20px 10px;
-  /* font-family: 'Courier New', Courier, monospace; */
-}
-
-.btn-close {
-  position: absolute;
-  top: 0;
-  right: 0;
-  border: none;
-  font-size: 20px;
-  padding: 10px;
-  cursor: pointer;
-  font-weight: bold;
-  color: #4aae9b;
-  background: transparent;
-}
-
-.btn-green {
-  color: white;
-  background: #4aae9b;
-  border: 1px solid #4aae9b;
-  border-radius: 2px;
-}
+	.form__field {
+		display: flex;
+		flex-direction: column;
+		gap: .2em;
+		margin-bottom: 1em;
+	}
 </style>
