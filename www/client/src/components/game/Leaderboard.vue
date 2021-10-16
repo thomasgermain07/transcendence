@@ -38,7 +38,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-import { useAxios } from '../../composables/axios'
+import { AxiosErrType, useAxios } from '../../composables/axios'
 import { useRouter } from 'vue-router'
 
 export default defineComponent({
@@ -52,20 +52,15 @@ export default defineComponent({
     const offset = ref(0)
     const limit = 5
 
-    // http://localhost:8080/api/users/leaderboard?offset=0&limit=20
     const fetchLeaderboard = async () => {
       loading.value = true
       const response = await axios
-        // .get(`users/leaderboard`)
         .get(`users/leaderboard?offset=${offset.value}&limit=${limit}`)
-        .catch((err) => {
-          console.log(err)
+        .catch((err: AxiosErrType) => {
+          console.log(err.response?.data)
         })
 
       if (response) {
-        console.log(
-          `Fetching leaderboard, offset: ${offset.value}, limit: ${limit}`,
-        )
         loading.value = false
         leaderboard.value = response.data
       }

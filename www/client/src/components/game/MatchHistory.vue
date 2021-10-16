@@ -66,7 +66,7 @@ export default defineComponent({
       const response = await axios
         .get(`game/players/history/${user.value.id}`)
         .catch((err: AxiosErrType) => {
-          console.log(err)
+          console.log(err.response?.data)
         })
 
       if (response) {

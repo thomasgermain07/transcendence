@@ -76,8 +76,6 @@ async function verifyCode(code: GoogleAuthType): Promise<AxiosResType> {
   const { axios } = useAxios()
 
   const url: string = `auth/code`
-  console.log('-------')
-  console.log(code)
   return await axios.post(url, code)
 }
 

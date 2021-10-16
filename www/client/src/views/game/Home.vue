@@ -65,12 +65,10 @@ export default defineComponent({
     const isActive = ref(false)
 
     const openRules = () => {
-      console.log('in open rules')
       isActive.value = true
     }
 
     const closeRules = () => {
-      console.log('in open rules')
       isActive.value = false
     }
 

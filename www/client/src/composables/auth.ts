@@ -95,7 +95,6 @@ export function useAuth() {
         setAuthenticated(true)
         router.replace({ name: 'index' })
       } else {
-        console.log(res)
         googleCode.user_id = res.data.user_id
         googleCode.visible = true
       }
