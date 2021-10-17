@@ -187,8 +187,6 @@ export default {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap');
-
 * {
   box-sizing: border-box;
   font-family: 'Inconsolata', monospace;
@@ -294,10 +292,9 @@ export default {
   top: 50%;
   left: 50%;
   width: 80vw;
-  height: 80vh;
   max-width: 800px;
   max-height: 100%;
-  padding: 20px 50px 20px 20px;
+  padding: 0 20px;
   transform: translate(-50%, -50%);
   overflow: scroll;
   background-color: rgb(231, 234, 238);

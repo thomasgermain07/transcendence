@@ -98,15 +98,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap');
-
 * {
-  box-sizing: border-box;
-  font-family: 'Inconsolata', monospace;
-}
-
-body {
-  background-color: #f9f9f9;
+  font-family: 'Electrolize', sans-serif;
 }
 
 h1 {

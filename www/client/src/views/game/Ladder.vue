@@ -137,7 +137,6 @@ export default defineComponent({
         room: roomName.value,
       })
       matchmakingSocket.off()
-      // gameRoomsSocket.off() ????
     })
 
     return {
@@ -168,7 +167,8 @@ export default defineComponent({
 }
 
 h1 {
-  font-size: 64px;
+  font-family: 'Electrolize', sans-serif;
+  font-size: 86px;
   letter-spacing: -1px;
 }
 
@@ -226,10 +226,14 @@ h1 {
 }
 
 .ladder-level {
+  font-family: 'Changa', sans-serif;
   flex: 2;
   margin: auto;
   text-align: center;
-  font-size: 24px;
+  font-size: 32px;
+  letter-spacing: 2px;
+  font-weight: 600;
+  text-shadow: 1px 1px 3px black;
 }
 
 .ladder-level .box {

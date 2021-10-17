@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, BadRequestException } from '@nestjs/common'
 import * as bcrypt from 'bcrypt'
 
 import { CreateUserDto } from 'src/users/dto/create-user.dto'
@@ -56,9 +56,16 @@ export class AuthService {
   }
 
   async edit(user: User, data: EditProfilePayload): Promise<User> {
-
     if (data.name && data.new_name && data.name == user.name) {
-      await this.users_svc.updateName(user.id, data.new_name)
+      try {
+        await this.users_svc.updateName(user.id, data.new_name)
+      } catch (error) {
+        if (error?.code == 23505) {
+          throw new BadRequestException('This username is already taken')
+        } else {
+          throw new BadRequestException('Wrong input')
+        }
+      }
     }
 
     return user

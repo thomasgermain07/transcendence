@@ -1,27 +1,17 @@
 <template>
-	<div class="app">
-		<!-- <h1>App</h1> -->
-
-		<router-view />
-	</div>
+  <div class="app">
+    <router-view />
+  </div>
 </template>
 
-<script lang='ts'>
-	import { defineComponent } from "vue";
+<script lang="ts">
+import { defineComponent } from 'vue'
 
-	export default defineComponent({
-		name: 'app',
+export default defineComponent({
+  name: 'app',
 
-		setup()
-		{
-
-		},
-
-	});
+  setup() {},
+})
 </script>
 
-<style scoped>
-	/* .app {
-		background: rgb(184, 62, 184);
-	} */
-</style>
+<style scoped></style>

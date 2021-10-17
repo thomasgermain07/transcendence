@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
   NotFoundException,
 } from '@nestjs/common'
-import { Post, Delete } from '@nestjs/common'
+import { Post, Delete, BadRequestException } from '@nestjs/common'
 import { UseGuards } from '@nestjs/common'
 import { Request } from 'express'
 

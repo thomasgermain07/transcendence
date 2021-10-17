@@ -65,6 +65,10 @@ export default {
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Electrolize&family=Noto+Sans+Mono:wght@900&family=Play&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Changa:wght@300&family=Special+Elite&display=swap');
+
 .root {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -76,8 +80,6 @@ export default {
   --primary-color: #ff2a6d;
   --secondary-color: #d1f7ff;
   --tertiary-color: #01012b;
-  /* --primary-color: #ff2a6d;
-  --secondary-color: black; */
   box-sizing: border-box;
 }
 </style>

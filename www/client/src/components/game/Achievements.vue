@@ -59,7 +59,6 @@ export default defineComponent({
 
 <style scoped>
 li {
-  /* border: solid 1px white; */
   display: flex;
   margin: 40px 20px;
 }

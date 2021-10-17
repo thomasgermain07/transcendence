@@ -2,10 +2,13 @@
   <div class="app-home">
     <div class="profile-ctn">
       <h1 class="neonText">Welcome {{ user.name }}</h1>
-      <p class="info__general">
-        From now you are available to play pong with others players and try to
-        be on the Leaderboard's top. May the force of the pong be with you!!!
-      </p>
+      <div class="info__general">
+        <p>
+          Play pong against others players and try to be on the Leaderboard's
+          top.
+        </p>
+        <p>May the force of the pong be with you!!!</p>
+      </div>
       <router-link :to="{ name: 'game' }" class="link">
         <button class="link__game">Play Now</button>
       </router-link>
@@ -44,8 +47,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap');
-
 .app-home {
   display: flex;
   flex-direction: column;
@@ -65,10 +66,11 @@ export default defineComponent({
   margin-bottom: 20px;
 }
 .neonText {
+  font-family: 'Electrolize', sans-serif;
   text-transform: capitalize;
   text-align: left;
   color: #fff;
-  letter-spacing: -1px;
+  letter-spacing: 1px;
   padding: 40px;
   text-shadow: 0 0 7px #fff, 0 0 10px #fff, 0 0 21px #fff,
     0 0 42px hsl(224, 99%, 54%), 0 0 82px hsl(224, 99%, 54%),
@@ -78,7 +80,7 @@ export default defineComponent({
 
 body {
   font-size: 18px;
-  font-family: 'Sacramento', sans-serif;
+  font-family: 'Electrolize', sans-serif;
   background-color: #010a01;
   display: column;
   text-align: left;
@@ -111,8 +113,8 @@ h1 {
   }
 }
 .info__general {
-  font-family: 'Inconsolata', monospace;
-  font-weight: bold;
+  font-family: 'Changa', sans-serif;
+  line-height: 110%;
   font-size: 25px;
   margin: 0 0 30px 40px;
   max-width: 450px;

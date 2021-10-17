@@ -154,12 +154,6 @@ export function useAuth() {
       return
     }
 
-    // Refresh the socket connections
-    // const namespaces = ['chat', 'matchmaker', 'game-rooms']
-    // namespaces.forEach((nsp) => {
-    //   useSocket(nsp).refresh()
-    // })
-
     return
   }
 
