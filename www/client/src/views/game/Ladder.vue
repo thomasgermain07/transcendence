@@ -4,13 +4,23 @@
     <div v-else>
       <GameLobby
         v-if="lobby.visible"
-        :gameMode="'ladder'"
+        :gameMode="lobby.player.room.mode"
         :matchFound="lobby.matched"
         @close="leaveLobby"
         @renewSearchLadder="expandRange"
         @redirect-to-game-room="goToRoom"
       >
         <template v-slot:header> Hi {{ currentUser.name }} </template>
+        <template v-slot:map>
+          <p>{{ lobby.player.room.option.map }}</p>
+        </template>
+        <template v-slot:difficulty>
+          <p>{{ lobby.player.room.option.difficulty }}</p>
+        </template>
+        <template v-slot:power-ups>
+          <p v-if="lobby.player.room.option.powerUps">yes</p>
+          <p v-else>no</p>
+        </template>
       </GameLobby>
       <section class="ladder-play">
         <div class="ladder-start-game">

@@ -2,7 +2,7 @@
   <div class="duel-game">
     <GameLobby
       v-if="lobby.visible"
-      :gameMode="'duel'"
+      :gameMode="lobby.player.room.mode"
       :matchFound="lobby.matched"
       @close="leaveLobby"
       @renewSearchDuel="renewSearch"
