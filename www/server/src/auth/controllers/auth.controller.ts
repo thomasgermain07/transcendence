@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
   NotFoundException,
 } from '@nestjs/common'
-import { Post, Delete, BadRequestException } from '@nestjs/common'
+import { Post, Delete } from '@nestjs/common'
 import { UseGuards } from '@nestjs/common'
 import { Request } from 'express'
 
@@ -21,11 +21,11 @@ import { CookieType } from '../services/cookies.service'
 import { CookiesService } from '../services/cookies.service'
 import { AuthUser } from '../decorators/auth-user.decorator'
 
-import { EditProfilePayload } from '../interfaces/edit-profile-payload.interface'
 import { GoogleAuthPayload } from '../interfaces/google-code-payload.interface'
 
 import { TwoFactorAuthenticationService } from 'src/auth/services/twoFactorAuthentication.service'
 import { UsersService } from 'src/users/services/users.service'
+import { EditUserDto } from 'src/users/dto/edit-user.dto'
 
 type LoginResponseType = {
   two_factor_enabled: boolean
@@ -77,11 +77,10 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  // @UseGuards(JwtTwoFactorGuard)
   @Post('edit')
   async edit(
     @AuthUser() user: User,
-    @Body() edit_info: EditProfilePayload,
+    @Body() edit_info: EditUserDto,
   ): Promise<User> {
     return this.auth_svc.edit(user, edit_info)
   }

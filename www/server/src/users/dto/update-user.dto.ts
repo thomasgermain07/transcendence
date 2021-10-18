@@ -11,15 +11,6 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @Min(1)
   ladderLevel?: number
 
-  // Todo:
-  // @IsBoolean()
-  // @IsOptional()
-  // is_admin?: boolean[]
-
-  // @IsOptional()
-  // @IsString()
-  // twoFactorAuthenticationSecret?: string
-
   @IsOptional()
   @IsString()
   isTwoFactorAuthenticationEnabled?: boolean
@@ -27,7 +18,4 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsOptional()
   @IsString()
   status?: string
-
-  // @IsOptional()
-  // achievements?: Achievements[];
 }

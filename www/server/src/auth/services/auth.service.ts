@@ -2,11 +2,11 @@ import { Injectable, BadRequestException } from '@nestjs/common'
 import * as bcrypt from 'bcrypt'
 
 import { CreateUserDto } from 'src/users/dto/create-user.dto'
+import { EditUserDto } from 'src/users/dto/edit-user.dto'
 import { User } from 'src/users/entities/user.entity'
 import { UsersService } from 'src/users/services/users.service'
 
 import { AuthenticationPayload } from '../interfaces/authentication-payload.interface'
-import { EditProfilePayload } from '../interfaces/edit-profile-payload.interface'
 
 @Injectable()
 export class AuthService {
@@ -55,7 +55,7 @@ export class AuthService {
     return this.users_svc.setRefreshToken(user, null)
   }
 
-  async edit(user: User, data: EditProfilePayload): Promise<User> {
+  async edit(user: User, data: EditUserDto): Promise<User> {
     if (data.name && data.new_name && data.name == user.name) {
       try {
         await this.users_svc.updateName(user.id, data.new_name)

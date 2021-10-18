@@ -124,7 +124,9 @@ export default {
 
     const updateUser = () => {
       fetchUserFromRoute()
-      edit()
+      edit().catch((err) => {
+        // console.log(err)
+      })
     }
 
     const fetchUserFromRoute = async () => {
