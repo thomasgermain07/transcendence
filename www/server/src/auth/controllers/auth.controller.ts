@@ -1,4 +1,10 @@
-import { Body, Req, Controller, UnauthorizedException, NotFoundException } from '@nestjs/common'
+import {
+  Body,
+  Req,
+  Controller,
+  UnauthorizedException,
+  NotFoundException,
+} from '@nestjs/common'
 import { Post, Delete } from '@nestjs/common'
 import { UseGuards } from '@nestjs/common'
 import { Request } from 'express'
@@ -15,15 +21,15 @@ import { CookieType } from '../services/cookies.service'
 import { CookiesService } from '../services/cookies.service'
 import { AuthUser } from '../decorators/auth-user.decorator'
 
-import { EditProfilePayload } from '../interfaces/edit-profile-payload.interface';
-import { GoogleAuthPayload } from '../interfaces/google-code-payload.interface';
+import { GoogleAuthPayload } from '../interfaces/google-code-payload.interface'
 
-import { TwoFactorAuthenticationService } from 'src/auth/services/twoFactorAuthentication.service';
+import { TwoFactorAuthenticationService } from 'src/auth/services/twoFactorAuthentication.service'
 import { UsersService } from 'src/users/services/users.service'
+import { EditUserDto } from 'src/users/dto/edit-user.dto'
 
 type LoginResponseType = {
-  two_factor_enabled: boolean,
-  user_id?: number,
+  two_factor_enabled: boolean
+  user_id?: number
 }
 
 @Controller('auth')
@@ -35,7 +41,7 @@ export class AuthController {
     private readonly auth_svc: AuthService,
     private readonly cookies_svc: CookiesService,
     private readonly twoFactorAuthenticationService: TwoFactorAuthenticationService,
-    private readonly usersService : UsersService,
+    private readonly usersService: UsersService,
   ) {}
 
   // -------------------------------------------------------------------------
@@ -49,24 +55,33 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('activate2Fa')
   async activate2Fa(@AuthUser() user: User): Promise<string> {
-    const { otpauthUrl } = await this.twoFactorAuthenticationService.generateTwoFactorAuthenticationSecret(user)
-    const qrcode =  await this.twoFactorAuthenticationService.pipeQrCodeStream(otpauthUrl)
-    console.log(qrcode)
-    await this.twoFactorAuthenticationService.turnOnTwoFactorAuthentication(user)
+    const { otpauthUrl } =
+      await this.twoFactorAuthenticationService.generateTwoFactorAuthenticationSecret(
+        user,
+      )
+    const qrcode = await this.twoFactorAuthenticationService.pipeQrCodeStream(
+      otpauthUrl,
+    )
+    await this.twoFactorAuthenticationService.turnOnTwoFactorAuthentication(
+      user,
+    )
     return qrcode
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('deactivate2Fa')
   async deactivate2Fa(@AuthUser() user: User): Promise<void> {
-    await this.twoFactorAuthenticationService.turnOffTwoFactorAuthentication(user)
-
+    await this.twoFactorAuthenticationService.turnOffTwoFactorAuthentication(
+      user,
+    )
   }
 
   @UseGuards(JwtAuthGuard)
-  // @UseGuards(JwtTwoFactorGuard)
   @Post('edit')
-  async edit(@AuthUser() user: User, @Body() edit_info: EditProfilePayload): Promise<User> {
+  async edit(
+    @AuthUser() user: User,
+    @Body() edit_info: EditUserDto,
+  ): Promise<User> {
     return this.auth_svc.edit(user, edit_info)
   }
 
@@ -101,13 +116,19 @@ export class AuthController {
     @Body() twoFactorAuthenticationCode: GoogleAuthPayload,
     @Req() request: Request,
   ): Promise<LoginResponseType> {
-    const user: User = await this.usersService.findOne({id: twoFactorAuthenticationCode.user_id})
-    if ( !user ) {
-      throw new NotFoundException("User Not found");
+    const user: User = await this.usersService.findOne({
+      id: twoFactorAuthenticationCode.user_id,
+    })
+    if (!user) {
+      throw new NotFoundException('User Not found')
     }
-    const isCodeValid = this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(twoFactorAuthenticationCode, user)
+    const isCodeValid =
+      this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
+        twoFactorAuthenticationCode,
+        user,
+      )
     if (!isCodeValid) {
-        throw new UnauthorizedException("Wrong authentication code");
+      throw new UnauthorizedException('Wrong authentication code')
     }
     const auth = this.cookies_svc.getJwtTokenCookie(
       user,

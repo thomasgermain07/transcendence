@@ -1,27 +1,28 @@
 <template>
   <div class="auth-login-form">
     <GoogleAuth v-if="googleCode.visible" @submit="submit"> </GoogleAuth>
-    <h3>Connect with credentials:</h3>
 
-    <div v-if="message">
+    <h3>Authentication</h3>
+
+    <div v-if="message" class="form__error">
       {{ message }}
     </div>
     <form @submit.prevent="submit">
-      <div>
+      <div class="form__field">
         <label for="email">Email</label>
         <input
           type="text"
           name="email"
-          id="email"
+          id="email__login"
           v-model="credentials.email"
         />
       </div>
-      <div>
+      <div class="form__field">
         <label for="password">Password</label>
         <input
           type="password"
           name="password"
-          id="password"
+          id="password__login"
           v-model="credentials.password"
         />
       </div>
@@ -77,6 +78,24 @@ export default defineComponent({
 
 <style scoped>
 .auth-login-form {
-  background: rgb(63, 187, 125);
+  padding: 2em;
+  text-align: left;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.4);
+}
+h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1em;
+}
+.form__error {
+  color: var(--primary-color);
+}
+.form__error:last-of-type {
+  margin-bottom: 1em;
+}
+.form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  margin-bottom: 1em;
 }
 </style>

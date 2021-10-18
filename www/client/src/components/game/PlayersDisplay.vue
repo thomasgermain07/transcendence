@@ -90,10 +90,8 @@ export default defineComponent({
 
 <style scoped>
 @import url('http://fonts.cdnfonts.com/css/karmatic-arcade');
-/* @import url('http://fonts.cdnfonts.com/css/vanthian-ragnarok'); */
 
 .players-box {
-  /* background-color: var(--secondary-color); */
   display: inline-flex;
   max-width: 50rem;
   min-height: 10rem;
@@ -116,7 +114,6 @@ export default defineComponent({
   flex-direction: column;
   font-size: 3rem;
   font-family: 'Karmatic Arcade', sans-serif;
-  /* font-family: 'Vanthian Ragnarok', sans-serif; */
 }
 
 .score-box {

@@ -2,33 +2,26 @@
   <div class="watch">
     <div class="card-container" v-if="props.rooms.length > 0">
       <div class="card" v-for="match in props.rooms" v-bind:key="match.id">
-    <!-- <div class="card-container" v-if="test.length > 0">
-      <div class="card" v-for="match in test" v-bind:key="match.id"> -->
-          <header class="article-header">
-              <h2 class="article-title">
-                <!-- <div>{{ match[0] }}</div> -->
-                <div>{{ match.players[0].user.name }}</div>
-                <div>VS</div>
-                <!-- <div>{{ match[1] }}</div> -->
-                <div>{{ match.players[1].user.name }}</div>
-              </h2>
-          </header>
-          <div class="footer">
-            <button @click="onWatch(match.id)">Watch Game</button>
-          </div>
+        <header class="article-header">
+          <h2 class="article-title">
+            <div>{{ match.players[0].user.name }}</div>
+            <div>VS</div>
+            <div>{{ match.players[1].user.name }}</div>
+          </h2>
+        </header>
+        <div class="footer">
+          <button @click="onWatch(match.id)">Watch Game</button>
         </div>
+      </div>
     </div>
     <div v-else>
       <div class="default">No Game To Watch</div>
     </div>
-
-
-
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, watch } from 'vue';
+import { defineComponent, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 export default defineComponent({
@@ -38,16 +31,6 @@ export default defineComponent({
   setup(props) {
     const router = useRouter()
 
-    // const test = [
-    //   ["karl", "coco"],
-    //   ["romeo", "juliet"],
-    //   ["renaissance", "karlito"],
-    //   ["monica", "barbara"],
-    //   ["monica", "barbara"],
-    //   ["monica", "barbara"],
-    //   ["monica", "barbara"],
-    // ]
-
     const onWatch = (roomId: number): void => {
       router.push(`/game/room/${roomId}`)
     }
@@ -56,14 +39,12 @@ export default defineComponent({
       props,
       onWatch,
       router,
-      // test
     }
   },
 })
 </script>
 
 <style scoped>
-
 * {
   box-sizing: border-box;
 }
@@ -72,9 +53,7 @@ export default defineComponent({
   padding: 0;
   margin: 0;
   font-family: 'Karmatic Arcade', sans-serif;
-  /* color: #000000; */
   color: var(--secondary-color);
-  /* text-shadow: pink 0.1em 0.1em 0.2em; */
 }
 
 .default {
@@ -88,7 +67,6 @@ export default defineComponent({
   width: 90vw;
   overflow-x: scroll;
   display: flex;
-  /* background-color: #100e17; */
   margin: auto;
   margin-bottom: 3rem;
   padding: 1rem;
@@ -113,38 +91,29 @@ export default defineComponent({
 }
 
 .card .article-title {
-    font-size: 20px;
-    font-weight: 700;
-    text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
 }
 
 .card .article-title div {
   padding: 0.3rem;
 }
 
-/* .card:not(:first-child) {
-    margin-left: -30px;
-} */
-
 .card:hover {
-    transform: translateY(-1rem);
+  transform: translateY(-1rem);
 }
 
-/* .card:hover~.card{
-    transform: translateX(10px);
-} */
-
-
 .footer {
-    display: flex;
-    flex-wrap: wrap;
-    margin: 1rem 0 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 1rem 0 1rem;
 }
 
 .footer button {
   padding: 15px;
   font-size: 10px;
-  font-family: "Press Start 2P", cursive;
+  font-family: 'Press Start 2P', cursive;
   color: var(--secondary-color);
   background-color: var(--primary-color);
   border-radius: 4%;
@@ -155,5 +124,4 @@ export default defineComponent({
   background-color: var(--secondary-color);
   cursor: pointer;
 }
-
 </style>

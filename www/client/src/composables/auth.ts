@@ -4,7 +4,7 @@ import { router } from '@/router'
 import { AuthService } from '@/services/auth'
 import { useUsers } from '@/composables/users'
 
-import { AxiosErrType } from './axios'
+import { AxiosErrType, AxiosResType } from './axios'
 import { UserType } from '../types/user/user'
 import { useSocket } from './socket'
 
@@ -13,7 +13,7 @@ import { useSocket } from './socket'
 // -----------------------------------------------------------------------------
 const EXPIRATION = parseInt(import.meta.env.VITE_JWT_ACCESS_LIFETIME)
 const TIMEOUT = Math.max(10, EXPIRATION - (EXPIRATION > 600 ? 300 : 30))
-// const namespaces = ['matchmaker', 'game-rooms']
+const namespaces = ['user', 'dm', 'chat', 'matchmaker', 'game-rooms']
 
 // -----------------------------------------------------------------------------
 // Types
@@ -50,7 +50,7 @@ const user = reactive<UserType>({
   avatar: '',
   ladderLevel: 1,
   isTwoFactorAuthenticationEnabled: false,
-  connected: true,
+  status: '',
 })
 const is_authenticated = computed(() => !(user.id === 0))
 
@@ -95,7 +95,6 @@ export function useAuth() {
         setAuthenticated(true)
         router.replace({ name: 'index' })
       } else {
-        console.log(res)
         googleCode.user_id = res.data.user_id
         googleCode.visible = true
       }
@@ -155,12 +154,6 @@ export function useAuth() {
       return
     }
 
-    // Refresh the socket connections
-    // const namespaces = ['chat', 'matchmaker', 'game-rooms']
-    // namespaces.forEach((nsp) => {
-    //   useSocket(nsp).refresh()
-    // })
-
     return
   }
 
@@ -189,7 +182,6 @@ export function useAuth() {
     googleCode.user_id = 0
     router.replace({ name: 'auth-login' })
 
-    const namespaces = ['user', 'dm', 'chat', 'matchmaker', 'game-rooms']
     namespaces.forEach((nsp) => {
       useSocket(nsp).close()
     })
@@ -219,7 +211,7 @@ export function useAuth() {
     return
   }
 
-  async function activateTwoFa(): Promise<string> {
+  async function activateTwoFa(): Promise<AxiosResType> {
     try {
       const res = await AuthService.activate2Fa()
       if (res) {
@@ -237,7 +229,7 @@ export function useAuth() {
     }
   }
 
-  async function deactivateTwoFa(): Promise<string> {
+  async function deactivateTwoFa(): Promise<AxiosResType> {
     try {
       const res = await AuthService.deactivate2Fa()
       if (res) {
@@ -255,7 +247,7 @@ export function useAuth() {
     }
   }
 
-  async function verifyCode(code: GoogleAuthType): Promise<string> {
+  async function verifyCode(code: GoogleAuthType): Promise<AxiosResType> {
     try {
       const res = await AuthService.verifyCode(code)
 

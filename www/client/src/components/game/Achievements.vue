@@ -1,21 +1,24 @@
 <template>
   <div class="game-achievements">
-    <!-- {{ achievements }} -->
     <ul>
-      <li class="achievement" v-bind:class="{ locked: achievement.locked }" v-for="achievement in achievements" v-bind:key="achievement.id">
+      <li
+        class="achievement"
+        v-bind:class="{ locked: achievement.locked }"
+        v-for="achievement in achievements"
+        v-bind:key="achievement.id"
+      >
         <div class="details">
           <div class="name">{{ achievement.name }}</div>
           <div class="description">{{ achievement.description }}</div>
           <div v-if="!achievement.locked">
             <p class="unlocked"><i class="fas fa-check"></i> UNLOCKED</p>
-            <!-- <p class="unlocked"><i class="fas fa-trophy"></i> UNLOCKED</p> -->
           </div>
           <div v-else>
             <p><i class="fas fa-lock"></i> LOCKED</p>
           </div>
         </div>
         <div class="logo">
-          <img :src="achievement.image" alt="img" srcset="">
+          <img :src="achievement.image" alt="img" srcset="" />
         </div>
       </li>
     </ul>
@@ -23,7 +26,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, watch, ref } from 'vue'
+import { defineComponent, watch, ref, computed } from 'vue'
+import { Achievement } from '../../types/game/achievement'
 
 export default defineComponent({
   name: 'GameStats',
@@ -31,14 +35,17 @@ export default defineComponent({
 
   setup(props) {
     const user = ref(props.user)
-    const achievements = ref(props.user.achievements)
 
+    const achievements = computed(() => {
+      return props.user.achievements.sort((a: Achievement, b: Achievement) => {
+        return a.locked - b.locked
+      })
+    })
 
     watch(
       () => props.user,
       () => {
         user.value = props.user
-        achievements.value = props.user.achievements
       },
     )
 
@@ -52,7 +59,6 @@ export default defineComponent({
 
 <style scoped>
 li {
-  /* border: solid 1px white; */
   display: flex;
   margin: 40px 20px;
 }
@@ -70,9 +76,9 @@ li {
 }
 
 .details {
- flex: 2;
- text-align: left;
- margin: auto;
+  flex: 2;
+  text-align: left;
+  margin: auto;
 }
 
 .details .name {
@@ -98,5 +104,4 @@ li {
   width: 40px;
   height: 40px;
 }
-
 </style>

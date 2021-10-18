@@ -1,61 +1,45 @@
 <template>
-	<div class="auth-login-marvin-callback">
-		<GoogleAuth
-			v-if="googleCode.visible"
-			@submit="submit"
-			>
-		</GoogleAuth>
-		<h2>Auth-Login-Marvin-Callback</h2>
+  <div>
+    <GoogleAuth v-if="googleCode.visible"></GoogleAuth>
 
-		{{ message }}
-	</div>
+    {{ message }}
+  </div>
 </template>
 
-<script lang='ts'>
-	import { defineComponent } from "vue";
-	import { ref } from "vue";
-	import { useRoute }        from "vue-router";
+<script lang="ts">
+import { defineComponent } from 'vue'
+import { ref } from 'vue'
+import { useRoute } from 'vue-router'
 
-	import { useAuth } from "@/composables/auth";
+import { useAuth } from '@/composables/auth'
 
-	import GoogleAuth from "@/components/auth/GoogleAuth.vue";
+import GoogleAuth from '@/components/auth/GoogleAuth.vue'
 
-	export default defineComponent({
-		name: 'auth-login-marvin-callback',
-		components: {
-			GoogleAuth,
-		},
-		setup()
-		{
-			const route = useRoute();
+export default defineComponent({
+  name: 'auth-login-marvin-callback',
+  components: {
+    GoogleAuth,
+  },
+  setup() {
+    const route = useRoute()
 
-			const code: string = (typeof route.query.code === 'string')
-				? route.query.code
-				: ""
-			;
+    const code: string =
+      typeof route.query.code === 'string' ? route.query.code : ''
+    const message = ref('Verifying your login...')
 
-			const message = ref("Verifying your login...");
+    const { loginMarvin, googleCode } = useAuth()
 
-			const { loginMarvin, googleCode } = useAuth();
+    loginMarvin(code).catch((err) => {
+      message.value = err.response?.data.message
+    })
 
-			loginMarvin(code)
-				.catch((err) => {
-					message.value = err.response?.data.message;
-				})
-			;
-
-			return {
-				// Datas
-				googleCode,
-				message,
-			};
-		},
-
-	});
+    return {
+      // Datas
+      googleCode,
+      message,
+    }
+  },
+})
 </script>
 
-<style scoped>
-	.auth-login-marvin-callback {
-		background: rgb(230, 163, 64);
-	}
-</style>
+<style scoped></style>

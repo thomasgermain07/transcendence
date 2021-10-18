@@ -6,6 +6,7 @@
           <p>Username</p>
           <slot name="header"> This is the default title! </slot>
         </div>
+        <p>{{ props.gameMode }}</p>
         <p>GAME ROOM LOBBY</p>
       </header>
 
@@ -160,8 +161,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap');
-
 * {
   box-sizing: border-box;
   font-family: 'Inconsolata', monospace;

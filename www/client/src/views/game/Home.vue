@@ -45,7 +45,7 @@
         you win, points will be added to your ladder level but if you lose,
         points will be deducted.
       </p>
-      <h2>Play agains your friends!</h2>
+      <h2>Play against your friends!</h2>
       <p>
         Via the chat interface, click right on the name of any of your friends
         and invite them to play with the "Send Duel" option. Your private game
@@ -65,12 +65,10 @@ export default defineComponent({
     const isActive = ref(false)
 
     const openRules = () => {
-      console.log('in open rules')
       isActive.value = true
     }
 
     const closeRules = () => {
-      console.log('in open rules')
       isActive.value = false
     }
 
@@ -85,7 +83,6 @@ export default defineComponent({
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap');
 
 * {
   font-family: 'Press Start 2P', cursive;

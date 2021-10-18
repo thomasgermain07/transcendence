@@ -1,20 +1,20 @@
 <template>
 	<div class="auth-register-form">
-		<h3>Registration form</h3>
+		<h3>Registration</h3>
 
-		<div v-for="message in messages" :key="message">
-			{{ message }}
+		<div v-for="message in messages" :key="message" class="form__error">
+			- {{ message }}
 		</div>
 		<form @submit.prevent="submit">
-			<div>
+			<div class="form__field">
 				<label for="name">Name</label>
 				<input type="text" name="name" id="name" v-model="user.name">
 			</div>
-			<div>
+			<div class="form__field">
 				<label for="email">Email</label>
 				<input type="email" name="email" id="email" v-model="user.email">
 			</div>
-			<div>
+			<div class="form__field">
 				<label for="password">Password</label>
 				<input type="password" name="password" id="password" v-model="user.password">
 			</div>
@@ -66,7 +66,28 @@
 </script>
 
 <style scoped>
-	.auth-register {
-		background: rgb(230, 163, 64);
+	.auth-register-form {
+		padding: 2em;
+		text-align: left;
+		box-shadow: 0 0 50px rgba(0, 0, 0, 0.4);
+	}
+	h3 {
+		font-size: 1.5rem;
+		margin-bottom: 1em;
+	}
+	.form__error {
+		color: var(--primary-color);
+	}
+	.form__error + .form__error {
+		margin-top: .5em;
+	}
+	.form__error:last-of-type {
+		margin-bottom: 1em;
+	}
+	.form__field {
+		display: flex;
+		flex-direction: column;
+		gap: .2em;
+		margin-bottom: 1em;
 	}
 </style>

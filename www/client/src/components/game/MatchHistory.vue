@@ -66,7 +66,7 @@ export default defineComponent({
       const response = await axios
         .get(`game/players/history/${user.value.id}`)
         .catch((err: AxiosErrType) => {
-          console.log(err)
+          console.log(err.response?.data)
         })
 
       if (response) {
@@ -157,11 +157,11 @@ export default defineComponent({
   padding-left: 20px;
 }
 
-.victory {
+.defeat {
   color: red;
 }
 
-.defeat {
+.victory {
   color: green;
 }
 </style>

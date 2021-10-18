@@ -1,7 +1,5 @@
 <template>
-	<div class="auth-login-marvin">
-		<a :href="url">Signin with 42</a>
-	</div>
+	<a :href="url" class="auth-login-marvin">Signin with 42</a>
 </template>
 
 <script lang='ts'>
@@ -32,6 +30,14 @@
 
 <style scoped>
 	.auth-login-marvin {
-		background: rgb(89, 118, 196);
+		display: inline-block;
+		padding: 1em 2em;
+		color: var(--secondary-color);
+		text-decoration: none;
+		background: var(--tertiary-color);
+		box-shadow: 0 0 50px rgba(0, 0, 0, 0.4);
+	}
+	.auth-login-marvin:hover {
+		background: var(--primary-color);
 	}
 </style>

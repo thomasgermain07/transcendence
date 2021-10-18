@@ -1,8 +1,7 @@
 <template>
 	<div class="auth-register">
-		<h2>Auth-Register</h2>
-
 		<register-form />
+		<login-form />
 	</div>
 </template>
 
@@ -10,11 +9,13 @@
 	import { defineComponent } from "vue";
 
 	import RegisterForm from "@/components/auth/RegisterForm.vue";
+	import LoginForm from "@/components/auth/LoginForm.vue";
 
 	export default defineComponent({
 		name: 'auth-register',
 		components: {
 			RegisterForm,
+			LoginForm,
 		},
 
 		setup()
@@ -27,6 +28,9 @@
 
 <style scoped>
 	.auth-register {
-		background: rgb(230, 163, 64);
+		display: grid;
+		gap: 3em;
+		grid-template-columns: repeat(2, 1fr);
+		margin: 0 10vw;
 	}
 </style>

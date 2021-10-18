@@ -25,20 +25,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-/* .link-button {
-  display: block;
-  background: #0a0a0a;
-  border: none;
-  margin: 20px 5px 10px;
-  padding: 0.7em;
-  color: #f1f1f1;
-  text-decoration: none;
-	border-radius: 40px;
-}
-.link-button:hover {
-  background: #aa6bdd;
-} */
-
 .card h2 {
   margin: 0;
   padding: 0.5rem;

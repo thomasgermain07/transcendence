@@ -1,11 +1,7 @@
 <template>
   <div class="game-stats">
-    <!-- <h1 class="title">GAME STATS</h1> -->
     <div v-if="loading">LOADING...</div>
     <div v-else>
-      <!-- <p>{{ user.id }}</p> -->
-      <!-- <hr class="separator"> -->
-
       <div class="stats-summary-total">
         <div class="matches">
           <p class="stats-header">MATCHES</p>
@@ -21,21 +17,27 @@
         </div>
         <div class="win-rate">
           <p class="stats-header">WINRATE</p>
-          <div class="stats-value win-rate-percent"> {{ stats.total_wins / stats.total_played * 100 | 0 }}%</div>
+          <div class="stats-value win-rate-percent">
+            {{ ((stats.total_wins / stats.total_played) * 100) | 0 }}%
+          </div>
         </div>
       </div>
 
-      <hr class="separator">
+      <hr class="separator" />
 
       <h6>Details per mode</h6>
       <div class="stats-summary-per-mode">
         <div class="stats-duel">
           <h4>Duel</h4>
-          <div>wins: {{ stats.duel.wins }} - losses: {{ stats.duel.losses }}</div>
+          <div>
+            wins: {{ stats.duel.wins }} - losses: {{ stats.duel.losses }}
+          </div>
         </div>
         <div class="stats-ladder">
           <h4>Ladder</h4>
-          <div>wins: {{ stats.ladder.wins }} - losses: {{ stats.ladder.losses }}</div>
+          <div>
+            wins: {{ stats.ladder.wins }} - losses: {{ stats.ladder.losses }}
+          </div>
         </div>
       </div>
     </div>
@@ -44,7 +46,7 @@
 
 <script lang="ts">
 import { defineComponent, watch, ref } from 'vue'
-import { useAxios } from '../../composables/axios'
+import { AxiosErrType, useAxios } from '../../composables/axios'
 
 export default defineComponent({
   name: 'GameStats',
@@ -60,12 +62,11 @@ export default defineComponent({
       loading.value = true
       const response = await axios
         .get(`users/${user.value.id}/stats`)
-        .catch((err) => {
-          console.log(err)
+        .catch((err: AxiosErrType) => {
+          console.log(err.response?.data)
         })
 
       if (response) {
-        console.log('Fetching stats from user: ' + response.data.user_id)
         loading.value = false
         stats.value = response.data.user_stats
       }
@@ -91,19 +92,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-/* @import url("https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap");
-
-* {
-  box-sizing: border-box;
-  font-family: "Inconsolata", monospace;
-} */
-
-/* .title {
-  font-size: 26px;
-  font-weight: 800;
-  padding-bottom: 40px;
-} */
-
 .stats-summary-total {
   display: flex;
   justify-content: space-evenly;
