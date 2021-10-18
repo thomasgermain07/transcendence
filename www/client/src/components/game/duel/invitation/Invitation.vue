@@ -44,6 +44,7 @@ export default {
       closeInvitationNotification,
       invitationExpired,
       redirectToGameRoom,
+      closeEverything,
     } = useGameInvite()
 
     const startCountDown = (counter: number) => {
@@ -72,6 +73,7 @@ export default {
         redirectToGameRoom(gameRoom.id)
       }
       closeInvitationNotification(props.Invitation!)
+      closeEverything()
     }
 
     const onRefuse = async () => {

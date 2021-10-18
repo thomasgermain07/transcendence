@@ -15,7 +15,7 @@
 
     <div class="friend-item" v-for="request in Requests" :key="request">
       <div
-        @click.left="openDm(request.user)"
+        @click.left="onOpenDm(request.user)"
         @click.right="onRightClick(request.user)"
         v-contextmenu:contextmenu
       >

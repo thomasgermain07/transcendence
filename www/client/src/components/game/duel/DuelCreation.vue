@@ -126,6 +126,10 @@ export default {
     }
 
     const sendInvite = async () => {
+      if ((await useGameInvite().checkIfCanInvite(props.Target!)) == false) {
+        closeWindow()
+        return
+      }
       let invite = await createInvitation(gameOptions, props.Target!.id)
       useGameInvite().createInviteNotification(invite, props.Target!)
       closeWindow()

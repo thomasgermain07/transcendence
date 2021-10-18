@@ -3,6 +3,10 @@
     >View Profile</v-contextmenu-item
   >
 
+  <v-contextmenu-item @click="eventHandler.onOpenDm(User)"
+    >Send Message</v-contextmenu-item
+  >
+
   <v-contextmenu-item
     v-if="IsOwner && !isModerator(User.id) && !isBanned(User.id)"
     @click="onSetModerator"

@@ -32,7 +32,7 @@ import FriendsListCM from './FriendsListCM.vue'
 
 import { UserType } from '@/types/user/user'
 
-import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/windowInteraction'
+import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/useWindowInteraction'
 
 export default {
   props: {

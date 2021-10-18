@@ -85,7 +85,7 @@ import Achievements from '@/components/game/Achievements.vue'
 import EditProfileWindow from '@/components/edit/EditProfileWindow.vue'
 import getUserInteraction from '@/composables/User/getUserInteraction'
 import { useFriends } from '@/composables/Friends/useFriends'
-import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/windowInteraction'
+import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/useWindowInteraction'
 
 export default {
   components: {

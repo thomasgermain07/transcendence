@@ -34,7 +34,7 @@ import { useSocket } from '@/composables/socket'
 import { useGameInvite } from '@/composables/Game/useGameInvite'
 import { useChat } from '@/composables/Chat/useChat'
 import { useFriends } from '@/composables/Friends/useFriends'
-import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/windowInteraction'
+import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/useWindowInteraction'
 
 export default {
   components: {

@@ -10,6 +10,9 @@ import getFetchUsers from './Dms/fetchUsers'
 
 import { useSocket } from '../socket'
 import { useAuth } from '../auth'
+import { useWindowInteraction } from './WindowInteraction/useWindowInteraction'
+import { DirectMessageType } from '@/types/chat/direct_message'
+import { useFriends } from '../Friends/useFriends'
 
 // -----------------------------------------------------------------------------
 // Api usage
@@ -48,8 +51,12 @@ export function useChat() {
   }
 
   const listenSocket = () => {
-    useSocket('dm').socket.on('message', (message: MessageType) => {
+    useSocket('dm').socket.on('message', (message: DirectMessageType) => {
       if (message.author.id == useAuth().user.id) {
+        return
+      }
+
+      if (isOpenned('dm', message.author.id)) {
         return
       }
 
@@ -65,12 +72,21 @@ export function useChat() {
     })
 
     useSocket('chat').socket.on('message', (message: MessageType) => {
-      if (message.author.id != useAuth().user.id) {
-        notifications.value.push({
-          type: 'room',
-          target: message.room.id,
-        })
+      if (message.author.id == useAuth().user.id) {
+        return
       }
+
+      if (
+        isOpenned('room', message.room.id as number) ||
+        isBlocked(message.author)
+      ) {
+        return
+      }
+
+      notifications.value.push({
+        type: 'room',
+        target: message.room.id,
+      })
     })
   }
 
@@ -133,4 +149,21 @@ export function useChat() {
     readNotif,
     getBanFrom,
   }
+}
+
+// -----------------------------------------------------------------------------
+// Private Functions
+// -----------------------------------------------------------------------------
+
+function isOpenned(type: string, id: number) {
+  return useWindowInteraction().chat_view.value == type &&
+    useWindowInteraction().conv_id.value == id
+    ? true
+    : false
+}
+
+function isBlocked(user: UserType) {
+  return (
+    useFriends().ignored.value.findIndex((ignore) => ignore.id == user.id) != -1
+  )
 }

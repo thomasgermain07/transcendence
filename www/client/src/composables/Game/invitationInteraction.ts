@@ -5,11 +5,19 @@ import { AxiosErrType, useAxios } from '../axios'
 
 export default function getInvitationInteraction() {
   let axios = useAxios().axios
-  let me = useAuth().user
 
   const hasPendingInvite = async (id: Number) => {
     try {
       let { data } = await axios.get(`users/${id}/game-invite-pending`)
+      return data
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  const isInGameOrQueue = async (id: number) => {
+    try {
+      let { data } = await axios.get(`game/players/checkIfInGameOrQueue/${id}`)
       return data
     } catch (e) {
       console.log(e)
@@ -23,7 +31,7 @@ export default function getInvitationInteraction() {
     try {
       const { data } = await axios.post('dm/send-invitation', {
         gameOptions: gameOptions,
-        host: me,
+        host: useAuth().user,
         guestId: guestId,
       })
       return data
@@ -60,6 +68,7 @@ export default function getInvitationInteraction() {
 
   return {
     hasPendingInvite,
+    isInGameOrQueue,
     createInvitation,
     deleteInvitation,
     refuseInvitation,

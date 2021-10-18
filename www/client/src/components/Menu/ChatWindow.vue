@@ -31,7 +31,7 @@
 <script lang="ts">
 import { computed } from '@vue/runtime-core'
 
-import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/windowInteraction'
+import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/useWindowInteraction'
 
 import TopBar from './Utils/TopBar.vue'
 import Rooms from './Chat/Rooms/Rooms.vue'
