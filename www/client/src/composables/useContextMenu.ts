@@ -45,11 +45,15 @@ export function useContextMenu() {
   }
 
   const onSendDuel = async (user: UserType) => {
+    if (user.status == 'ingame') {
+      useGameInvite().inviteError(user.name + ' is already in game')
+      return
+    }
     if (await getInvitationInteraction().hasPendingInvite(useAuth().user.id)) {
       useGameInvite().inviteError(
         'You already sent a game invite to ' + user.name,
       )
-      return false
+      return
     }
     useWindowInteraction().closeChat()
     openModal(DuelCreaction, {
