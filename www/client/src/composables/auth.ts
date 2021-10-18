@@ -189,6 +189,10 @@ export function useAuth() {
       useSocket(nsp).close()
     })
 
+    useSocket('dm').close()
+    useSocket('chat').close()
+    useSocket('user').close()
+
     return
   }
 
