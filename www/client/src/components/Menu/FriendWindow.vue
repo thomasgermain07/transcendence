@@ -92,7 +92,7 @@ import IgnoredList from './Friend/Ignored/IgnoredList.vue'
 
 import { useChat } from '@/composables/Chat/useChat'
 import { useFriends } from '@/composables/Friends/useFriends'
-import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/windowInteraction'
+import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/useWindowInteraction'
 
 export default {
   components: {

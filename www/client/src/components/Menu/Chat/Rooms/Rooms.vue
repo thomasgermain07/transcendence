@@ -35,7 +35,7 @@
 import { ref } from 'vue'
 
 import { useChat } from '@/composables/Chat/useChat'
-import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/windowInteraction'
+import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/useWindowInteraction'
 
 import { ConversationType } from '@/types/chat/conversation'
 import { UserType } from '@/types/user/user'

@@ -10,7 +10,7 @@ import DuelCreaction from '@/components/game/duel/DuelCreation.vue'
 
 import { UserType } from '@/types/user/user'
 import { PermissionCreationType } from '@/types/chat/permission'
-import { useWindowInteraction } from './Chat/WindowInteraction/windowInteraction'
+import { useWindowInteraction } from './Chat/WindowInteraction/useWindowInteraction'
 import getInvitationInteraction from './Game/invitationInteraction'
 import { useAuth } from './auth'
 
