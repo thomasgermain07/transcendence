@@ -10,13 +10,18 @@
       />
       <label for="switch-1" class="switch-label">Switch</label>
     </div>
+    <span v-if="switchTwoFa.state" class="label-active">ACTIVE</span>
+    <span v-if="!switchTwoFa.state">DISABLED</span>
     <div class="qrcode" v-bind:class="{ active: switchTwoFa.state }">
-       <div v-if="qrcodeActive" class="alert-qrcode-window">
-          <alert-message-qrcode
-            v-on:close-alert="closeMessage"
-          />
-       </div>
-      <img v-if="qrcode" v-bind:src="qrcode" class="qrcode_picture" alt="qrcode" />
+      <div v-if="qrcodeActive" class="alert-qrcode-window">
+        <alert-message-qrcode v-on:close-alert="closeMessage" />
+      </div>
+      <img
+        v-if="qrcode"
+        v-bind:src="qrcode"
+        class="qrcode_picture"
+        alt="qrcode"
+      />
     </div>
   </div>
 </template>
@@ -47,7 +52,6 @@ export default defineComponent({
     const closeMessage = () => {
       qrcodeActive.value = false
     }
-
 
     watch(
       () => switchTwoFa.state,
@@ -88,8 +92,12 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.google-authenticator {
-  padding: 20px;
+h3 {
+  padding-bottom: 1rem;
+}
+
+.label-active {
+  color: green;
 }
 .qrcode {
   display: none;
@@ -167,19 +175,16 @@ export default defineComponent({
   border-radius: 2px;
   z-index: 100;
   text-align: center;
-	font-family: Helvetica, Arial,
-  sans-serif;
-	align-items: center;
+  font-family: Helvetica, Arial, sans-serif;
+  align-items: center;
   filter: drop-shadow(0 0 8px #070707);
   border: 1px solid rgba(241, 142, 6, 0.81);
   background-color: rgba(220, 128, 1, 0.16);
   box-shadow: 0px 0px 2px #ffb103;
   color: #ffb103;
   text-shadow: 2px 1px #00040a;
-  transition:0.5s;
-  cursor:pointer;
+  transition: 0.5s;
+  cursor: pointer;
   background: #303133;
-
 }
-
 </style>

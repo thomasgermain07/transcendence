@@ -10,11 +10,21 @@
     <form @submit.prevent="submit">
       <div class="form__field">
         <label for="email">Email</label>
-        <input type="text" name="email" id="email" v-model="credentials.email" />
+        <input
+          type="text"
+          name="email"
+          id="email__login"
+          v-model="credentials.email"
+        />
       </div>
       <div class="form__field">
         <label for="password">Password</label>
-        <input type="password" name="password" id="password" v-model="credentials.password" />
+        <input
+          type="password"
+          name="password"
+          id="password__login"
+          v-model="credentials.password"
+        />
       </div>
 
       <button type="submit">Log in</button>
@@ -67,25 +77,25 @@ export default defineComponent({
 </script>
 
 <style scoped>
-  .auth-login-form {
-    padding: 2em;
-    text-align: left;
-    box-shadow: 0 0 50px rgba(0, 0, 0, 0.4);
-  }
-  h3 {
-    font-size: 1.5rem;
-    margin-bottom: 1em;
-  }
-	.form__error {
-		color: var(--primary-color);
-	}
-	.form__error:last-of-type {
-		margin-bottom: 1em;
-	}
-  .form__field {
-    display: flex;
-    flex-direction: column;
-    gap: .2em;
-    margin-bottom: 1em;
-  }
+.auth-login-form {
+  padding: 2em;
+  text-align: left;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.4);
+}
+h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1em;
+}
+.form__error {
+  color: var(--primary-color);
+}
+.form__error:last-of-type {
+  margin-bottom: 1em;
+}
+.form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  margin-bottom: 1em;
+}
 </style>

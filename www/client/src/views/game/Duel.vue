@@ -2,7 +2,7 @@
   <div class="duel-game">
     <GameLobby
       v-if="lobby.visible"
-      :gameMode="'duel'"
+      :gameMode="lobby.player.room.mode"
       :matchFound="lobby.matched"
       @close="leaveLobby"
       @renewSearchDuel="renewSearch"
@@ -272,7 +272,8 @@ export default defineComponent({
 }
 
 h1 {
-  font-size: 64px;
+  font-family: 'Electrolize', sans-serif;
+  font-size: 86px;
   letter-spacing: -1px;
 }
 
@@ -339,9 +340,12 @@ h1 {
 }
 
 .duel-game-options .name {
+  font-family: 'Changa', sans-serif;
   text-align: center;
   padding-bottom: 20px;
-  font-size: 16px;
+  font-size: 21px;
+  font-weight: 600;
+  text-shadow: 1px 1px 3px black;
 }
 
 .options {

@@ -157,11 +157,11 @@ export default defineComponent({
   padding-left: 20px;
 }
 
-.victory {
+.defeat {
   color: red;
 }
 
-.defeat {
+.victory {
   color: green;
 }
 </style>

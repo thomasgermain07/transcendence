@@ -340,8 +340,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400&display=swap');
-
 .game-ready {
   position: relative;
   margin: 20px;

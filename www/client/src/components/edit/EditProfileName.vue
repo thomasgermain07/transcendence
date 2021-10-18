@@ -1,15 +1,14 @@
 <template>
   <div class="edit-profile-name">
-    <h3>Edit Name</h3>
+    <h3>Change your name</h3>
 
-    <div v-for="message in messages" :key="message">
-      {{ message }}
+    <div class="err-msg" v-if="errorMsg">
+      {{ errorMsg }}
+    </div>
+    <div class="current-name">
+      <p>Current name: {{ user.name }}</p>
     </div>
     <form @submit.prevent="submit">
-      <div>
-        <label for="name">Name</label>
-        <input type="text" name="name" id="name" v-model="edit_user.name" />
-      </div>
       <div>
         <label for="name">New Name</label>
         <input
@@ -37,25 +36,32 @@ export default defineComponent({
   name: 'edit-profile-name',
   emit: ['update-user'],
   setup(props: Data, context: SetupContext) {
-    const messages = ref([])
+    const errorMsg = ref('')
+    const { edit, user } = useAuth()
     const edit_user = reactive<RegisterType>({
-      name: null,
+      name: user.name,
       new_name: null,
     })
 
-    const { edit } = useAuth()
-
     const submit = async () => {
+      errorMsg.value = ''
+      if (!edit_user.new_name) {
+        errorMsg.value = 'Name must not be empty'
+        return
+      }
       await edit(readonly(edit_user)).catch((err: AxiosErrType) => {
-        messages.value = err.response?.data.message
+        errorMsg.value = err.response?.data.message
       })
+      edit_user.name = user.name
+      edit_user.new_name = null
       context.emit('update-user')
     }
 
     return {
       // Datas
+      user,
       edit_user,
-      messages,
+      errorMsg,
       // Functions
       submit,
     }
@@ -64,7 +70,19 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.edit-profile {
-  background: rgb(230, 163, 64);
+h3 {
+  padding-bottom: 1rem;
+}
+
+.current-name {
+  font-weight: 600;
+  padding-bottom: 0.5rem;
+}
+
+button {
+  margin: 0.5rem 0;
+}
+.err-msg {
+  color: red;
 }
 </style>

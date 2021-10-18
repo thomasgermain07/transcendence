@@ -20,7 +20,6 @@ export const routes: Array<RouteRecordRaw> = [
         path: 'home',
         name: 'home',
         component: Home,
-        // meta: { requiresAuth: true },
       },
     ],
   },

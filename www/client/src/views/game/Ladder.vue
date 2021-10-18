@@ -4,13 +4,23 @@
     <div v-else>
       <GameLobby
         v-if="lobby.visible"
-        :gameMode="'ladder'"
+        :gameMode="lobby.player.room.mode"
         :matchFound="lobby.matched"
         @close="leaveLobby"
         @renewSearchLadder="expandRange"
         @redirect-to-game-room="goToRoom"
       >
         <template v-slot:header> Hi {{ currentUser.name }} </template>
+        <template v-slot:map>
+          <p>{{ lobby.player.room.option.map }}</p>
+        </template>
+        <template v-slot:difficulty>
+          <p>{{ lobby.player.room.option.difficulty }}</p>
+        </template>
+        <template v-slot:power-ups>
+          <p v-if="lobby.player.room.option.powerUps">yes</p>
+          <p v-else>no</p>
+        </template>
       </GameLobby>
       <section class="ladder-play">
         <div class="ladder-start-game">
@@ -137,7 +147,6 @@ export default defineComponent({
         room: roomName.value,
       })
       matchmakingSocket.off()
-      // gameRoomsSocket.off() ????
     })
 
     return {
@@ -168,7 +177,8 @@ export default defineComponent({
 }
 
 h1 {
-  font-size: 64px;
+  font-family: 'Electrolize', sans-serif;
+  font-size: 86px;
   letter-spacing: -1px;
 }
 
@@ -226,10 +236,14 @@ h1 {
 }
 
 .ladder-level {
+  font-family: 'Changa', sans-serif;
   flex: 2;
   margin: auto;
   text-align: center;
-  font-size: 24px;
+  font-size: 32px;
+  letter-spacing: 2px;
+  font-weight: 600;
+  text-shadow: 1px 1px 3px black;
 }
 
 .ladder-level .box {
