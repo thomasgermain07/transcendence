@@ -7,6 +7,7 @@ import { useUsers } from '@/composables/users'
 import { AxiosErrType, AxiosResType } from './axios'
 import { UserType } from '../types/user/user'
 import { useSocket } from './socket'
+import { useGameInvite } from './Game/useGameInvite'
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -164,6 +165,8 @@ export function useAuth() {
   }
 
   async function logout(soft: boolean = false): Promise<void> {
+    useGameInvite().closeEverything()
+
     if (!soft) {
       try {
         const res = await AuthService.logout()
@@ -185,10 +188,6 @@ export function useAuth() {
     namespaces.forEach((nsp) => {
       useSocket(nsp).close()
     })
-
-    useSocket('dm').close()
-    useSocket('chat').close()
-    useSocket('user').close()
 
     return
   }
