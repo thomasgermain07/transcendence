@@ -652,6 +652,9 @@ export class GameRoomsGateway
           roomId: event.roomId,
           dto: { state: GameState.OVER }
         })
+        const room: Room = await this.roomsService.findOne(event.roomId)
+        this.server.to(event.room).emit('updateRoomInClient',
+        {room: room} )
         return
       }
       this.game[event.room].info.status = GameState.PAUSE;
