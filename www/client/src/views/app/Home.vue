@@ -15,17 +15,15 @@
     </div>
     <div class="leaderboard">
       <Leaderboard v-if="is_authenticated" />
-      <button @click="reset">reset</button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref, onMounted } from 'vue'
+import { defineComponent } from 'vue'
 import Leaderboard from '../../components/game/Leaderboard.vue'
 import ErrorPage from '@/components/ErrorPage.vue'
 
-import getInvitationInteraction from '@/composables/Game/invitationInteraction'
 import { useAuth } from '../../composables/auth'
 
 export default defineComponent({
@@ -38,9 +36,6 @@ export default defineComponent({
     return {
       user,
       is_authenticated,
-      reset: () => {
-        getInvitationInteraction().deleteInvitation()
-      },
     }
   },
 })
