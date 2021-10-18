@@ -1,88 +1,128 @@
 <template>
-  <div class="edit-profile-name">
-    <h3>Change your name</h3>
+	<div class="edit-profile-name">
+		<h3>Change your name</h3>
 
-    <div class="err-msg" v-if="errorMsg">
-      {{ errorMsg }}
-    </div>
-    <div class="current-name">
-      <p>Current name: {{ user.name }}</p>
-    </div>
-    <form @submit.prevent="submit">
-      <div>
-        <label for="name">New Name</label>
-        <input
-          type="text"
-          name="new_name"
-          id="new_name"
-          v-model="edit_user.new_name"
-        />
-      </div>
+		<div v-for="message in messages" :key="message" class= "form__message"
+			:class="[ message.is_error ? 'form__error' : 'form__info']"
+		>
+			- {{ message.content }}
+		</div>
+		<form @submit.prevent="submit">
+			<div class="form__field">
+				<label for="name">New name:</label>
+				<input type="text" name="name" id="name" v-model="user_update.name" />
+			</div>
 
-      <button type="submit">Edit</button>
-    </form>
-  </div>
+			<button type="submit">Edit</button>
+		</form>
+	</div>
 </template>
 
 <script lang="ts">
-import { defineComponent, SetupContext, Data } from 'vue'
-import { ref, reactive, readonly } from 'vue'
+	import { defineComponent } from 'vue'
+	import { reactive }        from 'vue'
 
-import { RegisterType } from '@/composables/auth'
-import { useAuth } from '@/composables/auth'
-import { AxiosErrType } from '../../composables/axios'
+	import { useAuth }        from '@/composables/auth'
+	import { AxiosErrType }   from '@/composables/axios'
+	import { UserUpdateType } from '@/types/user/user'
 
-export default defineComponent({
-  name: 'edit-profile-name',
-  emit: ['update-user'],
-  setup(props: Data, context: SetupContext) {
-    const errorMsg = ref('')
-    const { edit, user } = useAuth()
-    const edit_user = reactive<RegisterType>({
-      name: user.name,
-      new_name: null,
-    })
+	export default defineComponent({
+		name: 'edit-profile-name',
+		emit: [
+		'update-user'
+		],
 
-    const submit = async () => {
-      errorMsg.value = ''
-      if (!edit_user.new_name) {
-        errorMsg.value = 'Name must not be empty'
-        return
-      }
-      await edit(readonly(edit_user)).catch((err: AxiosErrType) => {
-        errorMsg.value = err.response?.data.message
-      })
-      edit_user.name = user.name
-      edit_user.new_name = null
-      context.emit('update-user')
-    }
+		setup(props, context)
+		{
+			const { edit } = useAuth();
 
-    return {
-      // Datas
-      user,
-      edit_user,
-      errorMsg,
-      // Functions
-      submit,
-    }
-  },
-})
+			type Message = {
+				content: string;
+				is_error: boolean;
+			};
+
+			const messages = reactive<Message[]>([]);
+			const user_update = reactive<UserUpdateType>({
+				name: "",
+			});
+
+			const submit = async () => {
+				while (messages.length > 0)
+					messages.pop();
+
+				if (!user_update.name)
+				{
+					messages.push({
+						content: "Your name must not be empty.",
+						is_error: true,
+					});
+					return ;
+				}
+
+				try
+				{
+					await edit(user_update);
+
+					messages.push({
+						content: "Your name has been updated successfully.",
+						is_error: false,
+					});
+
+					context.emit('update-user');
+				}
+				catch (err: AxiosErrType)
+				{
+					const errors: string | string[] = err.response?.data?.message;
+
+					if (Array.isArray(errors))
+					{
+						errors.forEach((error: string) => messages.push({
+							content: error,
+							is_error: true,
+						}));
+					}
+					else
+					{
+						messages.push({
+							content: errors,
+							is_error: true,
+						});
+					}
+				}
+			};
+
+			return {
+				// Datas
+				messages,
+				user_update,
+				// Functions
+				submit,
+			};
+		},
+	});
 </script>
 
 <style scoped>
-h3 {
-  padding-bottom: 1rem;
-}
+	.edit-profile-name {
+		text-align: left;
+	}
 
-.current-name {
-  font-weight: 600;
-  padding-bottom: 0.5rem;
-}
-
-button {
-  margin: 0.5rem 0;
-}
-.err-msg {
-  color: red;
-}
+	.form__message + .form__message {
+		margin-top: .5em;
+	}
+	.form__message:last-of-type {
+		margin-bottom: 1em;
+	}
+	.form__error {
+		color: var(--primary-color);
+	}
+	.form__info {
+		color: rgb(38, 199, 38);
+	}
+	.form__field {
+		display: flex;
+		flex-direction: column;
+		gap: 0.2em;
+		margin-bottom: 1em;
+	}
 </style>

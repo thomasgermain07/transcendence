@@ -2,10 +2,11 @@ import { reactive, readonly, computed } from 'vue'
 
 import { router } from '@/router'
 import { AuthService } from '@/services/auth'
+import { UsersService } from '@/services/users'
 import { useUsers } from '@/composables/users'
 
 import { AxiosErrType, AxiosResType } from './axios'
-import { UserType } from '../types/user/user'
+import { UserType, UserUpdateType } from '../types/user/user'
 import { useSocket } from './socket'
 import { useGameInvite } from './Game/useGameInvite'
 
@@ -36,10 +37,6 @@ export type GoogleAuthType = {
   user_id: number
 }
 
-export type EditType = {
-  name: string
-  newname: string
-}
 
 // -------------------------------------------------------------------------
 // State
@@ -52,6 +49,7 @@ const user = reactive<UserType>({
   ladderLevel: 1,
   isTwoFactorAuthenticationEnabled: false,
   status: '',
+  first_log: true,
 })
 const is_authenticated = computed(() => !(user.id === 0))
 
@@ -73,7 +71,7 @@ export function useAuth() {
 
       console.log('useAuth.register: Done.')
 
-      router.push({ name: 'auth-login' })
+      router.push({ name: 'auth-register' })
     } catch (err: AxiosErrType) {
       console.log('useAuth.register: Fail.')
 
@@ -196,9 +194,9 @@ export function useAuth() {
     return
   }
 
-  async function edit(payload: EditType): Promise<void> {
+  async function edit(payload: UserUpdateType): Promise<void> {
     try {
-      const res = await AuthService.edit(payload)
+      const res = await UsersService.edit(user.id, payload)
       if (res) {
         const { users, get } = useUsers()
         await get()
@@ -314,4 +312,5 @@ function setUser(data: UserType | undefined = undefined) {
   user.ladderLevel = data?.ladderLevel ?? 1
   user.isTwoFactorAuthenticationEnabled =
     data?.isTwoFactorAuthenticationEnabled ?? false
+  user.first_log = data?.first_log ?? true
 }

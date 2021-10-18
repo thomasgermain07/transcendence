@@ -1,6 +1,8 @@
 import { AxiosResType } from "@/composables/axios";
 import { useAxios }     from "@/composables/axios";
 
+import { UserUpdateType } from "@/types/user/user"
+
 // -----------------------------------------------------------------------------
 // Functions
 // -----------------------------------------------------------------------------
@@ -16,9 +18,23 @@ async function get(
 	return await axios.get(url);
 }
 
+async function edit(
+	id: number,
+	payload: UserUpdateType
+)
+	: Promise<AxiosResType>
+{
+	const { axios } = useAxios()
+
+	const url: string = `users/${id}`
+
+	return await axios.patch(url, payload)
+}
+
 // -----------------------------------------------------------------------------
 // Exports
 // -----------------------------------------------------------------------------
 export const UsersService = Object.freeze({
 	get,
+	edit,
 });

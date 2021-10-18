@@ -16,6 +16,10 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   isTwoFactorAuthenticationEnabled?: boolean
 
   @IsOptional()
+  @IsBoolean()
+  first_log?: boolean
+
+  @IsOptional()
   @IsString()
   status?: string
 }

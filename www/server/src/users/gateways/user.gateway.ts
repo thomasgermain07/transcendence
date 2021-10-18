@@ -128,7 +128,7 @@ export class UserGateway
     const room_name: string = this.getRoomName(data.target_id)
 
     client.leave(room_name)
-    this.handleSetStatus(user, { status: 'disconnected' })
+
     console.log(`User ${user.id} left ${room_name}.`)
   }
 
