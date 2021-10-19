@@ -48,14 +48,6 @@ async function logout(): Promise<AxiosResType> {
   return await axios.delete(url)
 }
 
-async function edit(payload: EditType): Promise<AxiosResType> {
-  const { axios } = useAxios()
-
-  const url: string = `auth/edit`
-
-  return await axios.post(url, payload)
-}
-
 async function activate2Fa(payload?: RegisterType): Promise<AxiosResType> {
   const { axios } = useAxios()
 
@@ -88,7 +80,6 @@ export const AuthService = Object.freeze({
   loginMarvin,
   refresh,
   logout,
-  edit,
   activate2Fa,
   deactivate2Fa,
   verifyCode,

@@ -55,22 +55,6 @@ export class AuthService {
     return this.users_svc.setRefreshToken(user, null)
   }
 
-  async edit(user: User, data: EditUserDto): Promise<User> {
-    if (data.name && data.new_name && data.name == user.name) {
-      try {
-        await this.users_svc.updateName(user.id, data.new_name)
-      } catch (error) {
-        if (error?.code == 23505) {
-          throw new BadRequestException('This username is already taken')
-        } else {
-          throw new BadRequestException('Wrong input')
-        }
-      }
-    }
-
-    return user
-  }
-
   // -------------------------------------------------------------------------
   // Private methods
   // -------------------------------------------------------------------------

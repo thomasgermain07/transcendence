@@ -13,6 +13,9 @@
         <button class="link__game">Play Now</button>
       </router-link>
     </div>
+    <div v-if="user.first_log" class="user-edit">
+      <edit-profile-window v-on:closeWindow="closeEdit" />
+    </div>
     <div class="leaderboard">
       <Leaderboard v-if="is_authenticated" />
     </div>
@@ -23,19 +26,23 @@
 import { defineComponent } from 'vue'
 import Leaderboard from '../../components/game/Leaderboard.vue'
 import ErrorPage from '@/components/ErrorPage.vue'
+import EditProfileWindow from '@/components/edit/EditProfileWindow.vue'
 
 import { useAuth } from '../../composables/auth'
 
 export default defineComponent({
   name: 'app-home',
-  components: { Leaderboard, ErrorPage },
+  components: { Leaderboard, ErrorPage, EditProfileWindow },
 
   setup() {
-    const { user, is_authenticated } = useAuth()
+    const { user, is_authenticated, edit } = useAuth()
+
+    const closeEdit = async () => await edit({ first_log: false });
 
     return {
       user,
       is_authenticated,
+      closeEdit,
     }
   },
 })
@@ -150,5 +157,24 @@ h1 {
   width: 60vw;
   padding-top: 50px;
   margin: auto;
+}
+
+
+.user-edit {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 80vw;
+  max-width: 800px;
+  max-height: 100%;
+  padding: 0 20px;
+  transform: translate(-50%, -50%);
+  overflow: scroll;
+  background-color: rgb(231, 234, 238);
+  color: black;
+  line-height: 130%;
+  box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.9);
+  border-radius: 2px;
+  z-index: 100;
 }
 </style>

@@ -9,4 +9,7 @@ export type UserType = {
   ladderLevel: number
   isTwoFactorAuthenticationEnabled: boolean
   status: string
-}
+  first_log: boolean
+};
+
+export type UserUpdateType = Partial<UserType>;

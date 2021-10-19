@@ -56,6 +56,11 @@ export class User {
   })
   public status: string;
 
+  @Column({
+    default: true,
+  })
+  public first_log: boolean;
+
   // -------------------------------------------------------------------------
   // Authentication
   // -------------------------------------------------------------------------

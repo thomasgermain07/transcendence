@@ -76,15 +76,6 @@ export class AuthController {
     )
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Post('edit')
-  async edit(
-    @AuthUser() user: User,
-    @Body() edit_info: EditUserDto,
-  ): Promise<User> {
-    return this.auth_svc.edit(user, edit_info)
-  }
-
   @UseGuards(LocalGuard)
   @Post('login')
   async login(
