@@ -168,45 +168,17 @@ export class GameRoomsGateway
     // TODO: update game room state depending of the situation
     if (this.game[data.room].player_left.getId() == data.playerId) {
       this.set_winner(data.room, RIGHT)
-<<<<<<< Updated upstream
-    }
-    else {
-      this.set_winner(data.room, LEFT)
-=======
-      await this.playerService.update(
-        this.game[data.room].player_left.getId(),
-        {
-          winner: this.game[data.room].player_left.getWinner(),
-          mode: room.mode,
-        },
-      )
-      await this.playerService.update(
-        this.game[data.room].player_right.getId(),
-        {
-          winner: this.game[data.room].player_right.getWinner(),
-          mode: room.mode,
-        },
-      )
     } else {
       this.set_winner(data.room, LEFT)
-      await this.playerService.update(
-        this.game[data.room].player_left.getId(),
-        {
-          winner: this.game[data.room].player_left.getWinner(),
-          mode: room.mode,
-        },
-      )
-      await this.playerService.update(
-        this.game[data.room].player_left.getId(),
-        {
-          winner: this.game[data.room].player_left.getWinner(),
-          mode: room.mode,
-        },
-      )
->>>>>>> Stashed changes
     }
-    await this.playerService.update( this.game[data.room].player_left.getId() ,{ winner: this.game[data.room].player_left.getWinner(), mode: room.mode })
-    await this.playerService.update( this.game[data.room].player_right.getId() ,{ winner: this.game[data.room].player_right.getWinner(), mode: room.mode })
+    await this.playerService.update(this.game[data.room].player_left.getId(), {
+      winner: this.game[data.room].player_left.getWinner(),
+      mode: room.mode,
+    })
+    await this.playerService.update(this.game[data.room].player_right.getId(), {
+      winner: this.game[data.room].player_right.getWinner(),
+      mode: room.mode,
+    })
     this.game[data.room].info.status = GameState.OVER
     room = await this.roomsService.update(roomId, { state: GameState.OVER })
     this.server.to(data.room).emit('updateRoomInClient', { room: room })
@@ -770,14 +742,11 @@ export class GameRoomsGateway
   }
 
   @SubscribeMessage('pause')
-	async handlePause(
-		@MessageBody() event: Pause
-	)
-		: Promise<void>
-	{
-    if ( this.game[event.room].player_left.getUserId() == event.user_id ||
-        this.game[event.room].player_right.getUserId() == event.user_id
-    ){
+  async handlePause(@MessageBody() event: Pause): Promise<void> {
+    if (
+      this.game[event.room].player_left.getUserId() == event.user_id ||
+      this.game[event.room].player_right.getUserId() == event.user_id
+    ) {
       this.game[event.room].info.count_pause = 30
       this.game[event.room].info.count = -1
       if (this.game[event.room].player_left.getUserId() == event.user_id) {
@@ -809,8 +778,7 @@ export class GameRoomsGateway
           dto: { state: GameState.OVER },
         })
         const room: Room = await this.roomsService.findOne(event.roomId)
-        this.server.to(event.room).emit('updateRoomInClient',
-        {room: room} )
+        this.server.to(event.room).emit('updateRoomInClient', { room: room })
         return
       }
       this.game[event.room].info.status = GameState.PAUSE
