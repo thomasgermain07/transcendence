@@ -180,6 +180,7 @@ export class GameRoomsGateway
       mode: room.mode,
     })
     this.game[data.room].info.status = GameState.OVER
+    this.setLadderLevel(data.room)
     room = await this.roomsService.update(roomId, { state: GameState.OVER })
     this.server.to(data.room).emit('updateRoomInClient', { room: room })
 
@@ -664,6 +665,17 @@ export class GameRoomsGateway
     )
     this.server.to(roomName).emit('updateRoomInClient', { room: playerR.room })
 
+    this.setLadderLevel(roomName)
+
+    const rooms: Room[] = await this.roomsService.findAllByMode(
+      this.game[roomName].info.mode,
+    )
+    this.server.emit('updateWatchRoomInClient', { rooms: rooms })
+  }
+
+
+  async setLadderLevel(roomName: string): Promise<void> {
+
     if (this.game[roomName].info.mode == GameMode.LADDER) {
       let ladder_left: number = await this.userService.findOneLadderLevel(
         this.game[roomName].player_left.getUserId(),
@@ -724,10 +736,6 @@ export class GameRoomsGateway
         ladder_right,
       )
     }
-    const rooms: Room[] = await this.roomsService.findAllByMode(
-      this.game[roomName].info.mode,
-    )
-    this.server.emit('updateWatchRoomInClient', { rooms: rooms })
   }
 
   @SubscribeMessage('move')
