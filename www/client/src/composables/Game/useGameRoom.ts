@@ -27,6 +27,10 @@ const useGameRoom = () => {
 
   const loadRoom = async (routeId: string): Promise<void> => {
     state.isLoading = true
+    state.error = null
+    state.currentPlayer = null
+    state.isActive = false
+    state.isPause = false
     const response = await axios
       .get(`game/rooms/${routeId}`)
       .catch((error: any) => {
