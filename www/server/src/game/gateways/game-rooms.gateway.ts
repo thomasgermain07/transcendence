@@ -162,14 +162,12 @@ export class GameRoomsGateway
     // TODO: update game room state depending of the situation
     if (this.game[data.room].player_left.getId() == data.playerId ) {
       this.set_winner(data.room, RIGHT)
-      await this.playerService.update( this.game[data.room].player_left.getId() ,{ winner: this.game[data.room].player_left.getWinner(), mode: room.mode })
-      await this.playerService.update( this.game[data.room].player_right.getId() ,{ winner: this.game[data.room].player_right.getWinner(), mode: room.mode })
     }
     else {
       this.set_winner(data.room, LEFT)
-      await this.playerService.update( this.game[data.room].player_left.getId() ,{ winner: this.game[data.room].player_left.getWinner(), mode: room.mode })
-      await this.playerService.update( this.game[data.room].player_left.getId() ,{ winner: this.game[data.room].player_left.getWinner(), mode: room.mode })
     }
+    await this.playerService.update( this.game[data.room].player_left.getId() ,{ winner: this.game[data.room].player_left.getWinner(), mode: room.mode })
+    await this.playerService.update( this.game[data.room].player_right.getId() ,{ winner: this.game[data.room].player_right.getWinner(), mode: room.mode })
     this.game[data.room].info.status = GameState.OVER
     room = await this.roomsService.update(roomId, {state: GameState.OVER})
     this.server.to(data.room).emit('updateRoomInClient',
@@ -628,12 +626,11 @@ export class GameRoomsGateway
 	)
 		: Promise<void>
 	{
-
-    this.game[event.room].info.count_pause = 30
-    this.game[event.room].info.count = -1
     if ( this.game[event.room].player_left.getUserId() == event.user_id ||
         this.game[event.room].player_right.getUserId() == event.user_id
     ){
+      this.game[event.room].info.count_pause = 30
+      this.game[event.room].info.count = -1
       if (this.game[event.room].player_left.getUserId() == event.user_id) {
         await this.playerService.update(this.game[event.room].player_left.getId(), { isReady: true, isPause: true })
       }
