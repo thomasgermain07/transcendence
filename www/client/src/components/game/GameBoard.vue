@@ -3,7 +3,10 @@
     <div class="game-pause" v-if="props.roomState == 'pause'">
       <div class="loader-ctn">
         <div class="loader"></div>
-        <p>Your Opponent has been disconnected he has 30s to be reconnected</p>
+        <p>
+          A player has been disconnected. The game will resume on reconnection
+          or in
+        </p>
         <p class="timer">{{ props.timer }}</p>
       </div>
     </div>
