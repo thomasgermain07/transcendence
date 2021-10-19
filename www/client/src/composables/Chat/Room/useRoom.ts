@@ -130,6 +130,11 @@ export function useRoom() {
       createToast('Successfully left the room', {
         type: 'success',
       })
+    }).catch(() => {
+      useSocket('chat').socket.emit('leave', { room_id: roomId })
+      createToast('Room has been deleted', {
+        type: 'danger',
+      })
     })
   }
 

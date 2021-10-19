@@ -34,9 +34,9 @@ export class User {
   public name: string
 
   @Column({
-    nullable: true,
+    default: "http://localhost:8080/api/users/images/no-avatar.png",
   })
-  public avatar?: string
+  public avatar: string
 
   // Todo:
   // @Column({
