@@ -72,7 +72,12 @@
 <script lang="ts">
 import { defineComponent, computed, onMounted, onUnmounted, ref } from 'vue'
 
-import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
+import {
+  useRoute,
+  useRouter,
+  onBeforeRouteLeave,
+  onBeforeRouteUpdate,
+} from 'vue-router'
 import useGameRoom from '../../composables/Game/useGameRoom'
 
 import PlayersDisplay from '../../components/game/PlayersDisplay.vue'
@@ -115,6 +120,8 @@ export default defineComponent({
       toastGameCanceled,
       redirectToGameView,
     } = useGameRoom()
+
+    const { axios } = useAxios()
 
     const roomName = `room-${route.params.id}`
     const gameRoomsSocket = useSocket('game-rooms').socket
@@ -175,12 +182,17 @@ export default defineComponent({
       })
     }
 
-    const onReady = (): void => {
+    const onReady = async (): Promise<void> => {
       state.isActive = true
-      gameRoomsSocket.emit('getReady', {
-        playerId: state.currentPlayer.id,
-        room: roomName,
-      })
+      try {
+        const res = await axios.put('game/players/isReady', {
+          player: state.currentPlayer,
+          value: true,
+        })
+        checkReady(res.data.room)
+      } catch (error) {
+        console.log(error.response?.data?.message)
+      }
     }
 
     const offPause = (): void => {
@@ -222,10 +234,8 @@ export default defineComponent({
       }
     }
 
-    // check if both players are ready
     const checkReady = (room: Room): void => {
       if (room.players.every((player) => player.isReady === true)) {
-        // update Room state to playing
         gameRoomsSocket.emit('updateRoomInServer', {
           socketRoomName: roomName,
           roomId: room.id,
@@ -278,10 +288,6 @@ export default defineComponent({
       startCountDown(count)
     })
 
-    gameRoomsSocket.on('checkReady', ({ room }) => {
-      checkReady(room)
-    })
-
     gameRoomsSocket.on('checkStopPause', ({ room }) => {
       stopPause(room)
     })
@@ -300,11 +306,20 @@ export default defineComponent({
       router.push('/game')
     })
 
-    onBeforeRouteLeave(() => {
+    onBeforeRouteUpdate((updateGuard) => {
+      loadRoom(updateGuard?.params?.id)
+    })
+
+    onBeforeRouteLeave(async () => {
       if (state.currentPlayer && room.value.state == GameState.WAITING) {
-        gameRoomsSocket.emit('notReady', {
-          playerId: state.currentPlayer.id,
-        })
+        try {
+          await axios.put('game/players/isReady', {
+            player: state.currentPlayer,
+            value: false,
+          })
+        } catch (error) {
+          console.log(error.response?.data?.message)
+        }
       }
     })
 
