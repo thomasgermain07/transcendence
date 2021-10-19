@@ -47,12 +47,6 @@ export class DMController {
     @Body() invitation: InvitationDto,
     @AuthUser() user: User,
   ): Promise<InvitationDto> {
-    // Check if user is already in a game room
-    const inGame = await this.players_svc.checkIfInGame(user)
-    if (inGame) {
-      throw new BadRequestException('You are already in game')
-    }
-
     // Change game_invitation_pending of the host user to true
     try {
       await this.users_svc.updateGameInvitation(invitation.host, true)
@@ -97,10 +91,11 @@ export class DMController {
     @Body() invitation: InvitationDto,
     @AuthUser() user: User,
   ): Promise<Room> {
-    // Check if user is already in a game room
-    const inGame = await this.players_svc.checkIfInGame(user)
-    if (inGame) {
-      throw new BadRequestException('You are already in game')
+    // Check if users from invitation are already in a game room
+    const userInGame = await this.players_svc.checkIfInGame(user)
+    const hostInGame = await this.players_svc.checkIfInGame(invitation.host)
+    if (userInGame || hostInGame) {
+      throw new NotFoundException('Invitation expired')
     }
 
     // Check if invitation has expired

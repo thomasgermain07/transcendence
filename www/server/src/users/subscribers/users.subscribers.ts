@@ -13,6 +13,7 @@ import { User } from '../entities/user.entity';
 import { RoomsService } from 'src/game/rooms/services/rooms.service';
 import { Room } from 'src/game/rooms/entities/room.entity';
 import { GameRoomsGateway } from 'src/game/gateways/game-rooms.gateway';
+import { GameState } from 'src/game/enum/enum';
 
     
   @EventSubscriber()
@@ -39,13 +40,15 @@ import { GameRoomsGateway } from 'src/game/gateways/game-rooms.gateway';
                 const rooms: Room[] = await this.roomsService.findAllMatchPlayingByUser(user)
                 if (rooms && user) {
                   rooms.forEach((room: Room) => {
-                      const room_name: string = this.getRoomName(room.id);
-                      this.game_rooms_gtw.sendPause({
-                          move: 'pause',
-                          user_id: event.entity.id,
-                          room: room_name,
-                          roomId: room.id,
-                      })
+                    if (room.state === GameState.OVER)
+                      return
+                    const room_name: string = this.getRoomName(room.id);
+                    this.game_rooms_gtw.sendPause({
+                        move: 'pause',
+                        user_id: event.entity.id,
+                        room: room_name,
+                        roomId: room.id,
+                    })
                   });
                 }
             }

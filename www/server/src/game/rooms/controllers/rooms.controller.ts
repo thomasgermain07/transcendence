@@ -19,6 +19,7 @@ import { User } from '../../../users/entities/user.entity'
 import { PlayersService } from 'src/game/players/services/players.service'
 import MatchmakerDto from 'src/game/gateways/dto/matchmaker.dto'
 import { Player } from 'src/game/players/entities/player.entity'
+import { UserGateway } from '../../../users/gateways/user.gateway'
 
 @UseGuards(JwtAuthGuard)
 @Controller('game/rooms')
@@ -30,6 +31,7 @@ export class RoomsController {
   constructor(
     private readonly roomsService: RoomsService,
     private readonly playersService: PlayersService,
+    private readonly user_gtw: UserGateway,
   ) {}
 
   @Get()
@@ -86,6 +88,12 @@ export class RoomsController {
     if (!check || room?.mode != GameMode.PRIVATE) {
       throw new BadRequestException('room cannot be deleted')
     }
+
+    room.players.forEach((player) => {
+      if (player.user.status != 'disconnected') {
+        this.user_gtw.handleSetStatus(player.user, { status: 'connected' })
+      }
+    })
 
     return this.roomsService.remove(room)
   }
