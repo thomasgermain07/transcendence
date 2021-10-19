@@ -14,7 +14,7 @@ export function useSocket(nsp: string) {
   // -------------------------------------------------------------------------
   sockets[nsp] ||= io(`http://localhost:8080/${nsp}`, {
     withCredentials: true,
-    forceNew: true,
+    forceNew: true, // TODO: test if force new needed or not
   })
 
   // -------------------------------------------------------------------------

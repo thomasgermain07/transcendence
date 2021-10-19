@@ -71,6 +71,8 @@ export class SubscriptionsController {
   ): Promise<void> {
     const room: Room = await this.rooms_svc.findOne({ id: room_id })
 
+    if (!room) throw new NotFoundException('Room not found.')
+
     if (await this.chat_svc.isModerator(user, room)) {
       const permission: Permission = await this.permissions_svc.findOne({
         user: user,
