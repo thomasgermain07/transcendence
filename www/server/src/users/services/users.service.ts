@@ -7,7 +7,10 @@ import { Message } from 'src/direct_message/messages/entities/message.entity'
 import { CreateUserDto } from '../dto/create-user.dto'
 import { UpdateUserDto } from '../dto/update-user.dto'
 import { User } from '../entities/user.entity'
-import { Achievement, defaultAchievements } from '../entities/achievement.entity'
+import {
+  Achievement,
+  defaultAchievements,
+} from '../entities/achievement.entity'
 import { AchievementsName } from '../entities/achievement.entity'
 
 @Injectable()
@@ -52,11 +55,13 @@ export class UsersService {
       achievements: [],
     })
 
-    user.achievements = defaultAchievements.map( achievement => this.achievementsRepository.create({
-      name: achievement.name,
-      description: achievement.description,
-      image: achievement.image,
-    }))
+    user.achievements = defaultAchievements.map((achievement) =>
+      this.achievementsRepository.create({
+        name: achievement.name,
+        description: achievement.description,
+        image: achievement.image,
+      }),
+    )
 
     return this.users_repo.save(user)
   }
@@ -108,10 +113,9 @@ export class UsersService {
     if (!token) {
       this.users_repo.update(user.id, {
         refresh_token: token,
-        status: "disconnected",
+        status: 'disconnected',
       })
-    }
-    else {
+    } else {
       this.users_repo.update(user.id, {
         refresh_token: token,
       })
@@ -140,7 +144,7 @@ export class UsersService {
   }
 
   public async updateAvatar(userId: number, file: any): Promise<User> {
-    const path: string = 'http://localhost:8080/api/users/images/' + file
+    const path: string = 'http://localhost:8080/' + file
     await this.users_repo.update(userId, { avatar: path })
 
     return await this.users_repo.findOne(userId)
@@ -183,17 +187,13 @@ export class UsersService {
     return await this.users_repo.findOne(user.id)
   }
 
-  public async getUsers(
-    offset?: number,
-    limit?: number,
-  ): Promise<User[]> {
-
+  public async getUsers(offset?: number, limit?: number): Promise<User[]> {
     const users = await this.users_repo
-    .createQueryBuilder('user')
-    .orderBy("user.name")
-    .offset(offset)
-    .limit(limit)
-    .getMany()
+      .createQueryBuilder('user')
+      .orderBy('user.name')
+      .offset(offset)
+      .limit(limit)
+      .getMany()
 
     return users as any as User[]
   }
@@ -202,21 +202,19 @@ export class UsersService {
     search: string,
     offset?: number,
     limit?: number,
-    ): Promise<User[]> {
-
-      const users = await this.users_repo
+  ): Promise<User[]> {
+    const users = await this.users_repo
       .createQueryBuilder('user')
-      .orderBy("user.name")
-      .where("user.name like :name", { name: `${search}%`})
+      .orderBy('user.name')
+      .where('user.name like :name', { name: `${search}%` })
       .offset(offset)
       .limit(limit)
       .getMany()
 
-      return users as any as User[]
+    return users as any as User[]
+  }
 
-    }
-
-  public async updateStatus(user: User, status: string ): Promise<void> {
-    this.users_repo.update( user.id, { id: user.id, status: status } );
+  public async updateStatus(user: User, status: string): Promise<void> {
+    this.users_repo.update(user.id, { id: user.id, status: status })
   }
 }

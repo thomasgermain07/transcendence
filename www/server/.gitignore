@@ -34,5 +34,6 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # Uploads
-/images/*
-!/images/no-avatar.png
+/public/*
+!/public/no-avatar.png
+!/public/achievements/
