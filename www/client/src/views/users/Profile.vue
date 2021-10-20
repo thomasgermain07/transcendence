@@ -100,7 +100,7 @@ export default {
     const route = useRoute()
     const { edit } = useAuth()
     const { users, get } = useUsers()
-    const userId: number = parseInt(route.params.id as string)
+
     const userEdit = ref(false)
 
     const openEdit = () => {
@@ -122,7 +122,7 @@ export default {
     })
 
     const updateUser = async () => {
-      fetchUserProfile(userId)
+      fetchUserProfile(parseInt(route.params.id as string))
       await edit({ first_log: false })
     }
 
@@ -161,7 +161,7 @@ export default {
     })
 
     onMounted(() => {
-      fetchUserProfile(userId)
+      fetchUserProfile(parseInt(route.params.id as string))
     })
 
     return {
