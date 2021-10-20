@@ -107,7 +107,7 @@ export default defineComponent({
 
     const { axios } = useAxios()
 
-    const roomName = `room-${route.params.id}`
+    const roomName = ref(`room-${route.params.id}`)
     const gameRoomsSocket = useSocket('game-rooms').socket
 
     let timer = ref('')
@@ -122,8 +122,9 @@ export default defineComponent({
     })
 
     const isPlaying = computed(() => {
-      if (state.currentPlayer)
+      if (state.currentPlayer) {
         return room?.value?.state == GameState.PLAYING ? true : false
+      }
       return false
     })
 
@@ -158,11 +159,9 @@ export default defineComponent({
         const res = await useAxios().axios.delete('game/rooms/private', {
           data: { room: room?.value },
         })
-      } catch (err: AxiosErrType) {
-        console.log(err.response?.data?.message)
-      }
+      } catch (err: AxiosErrType) {}
       gameRoomsSocket.emit('cancelRoom', {
-        room: roomName,
+        room: roomName.value,
       })
     }
 
@@ -181,7 +180,7 @@ export default defineComponent({
       gameRoomsSocket.emit('stopPause', {
         playerId: state?.currentPlayer?.id,
         roomId: room?.value?.id,
-        room: roomName,
+        room: roomName.value,
       })
     }
 
@@ -190,7 +189,7 @@ export default defineComponent({
         leaveType,
         {
           playerId: state?.currentPlayer?.id,
-          room: roomName,
+          room: roomName.value,
         },
         (message: string) => {
           router.push('/game')
@@ -199,10 +198,10 @@ export default defineComponent({
     }
 
     // --- HELPER FUNCTIONS ---
-    const joinRoom = (): void => {
+    const joinRoom = (roomIdFromRoute: string): void => {
       gameRoomsSocket.emit(
         'joinRoom',
-        parseInt(route.params.id as string),
+        parseInt(roomIdFromRoute),
         (message: string) => console.log(message),
       )
     }
@@ -219,14 +218,14 @@ export default defineComponent({
     const checkReady = (room: Room): void => {
       if (room.players.every((player) => player.isReady === true)) {
         gameRoomsSocket.emit('updateRoomInServer', {
-          socketRoomName: roomName,
+          socketRoomName: roomName.value,
           roomId: room.id,
           dto: { state: GameState.PLAYING },
         })
 
         // start game
         gameRoomsSocket.emit('init', {
-          socketRoomName: roomName,
+          socketRoomName: roomName.value,
           room: room,
           players: room.players,
         })
@@ -237,14 +236,14 @@ export default defineComponent({
       if (room.players.every((player) => player.isPause === false)) {
         timer.value = ''
         gameRoomsSocket.emit('updateRoomInServer', {
-          socketRoomName: roomName,
+          socketRoomName: roomName.value,
           roomId: room.id,
           dto: { state: GameState.PLAYING },
         })
 
         // start game
         gameRoomsSocket.emit('init', {
-          socketRoomName: roomName,
+          socketRoomName: roomName.value,
           room: room,
           players: room.players,
         })
@@ -256,38 +255,46 @@ export default defineComponent({
     }
 
     // --- SOCKETS ---
-    gameRoomsSocket.on('connect', () => {
-      joinRoom()
-    })
+    const initListeners = () => {
+      gameRoomsSocket.on('connect', () => {
+        joinRoom(route.params.id as string)
+      })
 
-    gameRoomsSocket.on('updateRoomInClient', ({ room }) => {
-      updateRoom(room)
-    })
+      gameRoomsSocket.on('updateRoomInClient', ({ room }) => {
+        updateRoom(room)
+      })
 
-    gameRoomsSocket.on('onPause', ({ count }) => {
-      startCountDown(count)
-    })
+      gameRoomsSocket.on('onPause', ({ count }) => {
+        startCountDown(count)
+      })
 
-    gameRoomsSocket.on('checkStopPause', ({ room }) => {
-      stopPause(room)
-    })
+      gameRoomsSocket.on('checkStopPause', ({ room }) => {
+        stopPause(room)
+      })
 
-    gameRoomsSocket.on('roomJoined', (roomRet) => {
-      updateRoom(roomRet)
-    })
+      gameRoomsSocket.on('roomJoined', (roomRet) => {
+        updateRoom(roomRet)
+      })
 
-    gameRoomsSocket.on('opponentLeaving', () => {
-      toastOppLeaving()
-      redirectToGameView()
-    })
+      gameRoomsSocket.on('opponentLeaving', () => {
+        toastOppLeaving()
+        redirectToGameView()
+      })
 
-    gameRoomsSocket.on('roomCanceled', () => {
-      toastGameCanceled()
-      router.push('/game')
-    })
+      gameRoomsSocket.on('roomCanceled', () => {
+        toastGameCanceled()
+        router.push('/game')
+      })
+    }
 
     onBeforeRouteUpdate((updateGuard) => {
+      gameRoomsSocket.emit('leaveStream', {
+        room: roomName.value,
+      })
+      joinRoom(updateGuard?.params?.id as string)
       loadRoom(updateGuard?.params?.id)
+      roomName.value = `room-${updateGuard?.params?.id}`
+      initListeners()
     })
 
     onBeforeRouteLeave(async () => {
@@ -302,8 +309,9 @@ export default defineComponent({
     })
 
     onMounted(() => {
+      initListeners()
       if (gameRoomsSocket.id) {
-        joinRoom()
+        joinRoom(route.params.id as string)
       }
     })
 

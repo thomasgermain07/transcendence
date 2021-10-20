@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import { Room } from '@/types/game/gameRoom'
-import { defineComponent } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 export default defineComponent({
@@ -31,11 +31,18 @@ export default defineComponent({
 
   setup(props) {
     const router = useRouter()
-    const roomsList = props.rooms as Room[]
+    const roomsList = ref(props.rooms as Room[])
 
     const onWatch = (roomId: number): void => {
       router.push(`/game/room/${roomId}`)
     }
+
+    watch(
+      () => props.rooms,
+      () => {
+        roomsList.value = props.rooms
+      },
+    )
 
     return {
       roomsList,

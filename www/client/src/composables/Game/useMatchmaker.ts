@@ -60,7 +60,7 @@ const useMatchmaker = () => {
       'joinLobbyInServer',
       {
         room: roomName.value,
-        roomId: lobby.player.room.id,
+        roomId: lobby?.player?.room?.id,
       },
       (message: string) => {
         if (message === 'matchFound') {
