@@ -52,8 +52,6 @@ import {
   watch,
   onMounted,
   onUnmounted,
-  Data,
-  SetupContext,
 } from 'vue'
 import {
   DifficultyLevel,
@@ -70,7 +68,7 @@ export default defineComponent({
     'renewSearchDuel',
     'redirect-to-game-room',
   ],
-  setup(props: Data, context: SetupContext) {
+  setup(props, context) {
     const defaultOptions: GameOptions = {
       map: MapType.DEFAULT,
       difficulty: DifficultyLevel.EASY,
@@ -84,8 +82,8 @@ export default defineComponent({
     const waitTimeBefIncrease = 30 * 1000
 
     const timerCount = ref(defaultTimerCount)
-    let matchTimerId = null
-    let refreshSearchTimerId = null
+    let matchTimerId: number | undefined
+    let refreshSearchTimerId: number | undefined
 
     const status = computed(() => {
       const foundMatch = `You will be redirected to the game in ${timerCount.value} seconds`
@@ -112,7 +110,7 @@ export default defineComponent({
 
     const stopTimer = () => {
       clearInterval(matchTimerId)
-      matchTimerId = null
+      matchTimerId = undefined
       timerCount.value = defaultTimerCount
     }
 

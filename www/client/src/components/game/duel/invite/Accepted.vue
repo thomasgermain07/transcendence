@@ -2,7 +2,7 @@
   <div class="content">
     <div class="text-ctn">
       <p class="message">
-        <span class="username">{{ Target.name }}</span> accepted the duel
+        <span class="username">{{ Target?.name }}</span> accepted the duel
       </p>
       <div class="join-section">
         <button class="btn" @click="onJoinRoom">Join Room</button>

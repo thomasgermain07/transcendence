@@ -7,6 +7,15 @@ import { useAxios } from '../axios'
 import { useRouter } from 'vue-router'
 import { useUsers } from '@/composables/users'
 import { createToast } from 'mosha-vue-toastify'
+import { Room } from '@/types/game/gameRoom'
+
+type useGameRoomState = {
+  isLoading: boolean
+  error: null | string
+  currentPlayer: null | Player
+  isActive: boolean
+  isPause: boolean
+}
 
 const useGameRoom = () => {
   const { axios } = useAxios()
@@ -15,7 +24,7 @@ const useGameRoom = () => {
   const { users, get } = useUsers()
   const currentUser = users
 
-  const state = reactive({
+  const state = reactive<useGameRoomState>({
     isLoading: false,
     error: null,
     currentPlayer: null,
@@ -23,9 +32,9 @@ const useGameRoom = () => {
     isPause: false,
   })
 
-  const room = ref({})
+  const room = ref<Room>()
 
-  const loadRoom = async (routeId: string): Promise<void> => {
+  const loadRoom = async (routeId: string | string[]): Promise<void> => {
     state.isLoading = true
     state.error = null
     state.currentPlayer = null
@@ -38,17 +47,11 @@ const useGameRoom = () => {
         state.isLoading = false
       })
     if (response) {
-      // refresh current user data
       await get()
-
-      // transfer data into room
       room.value = response.data
-
-      // find if current user is a player of the room
       state.currentPlayer = response.data.players.find(
         (player: Player) => player.user.id === currentUser.value.id,
       )
-      // protect room access according to state
       if (
         (!state.currentPlayer && response.data.state === GameState.WAITING) ||
         (state.currentPlayer && response.data.locked === false)
@@ -69,7 +72,7 @@ const useGameRoom = () => {
   }
 
   const redirectToGameView = () => {
-    room.value.mode === 'duel'
+    room?.value?.mode === 'duel'
       ? router.push('/game/duel')
       : router.push('/game/ladder')
   }

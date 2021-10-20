@@ -4,7 +4,7 @@
       <i class="fas fa-times" style="visibility: hidden"></i>
       <p class="top-bar__title">
         Creating duel with
-        <span class="top-bar__title--name">{{ Target.name }}</span>
+        <span class="top-bar__title--name">{{ Target?.name }}</span>
       </p>
       <i class="fas fa-times top-bar__exit-btn" @click="closeWindow"></i>
     </div>
@@ -14,7 +14,7 @@
         <div class="section__content">
           <div
             class="btn"
-            @click="gameOptions.map = 'default'"
+            @click="gameOptions.map = maps.default"
             :class="{
               'btn--selected': gameOptions.map == 'default',
             }"
@@ -23,7 +23,7 @@
           </div>
           <div
             class="btn"
-            @click="gameOptions.map = 'map1'"
+            @click="gameOptions.map = maps.map1"
             :class="{
               'btn--selected': gameOptions.map == 'map1',
             }"
@@ -32,7 +32,7 @@
           </div>
           <div
             class="btn"
-            @click="gameOptions.map = 'map2'"
+            @click="gameOptions.map = maps.map2"
             :class="{
               'btn--selected': gameOptions.map == 'map2',
             }"
@@ -49,7 +49,7 @@
             :class="{
               'btn--selected': gameOptions.difficulty == 'easy',
             }"
-            @click="gameOptions.difficulty = 'easy'"
+            @click="gameOptions.difficulty = levels.easy"
           >
             Easy
           </div>
@@ -58,7 +58,7 @@
             :class="{
               'btn--selected': gameOptions.difficulty == 'medium',
             }"
-            @click="gameOptions.difficulty = 'medium'"
+            @click="gameOptions.difficulty = levels.medium"
           >
             Medium
           </div>
@@ -67,7 +67,7 @@
             :class="{
               'btn--selected': gameOptions.difficulty == 'hard',
             }"
-            @click="gameOptions.difficulty = 'hard'"
+            @click="gameOptions.difficulty = levels.hard"
           >
             Hard
           </div>
@@ -119,6 +119,18 @@ export default {
       powerUps: false,
     })
 
+    const maps = {
+      default: MapType.DEFAULT,
+      map1: MapType.MAP1,
+      map2: MapType.MAP2,
+    }
+
+    const levels = {
+      easy: DifficultyLevel.EASY,
+      medium: DifficultyLevel.MEDIUM,
+      hard: DifficultyLevel.HARD,
+    }
+
     const { createInvitation } = getInvitationInteraction()
 
     const closeWindow = () => {
@@ -137,6 +149,8 @@ export default {
 
     return {
       gameOptions,
+      maps,
+      levels,
       closeWindow,
       sendInvite,
     }

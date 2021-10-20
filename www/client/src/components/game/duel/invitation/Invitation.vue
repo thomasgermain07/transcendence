@@ -2,15 +2,15 @@
   <div class="content">
     <div class="text-ctn">
       <p class="message">
-        <span class="username">{{ Invitation.host.name }}</span>
+        <span class="username">{{ Invitation?.host.name }}</span>
         invited you to play
       </p>
       <div class="game-option">
         <p>Game option :</p>
         <p>
-          {{ Invitation.gameOptions.map }} -
-          {{ Invitation.gameOptions.difficulty }}
-          <span v-if="Invitation.gameOptions.powerUps"> - Power Ups</span>
+          {{ Invitation?.gameOptions.map }} -
+          {{ Invitation?.gameOptions.difficulty }}
+          <span v-if="Invitation?.gameOptions.powerUps"> - Power Ups</span>
         </p>
       </div>
     </div>

@@ -49,7 +49,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, Data } from 'vue'
+import { defineComponent, computed } from 'vue'
 import { GameState } from '../../types/game/gameRoom'
 import { Player } from '../../types/game/player'
 
@@ -57,16 +57,16 @@ export default defineComponent({
   name: 'PlayersDisplay',
   props: ['players', 'roomState', 'roomMode'],
 
-  setup(props: Data) {
-    const playerLeft: Player = computed(() => {
+  setup(props) {
+    const playerLeft = computed<Player>(() => {
       return props.players.find((player: Player) => player.position === 'left')
     })
 
-    const playerRight: Player = computed(() => {
+    const playerRight = computed<Player>(() => {
       return props.players.find((player: Player) => player.position === 'right')
     })
 
-    const status: string = computed(() => {
+    const status = computed<string>(() => {
       if (props.roomState === GameState.PLAYING) {
         return 'playing'
       } else if (props.roomState === GameState.OVER) {

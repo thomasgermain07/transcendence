@@ -3,7 +3,7 @@ import { UserType } from '../user/user'
 import { GameOptions } from './gameOptions'
 
 export interface InvitationType {
-  gameOption: GameOptions
+  gameOptions: GameOptions
   host: UserType
   guestId: Number
 }

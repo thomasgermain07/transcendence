@@ -128,7 +128,6 @@ export default defineComponent({
         const answer = window.confirm(
           'Do you really want to leave? You will be removed from the queue!',
         )
-        // cancel the navigation and stay on the same page
         if (!answer) {
           return false
         } else {
