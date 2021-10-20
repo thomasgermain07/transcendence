@@ -19,7 +19,7 @@ const useMatchmaker = () => {
 
   const { axios } = useAxios()
 
-  const lobby: LobbyType = reactive({
+  const lobby = reactive<LobbyType>({
     visible: false,
     matched: false,
     player: null,
@@ -29,8 +29,7 @@ const useMatchmaker = () => {
     if (lobby.player) return `lobby-${lobby?.player.room.id}`
   })
 
-  // check if user is already in Game Room
-  const checkInGame: InGameType = reactive({
+  const checkInGame = reactive<InGameType>({
     inGame: false,
     roomRoute: '',
   })
@@ -42,12 +41,10 @@ const useMatchmaker = () => {
     })
   }
 
-  // open modal
   const showLobby = () => {
     lobby.visible = true
   }
 
-  // close modal
   const closeLobby = () => {
     lobby.visible = false
   }
@@ -63,10 +60,9 @@ const useMatchmaker = () => {
       'joinLobbyInServer',
       {
         room: roomName.value,
-        roomId: lobby.player.room.id,
+        roomId: lobby?.player?.room?.id,
       },
       (message: string) => {
-        console.log(message)
         if (message === 'matchFound') {
           updateMatchedState(true)
         }
@@ -76,18 +72,15 @@ const useMatchmaker = () => {
 
   const leaveLobby = async () => {
     await axios
-      .delete(`game/players/${lobby.player.id}`)
-      .catch((err: AxiosErrType) => {
-        console.log(err.response?.data)
-      })
+      .delete(`game/players/${lobby?.player?.id}`)
+      .catch((err: AxiosErrType) => {})
     matchmakingSocket.emit(
       'leaveLobbyInServer',
       {
         room: roomName.value,
-        playerId: lobby.player.id,
+        playerId: lobby?.player?.id,
       },
-      (message: string) => {
-        console.log(message)
+      () => {
         closeLobby()
       },
     )
@@ -95,7 +88,7 @@ const useMatchmaker = () => {
 
   const goToRoom = () => {
     closeLobby()
-    router.push(`/game/room/${lobby.player.room.id}`)
+    router.push(`/game/room/${lobby?.player?.room.id}`)
   }
 
   const checkIfInGameOrQueue = async (): Promise<void> => {
@@ -105,7 +98,6 @@ const useMatchmaker = () => {
     if (response) {
       checkInGame.inGame = response.data.inGame
       checkInGame.roomRoute = response.data.roomRoute
-      // show matchmaking window if player in unlocked game room
       if (!checkInGame.inGame && checkInGame.roomRoute === 'matchmaking') {
         showLobby()
         joinLobby(response.data.player)
@@ -113,7 +105,6 @@ const useMatchmaker = () => {
     }
   }
 
-  // FOR LADDER ONLY
   const expandRange = (range: number): void => {
     matchmakingSocket.emit(
       'expandSearchRange',
@@ -129,7 +120,6 @@ const useMatchmaker = () => {
     )
   }
 
-  // FOR DUEL ONLY
   const renewSearch = (): void => {
     matchmakingSocket.emit(
       'renewSearchDuel',

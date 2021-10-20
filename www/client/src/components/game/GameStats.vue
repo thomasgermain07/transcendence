@@ -5,21 +5,19 @@
       <div class="stats-summary-total">
         <div class="matches">
           <p class="stats-header">MATCHES</p>
-          <div class="stats-value total-played">{{ stats.total_played }}</div>
+          <div class="stats-value total-played">{{ stats?.total_played }}</div>
         </div>
         <div class="wins">
           <p class="stats-header">WINS</p>
-          <div class="stats-value total-wins">{{ stats.total_wins }}</div>
+          <div class="stats-value total-wins">{{ stats?.total_wins }}</div>
         </div>
         <div class="losses">
           <p class="stats-header">LOSSES</p>
-          <div class="stats-value total-losses">{{ stats.total_losses }}</div>
+          <div class="stats-value total-losses">{{ stats?.total_losses }}</div>
         </div>
         <div class="win-rate">
           <p class="stats-header">WINRATE</p>
-          <div class="stats-value win-rate-percent">
-            {{ ((stats.total_wins / stats.total_played) * 100) | 0 }}%
-          </div>
+          <div class="stats-value win-rate-percent">{{ winsPercent }}%</div>
         </div>
       </div>
 
@@ -30,13 +28,13 @@
         <div class="stats-duel">
           <h4>Duel</h4>
           <div>
-            wins: {{ stats.duel.wins }} - losses: {{ stats.duel.losses }}
+            wins: {{ stats?.duel.wins }} - losses: {{ stats?.duel.losses }}
           </div>
         </div>
         <div class="stats-ladder">
           <h4>Ladder</h4>
           <div>
-            wins: {{ stats.ladder.wins }} - losses: {{ stats.ladder.losses }}
+            wins: {{ stats?.ladder.wins }} - losses: {{ stats?.ladder.losses }}
           </div>
         </div>
       </div>
@@ -45,8 +43,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, watch, ref } from 'vue'
+import { UserType } from '@/types/user/user'
+import { defineComponent, watch, ref, computed } from 'vue'
 import { AxiosErrType, useAxios } from '../../composables/axios'
+import { StatsType } from '../../types/game/stats'
 
 export default defineComponent({
   name: 'GameStats',
@@ -54,10 +54,31 @@ export default defineComponent({
 
   setup(props) {
     const { axios } = useAxios()
-    const loading = ref(true)
-    const user = ref(props.user)
-    const stats = ref(null)
+    const loading = ref<boolean>(true)
+    const user = ref<UserType>(props.user)
+    const stats = ref<StatsType>({
+      user_id: 0,
+      duel: {
+        wins: 0,
+        losses: 0,
+      },
+      ladder: {
+        wins: 0,
+        losses: 0,
+      },
+      total_wins: 0,
+      total_losses: 0,
+      total_played: 0,
+    })
 
+    const winsPercent = computed(() => {
+      const percent =
+        (stats?.value?.total_wins / stats?.value?.total_played) * 100
+      if (percent) {
+        return percent
+      }
+      return 0
+    })
     const fetchUserStats = async () => {
       loading.value = true
       const response = await axios
@@ -86,6 +107,7 @@ export default defineComponent({
       loading,
       user,
       stats,
+      winsPercent,
     }
   },
 })

@@ -1,9 +1,14 @@
 <template>
   <div class="edit-profile-avatar">
-    <h3>Change you avatar</h3>
+    <h3>Change your avatar</h3>
 
-    <div class="err-msg" v-if="errorMsg">
-      {{ errorMsg }}
+    <div
+      v-for="message in messages"
+      :key="message"
+      class="form__message"
+      :class="[message.is_error ? 'form__error' : 'form__info']"
+    >
+      - {{ message.content }}
     </div>
     <input type="file" @change="onFileSelected" />
     <button @click="onUpload">Upload</button>
@@ -11,37 +16,59 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, SetupContext, Data } from 'vue'
+import { FormMessage } from '@/types/formMessage'
+import { defineComponent, reactive } from 'vue'
 import { ref } from 'vue'
 import { AxiosErrType, useAxios } from '../../composables/axios'
 
 export default defineComponent({
   name: 'edit-profile-avatar',
   emit: ['update-user'],
-  setup(props: Data, context: SetupContext) {
-    const errorMsg = ref('')
+  setup(props, context) {
     let imageFile = ref('')
     const { axios } = useAxios()
+
+    const messages = reactive<FormMessage[]>([])
 
     const onFileSelected = (event: any) => {
       imageFile.value = event.target.files[0]
     }
+
     const onUpload = async () => {
-      errorMsg.value = ''
-      let data = new FormData()
-      data.append('file', imageFile.value)
-      const res = await axios
-        .post('users/upload', data)
-        .catch((err: AxiosErrType) => {
-          errorMsg.value = err.response?.data.message
+      while (messages.length > 0) messages.pop()
+
+      try {
+        let data = new FormData()
+        data.append('file', imageFile.value)
+        await axios.post('users/upload', data)
+
+        messages.push({
+          content: 'Your avatar has been updated successfully.',
+          is_error: false,
         })
-      if (res) {
+
         context.emit('update-user')
+      } catch (err: AxiosErrType) {
+        const errors: string | string[] = err.response?.data?.message
+
+        if (Array.isArray(errors)) {
+          errors.forEach((error: string) =>
+            messages.push({
+              content: error,
+              is_error: true,
+            }),
+          )
+        } else {
+          messages.push({
+            content: errors,
+            is_error: true,
+          })
+        }
       }
     }
 
     return {
-      errorMsg,
+      messages,
       onFileSelected,
       onUpload,
     }
@@ -55,5 +82,24 @@ h3 {
 }
 .err-msg {
   color: red;
+}
+
+.form__message + .form__message {
+  margin-top: 0.5em;
+}
+.form__message:last-of-type {
+  margin-bottom: 1em;
+}
+.form__error {
+  color: var(--primary-color);
+}
+.form__info {
+  color: rgb(38, 199, 38);
+}
+.form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  margin-bottom: 1em;
 }
 </style>

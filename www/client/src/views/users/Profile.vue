@@ -9,12 +9,12 @@
     <div v-if="status == 'success'" class="profile-ctn">
       <section class="user-info">
         <div class="user-ctn__pp">
-          <img v-bind:src="user.avatar" class="profile_picture" />
+          <img v-bind:src="users.avatar" class="profile_picture" />
         </div>
         <div class="user-ctn">
           <div class="user-ctn__info">
-            <p class="info__name">{{ user.name }}</p>
-            <p class="ladder__level">Ladder Level : {{ user.ladderLevel }}</p>
+            <p class="info__name">{{ users.name }}</p>
+            <p class="ladder__level">Ladder Level : {{ users.ladderLevel }}</p>
 
             <button v-if="isCurrentUser && !userEdit" @click="openEdit">
               Edit Profile
@@ -41,7 +41,7 @@
               >
                 remove friend
               </button>
-              <button v-if="!isCurrentUser" @click="openDm(user)">
+              <button v-if="!isCurrentUser" @click="openDm(users)">
                 Send Message
               </button>
             </div>
@@ -52,19 +52,19 @@
       <section class="user-match-history">
         <h1 class="info-header">MATCH HISTORY ></h1>
         <hr />
-        <MatchHistory class="matches" :user="user" />
+        <MatchHistory class="matches" :user="users" />
       </section>
 
       <section class="user-game-info">
         <div class="user-stats">
           <h1 class="info-header">GAME STATS ></h1>
           <hr />
-          <GameStats :user="user" />
+          <GameStats :user="users" />
         </div>
         <div class="user-achievements">
           <h1 class="info-header">ACHIEVEMENTS ></h1>
           <hr />
-          <Achievements :user="user" />
+          <Achievements :user="users" />
         </div>
       </section>
     </div>
@@ -76,7 +76,6 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, onBeforeRouteUpdate } from 'vue-router'
 import { useAuth } from '@/composables/auth'
 import { useUsers } from '@/composables/users'
-import getFetchUser from '@/composables/User/fetchUser'
 import requestStatus from '@/composables/requestStatus'
 import ErrorPage from '@/components/ErrorPage.vue'
 import GameStats from '@/components/game/GameStats.vue'
@@ -101,6 +100,7 @@ export default {
     const route = useRoute()
     const { edit } = useAuth()
     const { users, get } = useUsers()
+
     const userEdit = ref(false)
 
     const openEdit = () => {
@@ -111,7 +111,6 @@ export default {
       userEdit.value = false
     }
 
-    const { user, fetchUser } = getFetchUser(status)
     const { addFriend, removeFriend } = getUserInteraction()
     const { reloadFriends, reloadRequests, hasPendingInvite, friends } =
       useFriends()
@@ -119,58 +118,54 @@ export default {
     const { openDm } = useWindowInteraction()
 
     const isCurrentUser = computed(() => {
-      return user.value!.id == useAuth().user.id
+      return users.value!.id == useAuth().user.id
     })
 
-    const updateUser = () => {
-      fetchUserFromRoute()
-      edit().catch((err) => {
-        // console.log(err)
-      })
+    const updateUser = async () => {
+      fetchUserProfile(parseInt(route.params.id as string))
+      await edit({ first_log: false })
     }
 
-    const fetchUserFromRoute = async () => {
-      await get()
-      useAuth().refresh()
-      if (!route.params.id) {
-        fetchUser(users?.value?.id)
-      } else {
-        fetchUser(route.params.id)
-      }
+    const fetchUserProfile = async (id: number) => {
+      await get(id)
+      status.value = users.value ? requestStatus.success : requestStatus.error
     }
 
     const onAddFriend = async () => {
-      await addFriend(user.value!)
+      await addFriend(users.value!)
       reloadRequests()
       reloadFriends()
     }
 
     const onDeleteFriend = async () => {
-      await removeFriend(user.value!)
+      await removeFriend(users.value!)
+      reloadRequests()
       reloadFriends()
     }
 
     const isAlreadyFriend = computed(() => {
       if (
         friends.value.findIndex((friend) => {
-          return friend.id == user.value!.id
+          return friend.id == users.value!.id
         }) != -1 ||
-        hasPendingInvite(user.value!)
+        hasPendingInvite(users.value!)
       ) {
         return true
       }
       return false
     })
 
-    onBeforeRouteUpdate(() => {
-      fetchUserFromRoute()
+    onBeforeRouteUpdate((updateGuard) => {
+      const nextUserId = parseInt(updateGuard.params.id as string)
+      fetchUserProfile(nextUserId)
     })
+
     onMounted(() => {
-      fetchUserFromRoute()
+      fetchUserProfile(parseInt(route.params.id as string))
     })
 
     return {
-      user,
+      users,
       status,
       addFriend,
       removeFriend,

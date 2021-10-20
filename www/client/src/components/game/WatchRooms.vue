@@ -1,7 +1,7 @@
 <template>
   <div class="watch">
-    <div class="card-container" v-if="props.rooms.length > 0">
-      <div class="card" v-for="match in props.rooms" v-bind:key="match.id">
+    <div class="card-container" v-if="roomsList.length > 0">
+      <div class="card" v-for="match in roomsList" v-bind:key="match.id">
         <header class="article-header">
           <h2 class="article-title">
             <div>{{ match.players[0].user.name }}</div>
@@ -21,7 +21,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, watch } from 'vue'
+import { Room } from '@/types/game/gameRoom'
+import { defineComponent, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 export default defineComponent({
@@ -30,13 +31,21 @@ export default defineComponent({
 
   setup(props) {
     const router = useRouter()
+    const roomsList = ref(props.rooms as Room[])
 
     const onWatch = (roomId: number): void => {
       router.push(`/game/room/${roomId}`)
     }
 
+    watch(
+      () => props.rooms,
+      () => {
+        roomsList.value = props.rooms
+      },
+    )
+
     return {
-      props,
+      roomsList,
       onWatch,
       router,
     }

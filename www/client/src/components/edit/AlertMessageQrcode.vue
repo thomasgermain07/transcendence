@@ -1,21 +1,28 @@
 <template>
-  <div class="alert-message-qrcode start-icon fa fa-exclamation-triangle faa-flash animated">
+  <div
+    class="
+      alert-message-qrcode
+      start-icon
+      fa fa-exclamation-triangle
+      faa-flash
+      animated
+    "
+  >
     <h2 class="title">ALERT</h2>
-    <p class="warning">Be careful this Qrcode is only generated once. Don't forget to scan it on your Google App!</p>
+    <p class="warning">
+      Be careful this Qrcode is only generated once. Don't forget to scan it on
+      your Google App!
+    </p>
     <button @click="closeAlert">Close</button>
-    
   </div>
 </template>
 <script lang="ts">
-
-import { defineComponent, SetupContext, Data } from 'vue'
-
+import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'alert-message-qrcode',
   emit: ['close-alert'],
-  setup(props: Data, context: SetupContext) 
-  {
+  setup(props, context) {
     const closeAlert = () => {
       context.emit('close-alert')
     }
@@ -28,15 +35,14 @@ export default defineComponent({
 </script>
 
 <style scoped>
-
-.alert-message-qrcode .title{
+.alert-message-qrcode .title {
   display: inline-block;
-  padding: .5em 2em;
+  padding: 0.5em 2em;
   font-weight: bold;
-  letter-spacing: .1em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
-.alert-message-qrcode .warning{
+.alert-message-qrcode .warning {
   color: #ffb40b;
   padding: 1em;
   margin: 0;
@@ -44,10 +50,7 @@ export default defineComponent({
   line-height: 1.4em;
 
   max-height: 10em;
-	align-items: center;
+  align-items: center;
   padding-bottom: 2em;
 }
-
-
-
 </style>

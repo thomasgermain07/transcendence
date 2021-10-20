@@ -18,18 +18,17 @@
 <script lang="ts">
 import { defineComponent, onMounted, onUnmounted } from 'vue'
 import { DifficultyLevel, MapType } from '../../types/game/gameOptions'
-import { IBonusState, IGameState } from '../../views/GameRoom.vue'
 import { Ball } from '../../types/game/ball'
-import { Player } from '../../types/game/player'
 import { IMapPaddleState } from '../../types/game/paddle'
 import { useAuth } from '../../composables/auth'
 import { useSocket } from '../../composables/socket'
+import { GamePlayer, IBonusState, IGameState } from '@/types/game/game'
 
 export default defineComponent({
   name: 'GameBoard',
   props: ['roomName', 'isPlayer', 'roomState', 'timer'],
   setup(props) {
-    let player_left: Player = {
+    let player_left: GamePlayer = {
       id: 0,
       user: null,
       room: null,
@@ -45,7 +44,7 @@ export default defineComponent({
         move: '',
       },
     }
-    let player_right: Player = {
+    let player_right: GamePlayer = {
       id: 0,
       user: null,
       room: null,
@@ -85,9 +84,10 @@ export default defineComponent({
       count: 3,
     }
     let map_paddle = new Array<IMapPaddleState>()
-    let canvas = null
-    let ctx = null
-    let screen = null
+
+    let canvas: HTMLCanvasElement
+    let screen: HTMLElement | null
+    let ctx: CanvasRenderingContext2D
 
     const gameRoomsSocket = useSocket('game-rooms').socket
     const roomName = props.roomName
@@ -97,9 +97,9 @@ export default defineComponent({
     const currentUser = user
 
     const initCanvas = (): void => {
-      canvas = document.getElementById('canvas')
+      canvas = <HTMLCanvasElement>document.getElementById('canvas')
       screen = document.getElementById('screen')
-      ctx = canvas.getContext('2d')
+      ctx = <CanvasRenderingContext2D>canvas.getContext('2d')
     }
 
     function drawMap() {
@@ -125,15 +125,15 @@ export default defineComponent({
     }
     function update(x: number, y: number) {
       const update_data = {
-        x: x * (canvas.width / 600),
-        y: y * (canvas.height / 400),
+        x: x * (canvas?.width / 600),
+        y: y * (canvas?.height / 400),
       }
       return update_data
     }
     function resizeCanvas() {
       if (screen) {
         canvas.width = screen.offsetWidth
-        canvas.height = canvas.width / 2
+        canvas.height = canvas?.width / 2
         redraw()
       }
     }
@@ -206,19 +206,19 @@ export default defineComponent({
       ctx.moveTo(
         canvas.width * (canvas.width / 1088) - 600 / 80,
         canvas.height * (canvas.height / 544) - 80,
-      ) // bottom left
+      )
       ctx.lineTo(
         canvas.width * (canvas.width / 1088) + 600 / 80,
         canvas.height * (canvas.height / 544) - 80,
-      ) // bottom right
+      )
       ctx.lineTo(
         canvas.width * (canvas.width / 1088) + 600 / 80,
         canvas.height * (canvas.height / 544) + 80,
-      ) // top right
+      )
       ctx.lineTo(
         canvas.width * (canvas.width / 1088) - 600 / 80,
         canvas.height * (canvas.height / 544) + 80,
-      ) // top left
+      )
       ctx.fill()
       ctx.closePath()
     }

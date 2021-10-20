@@ -47,7 +47,6 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue'
-import { Data } from 'vue'
 import { AxiosErrType, useAxios } from '../../composables/axios'
 import { Player } from '../../types/game/player'
 
@@ -55,11 +54,11 @@ export default defineComponent({
   name: 'MatchHistory',
   props: ['user'],
 
-  setup(props: Data) {
+  setup(props) {
     const { axios } = useAxios()
     const loading = ref(true)
     const user = ref(props.user)
-    const matchHistory = ref([])
+    const matchHistory = ref<Player[]>([])
 
     const fetchUserMatchHistory = async () => {
       loading.value = true
@@ -75,7 +74,7 @@ export default defineComponent({
       }
     }
 
-    const userIsWinner = (players: Player[]): boolean => {
+    const userIsWinner = (players: Player[]): boolean | null | undefined => {
       const player = players.find(
         (player) => player.user.name === user.value.name,
       )

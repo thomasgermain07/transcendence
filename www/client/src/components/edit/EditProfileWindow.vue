@@ -35,7 +35,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, SetupContext, Data, computed, ref } from 'vue'
+import { defineComponent, computed, ref } from 'vue'
 import EditProfileName from '@/components/edit/EditProfileName.vue'
 import EditProfileAvatar from '@/components/edit/EditProfileAvatar.vue'
 import GoogleAuthenticator from '@/components/auth/TwoAuth.vue'
@@ -48,7 +48,7 @@ export default defineComponent({
     GoogleAuthenticator,
   },
   emit: ['update-user', 'close-window'],
-  setup(props: Data, context: SetupContext) {
+  setup(props, context) {
     const updateUser = () => {
       context.emit('update-user')
     }
