@@ -179,7 +179,6 @@ export default defineComponent({
 
     loadGameRooms()
 
-    // options can be changed for Duel only
     const duelOptions: GameOptions = reactive({
       map: MapType.DEFAULT,
       difficulty: DifficultyLevel.EASY,
@@ -210,7 +209,6 @@ export default defineComponent({
 
     // --- NAVIGATION GUARDS ---
     onBeforeRouteLeave((to, from) => {
-      // if soft logout
       const { is_authenticated } = useAuth()
       if (!is_authenticated.value && lobby.visible) {
         leaveLobby()
@@ -221,7 +219,6 @@ export default defineComponent({
         const answer = window.confirm(
           'Do you really want to leave? You will be removed from the queue!',
         )
-        // cancel the navigation and stay on the same page
         if (!answer) {
           return false
         } else {

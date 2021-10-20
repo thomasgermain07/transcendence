@@ -28,7 +28,6 @@
         :to="{ name: 'user-profile' }"
         class="link tooltip user"
       >
-        <!-- <i class="fas fa-user"></i> -->
         <img class="avatar-icon" :src="user.avatar" alt="" srcset="" />
         <p>{{ user.name }}</p>
         <span class="tooltiptext">Profile</span>
@@ -95,7 +94,6 @@ export default defineComponent({
   border-radius: 6px;
   padding: 5px 0;
 
-  /* Position the tooltip */
   position: absolute;
   z-index: 1;
   top: 90%;

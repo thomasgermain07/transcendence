@@ -11,7 +11,7 @@
           class="search-input"
         />
       </div>
-      <div v-if="search.value">
+      <div v-if="search">
         <div class="users-item" v-for="user in users" :key="user">
           <router-link
             :to="{ name: 'user-profile', params: { id: user.id } }"
@@ -42,11 +42,9 @@ import { onMounted, onUnmounted, ref, watch } from 'vue'
 
 import getFetchUsers from '@/composables/Users/fetchUsers'
 import requestStatus from '@/composables/requestStatus'
-import { useAxios } from '../../composables/axios'
 
 export default {
   setup() {
-    const { axios } = useAxios()
     const loading = ref(true)
     let search = ref('')
     let status = ref(requestStatus.loading)
@@ -76,7 +74,10 @@ export default {
       },
     )
 
-    onMounted(fetchUsers, window.addEventListener('scroll', handleScroll))
+    onMounted(() => {
+      fetchUsers()
+      window.addEventListener('scroll', handleScroll)
+    })
 
     onUnmounted(() => {
       window.removeEventListener('scroll', handleScroll)

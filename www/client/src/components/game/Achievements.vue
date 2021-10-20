@@ -36,7 +36,7 @@ export default defineComponent({
   setup(props) {
     const user = ref(props.user)
 
-    const achievements = computed(() => {
+    const achievements = computed<Achievement[]>(() => {
       return props.user.achievements.sort((a: Achievement, b: Achievement) => {
         return a.locked - b.locked
       })

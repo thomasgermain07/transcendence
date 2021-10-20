@@ -40,6 +40,7 @@
 import { defineComponent, ref } from 'vue'
 import { AxiosErrType, useAxios } from '../../composables/axios'
 import { useRouter } from 'vue-router'
+import { UserRankType } from '../../types/game/leaderboard'
 
 export default defineComponent({
   name: 'Leaderboard',
@@ -48,9 +49,9 @@ export default defineComponent({
     const { axios } = useAxios()
     const router = useRouter()
     const loading = ref(true)
-    const leaderboard = ref([])
+    const leaderboard = ref<UserRankType[]>([])
     const offset = ref(0)
-    const limit = 5
+    const limit: number = 5
 
     const fetchLeaderboard = async () => {
       loading.value = true

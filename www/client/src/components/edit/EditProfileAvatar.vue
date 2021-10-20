@@ -1,6 +1,6 @@
 <template>
   <div class="edit-profile-avatar">
-    <h3>Change you avatar</h3>
+    <h3>Change your avatar</h3>
 
     <div class="err-msg" v-if="errorMsg">
       {{ errorMsg }}
@@ -11,14 +11,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, SetupContext, Data } from 'vue'
+import { defineComponent } from 'vue'
 import { ref } from 'vue'
 import { AxiosErrType, useAxios } from '../../composables/axios'
 
 export default defineComponent({
   name: 'edit-profile-avatar',
   emit: ['update-user'],
-  setup(props: Data, context: SetupContext) {
+  setup(props, context) {
     const errorMsg = ref('')
     let imageFile = ref('')
     const { axios } = useAxios()

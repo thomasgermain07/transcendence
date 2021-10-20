@@ -37,7 +37,6 @@ export type GoogleAuthType = {
   user_id: number
 }
 
-
 // -------------------------------------------------------------------------
 // State
 // -------------------------------------------------------------------------
@@ -186,10 +185,6 @@ export function useAuth() {
     namespaces.forEach((nsp) => {
       useSocket(nsp).close()
     })
-
-    useSocket('dm').close()
-    useSocket('chat').close()
-    useSocket('user').close()
 
     return
   }

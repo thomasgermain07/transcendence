@@ -2,14 +2,14 @@
   <div class="content">
     <div class="text-ctn">
       <p class="message">
-        Waiting for <span class="username">{{ Target.name }}</span>
+        Waiting for <span class="username">{{ Target?.name }}</span>
       </p>
       <div class="game-option">
         <p>Game option :</p>
         <p>
-          {{ Invitation.gameOptions.map }} -
-          {{ Invitation.gameOptions.difficulty }}
-          <span v-if="Invitation.gameOptions.powerUps"> - Power Ups</span>
+          {{ Invitation?.gameOptions.map }} -
+          {{ Invitation?.gameOptions.difficulty }}
+          <span v-if="Invitation?.gameOptions.powerUps"> - Power Ups</span>
         </p>
       </div>
     </div>

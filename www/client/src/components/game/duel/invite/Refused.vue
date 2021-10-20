@@ -2,7 +2,7 @@
   <div class="content">
     <div class="text-ctn">
       <p class="message">
-        <span class="username">{{ Target.name }}</span> refused the duel
+        <span class="username">{{ Target?.name }}</span> refused the duel
       </p>
       <button class="btn" @click="closeInvite">close</button>
     </div>
