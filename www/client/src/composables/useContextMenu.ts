@@ -137,11 +137,6 @@ export function useContextMenu() {
     }
   }
 
-  const isBlocked = (id: number) => {
-    console.log(useFriends().ignored.value)
-    return useFriends().ignored.value.findIndex((user) => user.id == id) == -1
-  }
-
   return {
     onProfile,
     onOpenDm,
@@ -154,6 +149,5 @@ export function useContextMenu() {
     onMuteUser,
     onBanUser,
     onUnbanUser,
-    isBlocked,
   }
 }

@@ -78,7 +78,7 @@ export function useChat() {
 
       if (
         isOpenned('room', message.room.id as number) ||
-        isBlocked(message.author)
+        useFriends().isBlocked(message.author.id)
       ) {
         return
       }
@@ -160,10 +160,4 @@ function isOpenned(type: string, id: number) {
     useWindowInteraction().conv_id.value == id
     ? true
     : false
-}
-
-function isBlocked(user: UserType) {
-  return (
-    useFriends().ignored.value.findIndex((ignore) => ignore.id == user.id) != -1
-  )
 }
