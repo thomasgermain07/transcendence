@@ -46,12 +46,14 @@
     Ban
   </v-contextmenu-item>
 
-  <v-contextmenu-item @click="eventHandler.onSendDuel(User)"
+  <v-contextmenu-item
+    v-if="!isBlocked(User.id)"
+    @click="eventHandler.onSendDuel(User)"
     >Send Duel</v-contextmenu-item
   >
 
   <v-contextmenu-item
-    v-if="eventHandler.isBlocked(User.id)"
+    v-if="!isBlocked(User.id)"
     @click="eventHandler.onBlockUser(User)"
     >Block</v-contextmenu-item
   >
@@ -64,6 +66,7 @@
 import { PropType } from '@vue/runtime-core'
 
 import { useContextMenu } from '@/composables/useContextMenu'
+import { useFriends } from '@/composables/Friends/useFriends'
 
 import { UserType } from '@/types/user/user'
 import { RoomType } from '@/types/chat/room'
@@ -80,6 +83,7 @@ export default {
     const eventHandler = useContextMenu()
 
     const { isModerator, isBanned } = useRoom()
+    const { isBlocked } = useFriends()
 
     const onSetModerator = async () => {
       try {
@@ -116,6 +120,7 @@ export default {
       onMuteUser,
       isModerator,
       isBanned,
+      isBlocked,
     }
   },
 }

@@ -93,6 +93,10 @@ export function useFriends() {
     return false
   }
 
+  const isBlocked = (id: number) => {
+    return ignored.value.findIndex((user) => user.id == id) != -1
+  }
+
   const joinSocket = () => {
     useSocket('user').socket.emit('join', { target_id: useAuth().user.id })
     friends.value.forEach((friend) => {
@@ -125,5 +129,6 @@ export function useFriends() {
     reloadIgnored,
     reloadRequests,
     hasPendingInvite,
+    isBlocked,
   }
 }
