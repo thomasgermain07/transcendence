@@ -34,7 +34,7 @@ export class User {
   public name: string
 
   @Column({
-    default: "http://localhost:8080/api/users/images/no-avatar.png",
+    default: 'http://localhost:8080/no-avatar.png',
   })
   public avatar: string
 
@@ -52,14 +52,14 @@ export class User {
 
   @Column({
     nullable: true,
-    default: "disconnected"
+    default: 'disconnected',
   })
-  public status: string;
+  public status: string
 
   @Column({
     default: true,
   })
-  public first_log: boolean;
+  public first_log: boolean
 
   // -------------------------------------------------------------------------
   // Authentication
