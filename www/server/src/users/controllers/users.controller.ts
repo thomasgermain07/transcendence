@@ -139,6 +139,9 @@ export class UsersController {
         removeFile(fullImagePath)
         throw new ForbiddenException('Max File Size reached')
       }
+      const oldAvatarPath = user.avatar.slice(39)
+      const oldImagePath = join(imagesFolderPath + '/' + oldAvatarPath)
+      removeFile(oldImagePath)
       return this.users_svc.updateAvatar(user.id, file.filename);
     }
     removeFile(fullImagePath)
