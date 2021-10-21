@@ -53,7 +53,6 @@ export default function getInvitationInteraction() {
       let { data } = await axios.post('dm/accept-invitation', { ...invitation })
       return data
     } catch (e: AxiosErrType) {
-      console.log(`acceptInvitation : ${e.response.data.message}`)
       return e.response.data.message
     }
   }
