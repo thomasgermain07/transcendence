@@ -14,8 +14,6 @@ import { useWindowInteraction } from './Chat/WindowInteraction/useWindowInteract
 import getInvitationInteraction from './Game/invitationInteraction'
 import { useAuth } from './auth'
 
-import { createToast } from 'mosha-vue-toastify'
-import 'mosha-vue-toastify/dist/style.css'
 import { useGameInvite } from './Game/useGameInvite'
 
 // -----------------------------------------------------------------------------
@@ -55,6 +53,11 @@ export function useContextMenu() {
       )
       return
     }
+    if (useFriends().isBlocked(user.id)) {
+      useGameInvite().inviteError("You can't invite a blocked user")
+      return
+    }
+
     useWindowInteraction().closeChat()
     openModal(DuelCreaction, {
       Target: user,

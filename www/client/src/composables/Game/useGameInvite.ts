@@ -14,6 +14,7 @@ import Invite from '@/components/game/duel/invite/Invite.vue'
 
 import { UserType } from '@/types/user/user'
 import { useAuth } from '../auth'
+import { useFriends } from '../Friends/useFriends'
 
 // -----------------------------------------------------------------------------
 // Api usage
@@ -63,22 +64,16 @@ export function useGameInvite() {
 
     let res = await isInGameOrQueue(user.id)
     if (res.ingame) {
-      createToast(`${user.name} is already playing `, {
-        type: 'danger',
-      })
+      inviteError(`${user.name} is already playing`)
       return false
     } else if (res.roomRoute.length > 0) {
-      createToast(`${user.name} is already in a room or matchmaking`, {
-        type: 'danger',
-      })
+      inviteError(`${user.name} is already in a room or matchmaking`)
       return false
     }
 
     res = await isInGameOrQueue(useAuth().user.id)
     if (res.roomRoute.length > 0) {
-      createToast(`You already are in a room`, {
-        type: 'danger',
-      })
+      inviteError(`You already are in a room`)
       return false
     }
 

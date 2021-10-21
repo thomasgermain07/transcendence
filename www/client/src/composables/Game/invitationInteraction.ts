@@ -35,8 +35,8 @@ export default function getInvitationInteraction() {
         guestId: guestId,
       })
       return data
-    } catch (e) {
-      console.log(e)
+    } catch (e: AxiosErrType) {
+      throw e.response.data
     }
   }
 
