@@ -25,6 +25,7 @@
 </template>
 
 <script lang="ts">
+import { AxiosErrType } from '@/composables/axios'
 import { defineComponent, ref, reactive } from 'vue'
 import { useAuth, GoogleAuthType } from '../../composables/auth'
 
@@ -32,7 +33,7 @@ export default defineComponent({
   name: 'GoogleAuth',
 
   setup() {
-    const message = ref()
+    const message = ref('')
     const { verifyCode, googleCode } = useAuth()
 
     const google = reactive<GoogleAuthType>({
@@ -41,12 +42,12 @@ export default defineComponent({
       user_id: googleCode.user_id,
     })
 
-    const closeWindow = () => {
+    const closeWindow = (): void => {
       googleCode.visible = false
     }
 
-    const submit = () => {
-      verifyCode(google).catch((err) => {
+    const submit = (): void => {
+      verifyCode(google).catch((err: AxiosErrType) => {
         message.value = err.response?.data.message
       })
     }
@@ -54,7 +55,6 @@ export default defineComponent({
     return {
       // Datas
       google,
-      googleCode,
       message,
       // Functions
       submit,

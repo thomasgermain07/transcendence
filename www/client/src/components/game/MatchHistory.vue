@@ -60,13 +60,11 @@ export default defineComponent({
     const user = ref(props.user)
     const matchHistory = ref<Player[]>([])
 
-    const fetchUserMatchHistory = async () => {
+    const fetchUserMatchHistory = async (): Promise<void> => {
       loading.value = true
       const response = await axios
         .get(`game/players/history/${user.value.id}`)
-        .catch((err: AxiosErrType) => {
-          console.log(err.response?.data)
-        })
+        .catch((err: AxiosErrType) => {})
 
       if (response) {
         loading.value = false

@@ -40,8 +40,8 @@ export default defineComponent({
     AlertMessageQrcode,
   },
   setup() {
-    const messages = ref([])
-    const qrcode = ref()
+    const messages = ref<string[]>([])
+    const qrcode = ref<string | null>()
     const qrcodeActive = ref(false)
     const { activateTwoFa, deactivateTwoFa, user } = useAuth()
 
@@ -49,7 +49,7 @@ export default defineComponent({
       state: user.isTwoFactorAuthenticationEnabled,
     })
 
-    const closeMessage = () => {
+    const closeMessage = (): void => {
       qrcodeActive.value = false
     }
 

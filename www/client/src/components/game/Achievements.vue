@@ -26,6 +26,7 @@
 </template>
 
 <script lang="ts">
+import { UserType } from '@/types/user/user'
 import { defineComponent, watch, ref, computed } from 'vue'
 import { Achievement } from '../../types/game/achievement'
 
@@ -34,7 +35,7 @@ export default defineComponent({
   props: ['user'],
 
   setup(props) {
-    const user = ref(props.user)
+    const user = ref<UserType>(props.user)
 
     const achievements = computed<Achievement[]>(() => {
       return props.user.achievements.sort((a: Achievement, b: Achievement) => {

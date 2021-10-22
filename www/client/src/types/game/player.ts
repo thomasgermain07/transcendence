@@ -13,7 +13,7 @@ export interface Player {
   winner: boolean | null
   isReady: boolean
   isPause: boolean
-  user: UserType
-  room: Room
+  user: UserType | null
+  room: Room | null
   paddle: IMapPaddleState
 }

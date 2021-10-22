@@ -4,7 +4,7 @@
 
     <div
       v-for="message in messages"
-      :key="message"
+      :key="message.content"
       class="form__message"
       :class="[message.is_error ? 'form__error' : 'form__info']"
     >
@@ -42,7 +42,7 @@ export default defineComponent({
       name: '',
     })
 
-    const submit = async () => {
+    const submit = async (): Promise<void> => {
       while (messages.length > 0) messages.pop()
 
       if (!user_update.name) {
