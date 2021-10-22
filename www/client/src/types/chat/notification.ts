@@ -1,4 +1,4 @@
 export type NotificationType = {
-  type: 'room' | 'dm'
-  target: Number
-}
+	type: 'room' | 'dm';
+	target: Number;
+};

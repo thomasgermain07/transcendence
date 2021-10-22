@@ -1,35 +1,38 @@
-import { Injectable } from '@nestjs/common'
-import { registerDecorator } from 'class-validator'
-import { ValidationOptions } from 'class-validator'
-import { ValidationArguments } from 'class-validator'
-import { ValidatorConstraint } from 'class-validator'
-import { ValidatorConstraintInterface } from 'class-validator'
+import { Injectable } from '@nestjs/common';
+import { registerDecorator } from 'class-validator';
+import { ValidationOptions } from 'class-validator';
+import { ValidationArguments } from 'class-validator';
+import { ValidatorConstraint } from 'class-validator';
+import { ValidatorConstraintInterface } from 'class-validator';
 
-import { UsersService } from '../services/users.service'
+import { UsersService } from '../services/users.service';
 
 @ValidatorConstraint({ async: true })
 @Injectable()
 export class ExistsUserConstraint implements ValidatorConstraintInterface {
-  constructor(private readonly users_svc: UsersService) {}
+	constructor(private readonly users_svc: UsersService) {}
 
-  async validate(value: any, args: ValidationArguments): Promise<boolean> {
+	async validate(value: any, args: ValidationArguments): Promise<boolean> {
 		const [attribute] = args.constraints;
 		return !!(await this.users_svc.findOne({ [attribute]: value }));
-  }
+	}
 
-  defaultMessage(args: ValidationArguments): string {
-    return `User does not exist.`
-  }
+	defaultMessage(args: ValidationArguments): string {
+		return `User does not exist.`;
+	}
 }
 
-export function Exists(attribute: string, validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
-    registerDecorator({
-      target: object.constructor,
-      propertyName: propertyName,
-      options: validationOptions,
-      constraints: [attribute],
-      validator: ExistsUserConstraint,
-    })
-  }
+export function Exists(
+	attribute: string,
+	validationOptions?: ValidationOptions,
+) {
+	return function (object: Object, propertyName: string) {
+		registerDecorator({
+			target: object.constructor,
+			propertyName: propertyName,
+			options: validationOptions,
+			constraints: [attribute],
+			validator: ExistsUserConstraint,
+		});
+	};
 }

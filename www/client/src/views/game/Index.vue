@@ -1,17 +1,17 @@
 <template>
-  <div class="game">
-    <router-view />
-  </div>
+	<div class="game">
+		<router-view />
+	</div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'game',
+	name: 'game',
 
-  setup() {},
-})
+	setup() {},
+});
 </script>
 
 <style scoped></style>

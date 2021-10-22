@@ -1,13 +1,9 @@
-import { AxiosResType } from "@/composables/axios";
-import { useAxios }     from "@/composables/axios";
+import { AxiosResType } from '@/composables/axios';
+import { useAxios } from '@/composables/axios';
 
-import { UserUpdateType } from "@/types/user/user"
+import { UserUpdateType } from '@/types/user/user';
 
-async function get(
-	id: number | undefined = undefined,
-)
-	: Promise<AxiosResType>
-{
+async function get(id: number | undefined = undefined): Promise<AxiosResType> {
 	const { axios } = useAxios();
 
 	const url: string = id ? `users/${id}` : `users/me`;
@@ -17,15 +13,13 @@ async function get(
 
 async function edit(
 	id: number,
-	payload: UserUpdateType
-)
-	: Promise<AxiosResType>
-{
-	const { axios } = useAxios()
+	payload: UserUpdateType,
+): Promise<AxiosResType> {
+	const { axios } = useAxios();
 
-	const url: string = `users/${id}`
+	const url: string = `users/${id}`;
 
-	return await axios.patch(url, payload)
+	return await axios.patch(url, payload);
 }
 
 export const UsersService = Object.freeze({

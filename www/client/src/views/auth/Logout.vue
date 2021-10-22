@@ -1,26 +1,25 @@
 <template>
-  <div>
-    <span> Cleaning your session... </span>
-  </div>
+	<div>
+		<span> Cleaning your session... </span>
+	</div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent } from 'vue';
 
-import { useAuth } from '@/composables/auth'
+import { useAuth } from '@/composables/auth';
 
 export default defineComponent({
-  name: 'auth-logout',
+	name: 'auth-logout',
 
-  setup() {
-    const { logout } = useAuth()
+	setup() {
+		const { logout } = useAuth();
 
-    logout()
+		logout();
 
-    return {}
-  },
-})
+		return {};
+	},
+});
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

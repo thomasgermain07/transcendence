@@ -2,31 +2,23 @@ import { Injectable } from '@nestjs/common';
 
 import { User } from 'src/users/entities/user.entity';
 
-import { Room }                 from '../rooms/entities/room.entity';
-import { RoomsService }         from '../rooms/services/rooms.service';
-import { Permission }           from '../permissions/entities/permission.entity';
-import { PermissionType }       from '../permissions/entities/permission.entity';
-import { PermissionsService }   from '../permissions/services/permissions.service';
-import { Subscription }         from '../subscriptions/entities/subscription.entity';
+import { Room } from '../rooms/entities/room.entity';
+import { RoomsService } from '../rooms/services/rooms.service';
+import { Permission } from '../permissions/entities/permission.entity';
+import { PermissionType } from '../permissions/entities/permission.entity';
+import { PermissionsService } from '../permissions/services/permissions.service';
+import { Subscription } from '../subscriptions/entities/subscription.entity';
 import { SubscriptionsService } from '../subscriptions/services/subscriptions.service';
 
 @Injectable()
-export class ChatService
-{
+export class ChatService {
 	constructor(
 		private readonly rooms_svc: RoomsService,
 		private readonly permissions_svc: PermissionsService,
 		private readonly subscriptions_svc: SubscriptionsService,
-	)
-	{
+	) {}
 
-	}
-
-	async getRelatedRooms(
-		user: User,
-	)
-		: Promise<Room[]>
-	{
+	async getRelatedRooms(user: User): Promise<Room[]> {
 		const subscriptions: Subscription[] = await this.subscriptions_svc.find({
 			user: user,
 		});
@@ -39,11 +31,7 @@ export class ChatService
 		return owned.concat(subscribed);
 	}
 
-	async getSubscribers(
-		room: Room,
-	)
-		: Promise<User[]>
-	{
+	async getSubscribers(room: Room): Promise<User[]> {
 		const subscriptions: Subscription[] = await this.subscriptions_svc.find({
 			room: room,
 		});
@@ -55,69 +43,42 @@ export class ChatService
 		user: User,
 		room: Room,
 		permission_type: PermissionType,
-	)
-		: Promise<boolean>
-	{
+	): Promise<boolean> {
 		const permission: Permission = await this.permissions_svc.findOne({
 			user: user,
 			room: room,
-			type: permission_type
+			type: permission_type,
 		});
 
-		return permission && (
-			  !permission.expired_at
-			|| permission.expired_at.getTime() >= Date.now()
+		return (
+			permission &&
+			(!permission.expired_at || permission.expired_at.getTime() >= Date.now())
 		);
 	}
 
-	async isOwner(
-		user: User,
-		room: Room,
-	)
-		: Promise<boolean>
-	{
+	async isOwner(user: User, room: Room): Promise<boolean> {
 		return room.owner.id === user.id;
 	}
 
-	async isLeader(
-		user: User,
-		room: Room,
-	)
-		: Promise<boolean>
-	{
+	async isLeader(user: User, room: Room): Promise<boolean> {
 		return await this.isOwner(user, room);
 	}
 
-	async isModerator(
-		user: User,
-		room: Room,
-	)
-		: Promise<boolean>
-	{
+	async isModerator(user: User, room: Room): Promise<boolean> {
 		return (
-			   await this.isLeader(user, room)
-			|| await this.hasPermission(user, room, PermissionType.MODERATOR)
+			(await this.isLeader(user, room)) ||
+			(await this.hasPermission(user, room, PermissionType.MODERATOR))
 		);
 	}
 
-	async isRestricted(
-		user: User,
-		room: Room,
-	)
-		: Promise<boolean>
-	{
+	async isRestricted(user: User, room: Room): Promise<boolean> {
 		return (
-			   await this.hasPermission(user, room, PermissionType.BANNED)
-			|| await this.hasPermission(user, room, PermissionType.MUTED)
+			(await this.hasPermission(user, room, PermissionType.BANNED)) ||
+			(await this.hasPermission(user, room, PermissionType.MUTED))
 		);
 	}
 
-	async isSubscribed(
-		user: User,
-		room: Room,
-	)
-		: Promise<boolean>
-	{
+	async isSubscribed(user: User, room: Room): Promise<boolean> {
 		const subscription: Subscription = await this.subscriptions_svc.findOne({
 			user: user,
 			room: room,
@@ -125,5 +86,4 @@ export class ChatService
 
 		return !!subscription;
 	}
-
 }

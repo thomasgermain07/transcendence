@@ -1,10 +1,11 @@
 {
-  "tabs": true,
-  "tabsWidth": 2,
+  "useTabs": true,
+  "tabWidth": 2,
   "bracketSpacing": true,
-  "semi": false,
+  "semi": true,
   "singleQuote": true,
   "trailingComma": "all",
   "arrowParens": "always",
-  "vueIndentScriptAndStyle": false
+  "vueIndentScriptAndStyle": false,
+  "printWidth": 80
 }

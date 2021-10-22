@@ -1,4 +1,4 @@
 export type RoomParamsType = {
-  password?: String | null
-  visibility: Boolean
-}
+	password?: String | null;
+	visibility: Boolean;
+};

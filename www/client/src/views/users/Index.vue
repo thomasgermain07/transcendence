@@ -1,17 +1,17 @@
 <template>
-  <div class="users">
-    <router-view />
-  </div>
+	<div class="users">
+		<router-view />
+	</div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'users',
+	name: 'users',
 
-  setup() {},
-})
+	setup() {},
+});
 </script>
 
 <style scoped></style>

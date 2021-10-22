@@ -1,65 +1,65 @@
 <template>
-  <div class="root">
-    <widget-container-modal />
-    <Navigation />
+	<div class="root">
+		<widget-container-modal />
+		<Navigation />
 
-    <span v-if="starting">
-      {{ message }}
-    </span>
-    <router-view v-else />
-    <Menu v-if="is_authenticated" />
-  </div>
+		<span v-if="starting">
+			{{ message }}
+		</span>
+		<router-view v-else />
+		<Menu v-if="is_authenticated" />
+	</div>
 </template>
 
 <script lang="ts">
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-import Navigation from '@/components/Navigation.vue'
-import Menu from '@/components/Menu/MenuWindow.vue'
-import { container } from 'jenesius-vue-modal'
+import Navigation from '@/components/Navigation.vue';
+import Menu from '@/components/Menu/MenuWindow.vue';
+import { container } from 'jenesius-vue-modal';
 
-import { useApp } from '@/composables/app'
-import { useAuth } from '@/composables/auth'
+import { useApp } from '@/composables/app';
+import { useAuth } from '@/composables/auth';
 
 export default {
-  name: 'root',
-  components: {
-    Navigation,
-    Menu,
-    WidgetContainerModal: container,
-  },
-  setup() {
-    const starting = ref(true)
-    const message = ref('Starting the application...')
+	name: 'root',
+	components: {
+		Navigation,
+		Menu,
+		WidgetContainerModal: container,
+	},
+	setup() {
+		const starting = ref(true);
+		const message = ref('Starting the application...');
 
-    const { csrf } = useApp()
+		const { csrf } = useApp();
 
-    const {
-      refresh,
-      autoRefresh,
-      isPreviouslyAuthenticated,
-      is_authenticated,
-    } = useAuth()
+		const {
+			refresh,
+			autoRefresh,
+			isPreviouslyAuthenticated,
+			is_authenticated,
+		} = useAuth();
 
-    csrf().then(async () => {
-      if (isPreviouslyAuthenticated()) {
-        message.value = 'Recovering your session...'
-        await refresh()
-      }
+		csrf().then(async () => {
+			if (isPreviouslyAuthenticated()) {
+				message.value = 'Recovering your session...';
+				await refresh();
+			}
 
-      autoRefresh()
+			autoRefresh();
 
-      message.value = 'Done.'
-      starting.value = false
-    })
+			message.value = 'Done.';
+			starting.value = false;
+		});
 
-    return {
-      starting,
-      message,
-      is_authenticated,
-    }
-  },
-}
+		return {
+			starting,
+			message,
+			is_authenticated,
+		};
+	},
+};
 </script>
 
 <style>
@@ -68,16 +68,16 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Changa:wght@300&family=Special+Elite&display=swap');
 
 .root {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  position: relative;
+	font-family: Avenir, Helvetica, Arial, sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-align: center;
+	color: #2c3e50;
+	position: relative;
 
-  --primary-color: #ff2a6d;
-  --secondary-color: #d1f7ff;
-  --tertiary-color: #01012b;
-  box-sizing: border-box;
+	--primary-color: #ff2a6d;
+	--secondary-color: #d1f7ff;
+	--tertiary-color: #01012b;
+	box-sizing: border-box;
 }
 </style>

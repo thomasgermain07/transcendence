@@ -1,10 +1,14 @@
-import { IsBoolean, IsOptional, IsString, Length, MinLength } from "class-validator";
+import {
+	IsBoolean,
+	IsOptional,
+	IsString,
+	Length,
+	MinLength,
+} from 'class-validator';
 
-import { IsUnique } from "../decorators/is-unique.decorator";
+import { IsUnique } from '../decorators/is-unique.decorator';
 
-export class CreateRoomDto
-{
-
+export class CreateRoomDto {
 	@IsUnique('name')
 	@MinLength(3)
 	@IsString()
@@ -17,5 +21,4 @@ export class CreateRoomDto
 	@IsString()
 	@IsOptional()
 	public password?: string;
-
 }

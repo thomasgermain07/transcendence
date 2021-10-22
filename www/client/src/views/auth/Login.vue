@@ -2,24 +2,19 @@
 	<login-marvin />
 </template>
 
-<script lang='ts'>
-	import { defineComponent } from "vue";
+<script lang="ts">
+import { defineComponent } from 'vue';
 
-	import LoginMarvin from "@/components/auth/LoginMarvin.vue";
+import LoginMarvin from '@/components/auth/LoginMarvin.vue';
 
-	export default defineComponent({
-		name: 'auth-login',
-		components: {
-			LoginMarvin
-		},
+export default defineComponent({
+	name: 'auth-login',
+	components: {
+		LoginMarvin,
+	},
 
-		setup()
-		{
-
-		},
-
-	});
+	setup() {},
+});
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

@@ -1,13 +1,12 @@
-import { useAxios } from '../axios'
+import { useAxios } from '../axios';
 
 export default function getFetchIgnored() {
-  const fetchIgnored = async () => {
-    try {
-      const { data } = await useAxios().axios.get('ignoreds')
-      return data
-    } catch (e) {
-    }
-  }
+	const fetchIgnored = async () => {
+		try {
+			const { data } = await useAxios().axios.get('ignoreds');
+			return data;
+		} catch (e) {}
+	};
 
-  return { fetchIgnored }
+	return { fetchIgnored };
 }
