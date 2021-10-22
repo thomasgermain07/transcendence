@@ -37,7 +37,7 @@ export default defineComponent({
   setup() {
     const { user, is_authenticated, edit } = useAuth()
 
-    const closeEdit = async () => await edit({ first_log: false });
+    const closeEdit = async (): Promise<void> => await edit({ first_log: false });
 
     return {
       user,

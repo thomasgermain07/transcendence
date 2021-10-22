@@ -64,11 +64,11 @@ export default defineComponent({
   setup() {
     const isActive = ref(false)
 
-    const openRules = () => {
+    const openRules = (): void => {
       isActive.value = true
     }
 
-    const closeRules = () => {
+    const closeRules = (): void => {
       isActive.value = false
     }
 

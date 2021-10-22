@@ -14,6 +14,7 @@ import { useRoute } from 'vue-router'
 import { useAuth } from '@/composables/auth'
 
 import GoogleAuth from '@/components/auth/GoogleAuth.vue'
+import { AxiosError } from 'axios'
 
 export default defineComponent({
   name: 'auth-login-marvin-callback',
@@ -24,13 +25,13 @@ export default defineComponent({
     const route = useRoute()
 
     const code: string =
-      typeof route.query.code === 'string' ? route.query.code : ''
+      typeof route?.query?.code === 'string' ? route.query.code : ''
     const message = ref('Verifying your login...')
 
     const { loginMarvin, googleCode } = useAuth()
 
-    loginMarvin(code).catch((err) => {
-      message.value = err.response?.data.message
+    loginMarvin(code).catch((err: AxiosError) => {
+      message.value = err.response?.data?.message
     })
 
     return {

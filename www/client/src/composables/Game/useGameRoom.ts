@@ -75,13 +75,13 @@ const useGameRoom = () => {
     }
   }
 
-  const redirectToGameView = () => {
+  const redirectToGameView = (): void => {
     room?.value?.mode === 'duel'
       ? router.push('/game/duel')
       : router.push('/game/ladder')
   }
 
-  const toastOppLeaving = () => {
+  const toastOppLeaving = (): void => {
     createToast(
       {
         title: 'Your opponent left the game room',
@@ -94,7 +94,7 @@ const useGameRoom = () => {
     )
   }
 
-  const toastGameCanceled = () => {
+  const toastGameCanceled = (): void => {
     createToast(
       {
         title: 'Game canceled',
