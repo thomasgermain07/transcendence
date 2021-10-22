@@ -26,7 +26,7 @@ const useMatchmaker = () => {
   })
 
   const roomName = computed(() => {
-    if (lobby.player) return `lobby-${lobby?.player.room.id}`
+    if (lobby.player) return `lobby-${lobby?.player?.room?.id}`
   })
 
   const checkInGame = reactive<InGameType>({

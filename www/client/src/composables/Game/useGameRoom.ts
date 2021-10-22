@@ -3,7 +3,7 @@ import { reactive, ref } from 'vue'
 import { Player } from '../../types/game/player'
 import { GameState } from '../../types/game/gameRoom'
 
-import { useAxios } from '../axios'
+import { AxiosErrType, useAxios } from '../axios'
 import { useRouter } from 'vue-router'
 import { useUsers } from '@/composables/users'
 import { createToast } from 'mosha-vue-toastify'
@@ -42,7 +42,7 @@ const useGameRoom = () => {
     state.isPause = false
     const response = await axios
       .get(`game/rooms/${routeId}`)
-      .catch((error: any) => {
+      .catch((error: AxiosErrType) => {
         state.error = error.response.data.message
         state.isLoading = false
       })
@@ -57,6 +57,10 @@ const useGameRoom = () => {
         (state.currentPlayer && response.data.locked === false)
       ) {
         state.error = 'Not authorized'
+      }
+
+      if (!state.currentPlayer && currentUser.value.status === 'ingame') {
+        state.error = "You can't watch a game while in a another game"
       }
 
       // for ready button
