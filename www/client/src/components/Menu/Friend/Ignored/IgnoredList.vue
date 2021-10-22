@@ -22,11 +22,11 @@
 </template>
 
 <script lang="ts">
-import { ref, PropType } from 'vue';
+import { ref, PropType, defineComponent } from 'vue';
 import { UserType } from '@/types/user/user';
 import { useContextMenu } from '@/composables/useContextMenu';
 
-export default {
+export default defineComponent({
 	props: {
 		Ignored: Array as PropType<Array<UserType>>,
 	},
@@ -41,7 +41,7 @@ export default {
 			onUnblockUser,
 		};
 	},
-};
+});
 </script>
 
 <style scoped>

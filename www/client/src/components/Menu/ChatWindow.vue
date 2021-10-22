@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { computed } from '@vue/runtime-core';
+import { computed, defineComponent } from 'vue';
 
 import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/useWindowInteraction';
 
@@ -42,7 +42,7 @@ import Dm from './Chat/Dm/Dm.vue';
 import { useChat } from '@/composables/Chat/useChat';
 import { useRoom } from '@/composables/Chat/Room/useRoom';
 
-export default {
+export default defineComponent({
 	components: {
 		TopBar,
 		Rooms,
@@ -83,7 +83,7 @@ export default {
 			left_room,
 		};
 	},
-};
+});
 </script>
 
 <style scoped>

@@ -27,7 +27,7 @@
 <script lang="ts">
 import { AxiosErrType } from '@/composables/axios';
 import { defineComponent, ref, reactive } from 'vue';
-import { useAuth, GoogleAuthType } from '../../composables/auth';
+import { useAuth, GoogleAuthType } from '@/composables/auth';
 
 export default defineComponent({
 	name: 'GoogleAuth',

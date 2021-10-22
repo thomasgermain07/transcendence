@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { computed, onMounted, ref } from '@vue/runtime-core';
+import { computed, onMounted, ref, defineComponent } from 'vue';
 
 import JoinRoomPanel from './JoinRoomPanel.vue';
 
@@ -34,7 +34,7 @@ import getJoinPanelInteraction from '@/composables/Chat/WindowInteraction/getJoi
 import { getRoomsByName } from '@/composables/Chat/Rooms/getRoomsByFilters';
 import { RoomType } from '@/types/chat/room';
 
-export default {
+export default defineComponent({
 	components: {
 		JoinRoomPanel,
 	},
@@ -70,7 +70,7 @@ export default {
 			resetValue,
 		};
 	},
-};
+});
 </script>
 
 <style scoped>

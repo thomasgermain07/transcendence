@@ -72,7 +72,7 @@
 </template>
 
 <script lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, defineComponent } from 'vue';
 import { useRoute, onBeforeRouteUpdate } from 'vue-router';
 import { useAuth } from '@/composables/auth';
 import { useUsers } from '@/composables/users';
@@ -86,7 +86,7 @@ import getUserInteraction from '@/composables/User/getUserInteraction';
 import { useFriends } from '@/composables/Friends/useFriends';
 import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/useWindowInteraction';
 
-export default {
+export default defineComponent({
 	components: {
 		ErrorPage,
 		GameStats,
@@ -180,7 +180,7 @@ export default {
 			openDm,
 		};
 	},
-};
+});
 </script>
 
 <style scoped>

@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, watch, defineComponent } from 'vue';
 
 import FriendWindow from './FriendWindow.vue';
 import ChatWindow from './ChatWindow.vue';
@@ -36,7 +36,7 @@ import { useChat } from '@/composables/Chat/useChat';
 import { useFriends } from '@/composables/Friends/useFriends';
 import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/useWindowInteraction';
 
-export default {
+export default defineComponent({
 	components: {
 		FriendWindow,
 		ChatWindow,
@@ -80,7 +80,7 @@ export default {
 			closeWindow,
 		};
 	},
-};
+});
 </script>
 
 <style scoped>

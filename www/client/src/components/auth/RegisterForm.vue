@@ -31,7 +31,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { ref, reactive, readonly } from 'vue';
+import { ref, reactive } from 'vue';
 
 import { RegisterType } from '@/composables/auth';
 import { useAuth } from '@/composables/auth';
@@ -51,7 +51,7 @@ export default defineComponent({
 		const { register } = useAuth();
 
 		const submit = (): void => {
-			register(readonly(user)).catch((err: AxiosErrType) => {
+			register(user).catch((err: AxiosErrType) => {
 				messages.value = err.response?.data.message;
 			});
 		};

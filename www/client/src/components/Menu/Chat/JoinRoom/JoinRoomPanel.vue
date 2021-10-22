@@ -17,13 +17,13 @@
 </template>
 
 <script lang="ts">
-import { ref } from '@vue/reactivity';
+import { ref, defineComponent } from 'vue';
 
 import getCreateSubscription from '@/composables/Chat/Subscription/createSubscription';
 
 import { useSocket } from '@/composables/socket';
 
-export default {
+export default defineComponent({
 	props: {
 		room: Object,
 	},
@@ -45,7 +45,7 @@ export default {
 
 		return { error, password_field, join };
 	},
-};
+});
 </script>
 
 <style scoped>

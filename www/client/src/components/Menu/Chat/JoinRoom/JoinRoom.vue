@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts">
-import { ref } from '@vue/reactivity';
+import { ref, defineComponent } from 'vue';
 
 import JoinRoomPanel from './JoinRoomPanel.vue';
 import RoomsList from './RoomsList.vue';
@@ -30,7 +30,7 @@ import RoomSearch from './RoomSearch.vue';
 
 import { useChat } from '@/composables/Chat/useChat';
 
-export default {
+export default defineComponent({
 	components: {
 		JoinRoomPanel,
 		RoomsList,
@@ -56,7 +56,7 @@ export default {
 			goBack,
 		};
 	},
-};
+});
 </script>
 
 <style scoped>

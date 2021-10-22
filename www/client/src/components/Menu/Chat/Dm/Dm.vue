@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, watch, ref, onUnmounted } from '@vue/runtime-core';
+import { onMounted, watch, ref, onUnmounted, defineComponent } from 'vue';
 
 import { createToast } from 'mosha-vue-toastify';
 import 'mosha-vue-toastify/dist/style.css';
@@ -51,7 +51,7 @@ import getCreateMessage from '@/composables/Chat/Dms/createMessage';
 
 import { DirectMessageType } from '@/types/chat/direct_message';
 
-export default {
+export default defineComponent({
 	props: {
 		UserId: Number,
 	},
@@ -127,7 +127,7 @@ export default {
 			loadMoreMessages,
 		};
 	},
-};
+});
 </script>
 
 <style scoped>

@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import { PropType, ref } from 'vue';
+import { PropType, ref, defineComponent } from 'vue';
 
 import FriendsListCM from './FriendsListCM.vue';
 
@@ -34,7 +34,7 @@ import { UserType } from '@/types/user/user';
 
 import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/useWindowInteraction';
 
-export default {
+export default defineComponent({
 	props: {
 		Friends: Array as PropType<Array<UserType>>,
 	},
@@ -56,7 +56,7 @@ export default {
 			onRightClick,
 		};
 	},
-};
+});
 </script>
 
 <style scoped>

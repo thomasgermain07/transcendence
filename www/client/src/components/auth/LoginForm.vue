@@ -34,7 +34,7 @@
 
 <script lang="ts">
 import { defineComponent, watch } from 'vue';
-import { ref, reactive, readonly } from 'vue';
+import { ref, reactive } from 'vue';
 
 import { LoginType } from '@/composables/auth';
 import { useAuth } from '@/composables/auth';
@@ -55,7 +55,7 @@ export default defineComponent({
 
 		const { login, googleCode } = useAuth();
 		const submit = (): void => {
-			login(readonly(credentials)).catch((err: AxiosErrType) => {
+			login(credentials).catch((err: AxiosErrType) => {
 				message.value = err.response?.data.message;
 			});
 		};

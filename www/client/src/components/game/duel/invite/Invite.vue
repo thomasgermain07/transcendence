@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import { PropType, ref } from '@vue/runtime-core';
+import { defineComponent, PropType, ref } from 'vue';
 
 import { UserType } from '@/types/user/user';
 import { useSocket } from '@/composables/socket';
@@ -26,7 +26,7 @@ import Refused from './Refused.vue';
 
 import { InvitationType } from '@/types/game/invitation';
 
-export default {
+export default defineComponent({
 	components: {
 		Waiting,
 		Accepted,
@@ -54,5 +54,5 @@ export default {
 			gameRoomId,
 		};
 	},
-};
+});
 </script>

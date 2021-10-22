@@ -78,10 +78,8 @@ export default defineComponent({
 		);
 
 		return {
-			messages,
 			qrcode,
 			qrcodeActive,
-			user,
 			switchTwoFa,
 			closeMessage,
 		};

@@ -38,12 +38,12 @@
 </template>
 
 <script lang="ts">
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch, defineComponent } from 'vue';
 
 import getFetchUsers from '@/composables/Users/fetchUsers';
 import requestStatus from '@/composables/requestStatus';
 
-export default {
+export default defineComponent({
 	setup() {
 		const loading = ref(true);
 		let search = ref('');
@@ -85,7 +85,7 @@ export default {
 
 		return { users, status, offset, loading, search };
 	},
-};
+});
 </script>
 
 <style scoped>

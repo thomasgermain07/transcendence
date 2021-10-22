@@ -83,7 +83,7 @@
 </template>
 
 <script lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch, defineComponent } from 'vue';
 
 import { useAuth } from '@/composables/auth';
 import { useSocket } from '@/composables/socket';
@@ -98,7 +98,7 @@ import { PermissionType } from '@/types/chat/permission';
 import { useChat } from '@/composables/Chat/useChat';
 import { useFriends } from '@/composables/Friends/useFriends';
 
-export default {
+export default defineComponent({
 	props: {
 		RoomId: Number,
 	},
@@ -289,7 +289,7 @@ export default {
 		};
 	},
 	emits: ['close', 'leave'],
-};
+});
 </script>
 
 <style scoped>

@@ -72,7 +72,7 @@
 </template>
 
 <script lang="ts">
-import { ref } from 'vue';
+import { ref, defineComponent } from 'vue';
 
 import requestStatus from '@/composables/requestStatus';
 
@@ -83,7 +83,7 @@ import { useSocket } from '@/composables/socket';
 // TODO : If time, remake this HTML/CSS side is not the best
 // And should use a reactive object instead of fileds, errors
 
-export default {
+export default defineComponent({
 	setup(props, { emit }) {
 		let { fields, errors, sendable } = getRoomInputs();
 
@@ -111,7 +111,7 @@ export default {
 			sendable,
 		};
 	},
-};
+});
 </script>
 
 <style scoped>

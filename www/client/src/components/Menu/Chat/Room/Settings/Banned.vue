@@ -11,12 +11,12 @@
 </template>
 
 <script lang="ts">
-import { computed } from 'vue';
+import { computed, defineComponent } from 'vue';
 import { useRoom } from '@/composables/Chat/Room/useRoom';
 import { UserType } from '@/types/user/user';
 import { useContextMenu } from '@/composables/useContextMenu';
 
-export default {
+export default defineComponent({
 	setup() {
 		const { onUnbanUser } = useContextMenu();
 
@@ -48,7 +48,7 @@ export default {
 		};
 	},
 	emits: ['close'],
-};
+});
 </script>
 
 <style scoped>

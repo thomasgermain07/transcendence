@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { ref } from 'vue';
+import { ref, defineComponent } from 'vue';
 
 import AdminSetting from './AdminSetting.vue';
 
@@ -29,7 +29,7 @@ import { useAuth } from '@/composables/auth';
 
 import { useRoom } from '@/composables/Chat/Room/useRoom';
 
-export default {
+export default defineComponent({
 	components: {
 		AdminSetting,
 	},
@@ -53,7 +53,7 @@ export default {
 		};
 	},
 	emit: ['close', 'leave'],
-};
+});
 </script>
 
 <style scoped>

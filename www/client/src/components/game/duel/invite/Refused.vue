@@ -13,11 +13,11 @@
 </template>
 
 <script lang="ts">
-import { onMounted, PropType } from '@vue/runtime-core';
+import { defineComponent, onMounted, PropType } from 'vue';
 import { UserType } from '@/types/user/user';
 import { useGameInvite } from '@/composables/Game/useGameInvite';
 
-export default {
+export default defineComponent({
 	props: {
 		Target: Object as PropType<UserType>,
 	},
@@ -47,7 +47,7 @@ export default {
 			closeInvite,
 		};
 	},
-};
+});
 </script>
 
 <style scoped>

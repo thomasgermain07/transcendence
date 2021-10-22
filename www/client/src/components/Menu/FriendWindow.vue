@@ -77,7 +77,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, watch } from 'vue';
+import { onMounted, watch, defineComponent } from 'vue';
 
 import {
 	getFriendsByName,
@@ -94,7 +94,7 @@ import { useChat } from '@/composables/Chat/useChat';
 import { useFriends } from '@/composables/Friends/useFriends';
 import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/useWindowInteraction';
 
-export default {
+export default defineComponent({
 	components: {
 		TopBar,
 		FriendsList,
@@ -148,7 +148,7 @@ export default {
 		};
 	},
 	emits: ['open_create_invite'],
-};
+});
 </script>
 
 <style scoped>

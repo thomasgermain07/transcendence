@@ -38,12 +38,12 @@
 </template>
 
 <script lang="ts">
-import { ref } from 'vue';
+import { ref, defineComponent } from 'vue';
 import getUserInteraction from '@/composables/User/getUserInteraction';
 import { UserType } from '@/types/user/user';
 import { useContextMenu } from '@/composables/useContextMenu';
 
-export default {
+export default defineComponent({
 	props: {
 		Requests: Object,
 	},
@@ -77,7 +77,7 @@ export default {
 			refuseRequest,
 		};
 	},
-};
+});
 </script>
 
 <style scoped>

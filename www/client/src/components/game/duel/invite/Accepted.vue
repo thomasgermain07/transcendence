@@ -15,11 +15,11 @@
 </template>
 
 <script lang="ts">
-import { PropType } from '@vue/runtime-core';
+import { defineComponent, PropType } from 'vue';
 import { UserType } from '@/types/user/user';
 import { useGameInvite } from '@/composables/Game/useGameInvite';
 
-export default {
+export default defineComponent({
 	props: {
 		Target: Object as PropType<UserType>,
 		GameRoomId: Number,
@@ -36,7 +36,7 @@ export default {
 			onJoinRoom,
 		};
 	},
-};
+});
 </script>
 
 <style scoped>

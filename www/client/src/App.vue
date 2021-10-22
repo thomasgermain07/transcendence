@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { ref } from 'vue';
+import { ref, defineComponent } from 'vue';
 
 import Navigation from '@/components/Navigation.vue';
 import Menu from '@/components/Menu/MenuWindow.vue';
@@ -21,7 +21,7 @@ import { container } from 'jenesius-vue-modal';
 import { useApp } from '@/composables/app';
 import { useAuth } from '@/composables/auth';
 
-export default {
+export default defineComponent({
 	name: 'root',
 	components: {
 		Navigation,
@@ -59,7 +59,7 @@ export default {
 			is_authenticated,
 		};
 	},
-};
+});
 </script>
 
 <style>

@@ -80,10 +80,6 @@ export default defineComponent({
 h3 {
 	padding-bottom: 1rem;
 }
-.err-msg {
-	color: red;
-}
-
 .form__message + .form__message {
 	margin-top: 0.5em;
 }
