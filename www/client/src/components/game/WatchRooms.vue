@@ -22,8 +22,11 @@
 
 <script lang="ts">
 import { Room } from '@/types/game/gameRoom'
+import { createToast } from 'mosha-vue-toastify'
 import { defineComponent, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuth } from '../../composables/auth'
+import { useAxios, AxiosErrType } from '../../composables/axios'
 
 export default defineComponent({
   name: 'WatchRooms',
@@ -32,8 +35,27 @@ export default defineComponent({
   setup(props) {
     const router = useRouter()
     const roomsList = ref(props.rooms as Room[])
+    const { user } = useAuth()
+    const { axios } = useAxios()
 
-    const onWatch = (roomId: number): void => {
+    const onWatch = async (roomId: number): void => {
+      const response = await axios
+        .get(`game/players/checkIfInGameOrQueue/${user.id}`)
+        .catch((error: AxiosErrType) => {})
+        if (response) {
+          if (response.data.inGame && response.data.player?.room?.id != roomId) {
+            createToast(
+              {
+                description: "You can't watch a game while in a another game",
+              },
+              {
+                timeout: 3000,
+                type: 'info',
+              },
+            )
+          return 
+          }
+        }     
       router.push(`/game/room/${roomId}`)
     }
 

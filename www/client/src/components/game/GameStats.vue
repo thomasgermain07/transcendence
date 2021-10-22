@@ -73,7 +73,7 @@ export default defineComponent({
 
     const winsPercent = computed(() => {
       const percent =
-        (stats?.value?.total_wins / stats?.value?.total_played) * 100
+        Math.round((stats?.value?.total_wins / stats?.value?.total_played) * 100)
       if (percent) {
         return percent
       }

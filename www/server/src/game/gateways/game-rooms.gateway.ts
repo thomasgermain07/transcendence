@@ -194,13 +194,6 @@ export class GameRoomsGateway
   ): Promise<string> {
     // remove socket from room
     client.leave(data.room)
-
-    const roomId = await this.playerService.findRoomNumber(data.playerId)
-
-    let room = await this.roomsService.findOne(roomId)
-
-    this.server.to(data.room).emit('updateRoomInClient', { room: room })
-
     return 'Player ' + data.playerId + ' go back'
   }
 
@@ -515,7 +508,6 @@ export class GameRoomsGateway
         this.game[room].player_left.getId(),
       )
       this.game[room].info.status = GameState.OVER
-      await this.roomsService.update(roomId, { state: GameState.OVER })
       clearTimeout(myVar)
       clearInterval(this.game[room].info.interval)
       if (this.game[room].player_left.getScore() == MAXSCORE) {
@@ -663,7 +655,8 @@ export class GameRoomsGateway
         mode: this.game[roomName].info.mode,
       },
     )
-    this.server.to(roomName).emit('updateRoomInClient', { room: playerR.room })
+    const room: Room = await this.roomsService.update(playerR.room.id, { state: GameState.OVER })
+    this.server.to(roomName).emit('updateRoomInClient', { room: room })
 
     this.setLadderLevel(roomName)
 
