@@ -8,7 +8,6 @@ export default function getChangeRoom() {
       let res = await useAxios().axios.patch(`chat/rooms/${id}`, roomParam)
       return res
     } catch (e: AxiosErrType) {
-      console.log(e.response.data.message)
       throw e.response.data.message
     }
   }

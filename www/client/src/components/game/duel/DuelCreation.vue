@@ -142,8 +142,16 @@ export default {
         closeWindow()
         return
       }
-      let invite = await createInvitation(gameOptions, props.Target!.id)
-      useGameInvite().createInviteNotification(invite, props.Target!)
+      try {
+        let invite = await createInvitation(gameOptions, props.Target!.id)
+        useGameInvite().createInviteNotification(invite, props.Target!)
+      } catch (e) {
+        useGameInvite().inviteError(
+          `You cannot send a duel to ${
+            props.Target!.name
+          } because he/she blocked you`,
+        )
+      }
       closeWindow()
     }
 
