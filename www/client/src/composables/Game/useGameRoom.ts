@@ -3,7 +3,7 @@ import { reactive, ref } from 'vue'
 import { Player } from '../../types/game/player'
 import { GameState } from '../../types/game/gameRoom'
 
-import { useAxios } from '../axios'
+import { AxiosErrType, useAxios } from '../axios'
 import { useRouter } from 'vue-router'
 import { useUsers } from '@/composables/users'
 import { createToast } from 'mosha-vue-toastify'
@@ -42,7 +42,7 @@ const useGameRoom = () => {
     state.isPause = false
     const response = await axios
       .get(`game/rooms/${routeId}`)
-      .catch((error: any) => {
+      .catch((error: AxiosErrType) => {
         state.error = error.response.data.message
         state.isLoading = false
       })
@@ -59,6 +59,10 @@ const useGameRoom = () => {
         state.error = 'Not authorized'
       }
 
+      if (!state.currentPlayer && currentUser.value.status === 'ingame') {
+        state.error = "You can't watch a game while in a another game"
+      }
+
       // for ready button
       if (state.currentPlayer && state.currentPlayer.isReady === true) {
         state.isActive = true
@@ -71,13 +75,13 @@ const useGameRoom = () => {
     }
   }
 
-  const redirectToGameView = () => {
+  const redirectToGameView = (): void => {
     room?.value?.mode === 'duel'
       ? router.push('/game/duel')
       : router.push('/game/ladder')
   }
 
-  const toastOppLeaving = () => {
+  const toastOppLeaving = (): void => {
     createToast(
       {
         title: 'Your opponent left the game room',
@@ -90,7 +94,7 @@ const useGameRoom = () => {
     )
   }
 
-  const toastGameCanceled = () => {
+  const toastGameCanceled = (): void => {
     createToast(
       {
         title: 'Game canceled',

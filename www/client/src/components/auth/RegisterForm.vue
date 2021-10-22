@@ -30,6 +30,7 @@
 
 	import { RegisterType } from "@/composables/auth";
 	import { useAuth }      from "@/composables/auth";
+	import { AxiosErrType } from "@/composables/axios";
 
 	export default defineComponent({
 		name: 'auth-register-form',
@@ -45,9 +46,9 @@
 
 			const { register } = useAuth();
 
-			const submit = () => {
+			const submit = (): void => {
 				register(readonly(user))
-					.catch((err) => {
+					.catch((err: AxiosErrType) => {
 						messages.value = err.response?.data.message;
 					})
 				;

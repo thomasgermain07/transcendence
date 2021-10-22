@@ -54,7 +54,7 @@ export default defineComponent({
 
   setup(props) {
     const { axios } = useAxios()
-    const loading = ref<boolean>(true)
+    const loading = ref(true)
     const user = ref<UserType>(props.user)
     const stats = ref<StatsType>({
       user_id: 0,
@@ -73,19 +73,17 @@ export default defineComponent({
 
     const winsPercent = computed(() => {
       const percent =
-        (stats?.value?.total_wins / stats?.value?.total_played) * 100
+        Math.round((stats?.value?.total_wins / stats?.value?.total_played) * 100)
       if (percent) {
         return percent
       }
       return 0
     })
-    const fetchUserStats = async () => {
+    const fetchUserStats = async (): Promise<void> => {
       loading.value = true
       const response = await axios
         .get(`users/${user.value.id}/stats`)
-        .catch((err: AxiosErrType) => {
-          console.log(err.response?.data)
-        })
+        .catch((err: AxiosErrType) => {})
 
       if (response) {
         loading.value = false

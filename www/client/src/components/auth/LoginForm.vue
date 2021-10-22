@@ -39,6 +39,7 @@ import { ref, reactive, readonly } from 'vue'
 import { LoginType } from '@/composables/auth'
 import { useAuth } from '@/composables/auth'
 import GoogleAuth from '@/components/auth/GoogleAuth.vue'
+import { AxiosErrType } from '@/composables/axios'
 
 export default defineComponent({
   name: 'auth-login-form',
@@ -46,15 +47,15 @@ export default defineComponent({
     GoogleAuth,
   },
   setup() {
-    const message = ref()
+    const message = ref('')
     const credentials = reactive<LoginType>({
       email: '',
       password: '',
     })
 
     const { login, googleCode } = useAuth()
-    const submit = () => {
-      login(readonly(credentials)).catch((err) => {
+    const submit = (): void => {
+      login(readonly(credentials)).catch((err: AxiosErrType) => {
         message.value = err.response?.data.message
       })
     }

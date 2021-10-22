@@ -49,11 +49,11 @@ export default defineComponent({
   },
   emit: ['update-user', 'close-window'],
   setup(props, context) {
-    const updateUser = () => {
+    const updateUser = (): void => {
       context.emit('update-user')
     }
 
-    const closeWindow = () => {
+    const closeWindow = (): void => {
       context.emit('close-window')
     }
 

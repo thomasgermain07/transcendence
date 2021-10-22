@@ -26,7 +26,7 @@ const useMatchmaker = () => {
   })
 
   const roomName = computed(() => {
-    if (lobby.player) return `lobby-${lobby?.player.room.id}`
+    if (lobby.player) return `lobby-${lobby?.player?.room?.id}`
   })
 
   const checkInGame = reactive<InGameType>({
@@ -34,22 +34,22 @@ const useMatchmaker = () => {
     roomRoute: '',
   })
 
-  const toastException = (message: string) => {
+  const toastException = (message: string): void => {
     createToast(message, {
       timeout: 3000,
       type: 'warning',
     })
   }
 
-  const showLobby = () => {
+  const showLobby = (): void => {
     lobby.visible = true
   }
 
-  const closeLobby = () => {
+  const closeLobby = (): void => {
     lobby.visible = false
   }
 
-  const updateMatchedState = (value: boolean) => {
+  const updateMatchedState = (value: boolean): void => {
     lobby.matched = value
   }
 
@@ -70,7 +70,7 @@ const useMatchmaker = () => {
     )
   }
 
-  const leaveLobby = async () => {
+  const leaveLobby = async (): Promise<void> => {
     await axios
       .delete(`game/players/${lobby?.player?.id}`)
       .catch((err: AxiosErrType) => {})
@@ -88,13 +88,13 @@ const useMatchmaker = () => {
 
   const goToRoom = () => {
     closeLobby()
-    router.push(`/game/room/${lobby?.player?.room.id}`)
+    router.push(`/game/room/${lobby?.player?.room?.id}`)
   }
 
   const checkIfInGameOrQueue = async (): Promise<void> => {
     const response = await axios
       .get(`game/players/checkIfInGameOrQueue/${currentUser.id}`)
-      .catch((error: any) => {})
+      .catch((error: AxiosErrType) => {})
     if (response) {
       checkInGame.inGame = response.data.inGame
       checkInGame.roomRoute = response.data.roomRoute

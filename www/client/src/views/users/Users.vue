@@ -54,7 +54,7 @@ export default {
       search,
     )
 
-    const handleScroll = () => {
+    const handleScroll = (): void => {
       if (
         !loading.value &&
         window.innerHeight + document.documentElement.scrollTop >=

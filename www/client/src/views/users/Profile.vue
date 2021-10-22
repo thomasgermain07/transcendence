@@ -121,23 +121,23 @@ export default {
       return users.value!.id == useAuth().user.id
     })
 
-    const updateUser = async () => {
+    const updateUser = async (): Promise<void> => {
       fetchUserProfile(parseInt(route.params.id as string))
       await edit({ first_log: false })
     }
 
-    const fetchUserProfile = async (id: number) => {
+    const fetchUserProfile = async (id: number): Promise<void> => {
       await get(id)
       status.value = users.value ? requestStatus.success : requestStatus.error
     }
 
-    const onAddFriend = async () => {
+    const onAddFriend = async (): Promise<void> => {
       await addFriend(users.value!)
       reloadRequests()
       reloadFriends()
     }
 
-    const onDeleteFriend = async () => {
+    const onDeleteFriend = async (): Promise<void> => {
       await removeFriend(users.value!)
       reloadRequests()
       reloadFriends()

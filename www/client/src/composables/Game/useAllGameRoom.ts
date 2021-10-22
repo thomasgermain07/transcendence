@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { useAxios } from '../axios'
+import { useAxios, AxiosErrType } from '../axios'
 import { Room } from '@/types/game/gameRoom'
 
 const useAllGameRoom = (mode: string) => {
@@ -9,7 +9,10 @@ const useAllGameRoom = (mode: string) => {
 
   const loadGameRooms = async (): Promise<void> => {
     const response = await axios.get(`game/rooms/${mode}`)
-    rooms.value = response.data
+    .catch((error: AxiosErrType) => {})
+
+    if (response)
+      rooms.value = response.data
   }
 
   return {
