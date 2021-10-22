@@ -113,12 +113,12 @@ export default defineComponent({
     const gameRoomsSocket = useSocket('game-rooms').socket
     const inGame = ref(false)
 
-    const checkIfInGame = async () => {
+    const checkIfInGame = async (): Promise<void> => {
       const res = await axios
         .get(`game/players/checkIfInGameOrQueue/${user.id}`)
         .catch((e: AxiosErrType) => {})
       if (res) {
-        if (res.data.inGame && res.data.player?.room?.id != parseInt(route.params.id as string)) {
+        if (res.data.inGame && res.data.player?.room?.id != parseInt(route?.params?.id as string)) {
           inGame.value = true
         }
       }
@@ -126,7 +126,7 @@ export default defineComponent({
 
     let timer = ref('')
     // --- FETCH ---
-    loadRoom(route.params.id)
+    loadRoom(route?.params?.id)
 
 
 
@@ -170,7 +170,7 @@ export default defineComponent({
       return false
     })
 
-    const onCancel = async () => {
+    const onCancel = async (): Promise<void> => {
       try {
         const res = await useAxios().axios.delete('game/rooms/private', {
           data: { room: room?.value },
@@ -189,7 +189,7 @@ export default defineComponent({
           value: true,
         })
         checkReady(res.data.room)
-      } catch (e) {}
+      } catch (e: AxiosErrType) {}
     }
 
     const offPause = (): void => {
@@ -266,12 +266,12 @@ export default defineComponent({
       }
     }
 
-    const startCountDown = (counter: number) => {
+    const startCountDown = (counter: number): void => {
       timer.value = new Date(counter * 1000).toISOString().substr(14, 5)
     }
 
     // --- SOCKETS ---
-    const initListeners = () => { 
+    const initListeners = (): void => { 
       gameRoomsSocket.on('connect', () => {
         joinRoom(route.params.id as string)
       })
@@ -328,7 +328,7 @@ export default defineComponent({
             player: state.currentPlayer,
             value: false,
           })
-        } catch (e) {}
+        } catch (e: AxiosErrType) {}
       }
     })
 
@@ -339,7 +339,7 @@ export default defineComponent({
       } else {
         initListeners()
         if (gameRoomsSocket.id) {
-          joinRoom(route.params.id as string)
+          joinRoom(route?.params?.id as string)
         }
       }
     })

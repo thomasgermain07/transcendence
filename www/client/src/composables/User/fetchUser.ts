@@ -1,6 +1,6 @@
 import { UserType } from '@/types/user/user'
 import { Ref, ref } from 'vue'
-import { useAxios } from '../axios'
+import { useAxios, AxiosErrType } from '../axios'
 import requestStatus from '../requestStatus'
 
 export default function getFetchUser(status?: Ref) {
@@ -15,7 +15,7 @@ export default function getFetchUser(status?: Ref) {
       if (status) {
         status.value = requestStatus.success
       }
-    } catch (e) {
+    } catch (e: AxiosErrType) {
       if (status) {
         status.value = requestStatus.error
       }

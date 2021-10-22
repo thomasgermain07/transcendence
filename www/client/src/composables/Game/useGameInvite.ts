@@ -47,14 +47,14 @@ export function useGameInvite() {
     })
   }
 
-  const invitationExpired = () => {
+  const invitationExpired = (): void => {
     createToast(withProps(Error, { Msg: 'Invitation expired' }), {
       timeout: 5000,
       type: 'danger',
     })
   }
 
-  const checkIfCanInvite = async (user: UserType) => {
+  const checkIfCanInvite = async (user: UserType): Promise<boolean> => {
     if (user.status != 'connected') {
       if (user.status == 'disconnected') {
         inviteError(user.name + ' is disconnected')
@@ -83,7 +83,7 @@ export function useGameInvite() {
   const createInviteNotification = (
     invitation: InvitationType,
     target: UserType,
-  ) => {
+  ): void => {
     if (currentInviteClose) {
       currentInviteClose()
     }
@@ -102,14 +102,14 @@ export function useGameInvite() {
     currentInviteClose = close
   }
 
-  const closeInviteNotification = () => {
+  const closeInviteNotification = (): void => {
     if (currentInviteClose != undefined) {
       currentInviteClose()
       currentInviteClose = undefined
     }
   }
 
-  const createInvitationNotification = (invitation: InvitationType) => {
+  const createInvitationNotification = (invitation: InvitationType): void => {
     let { close } = createToast(
       withProps(Invitation, { Invitation: invitation }),
       {
@@ -123,7 +123,7 @@ export function useGameInvite() {
     invitationsList.unshift({ invitation: invitation, close: close })
   }
 
-  const closeInvitationNotification = (invitation: InvitationType) => {
+  const closeInvitationNotification = (invitation: InvitationType): void => {
     let index = invitationsList.findIndex((tab) => {
       return tab.invitation.host.id == invitation.host.id
     })
@@ -133,7 +133,7 @@ export function useGameInvite() {
     }
   }
 
-  const redirectToGameRoom = (gameRoomId: number) => {
+  const redirectToGameRoom = (gameRoomId: number): void => {
     router.push({
       name: 'game-room',
       params: {
@@ -142,7 +142,7 @@ export function useGameInvite() {
     })
   }
 
-  const closeEverything = async () => {
+  const closeEverything = async (): Promise<void> => {
     invitationsList.forEach(async (invitation) => {
       await refuseInvitation(invitation.invitation)
       invitation.close()

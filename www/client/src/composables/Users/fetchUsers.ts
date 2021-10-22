@@ -1,5 +1,5 @@
 import { Ref, ref } from 'vue'
-import { useAxios } from '../axios'
+import { useAxios, AxiosErrType } from '../axios'
 import requestStatus from '../requestStatus'
 import { UserType } from '../../types/user/user'
 
@@ -11,8 +11,8 @@ export default function getFetchUsers(
   let users = ref<UserType[]>([])
   let oldOffset = ref(-1)
   let offset = ref(0)
-  let limit = 20
-  const fetchUsers = async () => {
+  let limit: number = 20
+  const fetchUsers = async (): Promise<void> => {
     const { axios } = useAxios()
     try {
       if (loading) loading.value = true
@@ -37,7 +37,7 @@ export default function getFetchUsers(
         }
         if (loading) loading.value = false
       }
-    } catch (e) {
+    } catch (e: AxiosErrType) {
       if (status) status.value = requestStatus.error
     }
   }
