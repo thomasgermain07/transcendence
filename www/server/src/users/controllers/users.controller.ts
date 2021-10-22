@@ -29,17 +29,11 @@ import { GameStatsPerMode, GameStatsTotal } from '../types/game-stats'
 @UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
-  // ---------------------------------------------------------------------------
-  // Constructor
-  // ---------------------------------------------------------------------------
   constructor(
     private readonly users_svc: UsersService,
     private readonly stats_svc: StatsService,
   ) {}
 
-  // ---------------------------------------------------------------------------
-  // Public methods
-  // ---------------------------------------------------------------------------
   @Get()
   async findAll(): Promise<User[]> {
     return this.users_svc.findAll()
@@ -151,10 +145,6 @@ export class UsersController {
     if (!this.canModify(user, target))
       throw new ForbiddenException('You can not update this user.')
 
-    // Todo:
-    // if (!this.canModifyRole(user))
-    // 	delete update_dto.is_admin;
-
     return this.users_svc.update(target, update_dto)
   }
 
@@ -175,20 +165,8 @@ export class UsersController {
     this.users_svc.remove(target)
   }
 
-  // -------------------------------------------------------------------------
-  // Private methods
-  // -------------------------------------------------------------------------
   private async canModify(user: User, target: User): Promise<boolean> {
-    // Todo:
-    return /* user.is_admin ||  */ user.id === target.id
+    return user.id === target.id
   }
 
-  // Todo:
-  // private canModifyRole(
-  // 	user: User,
-  // )
-  // 	: boolean
-  // {
-  // 	return user.is_admin;
-  // }
 }

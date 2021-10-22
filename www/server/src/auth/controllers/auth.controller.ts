@@ -34,9 +34,6 @@ type LoginResponseType = {
 
 @Controller('auth')
 export class AuthController {
-  // -------------------------------------------------------------------------
-  // Constructor
-  // -------------------------------------------------------------------------
   constructor(
     private readonly auth_svc: AuthService,
     private readonly cookies_svc: CookiesService,
@@ -44,9 +41,6 @@ export class AuthController {
     private readonly usersService: UsersService,
   ) {}
 
-  // -------------------------------------------------------------------------
-  // Public methods
-  // -------------------------------------------------------------------------
   @Post('register')
   async register(@Body() create_dto: CreateUserDto): Promise<User> {
     return this.auth_svc.register(create_dto)

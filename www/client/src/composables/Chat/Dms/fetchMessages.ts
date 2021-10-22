@@ -15,7 +15,6 @@ export default function getFetchMessages() {
       })
       messages.value = messages.value.concat(data)
     } catch (e) {
-      console.log(e)
     }
   }
 

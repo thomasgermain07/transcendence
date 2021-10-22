@@ -20,12 +20,6 @@ export class GlobalExceptionFilter
 		const res = ctx.getResponse<Response>();
 		const req = ctx.getRequest<Request>();
 
-		// Todo: Remove
-		console.log("--------------------------------------------------------");
-		console.log("App.filters.global: " + exception.constructor.name + "\n");
-		console.log(exception);
-		console.log("--------------------------------------------------------");
-
 		if (exception.code === 'EBADCSRFTOKEN')
 		{
 			res.status(403).json({

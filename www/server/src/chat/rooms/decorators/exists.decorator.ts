@@ -10,14 +10,8 @@ import { RoomsService } from '../services/rooms.service'
 @ValidatorConstraint({ async: true })
 @Injectable()
 export class ExistsRoomConstraint implements ValidatorConstraintInterface {
-  // -------------------------------------------------------------------------
-  // Constructor
-  // -------------------------------------------------------------------------
   constructor(private readonly rooms_svc: RoomsService) {}
 
-  // -------------------------------------------------------------------------
-  // Public methods
-  // -------------------------------------------------------------------------
   async validate(value: any, args: ValidationArguments): Promise<boolean> {
     const [attribute] = args.constraints
 
@@ -31,9 +25,6 @@ export class ExistsRoomConstraint implements ValidatorConstraintInterface {
   }
 }
 
-// -----------------------------------------------------------------------------
-// Decorator
-// -----------------------------------------------------------------------------
 export function Exists(
   attribute: string,
   validationOptions?: ValidationOptions,

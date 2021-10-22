@@ -128,8 +128,6 @@ export default defineComponent({
     // --- FETCH ---
     loadRoom(route?.params?.id)
 
-
-
     // --- COMPUTED ---
     const isPlayerWaiting = computed(() => {
       if (room?.value?.state == GameState.WAITING)
@@ -271,7 +269,7 @@ export default defineComponent({
     }
 
     // --- SOCKETS ---
-    const initListeners = (): void => { 
+    const initListeners = (): void => {
       gameRoomsSocket.on('connect', () => {
         joinRoom(route.params.id as string)
       })

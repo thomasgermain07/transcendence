@@ -12,9 +12,6 @@ import { Room }          from '../entities/room.entity'
 @Injectable()
 export class RoomsService
 {
-	// ---------------------------------------------------------------------------
-	// Constructor
-	// ---------------------------------------------------------------------------
 	constructor(
 		@InjectRepository(Room)
 		private readonly room_repo: Repository<Room>,
@@ -23,9 +20,6 @@ export class RoomsService
 
 	}
 
-	// ---------------------------------------------------------------------------
-	// Public methods
-	// ---------------------------------------------------------------------------
 	async create(
 		owner: User,
 		create_dto: CreateRoomDto,
@@ -126,9 +120,6 @@ export class RoomsService
 		return this.hashVerify(password, room.password);
 	}
 
-	// -------------------------------------------------------------------------
-	// Private methods
-	// -------------------------------------------------------------------------
 	private async hashSecure(
 		data: string,
 	)

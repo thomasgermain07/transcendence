@@ -32,7 +32,6 @@ export default {
     const starting = ref(true)
     const message = ref('Starting the application...')
 
-    // Csrf
     const { csrf } = useApp()
 
     const {
@@ -43,7 +42,6 @@ export default {
     } = useAuth()
 
     csrf().then(async () => {
-      // Authentication
       if (isPreviouslyAuthenticated()) {
         message.value = 'Recovering your session...'
         await refresh()

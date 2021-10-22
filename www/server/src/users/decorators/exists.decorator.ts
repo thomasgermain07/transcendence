@@ -10,14 +10,8 @@ import { UsersService } from '../services/users.service'
 @ValidatorConstraint({ async: true })
 @Injectable()
 export class ExistsUserConstraint implements ValidatorConstraintInterface {
-  // -------------------------------------------------------------------------
-  // Constructor
-  // -------------------------------------------------------------------------
   constructor(private readonly users_svc: UsersService) {}
 
-  // -------------------------------------------------------------------------
-  // Public methods
-  // -------------------------------------------------------------------------
   async validate(value: any, args: ValidationArguments): Promise<boolean> {
 		const [attribute] = args.constraints;
 		return !!(await this.users_svc.findOne({ [attribute]: value }));
@@ -28,9 +22,6 @@ export class ExistsUserConstraint implements ValidatorConstraintInterface {
   }
 }
 
-// -----------------------------------------------------------------------------
-// Decorator
-// -----------------------------------------------------------------------------
 export function Exists(attribute: string, validationOptions?: ValidationOptions) {
   return function (object: Object, propertyName: string) {
     registerDecorator({

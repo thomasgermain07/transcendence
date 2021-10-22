@@ -15,9 +15,6 @@ import CreateOptionDto from '../dto/create-option.dto'
 
 @Injectable()
 export class RoomsService {
-  // -------------------------------------------------------------------------
-  // Constructor
-  // -------------------------------------------------------------------------
 
   constructor(
     @InjectRepository(Room)
@@ -25,10 +22,6 @@ export class RoomsService {
     @InjectRepository(Option)
     private optionsRepository: Repository<Option>,
   ) {}
-
-  // -------------------------------------------------------------------------
-  // Public methods
-  // -------------------------------------------------------------------------
 
   public findAll(): Promise<Room[]> {
     return this.roomsRepository.find({
@@ -76,12 +69,10 @@ export class RoomsService {
     let room = await this.findByModeAndOptions(mode, user, options, range)
 
     if (!room) {
-      console.log('NO CORRESPONDING ROOM FOUND - CREATING NEW')
       let roomDto: CreateRoomDto = { mode }
       if (options) {
         roomDto.option = { ...options }
       }
-      console.log(roomDto)
       room = await this.createEmpty(roomDto)
     }
 
@@ -254,15 +245,10 @@ export class RoomsService {
     return room
   }
 
-  // -------------------------------------------------------------------------
-  // Private methods
-  // -------------------------------------------------------------------------
-
   private async createEmpty(createRoomDto: CreateRoomDto): Promise<Room> {
     // Init options: if no options in Dto, default values will be inserted
     const option = this.optionsRepository.create(createRoomDto?.option)
 
-    // Create room
     const room = this.roomsRepository.create({
       ...createRoomDto,
       option: option,

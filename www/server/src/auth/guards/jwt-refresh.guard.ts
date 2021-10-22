@@ -6,9 +6,6 @@ import { AuthGuard }             from "@nestjs/passport";
 export class JwtRefreshGuard
 	extends AuthGuard('jwt-refresh')
 {
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
 	handleRequest<User>(
 		error: any,
 		user: User,

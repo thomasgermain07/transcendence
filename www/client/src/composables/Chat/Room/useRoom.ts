@@ -19,9 +19,6 @@ import { AxiosErrType } from '@/composables/axios'
 import { useSocket } from '@/composables/socket'
 import { useChat } from '../useChat'
 
-// -----------------------------------------------------------------------------
-// Api usage
-// -----------------------------------------------------------------------------
 const { fetchRoom } = getFetchRoom()
 const { fetchMessages } = getFetchMessages()
 const { createMessage } = getCreateMessage()
@@ -31,9 +28,6 @@ const { deletePermission } = getDeletePermission()
 const { deleteSubscription } = getDeleteSubscription()
 const { deleteRoom } = getDeleteRoom()
 
-// -----------------------------------------------------------------------------
-// Constants
-// -----------------------------------------------------------------------------
 
 let roomData = reactive<RoomDataType>({
   room: undefined,
@@ -46,9 +40,6 @@ let roomData = reactive<RoomDataType>({
   open_setting: false,
 })
 
-// -----------------------------------------------------------------------------
-// Composable
-// -----------------------------------------------------------------------------
 export function useRoom() {
   const getData = async (id: number) => {
     try {
@@ -103,7 +94,6 @@ export function useRoom() {
     try {
       await deletePermission(userId, roomId)
     } catch (e) {
-      console.log(e)
     }
   }
 
@@ -145,7 +135,6 @@ export function useRoom() {
         type: 'success',
       })
     } catch (e) {
-      console.log(e)
     }
   }
 

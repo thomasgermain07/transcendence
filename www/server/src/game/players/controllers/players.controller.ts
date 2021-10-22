@@ -29,9 +29,6 @@ import { User } from 'src/users/entities/user.entity'
 @Controller('game/players')
 @UseInterceptors(ClassSerializerInterceptor)
 export class PlayersController {
-  // ---------------------------------------------------------------------------
-  // Constructor
-  // ---------------------------------------------------------------------------
   constructor(
     private readonly playersService: PlayersService,
     private readonly usersService: UsersService,
@@ -97,7 +94,6 @@ export class PlayersController {
     return this.playersService.findOne(playerForUpdate.id)
   }
 
-  // Delete player
   @Delete(':playerId')
   async removePlayer(
     @Param('playerId', ParseIntPipe) id: number,

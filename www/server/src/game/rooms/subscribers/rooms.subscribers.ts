@@ -4,7 +4,6 @@ import {
     EventSubscriber,
 		UpdateEvent,
   } from 'typeorm';
-  
 import { Room } from '../entities/room.entity';
 import { RoomsService } from '../services/rooms.service';
 import { Player } from 'src/game/players/entities/player.entity';
@@ -12,8 +11,6 @@ import { UsersService } from 'src/users/services/users.service';
 import { DifficultyLevel } from '../../enum/enum';
 import { AchievementsName } from 'src/users/entities/achievement.entity';
 
-
-    
   @EventSubscriber()
   export class RoomsSubscriber implements EntitySubscriberInterface<Room> {
     constructor(
@@ -24,22 +21,22 @@ import { AchievementsName } from 'src/users/entities/achievement.entity';
     ) {
       connection.subscribers.push(this);
     }
-  
+
     listenTo() {
       return Room;
 		}
-		
+
 		async afterUpdate(event: UpdateEvent<Room>) {
 			let player: Player;
 			const room: Room = await this.roomsService.findOne(event.entity.id);
 
-			if (event.entity.state 
+			if (event.entity.state
 				&& event.entity.state === "over"
 				&& room.mode != "private") {
 				let players: Player = await this.defenseAchievements(room, player)
 
 				await this.difficultyAchievements(players)
-			
+
 				await this.winneAcchivements(players);
 
 				await this.allTerrainAchievements(players)
@@ -47,19 +44,19 @@ import { AchievementsName } from 'src/users/entities/achievement.entity';
 				await this.doneAchievements(players)
 			}
 		}
-		
+
 		private async defenseAchievements(room: Room, player: Player): Promise<Player> {
 
 			if (room.players[0].winner) {
 				player = room.players[0];
 				if  (room.players[1].score == 0) {
-					await this.usersService.updateAchievements(player.user, AchievementsName.DEFENSE_MASTER) 
+					await this.usersService.updateAchievements(player.user, AchievementsName.DEFENSE_MASTER)
 				}
 			}
 			else {
 				player = room.players[1];
 				if  (room.players[0].score == 0) {
-					await this.usersService.updateAchievements(player.user, AchievementsName.DEFENSE_MASTER) 
+					await this.usersService.updateAchievements(player.user, AchievementsName.DEFENSE_MASTER)
 				}
 			}
 			return player
@@ -93,7 +90,7 @@ import { AchievementsName } from 'src/users/entities/achievement.entity';
 				case 100:
 					await this.usersService.updateAchievements(player.user, AchievementsName.HUNDRED_WINS)
 				break;
-				
+
 				case 200:
 					await this.usersService.updateAchievements(player.user, AchievementsName.TWO_HUNDRED_WINS)
 				break
@@ -112,5 +109,5 @@ import { AchievementsName } from 'src/users/entities/achievement.entity';
 				await this.usersService.updateAchievements(player.user, AchievementsName.DONE)
 			)
 		}
-  
+
   }

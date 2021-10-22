@@ -8,20 +8,16 @@ import { UsersModule } from 'src/users/users.module';
 
 @Module({
 	imports: [
-		// Database
 		TypeOrmModule.forFeature([Ignored]),
-		// Module
 		UsersModule,
 	],
 	controllers: [
 		IgnoredsController,
 	],
 	providers: [
-		// Services
 		IgnoredsService,
 	],
 	exports: [
-		// Services
 		IgnoredsService,
 	]
 })

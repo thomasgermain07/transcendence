@@ -128,7 +128,6 @@ export default {
     })
 
     return {
-      // Variables
       requests,
       ignored,
       searchQuery,
@@ -137,15 +136,12 @@ export default {
       showRequest,
       showIgnored,
       notification,
-      // Methods
       toggle_menu,
       loadData,
-      // Computed
       onlineFriends,
       offlineFriends,
       friendsByName,
 
-      // New
       chat_open,
       closeWindow,
       openChat,

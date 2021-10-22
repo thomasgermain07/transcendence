@@ -24,9 +24,6 @@ import { SubscriptionsService } from '../services/subscriptions.service'
 @UseGuards(JwtAuthGuard)
 @Controller('chat/subscriptions')
 export class SubscriptionsController {
-  // -------------------------------------------------------------------------
-  // Constructor
-  // -------------------------------------------------------------------------
   constructor(
     private readonly chat_svc: ChatService,
     private readonly rooms_svc: RoomsService,
@@ -34,9 +31,6 @@ export class SubscriptionsController {
     private readonly permissions_svc: PermissionsService,
   ) {}
 
-  // -------------------------------------------------------------------------
-  // Public methods
-  // -------------------------------------------------------------------------
   @Post()
   async create(
     @AuthUser() user: User,
@@ -53,12 +47,10 @@ export class SubscriptionsController {
         'You can not subscribe to your own room.',
       )
 
-		// Todo:
-		if (/* !user.is_admin &&  */!(await this.rooms_svc.verifyPassword(room, create_dto.password)))
+		if (!(await this.rooms_svc.verifyPassword(room, create_dto.password)))
 			throw new UnprocessableEntityException('Wrong password provided.')
 
-		// Todo:
-		if (/* !user.is_admin &&  */await this.chat_svc.hasPermission(user, room, PermissionType.BANNED))
+		if (await this.chat_svc.hasPermission(user, room, PermissionType.BANNED))
 			throw new ForbiddenException('You are banned from this room.')
 
     return (await this.subscriptions_svc.create(user, room)).room

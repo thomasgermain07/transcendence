@@ -6,7 +6,6 @@ export default function getFetchIgnored() {
       const { data } = await useAxios().axios.get('ignoreds')
       return data
     } catch (e) {
-      console.log(e)
     }
   }
 

@@ -6,7 +6,6 @@ export default function getFetchFriends() {
       const { data } = await useAxios().axios.get('friends')
       return data
     } catch (e) {
-      console.log(e)
     }
   }
 

@@ -8,9 +8,6 @@ import { Ignored } from '../entities/ignored.entity';
 @Injectable()
 export class IgnoredsService
 {
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
 	constructor(
 		@InjectRepository(Ignored)
 		private readonly ignoreds_repo: Repository<Ignored>,
@@ -19,9 +16,6 @@ export class IgnoredsService
 
 	}
 
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
 	async create(
 		user: User,
 		target: User,

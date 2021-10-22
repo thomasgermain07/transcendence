@@ -19,17 +19,11 @@ import { Friendship } from '../entities/friendship.entity'
 @Controller('friends')
 export class FriendshipsController
 {
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
 	constructor(
 		private readonly friendships_svc: FriendshipsService,
 		private readonly users_svc: UsersService,
 	) {}
 
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
 	@Post()
 	async create(
 		@AuthUser() user: User,

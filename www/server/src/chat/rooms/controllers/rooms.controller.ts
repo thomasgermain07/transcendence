@@ -17,9 +17,6 @@ import { Room }          from '../entities/room.entity';
 @Controller('chat/rooms')
 export class RoomsController
 {
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
 	constructor(
 		private readonly rooms_svc: RoomsService,
 		private readonly chat_svc: ChatService,
@@ -28,9 +25,6 @@ export class RoomsController
 
 	}
 
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
 	@Post()
 	async create(
 		@AuthUser() user: User,
@@ -52,10 +46,6 @@ export class RoomsController
 
 		if (related)
 			return rooms;
-
-		// Todo:
-		// if (user.is_admin)
-		// 	return this.rooms_svc.findNotIn(rooms);
 
 		return this.rooms_svc.findVisibleNotIn(rooms);
 	}
@@ -117,9 +107,6 @@ export class RoomsController
 		this.rooms_svc.remove(room);
 	}
 
-	// -------------------------------------------------------------------------
-	// Private methods
-	// -------------------------------------------------------------------------
 	private async canAccess(
 		user: User,
 		room: Room,

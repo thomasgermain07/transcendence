@@ -12,9 +12,7 @@ import { PermissionsModule } from '../permissions/permissions.module';
 
 @Module({
 	imports: [
-		// Database
 		TypeOrmModule.forFeature([Subscription]),
-		// Modules
 		UsersModule,
 		forwardRef(() => ChatModule),
 		RoomsModule,
@@ -24,11 +22,9 @@ import { PermissionsModule } from '../permissions/permissions.module';
 		SubscriptionsController,
 	],
 	providers: [
-		// Services
 		SubscriptionsService,
 	],
 	exports: [
-		// Services
 		SubscriptionsService,
 	]
 })

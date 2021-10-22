@@ -12,9 +12,6 @@ import { UsersService } from "../services/users.service";
 export class IsUniqueUserConstraint
 	implements ValidatorConstraintInterface
 {
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
 	constructor(
 		private readonly users_svc: UsersService,
 	)
@@ -22,9 +19,6 @@ export class IsUniqueUserConstraint
 
 	}
 
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
 	async validate(
 		value: any,
 		args: ValidationArguments,
@@ -48,9 +42,6 @@ export class IsUniqueUserConstraint
 
 }
 
-// -----------------------------------------------------------------------------
-// Decorator
-// -----------------------------------------------------------------------------
 export function IsUnique(
 	attribute: string,
 	validationOptions?: ValidationOptions,

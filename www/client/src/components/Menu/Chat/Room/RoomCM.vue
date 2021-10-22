@@ -92,7 +92,6 @@ export default {
           props.Room!.id as number,
         )
       } catch (e) {
-        console.log(e)
       }
     }
 
@@ -103,7 +102,6 @@ export default {
           props.Room!.id as number,
         )
       } catch (e) {
-        console.log(e)
       }
     }
 

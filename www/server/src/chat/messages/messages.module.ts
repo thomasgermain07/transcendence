@@ -13,9 +13,7 @@ import { ChatModule }         from '../chat.module';
 
 @Module({
 	imports: [
-		// Database
 		TypeOrmModule.forFeature([Message]),
-		// Modules
 		UsersModule,
 		forwardRef(() => ChatModule),
 		RoomsModule,
@@ -24,13 +22,10 @@ import { ChatModule }         from '../chat.module';
 		MessagesController,
 	],
 	providers: [
-		// Services
 		MessagesService,
-		// Subscribers
 		MessageSubscriber,
 	],
 	exports: [
-		// Services
 		MessagesService,
 	]
 })

@@ -15,9 +15,6 @@ import { AchievementsName } from '../entities/achievement.entity'
 
 @Injectable()
 export class UsersService {
-  // -------------------------------------------------------------------------
-  // Constructor
-  // -------------------------------------------------------------------------
   constructor(
     @InjectRepository(User)
     private readonly users_repo: Repository<User>,
@@ -25,9 +22,6 @@ export class UsersService {
     private achievementsRepository: Repository<Achievement>,
   ) {}
 
-  // -------------------------------------------------------------------------
-  // Public methods
-  // -------------------------------------------------------------------------
   async turnOnTwoFactorAuthentication(userId: number): Promise<void> {
     await this.users_repo.update(userId, {
       isTwoFactorAuthenticationEnabled: true,

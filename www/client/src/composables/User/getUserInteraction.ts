@@ -10,7 +10,6 @@ export default function getUserInteraction() {
       await axios.post('friends', { target_name: user.name })
       useSocket('user').socket.emit('join', { target_id: user.id })
     } catch (e) {
-      console.log(e)
     }
   }
 
@@ -19,7 +18,6 @@ export default function getUserInteraction() {
       await axios.delete(`friends/${user.id}`)
       useSocket('user').socket.emit('leave', { target_id: user.id })
     } catch (e) {
-      console.log(e)
     }
   }
 
@@ -28,7 +26,6 @@ export default function getUserInteraction() {
       await axios.post('ignoreds', { target_id: user.id })
       useSocket('user').socket.emit('leave', { target_id: user.id })
     } catch (e) {
-      console.log(e)
     }
   }
 
@@ -37,7 +34,6 @@ export default function getUserInteraction() {
       await axios.delete(`ignoreds/${user.id}`)
       useSocket('user').socket.emit('leave', { target_id: user.id })
     } catch (e) {
-      console.log(e)
     }
   }
 

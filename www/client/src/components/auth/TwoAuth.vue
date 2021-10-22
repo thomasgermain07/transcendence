@@ -78,12 +78,10 @@ export default defineComponent({
     )
 
     return {
-      // Datas
       messages,
       qrcode,
       qrcodeActive,
       user,
-      // Functions
       switchTwoFa,
       closeMessage,
     }

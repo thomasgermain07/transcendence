@@ -6,9 +6,6 @@ import Login               from "@/views/auth/Login.vue";
 import LoginMarvinCallback from "@/views/auth/LoginMarvinCallback.vue";
 import Logout              from "@/views/auth/Logout.vue";
 
-// -----------------------------------------------------------------------------
-// Routes
-// -----------------------------------------------------------------------------
 export const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/auth',

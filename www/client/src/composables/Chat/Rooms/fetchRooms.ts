@@ -8,7 +8,6 @@ export default function getFetchRooms() {
       })
       return data
     } catch (e) {
-      console.log(e)
     }
   }
 

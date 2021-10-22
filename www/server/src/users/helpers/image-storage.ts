@@ -51,6 +51,5 @@ export const removeFile = (fullFilePath: string): void => {
   try {
     fs.unlinkSync(fullFilePath)
   } catch (error) {
-    console.log(error)
   }
 }

@@ -13,9 +13,7 @@ import { PermissionsService } from './services/permissions.service'
 
 @Module({
   imports: [
-    // Database
     TypeOrmModule.forFeature([Permission]),
-    // Modules
     UsersModule,
     forwardRef(() => ChatModule),
     RoomsModule,
@@ -23,11 +21,9 @@ import { PermissionsService } from './services/permissions.service'
   ],
   controllers: [PermissionsController],
   providers: [
-    // Services
     PermissionsService,
   ],
   exports: [
-    // Services
     PermissionsService,
   ],
 })

@@ -6,7 +6,6 @@ import { IgnoredsModule } from "./ignoreds/ignoreds.module";
 
 @Module({
 	imports: [
-		// Modules
 		forwardRef(() => FriendshipsModule),
 		forwardRef(() => IgnoredsModule),
 	],

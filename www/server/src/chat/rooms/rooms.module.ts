@@ -12,9 +12,7 @@ import { ExistsRoomConstraint }   from './decorators/exists.decorator';
 
 @Module({
 	imports: [
-		// Database
 		TypeOrmModule.forFeature([Room]),
-		// Modules
 		UsersModule,
 		forwardRef(() => ChatModule),
 	],
@@ -22,16 +20,12 @@ import { ExistsRoomConstraint }   from './decorators/exists.decorator';
 		RoomsController,
 	],
 	providers: [
-		// Services
 		RoomsService,
-		// Constraints (Validation Decorator)
 		IsUniqueRoomConstraint,
 		ExistsRoomConstraint,
 	],
 	exports: [
-		// Services
 		RoomsService,
-		// Constraints (Validation Decorator)
 		IsUniqueRoomConstraint,
 		ExistsRoomConstraint,
 	]

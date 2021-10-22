@@ -262,7 +262,6 @@ export default defineComponent({
       ctx.closePath()
     }
 
-    // --- SOCKETS ---
     gameRoomsSocket.on('begin', (data: Game) => {
       initCanvas()
       player_left = data?.player_left

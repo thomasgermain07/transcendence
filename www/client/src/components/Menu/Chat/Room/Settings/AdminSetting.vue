@@ -88,7 +88,6 @@ export default {
         await useRoom().reloadRoom()
         emit('close')
       } catch (e) {
-        console.log(e)
       }
     }
 

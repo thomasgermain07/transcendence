@@ -6,9 +6,6 @@ import Duel from '@/views/game/Duel.vue'
 import Ladder from '@/views/game/Ladder.vue'
 import GameRoom from '@/views/game/GameRoom.vue'
 
-// -----------------------------------------------------------------------------
-// Routes
-// -----------------------------------------------------------------------------
 export const routes: Array<RouteRecordRaw> = [
   {
     path: '/game',

@@ -25,9 +25,6 @@ import { UserGateway } from '../../../users/gateways/user.gateway'
 @Controller('game/rooms')
 @UseInterceptors(ClassSerializerInterceptor)
 export class RoomsController {
-  // ---------------------------------------------------------------------------
-  // Constructor
-  // ---------------------------------------------------------------------------
   constructor(
     private readonly roomsService: RoomsService,
     private readonly playersService: PlayersService,

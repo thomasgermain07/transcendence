@@ -5,7 +5,6 @@ import { State } from "../gateways/game-rooms.gateway";
 import { Paddle } from "../gateways/paddle";
 import { GameMode } from "../enum/enum";
 
-
 export interface IMapPaddleState {
     x: number
     y: number
@@ -13,7 +12,7 @@ export interface IMapPaddleState {
     move: string
     speed: number
   }
-  
+
   export interface IGameState {
     status: string
     difficulty: string
@@ -24,9 +23,8 @@ export interface IMapPaddleState {
     count: number
     count_pause: number
     interval: ReturnType<typeof setInterval>
-  
   }
-  
+
   export interface IBallState {
     x: number
     y: number
@@ -36,7 +34,7 @@ export interface IMapPaddleState {
     yspeed: number
     last_touch_id: number
   }
-  
+
   export interface IBonusState {
     x: number
     y: number
@@ -45,16 +43,15 @@ export interface IMapPaddleState {
     exist: boolean
     time: number
   }
-  
+
   export interface IPlayerState {
     position: string
     is_ready: boolean
     paddle: IMapPaddleState
     addons_date: number,
   }
-  
+
   export interface IGameInfoState{
-  
     player_left: GamePlayer,
     player_right: GamePlayer,
     ball: Ball,
@@ -62,10 +59,8 @@ export interface IMapPaddleState {
     map_paddle: IMapPaddleState[],
     bonus: Bonus,
   }
-  
-  
+
   export class Game implements IGameInfoState {
-  
       player_left: GamePlayer;
       player_right: GamePlayer;
       ball: Ball;

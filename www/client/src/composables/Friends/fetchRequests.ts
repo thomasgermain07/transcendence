@@ -6,7 +6,6 @@ export default function getFetchRequests() {
       const { data } = await useAxios().axios.get('friends?pending=true')
       return data
     } catch (e) {
-      console.log(e)
     }
   }
 

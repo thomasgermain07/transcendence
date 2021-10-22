@@ -32,48 +32,32 @@ type JoinLeaveType = {
 export class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  // -------------------------------------------------------------------------
-  // Attributes
-  // -------------------------------------------------------------------------
   @WebSocketServer()
   private _server: Server
 
-  // -------------------------------------------------------------------------
-  // Interfaces implementations
-  // -------------------------------------------------------------------------
   constructor(
     private readonly chat_svc: ChatService,
     private readonly rooms_svc: RoomsService,
   ) {}
 
-  // -------------------------------------------------------------------------
-  // Interfaces implementations
-  // -------------------------------------------------------------------------
   afterInit(server: Server): void {
-    console.log(`Chat:Gateway: Initialized.`)
   }
 
   handleConnection(client: Socket, ...args: any[]): void {
-    console.log(`Chat:Gateway: Connection.`)
     if (!client.handshake?.headers?.cookie) {
       client.disconnect()
     }
   }
 
   handleDisconnect(client: Socket): void {
-    console.log(`Chat:Gateway: Disconnect.`)
   }
 
-  // -------------------------------------------------------------------------
-  // Public Methods
-  // -------------------------------------------------------------------------
   @SubscribeMessage('join')
   async handleJoin(
     @ConnectedSocket() client: Socket,
     @AuthUser() user: User,
     @MessageBody() data: JoinLeaveType,
   ): Promise<void> {
-    console.log(`Chat:Gateway: Join`)
 
     const room: Room = await this.rooms_svc.findOne({ id: data.room_id })
 
@@ -82,7 +66,6 @@ export class ChatGateway
       (!(await this.chat_svc.isSubscribed(user, room)) &&
         !(await this.chat_svc.isOwner(user, room)))
     ) {
-      console.log(`Chat:Gateway:Join: Error`)
       throw new WsException('You are not subscribed to this room.')
     }
 
@@ -90,8 +73,6 @@ export class ChatGateway
 
     client.join(room_name)
 
-    // Todo:
-    // if (!user.is_admin)
     this._server.to(room_name).emit('info', { type: 'join', username: user.name })
   }
 
@@ -101,46 +82,32 @@ export class ChatGateway
     @AuthUser() user: User,
     @MessageBody() data: JoinLeaveType,
   ): Promise<void> {
-    console.log(`Chat:Gateway: Leave`)
 
     const room_name: string = this.getRoomName(data.room_id)
 
     client.leave(room_name)
 
-    // Todo:
-    // if (!user.is_admin)
     this._server.to(room_name).emit('info', { type: 'leave', username: user.name })
-
-    console.log(`User ${user.id} left chat ${room_name}.`)
   }
 
   sendMessage(message: Message): void {
-    console.log(`Chat:Gateway: Message`)
-
     const room_name: string = this.getRoomName(message.room.id)
 
     this._server.to(room_name).emit('message', message)
   }
 
   setPermission(permission: Permission): void {
-    console.log(`Chat:Gateway:setPermission`)
-
     const room_name: string = this.getRoomName(permission.room.id)
 
     this._server.to(room_name).emit('set_permission', permission)
   }
 
   removePermission(permission: Permission): void {
-    console.log(`Chat:Gateway:removePermission`)
-
     const room_name: string = this.getRoomName(permission.room.id)
 
     this._server.to(room_name).emit('remove_permission', permission)
   }
 
-  // -------------------------------------------------------------------------
-  // Private Methods
-  // -------------------------------------------------------------------------
   private getRoomName(room_id: number): string {
     return `room_${room_id}`
   }

@@ -17,20 +17,16 @@ import { TwoFactorAuthenticationService } from './services/twoFactorAuthenticati
 
 @Module({
   imports: [
-    // Externs
     HttpModule,
     PassportModule,
     JwtModule.register({}),
-    // Modules
     UsersModule,
   ],
   controllers: [AuthController],
   providers: [
-    // Services
     AuthService,
     CookiesService,
     TwoFactorAuthenticationService,
-    // Strategies
     LocalStrategy,
     JwtAuthStrategy,
     JwtRefreshStrategy,
@@ -38,10 +34,8 @@ import { TwoFactorAuthenticationService } from './services/twoFactorAuthenticati
     WsJwtStrategy,
   ],
   exports: [
-    // Services
     AuthService,
     CookiesService,
-    // Strategies
     LocalStrategy,
     JwtAuthStrategy,
     JwtRefreshStrategy,

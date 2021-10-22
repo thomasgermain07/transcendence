@@ -13,9 +13,6 @@ export enum PermissionType {
 
 @Entity('chat_permissions')
 export class Permission {
-  // -------------------------------------------------------------------------
-  // Attributes
-  // -------------------------------------------------------------------------
   @ManyToOne(() => User, (user) => user.chat_permissions, {
     nullable: false,
     primary: true,

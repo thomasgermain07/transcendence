@@ -6,9 +6,6 @@ import { UsersService } from 'src/users/services/users.service';
 @Injectable()
 export class DMService
 {
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
 	constructor(
 		private readonly users_svc: UsersService,
 	)
@@ -16,9 +13,6 @@ export class DMService
 
 	}
 
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
 	async findRelatedUsers(
 		user: User
 	)

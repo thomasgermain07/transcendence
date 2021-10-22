@@ -8,7 +8,6 @@ export default function getFetchRoom() {
       const { data } = await axios.get(`chat/rooms/${id}`)
       return data
     } catch (e) {
-      console.log(e)
       throw e
     }
   }

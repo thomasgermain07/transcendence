@@ -31,9 +31,6 @@ import { ChatGateway } from 'src/chat/gateways/chat.gateway'
 @UseGuards(JwtAuthGuard)
 @Controller('chat/permissions')
 export class PermissionsController {
-  // -------------------------------------------------------------------------
-  // Constructor
-  // -------------------------------------------------------------------------
   constructor(
     private readonly chat_svc: ChatService,
     private readonly users_svc: UsersService,
@@ -43,9 +40,6 @@ export class PermissionsController {
     private readonly chat_gateway: ChatGateway,
   ) {}
 
-  // -------------------------------------------------------------------------
-  // Public methods
-  // -------------------------------------------------------------------------
   @Get('filter')
   async get(
     @AuthUser() user: User,

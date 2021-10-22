@@ -13,9 +13,6 @@ const ACCESS_SECRET: string = process.env.JWT_ACCESS_SECRET
 
 @Injectable()
 export class JwtAuthStrategy extends PassportStrategy(Strategy, 'jwt-auth') {
-  // -------------------------------------------------------------------------
-  // Constructor
-  // -------------------------------------------------------------------------
   constructor(private readonly auth_svc: AuthService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -27,9 +24,6 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy, 'jwt-auth') {
     })
   }
 
-  // -------------------------------------------------------------------------
-  // Public methods
-  // -------------------------------------------------------------------------
   async validate(payload: TokenPayload): Promise<User> {
     return this.auth_svc.authenticate({
       id: payload.user_id,

@@ -35,7 +35,6 @@ export default defineComponent({
     })
 
     return {
-      // Datas
       googleCode,
       message,
     }

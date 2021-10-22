@@ -9,14 +9,8 @@ import UpdatePlayerDto from '../dto/update-player.dto';
 import { GameState, GameMode } from 'src/game/enum/enum';
 import { RoomsService } from 'src/game/rooms/services/rooms.service';
 
-
-
 @Injectable()
 export class PlayersService {
-
-  // -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
 
   constructor(
     @InjectRepository(Player)
@@ -24,9 +18,6 @@ export class PlayersService {
     private roomsService: RoomsService,
   ) {}
 
-  // -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
 
   public async create(
     // createPlayerDto: CreatePlayerDto
@@ -48,7 +39,6 @@ export class PlayersService {
         player = await this.addPlayer(room, user)
       }
     } catch (error) {
-      console.log(error)
     }
 
     return player;
@@ -91,7 +81,6 @@ export class PlayersService {
     })
 		return player;
 	}
-
 
   public async update(id: number, playerDto: UpdatePlayerDto): Promise<Player> {
     const player = await this.playersRepository.save({
@@ -146,10 +135,6 @@ export class PlayersService {
 
     return userMatchHistory
   }
-
-  // -------------------------------------------------------------------------
-	// Private methods
-	// -------------------------------------------------------------------------
 
   private async addPlayer(
     room: Room,

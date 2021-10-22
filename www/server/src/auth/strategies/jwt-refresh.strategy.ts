@@ -15,9 +15,6 @@ const REFRESH_SECRET: string = process.env.JWT_REFRESH_SECRET;
 export class JwtRefreshStrategy
 	extends PassportStrategy(Strategy, 'jwt-refresh')
 {
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
 	constructor(
 		private readonly auth_svc: AuthService
 	)
@@ -33,9 +30,6 @@ export class JwtRefreshStrategy
 		})
 	}
 
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
 	async validate(
 		request: Request,
 		payload: TokenPayload

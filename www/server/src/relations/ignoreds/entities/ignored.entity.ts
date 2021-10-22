@@ -5,9 +5,6 @@ import { User } from 'src/users/entities/user.entity'
 
 @Entity('relations_ignoreds')
 export class Ignored {
-  // -------------------------------------------------------------------------
-  // Attributes
-  // -------------------------------------------------------------------------
   @ManyToOne(() => User, (user) => user.ignoreds, {
     nullable: false,
     eager: true,

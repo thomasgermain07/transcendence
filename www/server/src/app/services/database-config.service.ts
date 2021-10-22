@@ -21,7 +21,6 @@ export class DatabaseConfigService
 
 			synchronize: true,
 			autoLoadEntities: true,
-			// logging: true,
 		}
 	}
 

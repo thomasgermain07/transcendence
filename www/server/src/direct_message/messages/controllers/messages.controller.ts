@@ -20,9 +20,6 @@ import { MessagesService }  from '../services/messages.service';
 @Controller('dm/messages')
 export class MessagesController
 {
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
 	constructor(
 		private readonly users_svc: UsersService,
 		private readonly ignoreds_svc: IgnoredsService,
@@ -32,9 +29,6 @@ export class MessagesController
 
 	}
 
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
 	@Post()
 	async create(
 		@AuthUser() user: User,

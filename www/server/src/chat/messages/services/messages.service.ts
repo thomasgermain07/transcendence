@@ -10,17 +10,11 @@ import { Message } from '../entities/message.entity'
 
 @Injectable()
 export class MessagesService {
-  // -------------------------------------------------------------------------
-  // Constructor
-  // -------------------------------------------------------------------------
   constructor(
     @InjectRepository(Message)
     private readonly messages_repo: Repository<Message>,
   ) {}
 
-  // -------------------------------------------------------------------------
-  // Public methods
-  // -------------------------------------------------------------------------
   create(
     author: User,
     room: Room,

@@ -6,16 +6,10 @@ import { Type } from 'class-transformer'
 import { IsUnique } from '../decorators/is-unique.decorator'
 import CreateAchievementDto from './create-achievement.dto'
 export class CreateUserDto {
-  // -------------------------------------------------------------------------
-  // Attributes
-  // -------------------------------------------------------------------------
-  // Todo:
-  // @IsUnique('email')
   @IsEmail()
   public email: string
 
   @IsUnique('name')
-  // Todo:
   @Matches(/^\w+$/, {
     message:
       'Name can only contains letters (a-z, A-Z), numbers (0-9) and underscore (_).',
@@ -28,9 +22,6 @@ export class CreateUserDto {
   @IsOptional()
   public avatar?: string
 
-  // -------------------------------------------------------------------------
-  // Authentication
-  // -------------------------------------------------------------------------
   @Length(6)
   @IsString()
   @IsOptional()

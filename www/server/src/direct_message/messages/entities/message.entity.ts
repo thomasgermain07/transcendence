@@ -7,9 +7,6 @@ import { User } from 'src/users/entities/user.entity';
 @Entity('dm_messages')
 export class Message
 {
-	// -------------------------------------------------------------------------
-	// Attributes
-	// -------------------------------------------------------------------------
 	@PrimaryGeneratedColumn()
 	public id: number;
 

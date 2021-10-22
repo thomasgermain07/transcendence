@@ -91,9 +91,6 @@ export class GameRoomsGateway
     private userService: UsersService,
   ) {}
 
-  // -------------------------------------------------------------------------
-  // Interfaces implementations
-  // -------------------------------------------------------------------------
   afterInit(server: Server): void {
     console.log(`GameRoom:Gateway: Initialized.`)
   }
@@ -665,7 +662,6 @@ export class GameRoomsGateway
     )
     this.server.emit('updateWatchRoomInClient', { rooms: rooms })
   }
-
 
   async setLadderLevel(roomName: string): Promise<void> {
 

@@ -24,9 +24,6 @@ const ACCESS_SECRET: string = process.env.JWT_ACCESS_SECRET
 
 @Injectable()
 export class WsJwtStrategy extends PassportStrategy(Strategy, 'ws-jwt') {
-  // -------------------------------------------------------------------------
-  // Constructor
-  // -------------------------------------------------------------------------
   constructor(private readonly auth_svc: AuthService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -41,9 +38,6 @@ export class WsJwtStrategy extends PassportStrategy(Strategy, 'ws-jwt') {
     })
   }
 
-  // -------------------------------------------------------------------------
-  // Public methods
-  // -------------------------------------------------------------------------
   async validate(request: any, payload: TokenPayload): Promise<User> {
     if (request['user']) {
       const cookies: any = tokenizeCookies(request.handshake.headers.cookie)

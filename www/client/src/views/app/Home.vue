@@ -159,7 +159,6 @@ h1 {
   margin: auto;
 }
 
-
 .user-edit {
   position: fixed;
   top: 50%;

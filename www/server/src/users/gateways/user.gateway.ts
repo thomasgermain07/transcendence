@@ -34,30 +34,19 @@ type SetStatusType = {
 export class UserGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  // -------------------------------------------------------------------------
-  // Attributes
-  // -------------------------------------------------------------------------
   @WebSocketServer()
   private _server: Server
 
-  // -------------------------------------------------------------------------
-  // Interfaces implementations
-  // -------------------------------------------------------------------------
   constructor(
     private readonly users_svc: UsersService,
     private readonly friendships_svc: FriendshipsService,
     private readonly players_svc: PlayersService,
   ) {}
 
-  // -------------------------------------------------------------------------
-  // Interfaces implementations
-  // -------------------------------------------------------------------------
   afterInit(server: Server): void {
-    console.log(`User:Gateway: Initialized.`)
   }
 
   handleConnection(client: Socket, ...args: any[]): void {
-    console.log('User:Gateway:Connection')
     if (!client.handshake?.headers?.cookie) {
       client.disconnect()
     }
@@ -73,24 +62,18 @@ export class UserGateway
       this.handleSetStatus(user, { status: 'disconnected' })
     }
 
-    console.log('User:Gateway:Disconnect')
   }
 
-  // -------------------------------------------------------------------------
-  // Public Methods
-  // -------------------------------------------------------------------------
   @SubscribeMessage('join')
   async handleJoin(
     @ConnectedSocket() client: Socket,
     @AuthUser() user: User,
     @MessageBody() data: JoinLeaveType,
   ): Promise<void> {
-    console.log(`User:Gateway: Join`)
 
     const target: User = await this.users_svc.findOne({ id: data.target_id })
 
     if (!target) {
-      console.log(`User:Gateway:Join: Error target not found.`)
       throw new WsException('Target not found.')
     }
 
@@ -101,7 +84,6 @@ export class UserGateway
         friendship.user.id === target.id || friendship.target.id === target.id,
     )
     if (user.id != target.id && !is_friend) {
-      console.log(`User:Gateway:Join: Error target is not a friend.`)
       throw new WsException('You cannot listen to this user.')
     }
 
@@ -114,7 +96,6 @@ export class UserGateway
 
     if (user.id === target.id) this.handleSetStatus(user, { status: status })
 
-    console.log(`User ${user.id} joined ${room_name}.`)
   }
 
   @SubscribeMessage('leave')
@@ -123,13 +104,11 @@ export class UserGateway
     @AuthUser() user: User,
     @MessageBody() data: JoinLeaveType,
   ): Promise<void> {
-    console.log(`User:Gateway: Leave`)
 
     const room_name: string = this.getRoomName(data.target_id)
 
     client.leave(room_name)
 
-    console.log(`User ${user.id} left ${room_name}.`)
   }
 
   @SubscribeMessage('set_status')
@@ -137,7 +116,6 @@ export class UserGateway
     @AuthUser() user: User,
     @MessageBody() data: SetStatusType,
   ): Promise<void> {
-    console.log(`User:Gateway: Set status`)
 
     const room_name: string = this.getRoomName(user.id)
 
@@ -148,12 +126,8 @@ export class UserGateway
 
     await this.users_svc.updateStatus(user, data.status)
 
-    console.log(`User ${user.id} set status to ${data.status}.`)
   }
 
-  // -------------------------------------------------------------------------
-  // Private Methods
-  // -------------------------------------------------------------------------
   private getRoomName(target_id: number): string {
     return `user_${target_id}`
   }

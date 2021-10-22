@@ -18,9 +18,6 @@ const CALLBACK_URL  = process.env.VITE_FT_CALLBACK_URL;
 export class OAuthMarvinStrategy
 	extends PassportStrategy(Strategy, 'oauth-marvin')
 {
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
 	constructor(
 		private readonly http_svc: HttpService,
 		private readonly auth_svc: AuthService,
@@ -42,9 +39,6 @@ export class OAuthMarvinStrategy
 		})
 	}
 
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
 	async validate(
 		access_token: string,
 	)
@@ -74,10 +68,6 @@ export class OAuthMarvinStrategy
 		return this.auth_svc.register(create_dto);
 	}
 
-
-	// -------------------------------------------------------------------------
-	// Private methods
-	// -------------------------------------------------------------------------
 	private async getUniqueName(
 		login: string,
 	)

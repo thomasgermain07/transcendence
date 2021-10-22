@@ -20,7 +20,6 @@
 			url.searchParams.set('response_type', 'code');
 
 			return {
-				// Datas
 				url: url.toString()
 			};
 		},

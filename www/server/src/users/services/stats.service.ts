@@ -7,24 +7,15 @@ import { GameMode } 						  from 'src/game/enum/enum'
 import { GameLeaderboard }                    from '../types/game-leaderboard'
 import { GameStatsPerMode, GameStatsTotal }   from '../types/game-stats'
 
-
 @Injectable()
 export class StatsService
 {
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
 	constructor(
 		@InjectRepository(User)
 		private usersRepository: Repository<User>,
 	)
 	{
-
 	}
-
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
 
 	public async getLeaderboard(
         offset?: number,
@@ -38,7 +29,7 @@ export class StatsService
 			.offset(offset)
 			.limit(limit)
 			.getRawMany()
-		
+
         leaderboard.forEach((user: any) => {
             user.rank = parseInt(user.rank)
         });
@@ -61,11 +52,6 @@ export class StatsService
 		}
 	}
 
-
-	// -------------------------------------------------------------------------
-	// Private methods
-	// -------------------------------------------------------------------------
-	
 	private async getStatsPerMode(
 		userId : number
 	)

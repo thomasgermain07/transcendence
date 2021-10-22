@@ -11,7 +11,6 @@ export default function getInvitationInteraction() {
       let { data } = await axios.get(`users/${id}/game-invite-pending`)
       return data
     } catch (e) {
-      console.log(e)
     }
   }
 
@@ -20,7 +19,6 @@ export default function getInvitationInteraction() {
       let { data } = await axios.get(`game/players/checkIfInGameOrQueue/${id}`)
       return data
     } catch (e) {
-      console.log(e)
     }
   }
 
@@ -44,7 +42,6 @@ export default function getInvitationInteraction() {
     try {
       await axios.post('dm/cancel-invitation')
     } catch (e) {
-      console.log(e)
     }
   }
 

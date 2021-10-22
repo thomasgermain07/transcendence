@@ -16,18 +16,8 @@ import { useAuth } from './auth'
 
 import { useGameInvite } from './Game/useGameInvite'
 
-// -----------------------------------------------------------------------------
-// Api usage
-// -----------------------------------------------------------------------------
 const { removeFriend, blockUser, unblockUser } = getUserInteraction()
 
-// -----------------------------------------------------------------------------
-// Constants
-// -----------------------------------------------------------------------------
-
-// -----------------------------------------------------------------------------
-// Composable
-// -----------------------------------------------------------------------------
 export function useContextMenu() {
   const onProfile = (user: UserType) => {
     if (user != undefined) {
@@ -90,7 +80,6 @@ export function useContextMenu() {
     try {
       await useRoom().setPermission(permission)
     } catch (e) {
-      console.log(e)
     }
   }
 
@@ -98,7 +87,6 @@ export function useContextMenu() {
     try {
       await useRoom().revokePermission(user.id, roomId)
     } catch (e) {
-      console.log(e)
     }
   }
 
@@ -113,7 +101,6 @@ export function useContextMenu() {
     try {
       await useRoom().setPermission(permission)
     } catch (e) {
-      console.log(e)
     }
   }
 
@@ -128,7 +115,6 @@ export function useContextMenu() {
     try {
       await useRoom().setPermission(permission)
     } catch (e) {
-      console.log(e)
     }
   }
 
@@ -136,7 +122,6 @@ export function useContextMenu() {
     try {
       await useRoom().revokePermission(userId, roomId)
     } catch (e) {
-      console.log(e)
     }
   }
 

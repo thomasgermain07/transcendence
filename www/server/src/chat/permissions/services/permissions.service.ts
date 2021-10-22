@@ -10,17 +10,11 @@ import { Permission, PermissionType } from '../entities/permission.entity'
 
 @Injectable()
 export class PermissionsService {
-  // -------------------------------------------------------------------------
-  // Constructor
-  // -------------------------------------------------------------------------
   constructor(
     @InjectRepository(Permission)
     private readonly permission_repo: Repository<Permission>,
   ) {}
 
-  // -------------------------------------------------------------------------
-  // Public methods
-  // -------------------------------------------------------------------------
   async create(
     user: User,
     room: Room,

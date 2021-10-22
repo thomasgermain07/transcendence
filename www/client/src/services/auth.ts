@@ -2,11 +2,8 @@ import { RegisterType } from '@/composables/auth'
 import { LoginType } from '@/composables/auth'
 import { AxiosResType } from '@/composables/axios'
 import { useAxios } from '@/composables/axios'
-import { EditType, GoogleAuthType } from '../composables/auth'
+import { GoogleAuthType } from '../composables/auth'
 
-// -----------------------------------------------------------------------------
-// Functions
-// -----------------------------------------------------------------------------
 async function register(payload: RegisterType): Promise<AxiosResType> {
   const { axios } = useAxios()
 
@@ -71,9 +68,6 @@ async function verifyCode(code: GoogleAuthType): Promise<AxiosResType> {
   return await axios.post(url, code)
 }
 
-// -----------------------------------------------------------------------------
-// Exports
-// -----------------------------------------------------------------------------
 export const AuthService = Object.freeze({
   register,
   login,

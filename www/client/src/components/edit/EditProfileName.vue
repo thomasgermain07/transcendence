@@ -82,10 +82,8 @@ export default defineComponent({
     }
 
     return {
-      // Datas
       messages,
       user_update,
-      // Functions
       submit,
     }
   },

@@ -105,9 +105,6 @@ export const defaultAchievements = [
 
 @Entity()
 export class Achievement {
-  // -------------------------------------------------------------------------
-  // Attributes
-  // -------------------------------------------------------------------------
   @PrimaryGeneratedColumn()
   public id: number
 

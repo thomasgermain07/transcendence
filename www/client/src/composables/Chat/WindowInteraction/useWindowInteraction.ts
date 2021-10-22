@@ -3,10 +3,6 @@ import { ref } from 'vue'
 import { UserType } from '@/types/user/user'
 import { RoomType } from '@/types/chat/room'
 
-// -----------------------------------------------------------------------------
-// Constants
-// -----------------------------------------------------------------------------
-
 let window_open = ref(false)
 let chat_open = ref(false)
 let notification = ref(false)
@@ -15,10 +11,6 @@ let chat_view = ref('')
 let conv_id = ref(0)
 
 let page_title = ref('')
-
-// -----------------------------------------------------------------------------
-// Composable
-// -----------------------------------------------------------------------------
 
 export function useWindowInteraction() {
   const openWindow = () => {

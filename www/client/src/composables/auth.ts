@@ -10,16 +10,10 @@ import { UserType, UserUpdateType } from '../types/user/user'
 import { useSocket } from './socket'
 import { useGameInvite } from './Game/useGameInvite'
 
-// -----------------------------------------------------------------------------
-// Constants
-// -----------------------------------------------------------------------------
 const EXPIRATION = parseInt(import.meta.env.VITE_JWT_ACCESS_LIFETIME)
 const TIMEOUT = Math.max(10, EXPIRATION - (EXPIRATION > 600 ? 300 : 30))
 const namespaces = ['user', 'dm', 'chat', 'matchmaker', 'game-rooms']
 
-// -----------------------------------------------------------------------------
-// Types
-// -----------------------------------------------------------------------------
 export type RegisterType = {
   name: string
   email: string
@@ -37,9 +31,6 @@ export type GoogleAuthType = {
   user_id: number
 }
 
-// -------------------------------------------------------------------------
-// State
-// -------------------------------------------------------------------------
 const user = reactive<UserType>({
   id: 0,
   name: '',
@@ -57,23 +48,14 @@ const googleCode = reactive<GoogleAuthType>({
   user_id: 0,
   code: '',
 })
-// -----------------------------------------------------------------------------
-// Composable
-// -----------------------------------------------------------------------------
+
 export function useAuth() {
-  // -------------------------------------------------------------------------
-  // Functions
-  // -------------------------------------------------------------------------
   async function register(payload: RegisterType): Promise<void> {
     try {
       const res = await AuthService.register(payload)
 
-      console.log('useAuth.register: Done.')
-
       router.push({ name: 'auth-register' })
     } catch (err: AxiosErrType) {
-      console.log('useAuth.register: Fail.')
-
       throw err
     }
 
@@ -84,8 +66,6 @@ export function useAuth() {
     try {
       const res = await AuthService.login(payload)
 
-      console.log('useAuth.login: Done.')
-
       if (!res.data || !res.data.two_factor_enabled) {
         const { users, get } = useUsers()
         await get()
@@ -97,8 +77,6 @@ export function useAuth() {
         googleCode.visible = true
       }
     } catch (err: AxiosErrType) {
-      console.log('useAuth.login: Fail.')
-
       throw err
     }
 
@@ -109,8 +87,6 @@ export function useAuth() {
     try {
       const res = await AuthService.loginMarvin(code)
 
-      console.log('useAuth.loginMarvin: Done.')
-
       if (!res.data || !res.data.two_factor_enabled) {
         const { users, get } = useUsers()
         await get()
@@ -122,8 +98,6 @@ export function useAuth() {
         googleCode.visible = true
       }
     } catch (err: AxiosErrType) {
-      console.log('useAuth.loginMarvin: Fail.')
-
       throw err
     }
 
@@ -133,8 +107,6 @@ export function useAuth() {
   async function refresh(): Promise<void> {
     try {
       const res = await AuthService.refresh()
-
-      console.log('useAuth.refresh: Done.')
 
       if (!is_authenticated.value) {
         const { users, get } = useUsers()
@@ -146,8 +118,6 @@ export function useAuth() {
 
       setAuthenticated(true)
     } catch (err: AxiosErrType) {
-      console.log('useAuth.refresh: Fail.')
-
       logout(true)
       return
     }
@@ -167,14 +137,10 @@ export function useAuth() {
     if (!soft) {
       try {
         const res = await AuthService.logout()
-
-        console.log('useAuth.logout: (Hard) Done.')
       } catch (err: AxiosErrType) {
-        console.log('useAuth.logout: (Hard) Fail.')
+
       }
     }
-
-    console.log('useAuth.logout: (Soft) Done.')
 
     setUser()
     setAuthenticated(false)
@@ -197,10 +163,7 @@ export function useAuth() {
         await get()
         setUser(users.value)
       }
-      console.log('useAuth.editing: Done.')
     } catch (err: AxiosErrType) {
-      console.log('useAuth.editing: Fail.')
-
       throw err
     }
 
@@ -215,12 +178,8 @@ export function useAuth() {
         await get()
         setUser(users.value)
       }
-      console.log('useAuth.activate2fa: Done.')
-
       return res
     } catch (err: AxiosErrType) {
-      console.log('useAuth.activate2Fa: Fail.')
-
       throw err
     }
   }
@@ -233,12 +192,8 @@ export function useAuth() {
         await get()
         setUser(users.value)
       }
-      console.log('useAuth.deactivate2fa: Done.')
-
       return res
     } catch (err: AxiosErrType) {
-      console.log('useAuth.deactivate2Fa: Fail.')
-
       throw err
     }
   }
@@ -251,14 +206,11 @@ export function useAuth() {
 
       await get()
 
-      console.log('useAuth.verifyCode: Done.')
       setUser(users.value)
       setAuthenticated(true)
       router.replace({ name: 'index' })
       return res
     } catch (err: AxiosErrType) {
-      console.log('useAuth.verifyCode: Fail.')
-
       throw err
     }
   }
@@ -267,17 +219,10 @@ export function useAuth() {
     return localStorage.getItem('auth') === true.toString()
   }
 
-  // -------------------------------------------------------------------------
-  // Exposes
-  // -------------------------------------------------------------------------
   return {
-    // State
     user: readonly(user),
     is_authenticated,
     googleCode,
-    // Datas
-
-    // Functions
     register,
     login,
     loginMarvin,
@@ -292,9 +237,6 @@ export function useAuth() {
   }
 }
 
-// -----------------------------------------------------------------------------
-// Private functions
-// -----------------------------------------------------------------------------
 function setAuthenticated(authenticated: boolean): void {
   localStorage.setItem('auth', authenticated.toString())
 }

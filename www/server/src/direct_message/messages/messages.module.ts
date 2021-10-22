@@ -13,9 +13,7 @@ import { IgnoredsModule } from 'src/relations/ignoreds/ignoreds.module';
 
 @Module({
 	imports: [
-		// Database
 		TypeOrmModule.forFeature([Message]),
-		// Modules
 		UsersModule,
 		forwardRef(() => DMModule),
 		forwardRef(() => IgnoredsModule),
@@ -24,13 +22,10 @@ import { IgnoredsModule } from 'src/relations/ignoreds/ignoreds.module';
 		MessagesController,
 	],
 	providers: [
-		// Services
 		MessagesService,
-		// Subscribers
 		MessageSubscriber,
 	],
 	exports: [
-		// Services
 		MessagesService,
 	]
 })

@@ -22,10 +22,7 @@ export class User {
   @PrimaryGeneratedColumn()
   public id: number
 
-  @Column({
-    // Todo:
-    // unique: true,
-  })
+  @Column()
   public email: string
 
   @Column({
@@ -37,13 +34,6 @@ export class User {
     default: 'http://localhost:8080/no-avatar.png',
   })
   public avatar: string
-
-  // Todo:
-  // @Column({
-  //   nullable: true,
-  //   default: false,
-  // })
-  // public is_admin: boolean
 
   @Column({
     default: false,

@@ -53,10 +53,8 @@ export default defineComponent({
     }
 
     return {
-      // Datas
       google,
       message,
-      // Functions
       submit,
       closeWindow,
     }

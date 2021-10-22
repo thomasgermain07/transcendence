@@ -11,7 +11,6 @@ import { PermissionsModule }   from './permissions/permissions.module';
 
 @Module({
 	imports: [
-		// Modules
 		forwardRef(() => RoomsModule),
 		forwardRef(() => MessagesModule),
 		forwardRef(() => SubscriptionsModule),
@@ -19,15 +18,11 @@ import { PermissionsModule }   from './permissions/permissions.module';
 	],
 	controllers: [],
 	providers: [
-		// Services
 		ChatService,
-		// Gateways
 		ChatGateway,
 	],
 	exports: [
-		// Services
 		ChatService,
-		// Gateways
 		ChatGateway,
 	]
 })

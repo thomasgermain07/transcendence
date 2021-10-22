@@ -7,9 +7,6 @@ import { Room } from 'src/chat/rooms/entities/room.entity'
 
 @Entity('chat_messages')
 export class Message {
-  // -------------------------------------------------------------------------
-  // Attributes
-  // -------------------------------------------------------------------------
   @PrimaryGeneratedColumn()
   public id: number
 

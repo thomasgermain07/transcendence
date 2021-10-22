@@ -11,7 +11,6 @@ import { PlayerSubscriber }  from './subscribers/players.subscribers';
 import { PlayersService }    from './services/players.service';
 import { RemoveInactiveService } from './services/remove-inactive.service';
 
-
 @Module({
   imports: [
     TypeOrmModule.forFeature([Player]),

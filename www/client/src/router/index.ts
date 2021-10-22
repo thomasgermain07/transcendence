@@ -11,9 +11,6 @@ import { routes as users_routes } from './modules/users.routes'
 import { routes as game_routes } from './modules/game.routes'
 import { routes as error_routes } from './modules/error.routes'
 
-// -----------------------------------------------------------------------------
-// Routes
-// -----------------------------------------------------------------------------
 const routes: Array<RouteRecordRaw> = [
   ...app_routes,
   ...auth_routes,
@@ -22,17 +19,11 @@ const routes: Array<RouteRecordRaw> = [
   ...error_routes,
 ]
 
-// -----------------------------------------------------------------------------
-// Router
-// -----------------------------------------------------------------------------
 export const router: Router = createRouter({
   history: createWebHistory(),
   routes: routes,
 })
 
-// -----------------------------------------------------------------------------
-// Hooks
-// -----------------------------------------------------------------------------
 router.beforeEach((to, from, next) => {
   const { isPreviouslyAuthenticated } = useAuth()
   const not_authenticated_required: boolean = [

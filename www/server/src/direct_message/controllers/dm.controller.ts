@@ -25,9 +25,6 @@ import { IgnoredsService } from '../../relations/ignoreds/services/ignoreds.serv
 @UseGuards(JwtAuthGuard)
 @Controller('dm')
 export class DMController {
-  // -------------------------------------------------------------------------
-  // Constructor
-  // -------------------------------------------------------------------------
   constructor(
     private readonly dm_svc: DMService,
     private readonly dm_gtw: DMGateway,
@@ -37,9 +34,6 @@ export class DMController {
     private readonly ignoreds_svc: IgnoredsService,
   ) {}
 
-  // -------------------------------------------------------------------------
-  // Public methods
-  // -------------------------------------------------------------------------
   @Get('users')
   async findRelatedUsers(@AuthUser() user: User): Promise<User[]> {
     return this.dm_svc.findRelatedUsers(user)

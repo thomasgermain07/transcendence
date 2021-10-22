@@ -6,9 +6,6 @@ import { AuthGuard }             from "@nestjs/passport";
 export class OAuthMarvinGuard
 	extends AuthGuard('oauth-marvin')
 {
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
 	handleRequest<User>(
 		error: any,
 		user: User,

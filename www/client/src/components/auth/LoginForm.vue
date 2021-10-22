@@ -66,11 +66,9 @@ export default defineComponent({
     )
 
     return {
-      // Datas
       credentials,
       message,
       googleCode,
-      // Functions
       submit,
     }
   },

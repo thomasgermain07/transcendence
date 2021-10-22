@@ -6,7 +6,6 @@ export default function getFetchUsers() {
       let { data } = await useAxios().axios.get('dm/users')
       return data
     } catch (e) {
-      console.log(e)
     }
   }
 

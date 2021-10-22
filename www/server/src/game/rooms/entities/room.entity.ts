@@ -8,8 +8,6 @@ import { GameState, GameMode } from '../../enum/enum'
 
 @Entity({ name: 'game_room'})
 export class Room {
-//   @PrimaryGeneratedColumn('uuid')
-//   id: string;
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -37,7 +35,6 @@ export class Room {
   option: Option;
 
   @OneToMany(() => Player, player => player.room, {
-    // cascade: true,
     eager: true,
   })
   players: Player[];

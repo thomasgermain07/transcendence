@@ -18,34 +18,25 @@ import { GameModule } from 'src/game/game.module'
 
 @Module({
   imports: [
-    // Database
     TypeOrmModule.forFeature([User, Achievement, Room, Option, Player]),
-    // Modules
     forwardRef(() => FriendshipsModule),
     forwardRef(() => GameModule),
   ],
   controllers: [
-    // Controllers
     UsersController,
   ],
   providers: [
-    // Gateway
     UserGateway,
-    // Services
     UsersService,
     StatsService,
-    // Decorators
     IsUniqueUserConstraint,
     ExistsUserConstraint,
     //Subscribers
     UsersSubscriber,
   ],
   exports: [
-    // Gateway
     UserGateway,
-    // Services
     UsersService,
-    // Decorators
     IsUniqueUserConstraint,
     ExistsUserConstraint,
   ],

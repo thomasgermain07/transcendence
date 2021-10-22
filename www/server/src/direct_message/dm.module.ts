@@ -12,7 +12,6 @@ import { IgnoredsModule } from 'src/relations/ignoreds/ignoreds.module'
 
 @Module({
   imports: [
-    // Modules
     UsersModule,
     MessagesModule,
     IgnoredsModule,
@@ -21,15 +20,11 @@ import { IgnoredsModule } from 'src/relations/ignoreds/ignoreds.module'
   ],
   controllers: [DMController],
   providers: [
-    // Services
     DMService,
-    // Gateways
     DMGateway,
   ],
   exports: [
-    // Services
     DMService,
-    // Gateways
     DMGateway,
   ],
 })

@@ -4,7 +4,6 @@ import { Type } from 'class-transformer';
 import CreateOptionDto from "./create-option.dto";
 import { GameMode } from '../../enum/enum';
 
-
 export class CreateRoomDto {
 
     @IsNotEmpty()

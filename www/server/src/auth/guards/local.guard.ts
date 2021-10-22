@@ -6,9 +6,6 @@ import { AuthGuard }             from "@nestjs/passport";
 export class LocalGuard
 	extends AuthGuard('local')
 {
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
 	handleRequest<User>(
 		error: any,
 		user: User,

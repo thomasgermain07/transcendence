@@ -38,22 +38,16 @@ export class MatchmakerGateway
     private readonly playerService: PlayersService,
   ) {}
 
-  // -------------------------------------------------------------------------
-  // Interfaces implementations
-  // -------------------------------------------------------------------------
   afterInit(server: Server): void {
-    console.log(`Matchmaker:Gateway: Initialized.`)
   }
 
   handleConnection(client: Socket, ...args: any[]): void {
-    console.log(`Matchmaker:Gateway: Connection.`)
     if (!client.handshake?.headers?.cookie) {
       client.disconnect()
     }
   }
 
   handleDisconnect(client: Socket): void {
-    console.log(`Matchmaker:Gateway: Disconnect.`)
   }
 
   @SubscribeMessage('joinLobbyInServer')

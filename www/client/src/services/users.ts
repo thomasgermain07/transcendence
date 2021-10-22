@@ -3,9 +3,6 @@ import { useAxios }     from "@/composables/axios";
 
 import { UserUpdateType } from "@/types/user/user"
 
-// -----------------------------------------------------------------------------
-// Functions
-// -----------------------------------------------------------------------------
 async function get(
 	id: number | undefined = undefined,
 )
@@ -31,9 +28,6 @@ async function edit(
 	return await axios.patch(url, payload)
 }
 
-// -----------------------------------------------------------------------------
-// Exports
-// -----------------------------------------------------------------------------
 export const UsersService = Object.freeze({
 	get,
 	edit,

@@ -9,9 +9,6 @@ import { Friendship } from "../entities/friendship.entity";
 @Injectable()
 export class FriendshipsService
 {
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
 	constructor(
 		@InjectRepository(Friendship)
 		private readonly frienships_repo: Repository<Friendship>,
@@ -20,9 +17,6 @@ export class FriendshipsService
 
 	}
 
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
 	async create(
 		user: User,
 		target: User,

@@ -10,23 +10,14 @@ import getFetchFriends from './fetchFriends'
 import getFetchIgnored from '../Ignored/fetchIgnored'
 import getFetchRequests from './fetchRequests'
 
-// -----------------------------------------------------------------------------
-// Api usage
-// -----------------------------------------------------------------------------
 const { fetchFriends } = getFetchFriends()
 const { fetchIgnored } = getFetchIgnored()
 const { fetchRequests } = getFetchRequests()
 
-// -----------------------------------------------------------------------------
-// Constants
-// -----------------------------------------------------------------------------
 const friendsList = ref<FriendType[]>([])
 const ignoredList = ref<FriendType[]>([])
 const requestsList = ref<FriendType[]>([])
 
-// -----------------------------------------------------------------------------
-// Composable
-// -----------------------------------------------------------------------------
 export function useFriends() {
   let me = useAuth().user
 

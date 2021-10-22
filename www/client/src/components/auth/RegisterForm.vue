@@ -55,10 +55,8 @@
 			};
 
 			return {
-				// Datas
 				user,
 				messages,
-				// Functions
 				submit,
 			};
 		},

@@ -12,9 +12,6 @@ import { Message } from '../entities/message.entity';
 export class MessageSubscriber
 	implements EntitySubscriberInterface<Message>
 {
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
 	constructor(
 		private readonly connection: Connection,
 		private readonly dm_gtw: DMGateway,
@@ -23,9 +20,6 @@ export class MessageSubscriber
 		connection.subscribers.push(this);
 	}
 
-	// -------------------------------------------------------------------------
-	// Interfaces Implementations
-	// -------------------------------------------------------------------------
 	listenTo()
 		: typeof Message
 	{

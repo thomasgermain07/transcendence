@@ -10,14 +10,8 @@ import { AuthenticationPayload } from '../interfaces/authentication-payload.inte
 
 @Injectable()
 export class AuthService {
-  // -------------------------------------------------------------------------
-  // Constructor
-  // -------------------------------------------------------------------------
   constructor(private readonly users_svc: UsersService) {}
 
-  // -------------------------------------------------------------------------
-  // Public methods
-  // -------------------------------------------------------------------------
   async register(create_dto: CreateUserDto): Promise<User> {
     if (create_dto.password)
       create_dto.password = await this.hashSecure(create_dto.password)
@@ -55,9 +49,6 @@ export class AuthService {
     return this.users_svc.setRefreshToken(user, null)
   }
 
-  // -------------------------------------------------------------------------
-  // Private methods
-  // -------------------------------------------------------------------------
   private async hashSecure(data: string): Promise<string> {
     return bcrypt.hash(data, 10)
   }

@@ -9,9 +9,6 @@ import { Permission } from 'src/chat/permissions/entities/permission.entity'
 
 @Entity('chat_rooms')
 export class Room {
-  // -------------------------------------------------------------------------
-  // Attributes
-  // -------------------------------------------------------------------------
   @PrimaryGeneratedColumn()
   public id: number
 
@@ -41,9 +38,6 @@ export class Room {
   })
   public password: string
 
-  // -------------------------------------------------------------------------
-  // Relations
-  // -------------------------------------------------------------------------
   @OneToMany(() => Subscription, (subscription) => subscription.room, {
     onDelete: 'CASCADE',
     lazy: true,

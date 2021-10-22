@@ -10,9 +10,6 @@ import { Subscription } from '../entities/subscription.entity';
 @Injectable()
 export class SubscriptionsService
 {
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
 	constructor(
 		@InjectRepository(Subscription)
 		private readonly subscription_repo: Repository<Subscription>,
@@ -21,9 +18,6 @@ export class SubscriptionsService
 
 	}
 
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
 	async create(
 		user: User,
 		room: Room,

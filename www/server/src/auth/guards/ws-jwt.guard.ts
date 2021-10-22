@@ -6,9 +6,6 @@ import { WsException } from "@nestjs/websockets";
 export class WsJwtGuard
 	extends AuthGuard('ws-jwt')
 {
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
 	handleRequest<User>(
 		error: any,
 		user: User,

@@ -121,9 +121,6 @@ export default {
       resetData,
     } = useRoom()
 
-    // -----------------------------------------------------------------------------
-    // Event function
-    // -----------------------------------------------------------------------------
     const onMoreMsg = async () => {
       roomData.page += 1
       let size_before = roomData.messages.length
@@ -146,9 +143,6 @@ export default {
       }
     }
 
-    // -----------------------------------------------------------------------------
-    // Socket and socket callbacks
-    // -----------------------------------------------------------------------------
     let socket = useSocket('chat').socket
 
     const listenMessage = (message: MessageType) => {
@@ -208,9 +202,6 @@ export default {
       }
     }
 
-    // -----------------------------------------------------------------------------
-    // Life Circles function
-    // -----------------------------------------------------------------------------
     onMounted(async () => {
       if ((await getData(props.RoomId!)) == 'error') {
         emit('close')
@@ -238,9 +229,6 @@ export default {
       },
     )
 
-    // -----------------------------------------------------------------------------
-    // Muted Timer
-    // -----------------------------------------------------------------------------
     let interval = 0
 
     const startCountDown = (until: Date) => {
@@ -265,9 +253,6 @@ export default {
       interval = 0
     }
 
-    // -----------------------------------------------------------------------------
-    // Utils functions
-    // -----------------------------------------------------------------------------
     const checkIfMuted = () => {
       let perm = isMuted(me.id)
 

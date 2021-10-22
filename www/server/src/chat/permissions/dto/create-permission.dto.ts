@@ -21,9 +21,6 @@ export class CreatePermissionDto {
   @IsString()
   public type: string
 
-  // const d = new Date();
-  // d.setHours(d.getHours() + 6);
-  // d.toISOString();
   @IsDate()
   @IsOptional()
   @Type(() => Date)

@@ -16,29 +16,17 @@ import { UserType } from '@/types/user/user'
 import { useAuth } from '../auth'
 import { useFriends } from '../Friends/useFriends'
 
-// -----------------------------------------------------------------------------
-// Api usage
-// -----------------------------------------------------------------------------
 const { isInGameOrQueue, refuseInvitation, deleteInvitation } =
   getInvitationInteraction()
 
-// -----------------------------------------------------------------------------
-// Types
-// -----------------------------------------------------------------------------
 type InvitationTab = {
   invitation: InvitationType
   close: Function
 }
 
-// -----------------------------------------------------------------------------
-// Constants
-// -----------------------------------------------------------------------------
 let currentInviteClose: Function | undefined = undefined
 let invitationsList: Array<InvitationTab> = []
 
-// -----------------------------------------------------------------------------
-// Composable
-// -----------------------------------------------------------------------------
 export function useGameInvite() {
   const inviteError = (msg: string) => {
     createToast(withProps(Error, { Msg: msg }), {

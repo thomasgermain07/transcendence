@@ -11,9 +11,6 @@ class IsValidPermissionTypeConstraint
 	implements ValidatorConstraintInterface
 {
 
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
 	validate(
 		type: string
 	)
@@ -32,9 +29,6 @@ class IsValidPermissionTypeConstraint
 
 }
 
-// -----------------------------------------------------------------------------
-// Decorator
-// -----------------------------------------------------------------------------
 export function IsValidType(
 	validationOptions?: ValidationOptions
 )

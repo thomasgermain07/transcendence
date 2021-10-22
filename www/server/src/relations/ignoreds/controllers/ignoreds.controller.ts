@@ -18,17 +18,11 @@ import { Ignored } from '../entities/ignored.entity'
 @Controller('ignoreds')
 export class IgnoredsController
 {
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
 	constructor(
 		private readonly ignoreds_svc: IgnoredsService,
 		private readonly users_svc: UsersService,
 	) {}
 
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
 	@Post()
 	async create(
 		@AuthUser() user: User,

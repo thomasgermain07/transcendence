@@ -13,9 +13,6 @@ export class IsUniqueRoomConstraint
 	implements ValidatorConstraintInterface
 {
 
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
 	constructor(
 		private readonly rooms_svc: RoomsService,
 	)
@@ -23,9 +20,6 @@ export class IsUniqueRoomConstraint
 
 	}
 
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
 	async validate(
 		value: any,
 		args: ValidationArguments,
@@ -49,9 +43,6 @@ export class IsUniqueRoomConstraint
 
 }
 
-// -----------------------------------------------------------------------------
-// Decorator
-// -----------------------------------------------------------------------------
 export function IsUnique(
 	attribute: string,
 	validationOptions?: ValidationOptions,

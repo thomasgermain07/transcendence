@@ -4,10 +4,6 @@ import Index from '@/views/users/Index.vue'
 import Users from '@/views/users/Users.vue'
 import Profile from '@/views/users/Profile.vue'
 
-// -----------------------------------------------------------------------------
-// Routes
-// -----------------------------------------------------------------------------
-
 export const routes: Array<RouteRecordRaw> = [
   {
     path: '/users',

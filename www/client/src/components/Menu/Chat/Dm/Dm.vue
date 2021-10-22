@@ -99,7 +99,6 @@ export default {
         try {
           await createMessage(props.UserId!, message_field.value)
         } catch (e) {
-          console.log(e.response)
           if (e.response.status == 422) {
             createToast(e.response.data.message, {
               type: 'warning',

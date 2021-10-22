@@ -1,9 +1,6 @@
 import { AxiosResType } from "@/composables/axios";
 import { useAxios }     from "@/composables/axios";
 
-// -----------------------------------------------------------------------------
-// Functions
-// -----------------------------------------------------------------------------
 async function csrf()
 	: Promise<AxiosResType>
 {
@@ -20,9 +17,6 @@ async function csrf()
 	;
 }
 
-// -----------------------------------------------------------------------------
-// Exports
-// -----------------------------------------------------------------------------
 export const AppService = {
 	csrf,
 };

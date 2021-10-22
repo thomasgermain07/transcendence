@@ -12,14 +12,8 @@ export enum CookieType {
 
 @Injectable()
 export class CookiesService {
-  // -------------------------------------------------------------------------
-  // Constructor
-  // -------------------------------------------------------------------------
   constructor(private readonly jwt_svc: JwtService) {}
 
-  // -------------------------------------------------------------------------
-  // Public methods
-  // -------------------------------------------------------------------------
   getJwtTokenCookie(
     user: User,
     type: CookieType,
@@ -47,9 +41,6 @@ export class CookiesService {
     ]
   }
 
-  // -------------------------------------------------------------------------
-  // Private methods
-  // -------------------------------------------------------------------------
   private getJwtToken(
     payload: string | object,
     secret: string,

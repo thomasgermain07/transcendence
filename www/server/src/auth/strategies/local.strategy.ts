@@ -8,9 +8,6 @@ import { AuthService } from '../services/auth.service'
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
-  // -------------------------------------------------------------------------
-  // Constructor
-  // -------------------------------------------------------------------------
   constructor(private readonly auth_svc: AuthService) {
     super({
       usernameField: 'email',
@@ -19,9 +16,6 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
     })
   }
 
-  // -------------------------------------------------------------------------
-  // Public methods
-  // -------------------------------------------------------------------------
   async validate(email: string, password: string): Promise<User> {
     return this.auth_svc.authenticate({
       email: email,

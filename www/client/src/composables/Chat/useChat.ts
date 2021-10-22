@@ -14,24 +14,12 @@ import { useWindowInteraction } from './WindowInteraction/useWindowInteraction'
 import { DirectMessageType } from '@/types/chat/direct_message'
 import { useFriends } from '../Friends/useFriends'
 
-// -----------------------------------------------------------------------------
-// Api usage
-// -----------------------------------------------------------------------------
-
 const { fetchRooms } = getFetchRooms()
 const { fetchUsers } = getFetchUsers()
-
-// -----------------------------------------------------------------------------
-// Constants
-// -----------------------------------------------------------------------------
 
 const rooms = ref<RoomType[]>([])
 const relatedUsers = ref<UserType[]>([])
 const notifications = ref<NotificationType[]>([])
-
-// -----------------------------------------------------------------------------
-// Composable
-// -----------------------------------------------------------------------------
 
 export function useChat() {
   const loadData = async () => {
@@ -150,10 +138,6 @@ export function useChat() {
     getBanFrom,
   }
 }
-
-// -----------------------------------------------------------------------------
-// Private Functions
-// -----------------------------------------------------------------------------
 
 function isOpenned(type: string, id: number) {
   return useWindowInteraction().chat_view.value == type &&

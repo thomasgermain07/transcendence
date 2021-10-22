@@ -6,9 +6,6 @@ import { Room } from 'src/chat/rooms/entities/room.entity'
 
 @Entity('chat_subscriptions')
 export class Subscription {
-  // -------------------------------------------------------------------------
-  // Attributes
-  // -------------------------------------------------------------------------
   @ManyToOne(() => User, (user) => user.chat_subscriptions, {
     nullable: false,
     primary: true,

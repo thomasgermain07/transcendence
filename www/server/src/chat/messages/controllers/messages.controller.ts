@@ -22,9 +22,6 @@ import { MessagesService }  from '../services/messages.service';
 export class MessagesController
 {
 
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
 	constructor(
 		private readonly chat_svc: ChatService,
 		private readonly rooms_svc: RoomsService,
@@ -34,9 +31,6 @@ export class MessagesController
 
 	}
 
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
 	@Post()
 	async create(
 		@AuthUser() user: User,
@@ -83,9 +77,6 @@ export class MessagesController
 		return this.messages_svc.findAll(room, page);
 	}
 
-	// -------------------------------------------------------------------------
-	// Private methods
-	// -------------------------------------------------------------------------
 	private async canAccess(
 		user: User,
 		room: Room,

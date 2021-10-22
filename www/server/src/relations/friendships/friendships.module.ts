@@ -9,20 +9,16 @@ import { FriendshipsService }    from "./services/friendships.service";
 
 @Module({
 	imports: [
-		// Database
 		TypeOrmModule.forFeature([Friendship]),
-		// Module
 		forwardRef(() => UsersModule),
 	],
 	controllers: [
 		FriendshipsController,
 	],
 	providers: [
-		// Services
 		FriendshipsService,
 	],
 	exports: [
-		// Services
 		FriendshipsService,
 	]
 })

@@ -13,9 +13,6 @@ import { SubscriptionsService } from '../subscriptions/services/subscriptions.se
 @Injectable()
 export class ChatService
 {
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
 	constructor(
 		private readonly rooms_svc: RoomsService,
 		private readonly permissions_svc: PermissionsService,
@@ -25,9 +22,6 @@ export class ChatService
 
 	}
 
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
 	async getRelatedRooms(
 		user: User,
 	)
@@ -54,11 +48,7 @@ export class ChatService
 			room: room,
 		});
 
-		return subscriptions
-			.map((subscription) => subscription.user)
-			// Todo:
-			// .filter((user) => !user.is_admin)
-		;
+		return subscriptions.map((subscription) => subscription.user);
 	}
 
 	async hasPermission(
@@ -95,8 +85,7 @@ export class ChatService
 	)
 		: Promise<boolean>
 	{
-		// Todo:
-		return (/* user.is_admin ||  */await this.isOwner(user, room));
+		return await this.isOwner(user, room);
 	}
 
 	async isModerator(
