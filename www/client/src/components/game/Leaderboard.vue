@@ -53,13 +53,11 @@ export default defineComponent({
     const offset = ref(0)
     const limit: number = 5
 
-    const fetchLeaderboard = async () => {
+    const fetchLeaderboard = async (): Promise<void> => {
       loading.value = true
       const response = await axios
         .get(`users/leaderboard?offset=${offset.value}&limit=${limit}`)
-        .catch((err: AxiosErrType) => {
-          console.log(err.response?.data)
-        })
+        .catch((err: AxiosErrType) => {})
 
       if (response) {
         loading.value = false
@@ -67,21 +65,21 @@ export default defineComponent({
       }
     }
 
-    const prev = () => {
+    const prev = (): void => {
       if (offset.value - limit >= 0) {
         offset.value -= limit
       }
       fetchLeaderboard()
     }
 
-    const next = () => {
+    const next = (): void => {
       offset.value += limit
       fetchLeaderboard()
     }
 
     fetchLeaderboard()
 
-    const goToProfile = (id: number) => {
+    const goToProfile = (id: number): void => {
       router.push(`/users/${id}/profile`)
     }
 

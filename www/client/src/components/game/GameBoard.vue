@@ -22,13 +22,16 @@ import { Ball } from '../../types/game/ball'
 import { IMapPaddleState } from '../../types/game/paddle'
 import { useAuth } from '../../composables/auth'
 import { useSocket } from '../../composables/socket'
-import { GamePlayer, IBonusState, IGameState } from '@/types/game/game'
+import { Game, IGameState } from '@/types/game/game'
+import { updateDataType } from '@/types/game/updateData'
+import { Player } from '@/types/game/player'
+import { Bonus } from '@/types/game/bonus'
 
 export default defineComponent({
   name: 'GameBoard',
   props: ['roomName', 'isPlayer', 'roomState', 'timer'],
   setup(props) {
-    let player_left: GamePlayer = {
+    let player_left: Player = {
       id: 0,
       user: null,
       room: null,
@@ -44,7 +47,7 @@ export default defineComponent({
         move: '',
       },
     }
-    let player_right: GamePlayer = {
+    let player_right: Player = {
       id: 0,
       user: null,
       room: null,
@@ -68,7 +71,7 @@ export default defineComponent({
       yspeed: 0,
       exist: true,
     }
-    let bonus: IBonusState = {
+    let bonus: Bonus = {
       x: 0,
       y: 0,
       rayon: 0,
@@ -90,8 +93,8 @@ export default defineComponent({
     let ctx: CanvasRenderingContext2D
 
     const gameRoomsSocket = useSocket('game-rooms').socket
-    const roomName = props.roomName
-    const isPlayer = props.isPlayer
+    const roomName: string = props.roomName
+    const isPlayer: boolean = props.isPlayer
 
     const { user } = useAuth()
     const currentUser = user
@@ -102,7 +105,7 @@ export default defineComponent({
       ctx = <CanvasRenderingContext2D>canvas.getContext('2d')
     }
 
-    function drawMap() {
+    function drawMap(): void {
       ctx.fillStyle = '#000000'
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -123,66 +126,66 @@ export default defineComponent({
       }
       draw()
     }
-    function update(x: number, y: number) {
-      const update_data = {
+    function update(x: number, y: number): updateDataType {
+      const update_data: updateDataType = {
         x: x * (canvas?.width / 600),
         y: y * (canvas?.height / 400),
       }
       return update_data
     }
-    function resizeCanvas() {
+    function resizeCanvas(): void {
       if (screen) {
         canvas.width = screen.offsetWidth
         canvas.height = canvas?.width / 2
         redraw()
       }
     }
-    function redraw() {
+    function redraw(): void {
       drawMap()
       draw()
     }
-    function keydown(event: KeyboardEvent) {
+    function keydown(event: KeyboardEvent): void {
       if (event.key === 'ArrowUp') {
         gameRoomsSocket.emit('move', {
           move: 'up',
-          user_id: currentUser.id,
+          user_id: currentUser?.id,
           room: roomName,
         })
       } else if (event.key === 'ArrowDown') {
         gameRoomsSocket.emit('move', {
           move: 'down',
-          user_id: currentUser.id,
+          user_id: currentUser?.id,
           room: roomName,
         })
       }
       event.preventDefault()
       gameRoomsSocket.off('move')
     }
-    function keyup(event: KeyboardEvent) {
+    function keyup(event: KeyboardEvent): void {
       if (event.key === 'ArrowUp') {
         gameRoomsSocket.emit('move', {
           move: 'not',
-          user_id: currentUser.id,
+          user_id: currentUser?.id,
           room: roomName,
         })
       } else if (event.key === 'ArrowDown') {
         gameRoomsSocket.emit('move', {
           move: 'not',
-          user_id: currentUser.id,
+          user_id: currentUser?.id,
           room: roomName,
         })
       }
       event.preventDefault()
       gameRoomsSocket.off('move')
     }
-    function draw() {
+    function draw(): void {
       drawPaddle()
       drawBall()
       if (bonus.exist) {
         drawAddon()
       }
     }
-    function countdown() {
+    function countdown(): void {
       ctx.fillStyle = 'white'
       ctx.textAlign = 'center'
       ctx.font = '48px Courier New'
@@ -195,7 +198,7 @@ export default defineComponent({
       else if (option.count == 0)
         ctx.fillText('GO', canvas.width / 2, canvas.height / 2)
     }
-    function drawMidleLine() {
+    function drawMidleLine(): void {
       ctx.strokeStyle = 'white'
       ctx.beginPath()
       ctx.setLineDash([5, 15])
@@ -222,7 +225,7 @@ export default defineComponent({
       ctx.fill()
       ctx.closePath()
     }
-    function drawPaddle() {
+    function drawPaddle(): void {
       ctx.beginPath()
       ctx.fillStyle = 'white'
       var data = update(player_left.paddle.x, player_left.paddle.y)
@@ -242,7 +245,7 @@ export default defineComponent({
       ctx.fill()
       ctx.closePath()
     }
-    function drawBall() {
+    function drawBall(): void {
       ctx.beginPath()
       ctx.fillStyle = 'white'
       var data = update(ball.x, ball.y)
@@ -250,7 +253,7 @@ export default defineComponent({
       ctx.fill()
       ctx.closePath()
     }
-    function drawAddon() {
+    function drawAddon(): void {
       ctx.beginPath()
       ctx.fillStyle = 'red'
       var data = update(bonus.x, bonus.y)
@@ -260,27 +263,27 @@ export default defineComponent({
     }
 
     // --- SOCKETS ---
-    gameRoomsSocket.on('begin', (data) => {
+    gameRoomsSocket.on('begin', (data: Game) => {
       initCanvas()
-      player_left = data.player_left
-      player_right = data.player_right
-      ball = data.ball
-      option = data.info
-      map_paddle = data.map_paddle
-      bonus = data.bonus
+      player_left = data?.player_left
+      player_right = data?.player_right
+      ball = data?.ball
+      option = data?.info
+      map_paddle = data?.map_paddle
+      bonus = data?.bonus
       drawMap()
-      if (option.begin) {
+      if (option?.begin) {
         countdown()
       }
     })
 
-    const setEventListeners = () => {
+    const setEventListeners = (): void => {
       window.addEventListener('keydown', keydown)
       window.addEventListener('keyup', keyup)
       window.addEventListener('resize', resizeCanvas, false)
     }
 
-    const unsetEventListeners = () => {
+    const unsetEventListeners = (): void => {
       window.removeEventListener('keydown', keydown)
       window.removeEventListener('keyup', keyup)
       window.removeEventListener('resize', resizeCanvas, false)

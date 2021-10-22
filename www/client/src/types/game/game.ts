@@ -2,8 +2,9 @@
 GAME VUE TYPES AND INTERFACES
 */
 import { Player } from './player'
-import { UserType } from '../user/user'
-import { Room } from '@/types/game/gameRoom'
+import { Ball } from './ball'
+import { IMapPaddleState } from './paddle'
+import { Bonus } from './bonus'
 
 export type InGameType = {
   inGame: boolean
@@ -26,28 +27,13 @@ export interface IGameState {
   map: string
   count: number
 }
-export interface IBonusState {
-  x: number
-  y: number
-  rayon: number
-  exist: boolean
-}
 
-export interface Paddle {
-  x: number
-  y: number
-  height: number
-  move: string
-}
-
-export interface GamePlayer {
-  id: number
-  user: UserType | null
-  room: Room | null
-  position: string
-  score: number
-  winner: boolean
-  isReady: boolean
-  isPause: boolean
-  paddle: Paddle
+export interface Game {
+  player_left: Player;
+  player_right: Player;
+  ball: Ball;
+  info: IGameState;
+  map_paddle: IMapPaddleState[];
+  addon_ball: Ball;
+  bonus: Bonus;
 }

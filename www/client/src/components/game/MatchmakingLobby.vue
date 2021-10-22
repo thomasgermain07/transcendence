@@ -75,11 +75,11 @@ export default defineComponent({
       powerUps: false,
     }
 
-    const defaultTimerCount = 3
+    const defaultTimerCount: number = 3
 
-    let searchRange = 3
-    const rangeIncrease = 10
-    const waitTimeBefIncrease = 30 * 1000
+    let searchRange: number = 3
+    const rangeIncrease: number = 10
+    const waitTimeBefIncrease: number = 30 * 1000
 
     const timerCount = ref(defaultTimerCount)
     let matchTimerId: number | undefined
@@ -94,11 +94,11 @@ export default defineComponent({
       return searchMatch
     })
 
-    const startTimer = () => {
+    const startTimer = (): void => {
       matchTimerId = setInterval(() => timerCount.value--, 1000)
     }
 
-    const startRefreshTimer = () => {
+    const startRefreshTimer = (): void => {
       refreshSearchTimerId = setInterval(() => {
         if (props.gameMode === 'ladder') {
           expandRange()
@@ -108,22 +108,22 @@ export default defineComponent({
       }, waitTimeBefIncrease)
     }
 
-    const stopTimer = () => {
+    const stopTimer = (): void => {
       clearInterval(matchTimerId)
       matchTimerId = undefined
       timerCount.value = defaultTimerCount
     }
 
-    const expandRange = () => {
+    const expandRange = (): void => {
       searchRange += rangeIncrease
       context.emit('renewSearchLadder', searchRange)
     }
 
-    const renewDuel = () => {
+    const renewDuel = (): void => {
       context.emit('renewSearchDuel')
     }
 
-    const onLeave = () => {
+    const onLeave = (): void => {
       context.emit('close')
     }
 
@@ -136,7 +136,7 @@ export default defineComponent({
       },
     )
 
-    watch(timerCount, (value) => {
+    watch(timerCount, (value: number) => {
       if (value == 0) {
         stopTimer()
         context.emit('redirect-to-game-room')

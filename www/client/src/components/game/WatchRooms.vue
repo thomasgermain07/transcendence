@@ -38,7 +38,7 @@ export default defineComponent({
     const { user } = useAuth()
     const { axios } = useAxios()
 
-    const onWatch = async (roomId: number): void => {
+    const onWatch = async (roomId: number): Promise<void> => {
       const response = await axios
         .get(`game/players/checkIfInGameOrQueue/${user.id}`)
         .catch((error: AxiosErrType) => {})

@@ -4,7 +4,7 @@
 
     <div
       v-for="message in messages"
-      :key="message"
+      :key="message.content"
       class="form__message"
       :class="[message.is_error ? 'form__error' : 'form__info']"
     >
@@ -30,11 +30,11 @@ export default defineComponent({
 
     const messages = reactive<FormMessage[]>([])
 
-    const onFileSelected = (event: any) => {
+    const onFileSelected = (event: any): void => {
       imageFile.value = event.target.files[0]
     }
 
-    const onUpload = async () => {
+    const onUpload = async (): Promise<void> => {
       while (messages.length > 0) messages.pop()
 
       try {
