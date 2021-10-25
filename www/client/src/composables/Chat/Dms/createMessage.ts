@@ -1,7 +1,7 @@
 import { useAxios } from '@/composables/axios';
 
 export default function getCreateMessage() {
-	const createMessage = async (id: number, content: string) => {
+	const createMessage = async (id: number, content: string): Promise<void> => {
 		try {
 			await useAxios().axios.post('dm/messages', {
 				target_id: id,

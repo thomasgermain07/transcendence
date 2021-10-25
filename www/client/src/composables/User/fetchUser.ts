@@ -6,7 +6,7 @@ import requestStatus from '../requestStatus';
 export default function getFetchUser(status?: Ref) {
 	let user = ref<UserType>();
 
-	const fetchUser: any = async (id: number) => {
+	const fetchUser = async (id: number) => {
 		const { axios } = useAxios();
 
 		try {
