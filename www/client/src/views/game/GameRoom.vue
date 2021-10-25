@@ -112,22 +112,8 @@ export default defineComponent({
 		const roomName = ref(`room-${route.params.id}`);
 		const gameRoomsSocket = useSocket('game-rooms').socket;
 		const inGame = ref(false);
-
-		const checkIfInGame = async (): Promise<void> => {
-			const res = await axios
-				.get(`game/players/checkIfInGameOrQueue/${user.id}`)
-				.catch((e: AxiosErrType) => {});
-			if (res) {
-				if (
-					res.data.inGame &&
-					res.data.player?.room?.id != parseInt(route?.params?.id as string)
-				) {
-					inGame.value = true;
-				}
-			}
-		};
-
 		let timer = ref('');
+
 		// --- FETCH ---
 		loadRoom(route?.params?.id);
 
@@ -215,6 +201,21 @@ export default defineComponent({
 		};
 
 		// --- HELPER FUNCTIONS ---
+		const checkIfInGame = async (roomIdFromRoute: string): Promise<void> => {
+			inGame.value = false
+			const res = await axios
+				.get(`game/players/checkIfInGameOrQueue/${user.id}`)
+				.catch((e: AxiosErrType) => {});
+			if (res) {
+				if (
+					res.data.inGame &&
+					res.data.player?.room?.id != parseInt(roomIdFromRoute)
+				) {
+					inGame.value = true;
+				}
+			}
+		};
+
 		const joinRoom = (roomIdFromRoute: string): void => {
 			gameRoomsSocket.emit(
 				'joinRoom',
@@ -309,7 +310,7 @@ export default defineComponent({
 				room: roomName.value,
 			});
 			loadRoom(updateGuard?.params?.id);
-			await checkIfInGame();
+			await checkIfInGame(updateGuard?.params?.id as string);
 			if (inGame.value === true) {
 				state.error = "You can't watch a game while already in an other game";
 			} else {
@@ -334,7 +335,7 @@ export default defineComponent({
 		});
 
 		onMounted(async () => {
-			await checkIfInGame();
+			await checkIfInGame(route?.params?.id as string);
 			if (inGame.value === true) {
 				state.error = "You can't watch a game while already in an other game";
 			} else {

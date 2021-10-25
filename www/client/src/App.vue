@@ -80,4 +80,8 @@ export default defineComponent({
 	--tertiary-color: #01012b;
 	box-sizing: border-box;
 }
+
+.modal-container {
+  z-index: 1000
+}
 </style>
