@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { computed } from '@vue/runtime-core'
+import { computed, defineComponent } from '@vue/runtime-core'
 
 import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/useWindowInteraction'
 
@@ -42,7 +42,7 @@ import Dm from './Chat/Dm/Dm.vue'
 import { useChat } from '@/composables/Chat/useChat'
 import { useRoom } from '@/composables/Chat/Room/useRoom'
 
-export default {
+export default defineComponent({
   components: {
     TopBar,
     Rooms,
@@ -55,7 +55,7 @@ export default {
     let { conv_id, chat_view, page_title, closeChat, closeChatView } =
       useWindowInteraction()
 
-    const { loadData, reloadRooms } = useChat()
+    const { reloadRooms } = useChat()
     const { reloadRoom } = useRoom()
 
     const getPageTitle = computed(() => {
@@ -78,12 +78,11 @@ export default {
       getPageTitle,
       closeChat,
       closeChatView,
-      loadData,
       onRefreshData,
       left_room,
     }
   },
-}
+})
 </script>
 
 <style scoped>

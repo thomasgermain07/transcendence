@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import { ref } from 'vue'
+import { defineComponent, ref } from 'vue'
 
 import { useChat } from '@/composables/Chat/useChat'
 import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/useWindowInteraction'
@@ -43,7 +43,7 @@ import { RoomType } from '@/types/chat/room'
 
 import RoomsCM from './RoomsCM.vue'
 
-export default {
+export default defineComponent({
   props: {
     RoomId: Number,
   },
@@ -74,7 +74,7 @@ export default {
       convs,
     }
   },
-}
+})
 </script>
 
 <style scoped>

@@ -50,7 +50,7 @@
 </template>
 
 <script lang="ts">
-import { reactive } from '@vue/runtime-core'
+import { defineComponent, reactive } from '@vue/runtime-core'
 
 import getChangeRoom from '@/composables/Chat/Room/modifyRoom'
 
@@ -59,7 +59,7 @@ import { useRoom } from '@/composables/Chat/Room/useRoom'
 
 import BannedList from './Banned.vue'
 
-export default {
+export default defineComponent({
   components: {
     BannedList,
   },
@@ -108,7 +108,7 @@ export default {
     }
   },
   emits: ['close', 'delete'],
-}
+})
 </script>
 
 <style scoped>

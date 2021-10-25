@@ -23,7 +23,13 @@
 </template>
 
 <script lang="ts">
-import { PropType, ref, onMounted, onUnmounted } from '@vue/runtime-core'
+import {
+  PropType,
+  ref,
+  onMounted,
+  onUnmounted,
+  defineComponent,
+} from '@vue/runtime-core'
 
 import { useGameInvite } from '@/composables/Game/useGameInvite'
 
@@ -31,7 +37,7 @@ import getInvitationInteraction from '@/composables/Game/invitationInteraction'
 
 import { InvitationType } from '@/types/game/invitation'
 
-export default {
+export default defineComponent({
   props: {
     Invitation: Object as PropType<InvitationType>,
   },
@@ -93,7 +99,7 @@ export default {
       onRefuse,
     }
   },
-}
+})
 </script>
 
 <style scoped>

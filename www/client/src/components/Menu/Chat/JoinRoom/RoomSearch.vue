@@ -41,8 +41,9 @@
 import { ref } from '@vue/reactivity'
 import getCreateSubscription from '@/composables/Chat/Subscription/createSubscription'
 import { useSocket } from '@/composables/socket'
+import { defineComponent } from '@vue/runtime-core'
 
-export default {
+export default defineComponent({
   setup(props, { emit }) {
     let error = ref('')
     let name_field = ref('')
@@ -61,7 +62,7 @@ export default {
 
     return { name_field, password_field, error, join }
   },
-}
+})
 </script>
 
 <style scoped>

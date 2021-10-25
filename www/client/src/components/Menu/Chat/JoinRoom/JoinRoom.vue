@@ -29,8 +29,9 @@ import RoomsList from './RoomsList.vue'
 import RoomSearch from './RoomSearch.vue'
 
 import { useChat } from '@/composables/Chat/useChat'
+import { defineComponent } from '@vue/runtime-core'
 
-export default {
+export default defineComponent({
   components: {
     JoinRoomPanel,
     RoomsList,
@@ -56,7 +57,7 @@ export default {
       goBack,
     }
   },
-}
+})
 </script>
 
 <style scoped>

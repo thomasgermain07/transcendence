@@ -22,13 +22,19 @@
 </template>
 
 <script lang="ts">
-import { onBeforeUnmount, onMounted, PropType, ref } from '@vue/runtime-core'
+import {
+  defineComponent,
+  onBeforeUnmount,
+  onMounted,
+  PropType,
+  ref,
+} from '@vue/runtime-core'
 import { InvitationType } from '@/types/game/invitation'
 import { UserType } from '@/types/user/user'
 import { useGameInvite } from '@/composables/Game/useGameInvite'
 import getInvitationInteraction from '@/composables/Game/invitationInteraction'
 
-export default {
+export default defineComponent({
   props: {
     Invitation: Object as PropType<InvitationType>,
     Target: Object as PropType<UserType>,
@@ -66,7 +72,7 @@ export default {
       cancelWaiting,
     }
   },
-}
+})
 </script>
 
 <style scoped>

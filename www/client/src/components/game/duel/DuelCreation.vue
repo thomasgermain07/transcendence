@@ -101,14 +101,14 @@
 </template>
 
 <script lang="ts">
-import { PropType, reactive } from '@vue/runtime-core'
+import { defineComponent, PropType, reactive } from '@vue/runtime-core'
 import { UserType } from '@/types/user/user'
 import { DifficultyLevel, GameOptions, MapType } from '@/types/game/gameOptions'
 import { closeModal } from 'jenesius-vue-modal'
 import getInvitationInteraction from '@/composables/Game/invitationInteraction'
 import { useGameInvite } from '@/composables/Game/useGameInvite'
 
-export default {
+export default defineComponent({
   props: {
     Target: Object as PropType<UserType>,
   },
@@ -163,7 +163,7 @@ export default {
       sendInvite,
     }
   },
-}
+})
 </script>
 
 <style scoped>

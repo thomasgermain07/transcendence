@@ -37,7 +37,13 @@
 </template>
 
 <script lang="ts">
-import { onMounted, watch, ref, onUnmounted } from '@vue/runtime-core'
+import {
+  onMounted,
+  watch,
+  ref,
+  onUnmounted,
+  defineComponent,
+} from '@vue/runtime-core'
 
 import { createToast } from 'mosha-vue-toastify'
 import 'mosha-vue-toastify/dist/style.css'
@@ -51,7 +57,7 @@ import getCreateMessage from '@/composables/Chat/Dms/createMessage'
 
 import { DirectMessageType } from '@/types/chat/direct_message'
 
-export default {
+export default defineComponent({
   props: {
     UserId: Number,
   },
@@ -98,7 +104,7 @@ export default {
       if (message_field.value.length) {
         try {
           await createMessage(props.UserId!, message_field.value)
-        } catch (e) {
+        } catch (e: any) {
           console.log(e.response)
           if (e.response.status == 422) {
             createToast(e.response.data.message, {
@@ -128,7 +134,7 @@ export default {
       loadMoreMessages,
     }
   },
-}
+})
 </script>
 
 <style scoped>

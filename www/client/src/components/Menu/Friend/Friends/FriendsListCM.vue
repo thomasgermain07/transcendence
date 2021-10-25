@@ -17,12 +17,13 @@
 </template>
 
 <script lang="ts">
-import { PropType } from '@vue/runtime-core'
+import { defineComponent, PropType } from '@vue/runtime-core'
 
 import { useContextMenu } from '@/composables/useContextMenu'
 
 import { UserType } from '@/types/user/user'
-export default {
+
+export default defineComponent({
   props: {
     User: Object as PropType<UserType>,
   },
@@ -33,5 +34,5 @@ export default {
       eventHandler,
     }
   },
-}
+})
 </script>

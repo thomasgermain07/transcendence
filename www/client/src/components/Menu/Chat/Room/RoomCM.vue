@@ -63,7 +63,7 @@
 </template>
 
 <script lang="ts">
-import { PropType } from '@vue/runtime-core'
+import { defineComponent, PropType } from '@vue/runtime-core'
 
 import { useContextMenu } from '@/composables/useContextMenu'
 import { useFriends } from '@/composables/Friends/useFriends'
@@ -72,7 +72,7 @@ import { UserType } from '@/types/user/user'
 import { RoomType } from '@/types/chat/room'
 import { useRoom } from '@/composables/Chat/Room/useRoom'
 
-export default {
+export default defineComponent({
   props: {
     User: Object as PropType<UserType>,
     IsModerator: Boolean,
@@ -123,5 +123,5 @@ export default {
       isBlocked,
     }
   },
-}
+})
 </script>

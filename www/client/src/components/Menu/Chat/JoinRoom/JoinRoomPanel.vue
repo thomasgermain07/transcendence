@@ -5,7 +5,7 @@
         type="password"
         placeholder="password"
         class="field-input"
-        v-if="room.password"
+        v-if="room?.password"
         v-model="password_field"
       />
     </div>
@@ -22,8 +22,9 @@ import { ref } from '@vue/reactivity'
 import getCreateSubscription from '@/composables/Chat/Subscription/createSubscription'
 
 import { useSocket } from '@/composables/socket'
+import { defineComponent } from '@vue/runtime-core'
 
-export default {
+export default defineComponent({
   props: {
     room: Object,
   },
@@ -45,7 +46,7 @@ export default {
 
     return { error, password_field, join }
   },
-}
+})
 </script>
 
 <style scoped>

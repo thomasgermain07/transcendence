@@ -72,7 +72,7 @@
 </template>
 
 <script lang="ts">
-import { ref } from 'vue'
+import { defineComponent, ref } from 'vue'
 
 import requestStatus from '@/composables/requestStatus'
 
@@ -80,10 +80,7 @@ import { getRoomInputs, createRoom } from '@/composables/Chat/Room/createRoom'
 import { useChat } from '@/composables/Chat/useChat'
 import { useSocket } from '@/composables/socket'
 
-// TODO : If time, remake this HTML/CSS side is not the best
-// And should use a reactive object instead of fileds, errors
-
-export default {
+export default defineComponent({
   setup(props, { emit }) {
     let { fields, errors, sendable } = getRoomInputs()
 
@@ -97,7 +94,7 @@ export default {
         useSocket('chat').socket.emit('join', { room_id: res.data.id })
         reloadRooms()
         emit('close')
-      } catch (messages) {
+      } catch (messages: any) {
         status.value = requestStatus.error
         errors.name.value = messages[0]
       }
@@ -111,7 +108,7 @@ export default {
       sendable,
     }
   },
-}
+})
 </script>
 
 <style scoped>

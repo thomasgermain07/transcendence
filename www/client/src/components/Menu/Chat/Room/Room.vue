@@ -4,7 +4,7 @@
       <RoomCM
         :User="cm_user"
         :IsModerator="isModerator(me.id)"
-        :IsOwner="me.id == roomData.room.owner.id"
+        :IsOwner="me.id == roomData.room?.owner.id"
         :Room="roomData.room"
       />
     </v-contextmenu>
@@ -32,7 +32,7 @@
             {{ message.author.name }}
             <i v-if="isModerator(message.author.id)" class="fas fa-crown"></i>
             <i
-              v-if="message.author.id == roomData.room.owner.id"
+              v-if="message.author.id == roomData.room?.owner.id"
               class="fas fa-house-user"
             ></i>
           </p>
@@ -40,7 +40,7 @@
             {{ message.author.name }}
             <i v-if="isModerator(message.author.id)" class="fas fa-crown"></i>
             <i
-              v-if="message.author.id == roomData.room.owner.id"
+              v-if="message.author.id == roomData.room?.owner.id"
               class="fas fa-house-user"
             ></i>
           </p>
@@ -83,7 +83,14 @@
 </template>
 
 <script lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import {
+  computed,
+  defineComponent,
+  onMounted,
+  onUnmounted,
+  ref,
+  watch,
+} from 'vue'
 
 import { useAuth } from '@/composables/auth'
 import { useSocket } from '@/composables/socket'
@@ -98,7 +105,7 @@ import { PermissionType } from '@/types/chat/permission'
 import { useChat } from '@/composables/Chat/useChat'
 import { useFriends } from '@/composables/Friends/useFriends'
 
-export default {
+export default defineComponent({
   props: {
     RoomId: Number,
   },
@@ -304,7 +311,7 @@ export default {
     }
   },
   emits: ['close', 'leave'],
-}
+})
 </script>
 
 <style scoped>

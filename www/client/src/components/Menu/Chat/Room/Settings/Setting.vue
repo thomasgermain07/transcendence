@@ -2,7 +2,7 @@
   <div class="setting-ctn">
     <header class="window-header">
       <i class="fas fa-arrow-left" @click="$emit('close')"></i>
-      <p class="window-title">{{ room.name }} settings</p>
+      <p class="window-title">{{ room?.name }} settings</p>
       <i class="fas fa-arrow-left window-bar__separator"></i>
     </header>
     <div class="content">
@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { ref } from 'vue'
+import { defineComponent, ref } from 'vue'
 
 import AdminSetting from './AdminSetting.vue'
 
@@ -29,7 +29,7 @@ import { useAuth } from '@/composables/auth'
 
 import { useRoom } from '@/composables/Chat/Room/useRoom'
 
-export default {
+export default defineComponent({
   components: {
     AdminSetting,
   },
@@ -53,7 +53,7 @@ export default {
     }
   },
   emit: ['close', 'leave'],
-}
+})
 </script>
 
 <style scoped>

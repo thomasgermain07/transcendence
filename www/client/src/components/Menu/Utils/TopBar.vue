@@ -11,11 +11,13 @@
 </template>
 
 <script lang="ts">
-export default {
+import { defineComponent } from '@vue/runtime-core'
+
+export default defineComponent({
   props: {
     Title: String,
   },
-}
+})
 </script>
 
 <style scoped>
