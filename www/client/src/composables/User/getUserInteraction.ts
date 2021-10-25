@@ -35,7 +35,7 @@ export default function getUserInteraction() {
   const unblockUser = async (user: UserType) => {
     try {
       await axios.delete(`ignoreds/${user.id}`)
-      useSocket('user').socket.emit('leave', { target_id: user.id })
+      useSocket('user').socket.emit('join', { target_id: user.id })
     } catch (e) {
       console.log(e)
     }
