@@ -3,18 +3,18 @@
 		>View Profile</v-contextmenu-item
 	>
 
-	<v-contextmenu-item @click="eventHandler.onOpenDm(User)"
+	<v-contextmenu-item @click="eventHandler.onOpenDm(getUser)"
 		>Send Message</v-contextmenu-item
 	>
 
 	<v-contextmenu-item
-		v-if="IsOwner && !isModerator(User.id) && !isBanned(User.id)"
+		v-if="IsOwner && !isModerator(getUser.id) && !isBanned(getUser.id)"
 		@click="onSetModerator"
 		>Set Moderator</v-contextmenu-item
 	>
 
 	<v-contextmenu-item
-		v-if="IsOwner && isModerator(User.id) && !isBanned(User.id)"
+		v-if="IsOwner && isModerator(getUser.id) && !isBanned(getUser.id)"
 		@click="onRevokeModerator"
 		>Revoke Moderator</v-contextmenu-item
 	>
@@ -22,9 +22,9 @@
 	<v-contextmenu-submenu
 		v-if="
 			(IsOwner || IsModerator) &&
-			User.id != Room.owner.id &&
-			!isModerator(User.id) &&
-			!isBanned(User.id)
+			getUser.id != getRoom.owner.id &&
+			!isModerator(getUser.id) &&
+			!isBanned(getUser.id)
 		"
 		title="Mute"
 	>
@@ -38,32 +38,34 @@
 	<v-contextmenu-item
 		v-if="
 			(IsOwner ||
-				(IsModerator && User.id != Room.owner.id && !isModerator(User.id))) &&
-			!isBanned(User.id)
+				(IsModerator &&
+					getUser.id != getRoom.owner.id &&
+					!isModerator(getUser.id))) &&
+			!isBanned(getUser.id)
 		"
-		@click="eventHandler.onBanUser(User.id, Room.id)"
+		@click="eventHandler.onBanUser(getUser.id, getRoom.id)"
 	>
 		Ban
 	</v-contextmenu-item>
 
 	<v-contextmenu-item
-		v-if="!isBlocked(User.id)"
-		@click="eventHandler.onSendDuel(User)"
+		v-if="!isBlocked(getUser.id)"
+		@click="eventHandler.onSendDuel(getUser)"
 		>Send Duel</v-contextmenu-item
 	>
 
 	<v-contextmenu-item
-		v-if="!isBlocked(User.id)"
-		@click="eventHandler.onBlockUser(User)"
+		v-if="!isBlocked(getUser.id)"
+		@click="eventHandler.onBlockUser(getUser)"
 		>Block</v-contextmenu-item
 	>
-	<v-contextmenu-item v-else @click="eventHandler.onUnblockUser(User)"
+	<v-contextmenu-item v-else @click="eventHandler.onUnblockUser(getUser)"
 		>Unblock</v-contextmenu-item
 	>
 </template>
 
 <script lang="ts">
-import { PropType, defineComponent } from 'vue';
+import { PropType, defineComponent, computed } from 'vue';
 
 import { useContextMenu } from '@/composables/useContextMenu';
 import { useFriends } from '@/composables/Friends/useFriends';
@@ -109,6 +111,14 @@ export default defineComponent({
 			eventHandler.onMuteUser(props.User!.id, props.Room!.id as number, t);
 		};
 
+		const getUser = computed<UserType>(() => {
+			return props.User as UserType;
+		});
+
+		const getRoom = computed<RoomType>(() => {
+			return props.Room as RoomType;
+		});
+
 		return {
 			eventHandler,
 			onSetModerator,
@@ -117,6 +127,8 @@ export default defineComponent({
 			isModerator,
 			isBanned,
 			isBlocked,
+			getUser,
+			getRoom,
 		};
 	},
 });

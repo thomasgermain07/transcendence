@@ -41,7 +41,7 @@ export default defineComponent({
 	components: {
 		FriendsListCM,
 	},
-	setup(props, { emit }) {
+	setup() {
 		let cm_user = ref<UserType>();
 
 		const { openDm } = useWindowInteraction();

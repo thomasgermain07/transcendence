@@ -1,45 +1,51 @@
 <template>
 	<v-contextmenu-item
-		v-if="Conv.type == 'dm'"
-		@click="eventHandler.onProfile(Conv.target)"
+		v-if="Conv?.type == 'dm'"
+		@click="eventHandler.onProfile(getTarget)"
 		>View Profile</v-contextmenu-item
 	>
 	<v-contextmenu-item
-		v-if="Conv.type == 'dm' && !isBlocked(Conv.target.id)"
-		@click="eventHandler.onSendDuel(Conv.target)"
+		v-if="Conv?.type == 'dm' && !isBlocked(getTarget.id)"
+		@click="eventHandler.onSendDuel(getTarget)"
 		>Send Duel</v-contextmenu-item
 	>
 
 	<v-contextmenu-item
-		v-if="Conv.type == 'dm' && !isBlocked(Conv.target.id)"
-		@click="eventHandler.onBlockUser(Conv.target)"
+		v-if="Conv?.type == 'dm' && !isBlocked(getTarget.id)"
+		@click="eventHandler.onBlockUser(getTarget)"
 		>Block</v-contextmenu-item
 	>
 	<v-contextmenu-item
-		v-if="Conv.type == 'dm' && isBlocked(Conv.target.id)"
-		@click="eventHandler.onUnblockUser(Conv.target)"
+		v-if="Conv?.type == 'dm' && isBlocked(getTarget.id)"
+		@click="eventHandler.onUnblockUser(getTarget)"
 		>Unblock</v-contextmenu-item
 	>
 </template>
 
 <script lang="ts">
-import { PropType } from '@vue/runtime-core';
+import { computed, defineComponent, PropType } from '@vue/runtime-core';
 import { ConversationType } from '@/types/chat/conversation';
 import { useContextMenu } from '@/composables/useContextMenu';
 import { useFriends } from '@/composables/Friends/useFriends';
+import { UserType } from '@/types/user/user';
 
-export default {
+export default defineComponent({
 	props: {
 		Conv: Object as PropType<ConversationType>,
 	},
-	setup() {
+	setup(props) {
 		const eventHandler = useContextMenu();
 		const { isBlocked } = useFriends();
 
+		const getTarget = computed(() => {
+			return props?.Conv?.target as UserType;
+		});
+
 		return {
 			eventHandler,
+			getTarget,
 			isBlocked,
 		};
 	},
-};
+});
 </script>

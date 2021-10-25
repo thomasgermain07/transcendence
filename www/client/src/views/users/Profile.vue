@@ -2,10 +2,6 @@
 	<div>
 		<p v-if="status == 'loading'">Loading profile ...</p>
 
-		<div v-if="status == 'error'">
-			<ErrorPage />
-		</div>
-
 		<div v-if="status == 'success'" class="profile-ctn">
 			<section class="user-info">
 				<div class="user-ctn__pp">
@@ -73,11 +69,10 @@
 
 <script lang="ts">
 import { ref, computed, onMounted, defineComponent } from 'vue';
-import { useRoute, onBeforeRouteUpdate } from 'vue-router';
+import { useRoute, onBeforeRouteUpdate, useRouter } from 'vue-router';
 import { useAuth } from '@/composables/auth';
 import { useUsers } from '@/composables/users';
 import requestStatus from '@/composables/requestStatus';
-import ErrorPage from '@/components/ErrorPage.vue';
 import GameStats from '@/components/game/GameStats.vue';
 import MatchHistory from '@/components/game/MatchHistory.vue';
 import Achievements from '@/components/game/Achievements.vue';
@@ -88,7 +83,6 @@ import { useWindowInteraction } from '@/composables/Chat/WindowInteraction/useWi
 
 export default defineComponent({
 	components: {
-		ErrorPage,
 		GameStats,
 		MatchHistory,
 		Achievements,
@@ -98,6 +92,7 @@ export default defineComponent({
 		let status = ref(requestStatus.loading);
 
 		const route = useRoute();
+		const router = useRouter();
 		const { edit } = useAuth();
 		const { users, get } = useUsers();
 
@@ -129,6 +124,9 @@ export default defineComponent({
 		const fetchUserProfile = async (id: number): Promise<void> => {
 			await get(id);
 			status.value = users.value ? requestStatus.success : requestStatus.error;
+			if (status.value == requestStatus.error) {
+				router.replace({ name: 'error-not-found' });
+			}
 		};
 
 		const onAddFriend = async (): Promise<void> => {
@@ -167,8 +165,6 @@ export default defineComponent({
 		return {
 			users,
 			status,
-			addFriend,
-			removeFriend,
 			isCurrentUser,
 			userEdit,
 			openEdit,

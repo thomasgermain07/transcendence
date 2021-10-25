@@ -55,7 +55,7 @@ export default defineComponent({
 		let { conv_id, chat_view, page_title, closeChat, closeChatView } =
 			useWindowInteraction();
 
-		const { loadData, reloadRooms } = useChat();
+		const { reloadRooms } = useChat();
 		const { reloadRoom } = useRoom();
 
 		const getPageTitle = computed(() => {
@@ -78,7 +78,6 @@ export default defineComponent({
 			getPageTitle,
 			closeChat,
 			closeChatView,
-			loadData,
 			onRefreshData,
 			left_room,
 		};

@@ -80,14 +80,11 @@ import { getRoomInputs, createRoom } from '@/composables/Chat/Room/createRoom';
 import { useChat } from '@/composables/Chat/useChat';
 import { useSocket } from '@/composables/socket';
 
-// TODO : If time, remake this HTML/CSS side is not the best
-// And should use a reactive object instead of fileds, errors
-
 export default defineComponent({
 	setup(props, { emit }) {
 		let { fields, errors, sendable } = getRoomInputs();
 
-		let status = ref(requestStatus.default); // get ride of this
+		let status = ref(requestStatus.default);
 
 		const { reloadRooms } = useChat();
 

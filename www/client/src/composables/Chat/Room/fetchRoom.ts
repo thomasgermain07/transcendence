@@ -1,4 +1,3 @@
-import { ref } from 'vue';
 import { useAxios } from '@/composables/axios';
 
 export default function getFetchRoom() {

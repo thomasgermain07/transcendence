@@ -101,7 +101,7 @@ export default defineComponent({
 		RequestList,
 		IgnoredList,
 	},
-	setup(props, { emit }) {
+	setup() {
 		const { loadData, friends, ignored, requests } = useFriends();
 
 		let { searchQuery, friendsByName } = getFriendsByName(friends, ignored);
