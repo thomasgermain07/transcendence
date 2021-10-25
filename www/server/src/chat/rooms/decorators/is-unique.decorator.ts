@@ -1,67 +1,35 @@
-import { Injectable }                   from "@nestjs/common";
-import { registerDecorator }            from "class-validator";
-import { ValidationOptions }            from "class-validator";
-import { ValidationArguments }          from "class-validator";
-import { ValidatorConstraint }          from "class-validator";
-import { ValidatorConstraintInterface } from "class-validator";
+import { Injectable } from '@nestjs/common';
+import { registerDecorator } from 'class-validator';
+import { ValidationOptions } from 'class-validator';
+import { ValidationArguments } from 'class-validator';
+import { ValidatorConstraint } from 'class-validator';
+import { ValidatorConstraintInterface } from 'class-validator';
 
-import { RoomsService } from "../services/rooms.service";
+import { RoomsService } from '../services/rooms.service';
 
 @ValidatorConstraint({ async: true })
 @Injectable()
-export class IsUniqueRoomConstraint
-	implements ValidatorConstraintInterface
-{
+export class IsUniqueRoomConstraint implements ValidatorConstraintInterface {
+	constructor(private readonly rooms_svc: RoomsService) {}
 
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
-	constructor(
-		private readonly rooms_svc: RoomsService,
-	)
-	{
-
-	}
-
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
-	async validate(
-		value: any,
-		args: ValidationArguments,
-	)
-		: Promise<boolean>
-	{
+	async validate(value: any, args: ValidationArguments): Promise<boolean> {
 		const [attribute] = args.constraints;
 
 		return !(await this.rooms_svc.findOne({ [attribute]: value }));
 	}
 
-	defaultMessage(
-		args: ValidationArguments,
-	)
-		: string
-	{
+	defaultMessage(args: ValidationArguments): string {
 		const [attribute] = args.constraints;
 
 		return `Room ${attribute} is already used.`;
 	}
-
 }
 
-// -----------------------------------------------------------------------------
-// Decorator
-// -----------------------------------------------------------------------------
 export function IsUnique(
 	attribute: string,
 	validationOptions?: ValidationOptions,
-)
-{
-	return function (
-		object: Object,
-		propertyName: string,
-	)
-	{
+) {
+	return function (object: Object, propertyName: string) {
 		registerDecorator({
 			target: object.constructor,
 			propertyName: propertyName,

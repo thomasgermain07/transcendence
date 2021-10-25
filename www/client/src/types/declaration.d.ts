@@ -1,2 +1,2 @@
-declare module 'v-contextmenu'
-declare module 'jenesius-vue-modal'
+declare module 'v-contextmenu';
+declare module 'jenesius-vue-modal';

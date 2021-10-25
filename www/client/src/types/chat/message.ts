@@ -1,8 +1,9 @@
-import { UserType } from '../user/user'
-import { RoomType } from './room'
+import { UserType } from '../user/user';
+import { RoomType } from './room';
 
 export type MessageType = {
-  author: UserType
-  room: RoomType
-  content: String
-}
+	id: number;
+	author: UserType;
+	room: RoomType;
+	content: string;
+};

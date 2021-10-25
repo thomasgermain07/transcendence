@@ -1,34 +1,19 @@
-import { Injectable }       from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository }       from 'typeorm';
+import { Repository } from 'typeorm';
 
 import { User } from 'src/users/entities/user.entity';
 
-import { Friendship } from "../entities/friendship.entity";
+import { Friendship } from '../entities/friendship.entity';
 
 @Injectable()
-export class FriendshipsService
-{
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
+export class FriendshipsService {
 	constructor(
 		@InjectRepository(Friendship)
 		private readonly frienships_repo: Repository<Friendship>,
-	)
-	{
+	) {}
 
-	}
-
-	// -------------------------------------------------------------------------
-	// Public methods
-	// -------------------------------------------------------------------------
-	async create(
-		user: User,
-		target: User,
-	)
-		: Promise<Friendship>
-	{
+	async create(user: User, target: User): Promise<Friendship> {
 		const friendship: Friendship = this.frienships_repo.create();
 		friendship.user = user;
 		friendship.target = target;
@@ -39,45 +24,29 @@ export class FriendshipsService
 	async findAllOrWithAccepted(
 		user: User,
 		accepted: boolean,
-	)
-		: Promise<Friendship[]>
-	{
+	): Promise<Friendship[]> {
 		return this.frienships_repo.find({
 			where: [
-				{ user:   user, accepted: accepted },
+				{ user: user, accepted: accepted },
 				{ target: user, accepted: accepted },
 			],
 		});
 	}
 
-	async findOneOr(
-		user: User,
-		target: User,
-	)
-		: Promise<Friendship>
-	{
+	async findOneOr(user: User, target: User): Promise<Friendship> {
 		return this.frienships_repo.findOne({
 			where: [
-				{ user: user,   target: target },
-				{ user: target, target: user   },
+				{ user: user, target: target },
+				{ user: target, target: user },
 			],
 		});
 	}
 
-	async update(
-		friendship: Friendship,
-	)
-		: Promise<Friendship>
-	{
+	async update(friendship: Friendship): Promise<Friendship> {
 		return this.frienships_repo.save(friendship);
 	}
 
-	async remove(
-		user: User,
-		target: User,
-	)
-		: Promise<void>
-	{
+	async remove(user: User, target: User): Promise<void> {
 		this.frienships_repo.delete({
 			user: user,
 			target: target,
@@ -88,5 +57,4 @@ export class FriendshipsService
 			target: user,
 		});
 	}
-
 }

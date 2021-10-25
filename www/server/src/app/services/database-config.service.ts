@@ -1,15 +1,10 @@
-import { Injectable }            from '@nestjs/common'
-import { TypeOrmModuleOptions }  from '@nestjs/typeorm'
-import { TypeOrmOptionsFactory } from '@nestjs/typeorm'
+import { Injectable } from '@nestjs/common';
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { TypeOrmOptionsFactory } from '@nestjs/typeorm';
 
 @Injectable()
-export class DatabaseConfigService
-	implements TypeOrmOptionsFactory
-{
-
-	createTypeOrmOptions()
-		: TypeOrmModuleOptions
-	{
+export class DatabaseConfigService implements TypeOrmOptionsFactory {
+	createTypeOrmOptions(): TypeOrmModuleOptions {
 		return {
 			type: 'postgres',
 			host: process.env.DB_HOST,
@@ -21,8 +16,6 @@ export class DatabaseConfigService
 
 			synchronize: true,
 			autoLoadEntities: true,
-			// logging: true,
-		}
+		};
 	}
-
 }

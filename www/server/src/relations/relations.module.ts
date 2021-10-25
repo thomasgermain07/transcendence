@@ -1,17 +1,16 @@
-import { Module }     from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { forwardRef } from '@nestjs/common';
 
-import { FriendshipsModule }  from "./friendships/friendships.module";
-import { IgnoredsModule } from "./ignoreds/ignoreds.module";
+import { FriendshipsModule } from './friendships/friendships.module';
+import { IgnoredsModule } from './ignoreds/ignoreds.module';
 
 @Module({
 	imports: [
-		// Modules
 		forwardRef(() => FriendshipsModule),
 		forwardRef(() => IgnoredsModule),
 	],
 	controllers: [],
 	providers: [],
-	exports: []
+	exports: [],
 })
 export class RelationsModule {}

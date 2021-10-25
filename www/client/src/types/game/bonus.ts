@@ -1,6 +1,6 @@
 export type Bonus = {
-    x: number
-    y: number
-    rayon: number
-    exist: boolean
-}
+	x: number;
+	y: number;
+	rayon: number;
+	exist: boolean;
+};

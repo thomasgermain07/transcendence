@@ -1,279 +1,264 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common';
 
-import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
-import { Room } from '../entities/room.entity'
-import { GameMode, GameState } from '../../enum/enum'
-import { MapType, DifficultyLevel } from '../../enum/enum'
-import { Option } from '../entities/option.entity'
-import { User } from 'src/users/entities/user.entity'
+import { Room } from '../entities/room.entity';
+import { GameMode, GameState } from '../../enum/enum';
+import { MapType, DifficultyLevel } from '../../enum/enum';
+import { Option } from '../entities/option.entity';
+import { User } from 'src/users/entities/user.entity';
 
-import CreateRoomDto from '../dto/create-room.dto'
-import UpdateRoomDto from '../dto/update-room.dto'
-import CreateOptionDto from '../dto/create-option.dto'
+import CreateRoomDto from '../dto/create-room.dto';
+import UpdateRoomDto from '../dto/update-room.dto';
+import CreateOptionDto from '../dto/create-option.dto';
 
 @Injectable()
 export class RoomsService {
-  // -------------------------------------------------------------------------
-  // Constructor
-  // -------------------------------------------------------------------------
+	constructor(
+		@InjectRepository(Room)
+		private roomsRepository: Repository<Room>,
+		@InjectRepository(Option)
+		private optionsRepository: Repository<Option>,
+	) {}
 
-  constructor(
-    @InjectRepository(Room)
-    private roomsRepository: Repository<Room>,
-    @InjectRepository(Option)
-    private optionsRepository: Repository<Option>,
-  ) {}
+	public findAll(): Promise<Room[]> {
+		return this.roomsRepository.find({
+			relations: ['option'],
+		});
+	}
 
-  // -------------------------------------------------------------------------
-  // Public methods
-  // -------------------------------------------------------------------------
+	public async findOne(id: number): Promise<Room> {
+		const room = await this.roomsRepository.findOne(id, {
+			relations: ['option', 'players'],
+		});
+		if (!room) {
+			throw new NotFoundException('Room not found.');
+		}
+		return room;
+	}
 
-  public findAll(): Promise<Room[]> {
-    return this.roomsRepository.find({
-      relations: ['option'],
-    })
-  }
+	public async findOneByPlayerId(playerId: number): Promise<Room> {
+		const room = await this.roomsRepository
+			.createQueryBuilder('room')
+			.leftJoinAndSelect('room.option', 'option')
+			.leftJoinAndSelect('room.players', 'players')
+			.where('players.id = :id', { id: playerId })
+			.getOne();
 
-  public async findOne(id: number): Promise<Room> {
-    const room = await this.roomsRepository.findOne(id, {
-      relations: ['option', 'players'],
-    })
-    if (!room) {
-      throw new NotFoundException('Room not found.')
-    }
-    return room
-  }
+		return room;
+	}
 
-  public async findOneByPlayerId(playerId: number): Promise<Room> {
-    const room = await this.roomsRepository
-      .createQueryBuilder('room')
-      .leftJoinAndSelect('room.option', 'option')
-      .leftJoinAndSelect('room.players', 'players')
-      .where('players.id = :id', { id: playerId })
-      .getOne()
+	public async findEmptyAndDelete(): Promise<void> {
+		const rooms = await this.roomsRepository.find({
+			where: { locked: false, state: GameState.WAITING },
+		});
 
-    return room
-  }
+		const emptyRooms = rooms.filter((room) => room.players.length === 0);
 
-  public async findEmptyAndDelete(): Promise<void> {
-    const rooms = await this.roomsRepository.find({
-      where: { locked: false, state: GameState.WAITING },
-    })
+		await this.removeMultiple(emptyRooms);
+	}
 
-    const emptyRooms = rooms.filter((room) => room.players.length === 0)
+	public async findMatchOrCreate(
+		mode: GameMode,
+		options: CreateOptionDto,
+		user: User,
+		range: number,
+	): Promise<Room> {
+		let room = await this.findByModeAndOptions(mode, user, options, range);
 
-    await this.removeMultiple(emptyRooms)
-  }
+		if (!room) {
+			let roomDto: CreateRoomDto = { mode };
+			if (options) {
+				roomDto.option = { ...options };
+			}
+			room = await this.createEmpty(roomDto);
+		}
 
-  public async findMatchOrCreate(
-    mode: GameMode,
-    options: CreateOptionDto,
-    user: User,
-    range: number,
-  ): Promise<Room> {
-    let room = await this.findByModeAndOptions(mode, user, options, range)
+		return room;
+	}
 
-    if (!room) {
-      console.log('NO CORRESPONDING ROOM FOUND - CREATING NEW')
-      let roomDto: CreateRoomDto = { mode }
-      if (options) {
-        roomDto.option = { ...options }
-      }
-      console.log(roomDto)
-      room = await this.createEmpty(roomDto)
-    }
+	public async findByModeAndOptions(
+		mode: GameMode,
+		user: User,
+		options?: CreateOptionDto,
+		range?: number,
+	): Promise<Room> {
+		let room = null;
 
-    return room
-  }
+		if (mode === GameMode.LADDER) {
+			room = await this.findMatchOnLadder(user, range);
+		} else {
+			room = await this.findMatchOnDuel(options);
+		}
 
-  public async findByModeAndOptions(
-    mode: GameMode,
-    user: User,
-    options?: CreateOptionDto,
-    range?: number,
-  ): Promise<Room> {
-    let room = null
+		return room;
+	}
 
-    if (mode === GameMode.LADDER) {
-      room = await this.findMatchOnLadder(user, range)
-    } else {
-      room = await this.findMatchOnDuel(options)
-    }
+	public async findMatchOnLadder(user: User, range: number): Promise<Room> {
+		const room = await this.roomsRepository
+			.createQueryBuilder('room')
+			.leftJoinAndSelect('room.players', 'players')
+			.leftJoinAndSelect('players.user', 'users')
+			.where('room.mode = :mode', { mode: GameMode.LADDER })
+			.andWhere('room.locked = :locked', { locked: false })
+			.andWhere(`"users"."ladderLevel" BETWEEN :begin AND :end`, {
+				begin: user.ladderLevel - range,
+				end: user.ladderLevel + range,
+			})
+			.getOne();
 
-    return room
-  }
+		return room;
+	}
 
-  public async findMatchOnLadder(user: User, range: number): Promise<Room> {
-    const room = await this.roomsRepository
-      .createQueryBuilder('room')
-      .leftJoinAndSelect('room.players', 'players')
-      .leftJoinAndSelect('players.user', 'users')
-      .where('room.mode = :mode', { mode: GameMode.LADDER })
-      .andWhere('room.locked = :locked', { locked: false })
-      .andWhere(`"users"."ladderLevel" BETWEEN :begin AND :end`, {
-        begin: user.ladderLevel - range,
-        end: user.ladderLevel + range,
-      })
-      .getOne()
+	public async findMatchOnDuel(options?: CreateOptionDto): Promise<Room> {
+		const optionsDefault: CreateOptionDto = {
+			map: MapType.DEFAULT,
+			difficulty: DifficultyLevel.EASY,
+			powerUps: false,
+		};
 
-    return room
-  }
+		const optionDto = options || optionsDefault;
 
-  public async findMatchOnDuel(options?: CreateOptionDto): Promise<Room> {
-    const optionsDefault: CreateOptionDto = {
-      map: MapType.DEFAULT,
-      difficulty: DifficultyLevel.EASY,
-      powerUps: false,
-    }
+		const room = await this.roomsRepository
+			.createQueryBuilder('room')
+			.leftJoinAndSelect('room.option', 'option')
+			.leftJoinAndSelect('room.players', 'players')
+			.where('room.mode = :mode', { mode: GameMode.DUEL })
+			.andWhere('room.locked = :locked', { locked: false })
+			.andWhere('option.map = :map', { map: optionDto.map })
+			.andWhere('option.difficulty = :diff', { diff: optionDto.difficulty })
+			.andWhere('option.powerUps = :pow', { pow: optionDto.powerUps })
+			.orderBy('players')
+			.getOne();
 
-    const optionDto = options || optionsDefault
+		return room;
+	}
 
-    const room = await this.roomsRepository
-      .createQueryBuilder('room')
-      .leftJoinAndSelect('room.option', 'option')
-      .leftJoinAndSelect('room.players', 'players')
-      .where('room.mode = :mode', { mode: GameMode.DUEL })
-      .andWhere('room.locked = :locked', { locked: false })
-      .andWhere('option.map = :map', { map: optionDto.map })
-      .andWhere('option.difficulty = :diff', { diff: optionDto.difficulty })
-      .andWhere('option.powerUps = :pow', { pow: optionDto.powerUps })
-      .orderBy('players')
-      .getOne()
+	public async findAllByMode(mode: GameMode): Promise<Room[]> {
+		const rooms = await this.roomsRepository
+			.createQueryBuilder('room')
+			.leftJoinAndSelect('room.players', 'players')
+			.leftJoinAndSelect('players.user', 'users')
+			.where('room.mode = :mode', { mode: mode })
+			.andWhere('room.state = :state', { state: GameState.PLAYING })
+			.getMany();
 
-    return room
-  }
+		return rooms;
+	}
 
-  public async findAllByMode(mode: GameMode): Promise<Room[]> {
-    const rooms = await this.roomsRepository
-      .createQueryBuilder('room')
-      .leftJoinAndSelect('room.players', 'players')
-      .leftJoinAndSelect('players.user', 'users')
-      .where('room.mode = :mode', { mode: mode })
-      .andWhere('room.state = :state', { state: GameState.PLAYING })
-      .getMany()
+	public async findAllWinsByUser(user: User): Promise<Room[]> {
+		const rooms = await this.roomsRepository
+			.createQueryBuilder('room')
+			.leftJoinAndSelect('room.option', 'option')
+			.leftJoinAndSelect('room.players', 'players')
+			.leftJoinAndSelect('players.user', 'users')
+			.where('room.mode != :mode', { mode: GameMode.PRIVATE })
+			.andWhere('players.user.id = :userId', { userId: user.id })
+			.andWhere('players.winner = :winner', { winner: true })
+			.getMany(); // TODO: replace by getCount
 
-    return rooms
-  }
+		return rooms;
+	}
 
-  public async findAllWinsByUser(user: User): Promise<Room[]> {
-    const rooms = await this.roomsRepository
-      .createQueryBuilder('room')
-      .leftJoinAndSelect('room.option', 'option')
-      .leftJoinAndSelect('room.players', 'players')
-      .leftJoinAndSelect('players.user', 'users')
-      .where('room.mode != :mode', { mode: GameMode.PRIVATE })
-      .andWhere('players.user.id = :userId', { userId: user.id })
-      .andWhere('players.winner = :winner', { winner: true })
-      .getMany() // TODO: replace by getCount
+	public async findWinsByUserInMapDuel(user: User): Promise<boolean> {
+		const totalWinsPerMap = await this.roomsRepository
+			.createQueryBuilder('room')
+			.leftJoinAndSelect('room.option', 'option')
+			.leftJoinAndSelect('room.players', 'players')
+			.leftJoinAndSelect('players.user', 'users')
+			.where('room.mode = :mode', { mode: GameMode.DUEL })
+			.andWhere('players.user.id = :userId', { userId: user.id })
+			.andWhere('players.winner = :winner', { winner: true })
+			.select('option.map')
+			.groupBy('option.map')
+			.getRawMany();
 
-    return rooms
-  }
+		if (totalWinsPerMap.length === 3) return true;
+		return false;
+	}
 
-  public async findWinsByUserInMapDuel(user: User): Promise<boolean> {
-    const totalWinsPerMap = await this.roomsRepository
-      .createQueryBuilder('room')
-      .leftJoinAndSelect('room.option', 'option')
-      .leftJoinAndSelect('room.players', 'players')
-      .leftJoinAndSelect('players.user', 'users')
-      .where('room.mode = :mode', { mode: GameMode.DUEL })
-      .andWhere('players.user.id = :userId', { userId: user.id })
-      .andWhere('players.winner = :winner', { winner: true })
-      .select('option.map')
-      .groupBy('option.map')
-      .getRawMany()
+	public async findAllMatchPlayingByUser(user: User): Promise<Room[]> {
+		const rooms = await this.roomsRepository
+			.createQueryBuilder('room')
+			.leftJoinAndSelect('room.players', 'players')
+			.leftJoinAndSelect('players.user', 'users')
+			.where('room.state IN (:...states)', {
+				states: [GameState.PLAYING, GameState.PAUSE],
+			})
+			.andWhere('players.user.id = :userId', { userId: user.id })
+			.getMany();
 
-    if (totalWinsPerMap.length === 3) return true
-    return false
-  }
+		return rooms;
+	}
 
-  public async findAllMatchPlayingByUser(user: User): Promise<Room[]> {
-    const rooms = await this.roomsRepository
-      .createQueryBuilder('room')
-      .leftJoinAndSelect('room.players', 'players')
-      .leftJoinAndSelect('players.user', 'users')
-      .where('room.state IN (:...states)', {
-        states: [GameState.PLAYING, GameState.PAUSE],
-      })
-      .andWhere('players.user.id = :userId', { userId: user.id })
-      .getMany()
+	public async update(id: number, roomDto: UpdateRoomDto): Promise<Room> {
+		const room = await this.roomsRepository.save({
+			id,
+			...roomDto,
+		});
+		return this.findOne(room.id);
+	}
 
-    return rooms
-  }
+	public async remove(room: Room): Promise<void> {
+		await this.roomsRepository.delete(room.id);
+	}
 
-  public async update(id: number, roomDto: UpdateRoomDto): Promise<Room> {
-    const room = await this.roomsRepository.save({
-      id,
-      ...roomDto,
-    })
-    return this.findOne(room.id)
-  }
+	public async clearAll(): Promise<void> {
+		await this.roomsRepository.createQueryBuilder().delete().execute();
+	}
 
-  public async remove(room: Room): Promise<void> {
-    await this.roomsRepository.delete(room.id)
-  }
+	public async checkIfMatchFound(id: number): Promise<boolean> {
+		const room = await this.roomsRepository.findOne(id);
+		if (room && room.players.length == 2) {
+			return true;
+		}
+		return false;
+	}
 
-  public async clearAll(): Promise<void> {
-    await this.roomsRepository.createQueryBuilder().delete().execute()
-  }
+	public async checkIfFromRoom(user: User, room: Room): Promise<boolean> {
+		const result = await this.roomsRepository
+			.createQueryBuilder('room')
+			.leftJoinAndSelect('room.players', 'players')
+			.leftJoinAndSelect('players.user', 'users')
+			.where('room.id = :id', { id: room.id })
+			.andWhere('players.user.id = :userId', { userId: user.id })
+			.getOne();
+		if (result) {
+			return true;
+		}
+		return false;
+	}
 
-  public async checkIfMatchFound(id: number): Promise<boolean> {
-    const room = await this.roomsRepository.findOne(id)
-    if (room && room.players.length == 2) {
-      return true
-    }
-    return false
-  }
+	public async createPrivate(createOptionDto: CreateOptionDto): Promise<Room> {
+		const option = this.optionsRepository.create(createOptionDto);
 
-  public async checkIfFromRoom(user: User, room: Room): Promise<boolean> {
-    const result = await this.roomsRepository
-      .createQueryBuilder('room')
-      .leftJoinAndSelect('room.players', 'players')
-      .leftJoinAndSelect('players.user', 'users')
-      .where('room.id = :id', { id: room.id })
-      .andWhere('players.user.id = :userId', { userId: user.id })
-      .getOne()
-    if (result) {
-      return true
-    }
-    return false
-  }
+		const room = this.roomsRepository.create({
+			mode: GameMode.PRIVATE,
+			option: option,
+			locked: true,
+			players: [],
+		});
+		await this.roomsRepository.save(room);
 
-  public async createPrivate(createOptionDto: CreateOptionDto): Promise<Room> {
-    const option = this.optionsRepository.create(createOptionDto)
+		return room;
+	}
 
-    const room = this.roomsRepository.create({
-      mode: GameMode.PRIVATE,
-      option: option,
-      locked: true,
-      players: [],
-    })
-    await this.roomsRepository.save(room)
+	private async createEmpty(createRoomDto: CreateRoomDto): Promise<Room> {
+		// Init options: if no options in Dto, default values will be inserted
+		const option = this.optionsRepository.create(createRoomDto?.option);
 
-    return room
-  }
+		const room = this.roomsRepository.create({
+			...createRoomDto,
+			option: option,
+			players: [],
+		});
+		await this.roomsRepository.save(room);
 
-  // -------------------------------------------------------------------------
-  // Private methods
-  // -------------------------------------------------------------------------
+		return room;
+	}
 
-  private async createEmpty(createRoomDto: CreateRoomDto): Promise<Room> {
-    // Init options: if no options in Dto, default values will be inserted
-    const option = this.optionsRepository.create(createRoomDto?.option)
-
-    // Create room
-    const room = this.roomsRepository.create({
-      ...createRoomDto,
-      option: option,
-      players: [],
-    })
-    await this.roomsRepository.save(room)
-
-    return room
-  }
-
-  private async removeMultiple(rooms: Room[]): Promise<void> {
-    await this.roomsRepository.remove(rooms)
-  }
+	private async removeMultiple(rooms: Room[]): Promise<void> {
+		await this.roomsRepository.remove(rooms);
+	}
 }

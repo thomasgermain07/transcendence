@@ -1,311 +1,251 @@
-import { reactive, readonly, computed } from 'vue'
+import { reactive, readonly, computed } from 'vue';
 
-import { router } from '@/router'
-import { AuthService } from '@/services/auth'
-import { UsersService } from '@/services/users'
-import { useUsers } from '@/composables/users'
+import { router } from '@/router';
+import { AuthService } from '@/services/auth';
+import { UsersService } from '@/services/users';
+import { useUsers } from '@/composables/users';
 
-import { AxiosErrType, AxiosResType } from './axios'
-import { UserType, UserUpdateType } from '../types/user/user'
-import { useSocket } from './socket'
-import { useGameInvite } from './Game/useGameInvite'
+import { AxiosErrType, AxiosResType } from './axios';
+import { UserType, UserUpdateType } from '../types/user/user';
+import { useSocket } from './socket';
+import { useGameInvite } from './Game/useGameInvite';
 
-// -----------------------------------------------------------------------------
-// Constants
-// -----------------------------------------------------------------------------
-const EXPIRATION = parseInt(import.meta.env.VITE_JWT_ACCESS_LIFETIME)
-const TIMEOUT = Math.max(10, EXPIRATION - (EXPIRATION > 600 ? 300 : 30))
-const namespaces = ['user', 'dm', 'chat', 'matchmaker', 'game-rooms']
+const EXPIRATION = parseInt(import.meta.env.VITE_JWT_ACCESS_LIFETIME);
+const TIMEOUT = Math.max(10, EXPIRATION - (EXPIRATION > 600 ? 300 : 30));
+const namespaces = ['user', 'dm', 'chat', 'matchmaker', 'game-rooms'];
 
-// -----------------------------------------------------------------------------
-// Types
-// -----------------------------------------------------------------------------
 export type RegisterType = {
-  name: string
-  email: string
-  password: string
-}
+	name: string;
+	email: string;
+	password: string;
+};
 
 export type LoginType = {
-  email: string
-  password: string
-}
+	email: string;
+	password: string;
+};
 
 export type GoogleAuthType = {
-  visible: boolean
-  code: string
-  user_id: number
-}
+	visible: boolean;
+	code: string;
+	user_id: number;
+};
 
-// -------------------------------------------------------------------------
-// State
-// -------------------------------------------------------------------------
 const user = reactive<UserType>({
-  id: 0,
-  name: '',
-  email: '',
-  avatar: '',
-  ladderLevel: 1,
-  isTwoFactorAuthenticationEnabled: false,
-  status: '',
-  first_log: true,
-})
-const is_authenticated = computed(() => !(user.id === 0))
+	id: 0,
+	name: '',
+	email: '',
+	avatar: '',
+	ladderLevel: 1,
+	isTwoFactorAuthenticationEnabled: false,
+	status: '',
+	first_log: true,
+});
+const is_authenticated = computed(() => !(user.id === 0));
 
 const googleCode = reactive<GoogleAuthType>({
-  visible: false,
-  user_id: 0,
-  code: '',
-})
-// -----------------------------------------------------------------------------
-// Composable
-// -----------------------------------------------------------------------------
+	visible: false,
+	user_id: 0,
+	code: '',
+});
+
 export function useAuth() {
-  // -------------------------------------------------------------------------
-  // Functions
-  // -------------------------------------------------------------------------
-  async function register(payload: RegisterType): Promise<void> {
-    try {
-      const res = await AuthService.register(payload)
+	async function register(payload: RegisterType): Promise<void> {
+		try {
+			const res = await AuthService.register(payload);
 
-      console.log('useAuth.register: Done.')
+			router.push({ name: 'auth-register' });
+		} catch (err: AxiosErrType) {
+			throw err;
+		}
 
-      router.push({ name: 'auth-register' })
-    } catch (err: AxiosErrType) {
-      console.log('useAuth.register: Fail.')
+		return;
+	}
 
-      throw err
-    }
+	async function login(payload: LoginType): Promise<void> {
+		try {
+			const res = await AuthService.login(payload);
 
-    return
-  }
+			if (!res.data || !res.data.two_factor_enabled) {
+				const { users, get } = useUsers();
+				await get();
+				setUser(users.value);
+				setAuthenticated(true);
+				router.replace({ name: 'index' });
+			} else {
+				googleCode.user_id = res.data.user_id;
+				googleCode.visible = true;
+			}
+		} catch (err: AxiosErrType) {
+			throw err;
+		}
 
-  async function login(payload: LoginType): Promise<void> {
-    try {
-      const res = await AuthService.login(payload)
+		return;
+	}
 
-      console.log('useAuth.login: Done.')
+	async function loginMarvin(code: string): Promise<void> {
+		try {
+			const res = await AuthService.loginMarvin(code);
 
-      if (!res.data || !res.data.two_factor_enabled) {
-        const { users, get } = useUsers()
-        await get()
-        setUser(users.value)
-        setAuthenticated(true)
-        router.replace({ name: 'index' })
-      } else {
-        googleCode.user_id = res.data.user_id
-        googleCode.visible = true
-      }
-    } catch (err: AxiosErrType) {
-      console.log('useAuth.login: Fail.')
+			if (!res.data || !res.data.two_factor_enabled) {
+				const { users, get } = useUsers();
+				await get();
+				setUser(users.value);
+				setAuthenticated(true);
+				router.replace({ name: 'index' });
+			} else {
+				googleCode.user_id = res.data.user_id;
+				googleCode.visible = true;
+			}
+		} catch (err: AxiosErrType) {
+			throw err;
+		}
 
-      throw err
-    }
+		return;
+	}
 
-    return
-  }
+	async function refresh(): Promise<void> {
+		try {
+			const res = await AuthService.refresh();
 
-  async function loginMarvin(code: string): Promise<void> {
-    try {
-      const res = await AuthService.loginMarvin(code)
+			if (!is_authenticated.value) {
+				const { users, get } = useUsers();
 
-      console.log('useAuth.loginMarvin: Done.')
+				await get();
 
-      if (!res.data || !res.data.two_factor_enabled) {
-        const { users, get } = useUsers()
-        await get()
-        setUser(users.value)
-        setAuthenticated(true)
-        router.replace({ name: 'index' })
-      } else {
-        googleCode.user_id = res.data.user_id
-        googleCode.visible = true
-      }
-    } catch (err: AxiosErrType) {
-      console.log('useAuth.loginMarvin: Fail.')
+				setUser(users.value);
+			}
 
-      throw err
-    }
+			setAuthenticated(true);
+		} catch (err: AxiosErrType) {
+			logout(true);
+			return;
+		}
 
-    return
-  }
+		return;
+	}
 
-  async function refresh(): Promise<void> {
-    try {
-      const res = await AuthService.refresh()
+	function autoRefresh(): void {
+		if (is_authenticated.value) refresh();
 
-      console.log('useAuth.refresh: Done.')
+		setTimeout(autoRefresh, TIMEOUT * 1000);
+	}
 
-      if (!is_authenticated.value) {
-        const { users, get } = useUsers()
+	async function logout(soft: boolean = false): Promise<void> {
+		useGameInvite().closeEverything();
 
-        await get()
+		if (!soft) {
+			try {
+				const res = await AuthService.logout();
+			} catch (err: AxiosErrType) {}
+		}
 
-        setUser(users.value)
-      }
+		setUser();
+		setAuthenticated(false);
+		googleCode.visible = false;
+		googleCode.user_id = 0;
+		router.replace({ name: 'auth-login' });
 
-      setAuthenticated(true)
-    } catch (err: AxiosErrType) {
-      console.log('useAuth.refresh: Fail.')
+		namespaces.forEach((nsp) => {
+			useSocket(nsp).close();
+		});
 
-      logout(true)
-      return
-    }
+		return;
+	}
 
-    return
-  }
+	async function edit(payload: UserUpdateType): Promise<void> {
+		try {
+			const res = await UsersService.edit(user.id, payload);
+			if (res) {
+				const { users, get } = useUsers();
+				await get();
+				setUser(users.value);
+			}
+		} catch (err: AxiosErrType) {
+			throw err;
+		}
 
-  function autoRefresh(): void {
-    if (is_authenticated.value) refresh()
+		return;
+	}
 
-    setTimeout(autoRefresh, TIMEOUT * 1000)
-  }
+	async function activateTwoFa(): Promise<AxiosResType> {
+		try {
+			const res = await AuthService.activate2Fa();
+			if (res) {
+				const { users, get } = useUsers();
+				await get();
+				setUser(users.value);
+			}
+			return res;
+		} catch (err: AxiosErrType) {
+			throw err;
+		}
+	}
 
-  async function logout(soft: boolean = false): Promise<void> {
-    useGameInvite().closeEverything()
+	async function deactivateTwoFa(): Promise<AxiosResType> {
+		try {
+			const res = await AuthService.deactivate2Fa();
+			if (res) {
+				const { users, get } = useUsers();
+				await get();
+				setUser(users.value);
+			}
+			return res;
+		} catch (err: AxiosErrType) {
+			throw err;
+		}
+	}
 
-    if (!soft) {
-      try {
-        const res = await AuthService.logout()
+	async function verifyCode(code: GoogleAuthType): Promise<AxiosResType> {
+		try {
+			const res = await AuthService.verifyCode(code);
 
-        console.log('useAuth.logout: (Hard) Done.')
-      } catch (err: AxiosErrType) {
-        console.log('useAuth.logout: (Hard) Fail.')
-      }
-    }
+			const { users, get } = useUsers();
 
-    console.log('useAuth.logout: (Soft) Done.')
+			await get();
 
-    setUser()
-    setAuthenticated(false)
-    googleCode.visible = false
-    googleCode.user_id = 0
-    router.replace({ name: 'auth-login' })
+			setUser(users.value);
+			setAuthenticated(true);
+			router.replace({ name: 'index' });
+			return res;
+		} catch (err: AxiosErrType) {
+			throw err;
+		}
+	}
 
-    namespaces.forEach((nsp) => {
-      useSocket(nsp).close()
-    })
+	function isPreviouslyAuthenticated(): boolean {
+		return localStorage.getItem('auth') === true.toString();
+	}
 
-    return
-  }
-
-  async function edit(payload: UserUpdateType): Promise<void> {
-    try {
-      const res = await UsersService.edit(user.id, payload)
-      if (res) {
-        const { users, get } = useUsers()
-        await get()
-        setUser(users.value)
-      }
-      console.log('useAuth.editing: Done.')
-    } catch (err: AxiosErrType) {
-      console.log('useAuth.editing: Fail.')
-
-      throw err
-    }
-
-    return
-  }
-
-  async function activateTwoFa(): Promise<AxiosResType> {
-    try {
-      const res = await AuthService.activate2Fa()
-      if (res) {
-        const { users, get } = useUsers()
-        await get()
-        setUser(users.value)
-      }
-      console.log('useAuth.activate2fa: Done.')
-
-      return res
-    } catch (err: AxiosErrType) {
-      console.log('useAuth.activate2Fa: Fail.')
-
-      throw err
-    }
-  }
-
-  async function deactivateTwoFa(): Promise<AxiosResType> {
-    try {
-      const res = await AuthService.deactivate2Fa()
-      if (res) {
-        const { users, get } = useUsers()
-        await get()
-        setUser(users.value)
-      }
-      console.log('useAuth.deactivate2fa: Done.')
-
-      return res
-    } catch (err: AxiosErrType) {
-      console.log('useAuth.deactivate2Fa: Fail.')
-
-      throw err
-    }
-  }
-
-  async function verifyCode(code: GoogleAuthType): Promise<AxiosResType> {
-    try {
-      const res = await AuthService.verifyCode(code)
-
-      const { users, get } = useUsers()
-
-      await get()
-
-      console.log('useAuth.verifyCode: Done.')
-      setUser(users.value)
-      setAuthenticated(true)
-      router.replace({ name: 'index' })
-      return res
-    } catch (err: AxiosErrType) {
-      console.log('useAuth.verifyCode: Fail.')
-
-      throw err
-    }
-  }
-
-  function isPreviouslyAuthenticated(): boolean {
-    return localStorage.getItem('auth') === true.toString()
-  }
-
-  // -------------------------------------------------------------------------
-  // Exposes
-  // -------------------------------------------------------------------------
-  return {
-    // State
-    user: readonly(user),
-    is_authenticated,
-    googleCode,
-    // Datas
-
-    // Functions
-    register,
-    login,
-    loginMarvin,
-    refresh,
-    autoRefresh,
-    logout,
-    edit,
-    activateTwoFa,
-    deactivateTwoFa,
-    verifyCode,
-    isPreviouslyAuthenticated,
-  }
+	return {
+		user: readonly(user),
+		is_authenticated,
+		googleCode,
+		register,
+		login,
+		loginMarvin,
+		refresh,
+		autoRefresh,
+		logout,
+		edit,
+		activateTwoFa,
+		deactivateTwoFa,
+		verifyCode,
+		isPreviouslyAuthenticated,
+	};
 }
 
-// -----------------------------------------------------------------------------
-// Private functions
-// -----------------------------------------------------------------------------
 function setAuthenticated(authenticated: boolean): void {
-  localStorage.setItem('auth', authenticated.toString())
+	localStorage.setItem('auth', authenticated.toString());
 }
 
 function setUser(data: UserType | undefined = undefined) {
-  user.id = data?.id ?? 0
-  user.name = data?.name ?? ''
-  user.email = data?.email ?? ''
-  user.avatar = data?.avatar ?? ''
-  user.ladderLevel = data?.ladderLevel ?? 1
-  user.isTwoFactorAuthenticationEnabled =
-    data?.isTwoFactorAuthenticationEnabled ?? false
-  user.first_log = data?.first_log ?? true
+	user.id = data?.id ?? 0;
+	user.name = data?.name ?? '';
+	user.email = data?.email ?? '';
+	user.avatar = data?.avatar ?? '';
+	user.ladderLevel = data?.ladderLevel ?? 1;
+	user.isTwoFactorAuthenticationEnabled =
+		data?.isTwoFactorAuthenticationEnabled ?? false;
+	user.first_log = data?.first_log ?? true;
 }

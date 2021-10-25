@@ -1,168 +1,155 @@
-import { createToast, withProps } from 'mosha-vue-toastify'
-import 'mosha-vue-toastify/dist/style.css'
+import { createToast, withProps } from 'mosha-vue-toastify';
+import 'mosha-vue-toastify/dist/style.css';
 
-import { router } from '@/router/index'
+import { router } from '@/router/index';
 
-import getInvitationInteraction from './invitationInteraction'
+import getInvitationInteraction from './invitationInteraction';
 
-import { InvitationType } from '@/types/game/invitation'
+import { InvitationType } from '@/types/game/invitation';
 
-import Invitation from '@/components/game/duel/invitation/Invitation.vue'
-import Error from '@/components/game/duel/invitation/Error.vue'
+import Invitation from '@/components/game/duel/invitation/Invitation.vue';
+import Error from '@/components/game/duel/invitation/Error.vue';
 
-import Invite from '@/components/game/duel/invite/Invite.vue'
+import Invite from '@/components/game/duel/invite/Invite.vue';
 
-import { UserType } from '@/types/user/user'
-import { useAuth } from '../auth'
-import { useFriends } from '../Friends/useFriends'
+import { UserType } from '@/types/user/user';
+import { useAuth } from '../auth';
 
-// -----------------------------------------------------------------------------
-// Api usage
-// -----------------------------------------------------------------------------
 const { isInGameOrQueue, refuseInvitation, deleteInvitation } =
-  getInvitationInteraction()
+	getInvitationInteraction();
 
-// -----------------------------------------------------------------------------
-// Types
-// -----------------------------------------------------------------------------
 type InvitationTab = {
-  invitation: InvitationType
-  close: Function
-}
+	invitation: InvitationType;
+	close: Function;
+};
 
-// -----------------------------------------------------------------------------
-// Constants
-// -----------------------------------------------------------------------------
-let currentInviteClose: Function | undefined = undefined
-let invitationsList: Array<InvitationTab> = []
+let currentInviteClose: Function | undefined = undefined;
+let invitationsList: Array<InvitationTab> = [];
 
-// -----------------------------------------------------------------------------
-// Composable
-// -----------------------------------------------------------------------------
 export function useGameInvite() {
-  const inviteError = (msg: string) => {
-    createToast(withProps(Error, { Msg: msg }), {
-      timeout: 5000,
-      type: 'danger',
-    })
-  }
+	const inviteError = (msg: string) => {
+		createToast(withProps(Error, { Msg: msg }), {
+			timeout: 5000,
+			type: 'danger',
+		});
+	};
 
-  const invitationExpired = (): void => {
-    createToast(withProps(Error, { Msg: 'Invitation expired' }), {
-      timeout: 5000,
-      type: 'danger',
-    })
-  }
+	const invitationExpired = (): void => {
+		createToast(withProps(Error, { Msg: 'Invitation expired' }), {
+			timeout: 5000,
+			type: 'danger',
+		});
+	};
 
-  const checkIfCanInvite = async (user: UserType): Promise<boolean> => {
-    if (user.status != 'connected') {
-      if (user.status == 'disconnected') {
-        inviteError(user.name + ' is disconnected')
-      }
-      return false
-    }
+	const checkIfCanInvite = async (user: UserType): Promise<boolean> => {
+		if (user.status != 'connected') {
+			if (user.status == 'disconnected') {
+				inviteError(user.name + ' is disconnected');
+			}
+			return false;
+		}
 
-    let res = await isInGameOrQueue(user.id)
-    if (res.ingame) {
-      inviteError(`${user.name} is already playing`)
-      return false
-    } else if (res.roomRoute.length > 0) {
-      inviteError(`${user.name} is already in a room or matchmaking`)
-      return false
-    }
+		let res = await isInGameOrQueue(user.id);
+		if (res.ingame) {
+			inviteError(`${user.name} is already playing`);
+			return false;
+		} else if (res.roomRoute.length > 0) {
+			inviteError(`${user.name} is already in a room or matchmaking`);
+			return false;
+		}
 
-    res = await isInGameOrQueue(useAuth().user.id)
-    if (res.roomRoute.length > 0) {
-      inviteError(`You already are in a room`)
-      return false
-    }
+		res = await isInGameOrQueue(useAuth().user.id);
+		if (res.roomRoute.length > 0) {
+			inviteError(`You already are in a room`);
+			return false;
+		}
 
-    return true
-  }
+		return true;
+	};
 
-  const createInviteNotification = (
-    invitation: InvitationType,
-    target: UserType,
-  ): void => {
-    if (currentInviteClose) {
-      currentInviteClose()
-    }
+	const createInviteNotification = (
+		invitation: InvitationType,
+		target: UserType,
+	): void => {
+		if (currentInviteClose) {
+			currentInviteClose();
+		}
 
-    const { close } = createToast(
-      withProps(Invite, { Invitation: invitation, Target: target }),
-      {
-        timeout: -1,
-        showCloseButton: false,
-        swipeClose: false,
-        hideProgressBar: true,
-        toastBackgroundColor: 'white',
-        position: 'top-center',
-      },
-    )
-    currentInviteClose = close
-  }
+		const { close } = createToast(
+			withProps(Invite, { Invitation: invitation, Target: target }),
+			{
+				timeout: -1,
+				showCloseButton: false,
+				swipeClose: false,
+				hideProgressBar: true,
+				toastBackgroundColor: 'white',
+				position: 'top-center',
+			},
+		);
+		currentInviteClose = close;
+	};
 
-  const closeInviteNotification = (): void => {
-    if (currentInviteClose != undefined) {
-      currentInviteClose()
-      currentInviteClose = undefined
-    }
-  }
+	const closeInviteNotification = (): void => {
+		if (currentInviteClose != undefined) {
+			currentInviteClose();
+			currentInviteClose = undefined;
+		}
+	};
 
-  const createInvitationNotification = (invitation: InvitationType): void => {
-    let { close } = createToast(
-      withProps(Invitation, { Invitation: invitation }),
-      {
-        timeout: -1,
-        swipeClose: false,
-        showCloseButton: false,
-        hideProgressBar: true,
-        toastBackgroundColor: 'white',
-      },
-    )
-    invitationsList.unshift({ invitation: invitation, close: close })
-  }
+	const createInvitationNotification = (invitation: InvitationType): void => {
+		let { close } = createToast(
+			withProps(Invitation, { Invitation: invitation }),
+			{
+				timeout: -1,
+				swipeClose: false,
+				showCloseButton: false,
+				hideProgressBar: true,
+				toastBackgroundColor: 'white',
+			},
+		);
+		invitationsList.unshift({ invitation: invitation, close: close });
+	};
 
-  const closeInvitationNotification = (invitation: InvitationType): void => {
-    let index = invitationsList.findIndex((tab) => {
-      return tab.invitation.host.id == invitation.host.id
-    })
-    if (index != -1) {
-      invitationsList[index].close()
-      invitationsList.splice(index, 1)
-    }
-  }
+	const closeInvitationNotification = (invitation: InvitationType): void => {
+		let index = invitationsList.findIndex((tab) => {
+			return tab.invitation.host.id == invitation.host.id;
+		});
+		if (index != -1) {
+			invitationsList[index].close();
+			invitationsList.splice(index, 1);
+		}
+	};
 
-  const redirectToGameRoom = (gameRoomId: number): void => {
-    router.push({
-      name: 'game-room',
-      params: {
-        id: gameRoomId,
-      },
-    })
-  }
+	const redirectToGameRoom = (gameRoomId: number): void => {
+		router.push({
+			name: 'game-room',
+			params: {
+				id: gameRoomId,
+			},
+		});
+	};
 
-  const closeEverything = async (): Promise<void> => {
-    invitationsList.forEach(async (invitation) => {
-      await refuseInvitation(invitation.invitation)
-      invitation.close()
-    })
-    invitationsList.length = 0
-    if (currentInviteClose) {
-      await deleteInvitation()
-      closeInviteNotification()
-    }
-  }
+	const closeEverything = async (): Promise<void> => {
+		invitationsList.forEach(async (invitation) => {
+			await refuseInvitation(invitation.invitation);
+			invitation.close();
+		});
+		invitationsList.length = 0;
+		if (currentInviteClose) {
+			await deleteInvitation();
+			closeInviteNotification();
+		}
+	};
 
-  return {
-    inviteError,
-    invitationExpired,
-    checkIfCanInvite,
-    createInviteNotification,
-    closeInviteNotification,
-    createInvitationNotification,
-    closeInvitationNotification,
-    redirectToGameRoom,
-    closeEverything,
-  }
+	return {
+		inviteError,
+		invitationExpired,
+		checkIfCanInvite,
+		createInviteNotification,
+		closeInviteNotification,
+		createInvitationNotification,
+		closeInvitationNotification,
+		redirectToGameRoom,
+		closeEverything,
+	};
 }

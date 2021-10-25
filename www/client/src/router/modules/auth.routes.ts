@@ -1,14 +1,11 @@
-import { RouteRecordRaw } from "vue-router";
+import { RouteRecordRaw } from 'vue-router';
 
-import Index               from "@/views/auth/Index.vue";
-import Register            from "@/views/auth/Register.vue";
-import Login               from "@/views/auth/Login.vue";
-import LoginMarvinCallback from "@/views/auth/LoginMarvinCallback.vue";
-import Logout              from "@/views/auth/Logout.vue";
+import Index from '@/views/auth/Index.vue';
+import Register from '@/views/auth/Register.vue';
+import Login from '@/views/auth/Login.vue';
+import LoginMarvinCallback from '@/views/auth/LoginMarvinCallback.vue';
+import Logout from '@/views/auth/Logout.vue';
 
-// -----------------------------------------------------------------------------
-// Routes
-// -----------------------------------------------------------------------------
 export const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/auth',

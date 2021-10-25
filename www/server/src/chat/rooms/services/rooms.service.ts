@@ -1,37 +1,22 @@
-import { Injectable }          from '@nestjs/common';
-import { InjectRepository }    from '@nestjs/typeorm';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Not, In, Repository } from 'typeorm';
-import * as bcrypt             from 'bcrypt'
+import * as bcrypt from 'bcrypt';
 
 import { User } from 'src/users/entities/user.entity';
 
 import { CreateRoomDto } from '../dto/create-room.dto';
 import { UpdateRoomDto } from '../dto/update-room.dto';
-import { Room }          from '../entities/room.entity'
+import { Room } from '../entities/room.entity';
 
 @Injectable()
-export class RoomsService
-{
-	// ---------------------------------------------------------------------------
-	// Constructor
-	// ---------------------------------------------------------------------------
+export class RoomsService {
 	constructor(
 		@InjectRepository(Room)
 		private readonly room_repo: Repository<Room>,
-	)
-	{
+	) {}
 
-	}
-
-	// ---------------------------------------------------------------------------
-	// Public methods
-	// ---------------------------------------------------------------------------
-	async create(
-		owner: User,
-		create_dto: CreateRoomDto,
-	)
-		: Promise<Room>
-	{
+	async create(owner: User, create_dto: CreateRoomDto): Promise<Room> {
 		if (create_dto.password)
 			create_dto.password = await this.hashSecure(create_dto.password);
 
@@ -41,58 +26,35 @@ export class RoomsService
 		return this.room_repo.save(room);
 	}
 
-	async findNotIn(
-		rooms: Room[],
-	)
-		: Promise<Room[]>
-	{
+	async findNotIn(rooms: Room[]): Promise<Room[]> {
 		return this.room_repo.find({
 			where: {
-				id: Not(In(rooms.map(room => room.id)))
-			}
+				id: Not(In(rooms.map((room) => room.id))),
+			},
 		});
 	}
 
-	async findVisibleNotIn(
-		rooms: Room[],
-	)
-		: Promise<Room[]>
-	{
+	async findVisibleNotIn(rooms: Room[]): Promise<Room[]> {
 		return this.room_repo.find({
 			where: {
-				id: Not(In(rooms.map(room => room.id))),
+				id: Not(In(rooms.map((room) => room.id))),
 				visible: true,
-			}
+			},
 		});
 	}
 
-	async find(
-		data: Object,
-	)
-		: Promise<Room[]>
-	{
+	async find(data: Object): Promise<Room[]> {
 		return this.room_repo.find(data);
 	}
 
-	async findOne(
-		data: Object,
-	)
-		: Promise<Room>
-	{
-		if (data['id'] === NaN)
-			return undefined;
+	async findOne(data: Object): Promise<Room> {
+		if (data['id'] === NaN) return undefined;
 
 		return this.room_repo.findOne(data);
 	}
 
-	async update(
-		room: Room,
-		update_dto: UpdateRoomDto,
-	)
-		: Promise<Room>
-	{
-		if (!update_dto.name)
-			delete update_dto.name;
+	async update(room: Room, update_dto: UpdateRoomDto): Promise<Room> {
+		if (!update_dto.name) delete update_dto.name;
 
 		if (update_dto.password)
 			update_dto.password = await this.hashSecure(update_dto.password);
@@ -103,47 +65,26 @@ export class RoomsService
 		return this.room_repo.save(room_update);
 	}
 
-	async remove(
-		room: Room,
-	)
-		: Promise<void>
-	{
+	async remove(room: Room): Promise<void> {
 		this.room_repo.remove(room);
 	}
 
-	async verifyPassword(
-		room: Room,
-		password: string,
-	)
-		: Promise<boolean>
-	{
-		if (!room.password)
-			return true;
+	async verifyPassword(room: Room, password: string): Promise<boolean> {
+		if (!room.password) return true;
 
-		if (!password)
-			return false;
+		if (!password) return false;
 
 		return this.hashVerify(password, room.password);
 	}
 
-	// -------------------------------------------------------------------------
-	// Private methods
-	// -------------------------------------------------------------------------
-	private async hashSecure(
-		data: string,
-	)
-		: Promise<string>
-	{
+	private async hashSecure(data: string): Promise<string> {
 		return bcrypt.hash(data, 10);
 	}
 
 	private async hashVerify(
 		data: string,
 		hashed_data: string,
-	)
-		: Promise<boolean>
-	{
+	): Promise<boolean> {
 		return bcrypt.compare(data, hashed_data);
 	}
-
 }
