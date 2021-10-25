@@ -4,9 +4,9 @@
 			<div class="card" v-for="match in roomsList" v-bind:key="match.id">
 				<header class="article-header">
 					<h2 class="article-title">
-						<div>{{ match.players[0].user.name }}</div>
+						<div>{{ match.players[0].user?.name }}</div>
 						<div>VS</div>
-						<div>{{ match.players[1].user.name }}</div>
+						<div>{{ match.players[1].user?.name }}</div>
 					</h2>
 				</header>
 				<div class="footer">

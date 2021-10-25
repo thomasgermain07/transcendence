@@ -5,7 +5,7 @@ import { GameOptions } from './gameOptions';
 export interface InvitationType {
 	gameOptions: GameOptions;
 	host: UserType;
-	guestId: Number;
+	guestId: number;
 }
 
 export interface GameInvitationAnswer extends InvitationType {

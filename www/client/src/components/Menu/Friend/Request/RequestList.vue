@@ -7,8 +7,7 @@
 			<v-contextmenu-item @click="onOpenDm(cm_user)"
 				>Send Message</v-contextmenu-item
 			>
-			<v-contextmenu-item
-				@click="onBlockUser(cm_user) && refuseRequest(cm_user)"
+			<v-contextmenu-item @click="refuseRequest(cm_user)"
 				>Block</v-contextmenu-item
 			>
 		</v-contextmenu>
@@ -63,6 +62,7 @@ export default defineComponent({
 		};
 
 		const refuseRequest = async (user: UserType) => {
+			onBlockUser(user);
 			await removeFriend(user);
 			emit('request_answered');
 		};

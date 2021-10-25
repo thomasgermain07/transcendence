@@ -97,9 +97,9 @@ export default defineComponent({
 				useSocket('chat').socket.emit('join', { room_id: res.data.id });
 				reloadRooms();
 				emit('close');
-			} catch (messages) {
+			} catch (messages: any) {
 				status.value = requestStatus.error;
-				errors.name.value = messages[0];
+				errors.name.value = messages?.[0];
 			}
 		};
 

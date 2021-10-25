@@ -5,7 +5,7 @@
 				type="password"
 				placeholder="password"
 				class="field-input"
-				v-if="room.password"
+				v-if="room?.password"
 				v-model="password_field"
 			/>
 		</div>

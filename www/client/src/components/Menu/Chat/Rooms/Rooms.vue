@@ -11,7 +11,7 @@
 	<div v-if="convs" class="convs__list">
 		<p v-if="!convs.length">No rooms registered</p>
 
-		<div v-for="conv in convs" :key="conv">
+		<div v-for="conv in convs" :key="conv.type + conv.target.id">
 			<div
 				class="convs-item"
 				@click.left="onOpenConv(conv)"

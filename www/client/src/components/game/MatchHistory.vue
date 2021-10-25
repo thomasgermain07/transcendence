@@ -5,7 +5,7 @@
 			<div class="container">
 				<div class="card" v-for="match in matchHistory" v-bind:key="match.id">
 					<div class="card_title">
-						<div v-if="userIsWinner(match.room.players)">
+						<div v-if="userIsWinner(match.room?.players)">
 							<p class="victory">VICTORY</p>
 						</div>
 						<div v-else>
@@ -17,27 +17,27 @@
 							<div class="team1">
 								<img
 									class="avatar"
-									:src="match.room.players[0].user.avatar"
+									:src="match.room?.players[0].user?.avatar"
 									alt="logo"
 									srcset=""
 								/>
-								<h3>{{ match.room.players[0].user.name.slice(0, 5) }}</h3>
-								<h3 class="score">{{ match.room.players[0].score }}</h3>
+								<h3>{{ match.room?.players[0].user?.name.slice(0, 5) }}</h3>
+								<h3 class="score">{{ match.room?.players[0].score }}</h3>
 							</div>
 							<div class="team2">
 								<img
 									class="avatar"
-									:src="match.room.players[1].user.avatar"
+									:src="match.room?.players[1].user?.avatar"
 									alt="logo"
 									srcset=""
 								/>
-								<h3>{{ match.room.players[1].user.name.slice(0, 5) }}</h3>
-								<h3 class="score">{{ match.room.players[1].score }}</h3>
+								<h3>{{ match.room?.players[1].user?.name.slice(0, 5) }}</h3>
+								<h3 class="score">{{ match.room?.players[1].score }}</h3>
 							</div>
 						</div>
 					</div>
 					<div class="card_title">
-						<p class="mode">Mode: {{ match.room.mode }}</p>
+						<p class="mode">Mode: {{ match.room?.mode }}</p>
 					</div>
 				</div>
 			</div>
@@ -72,9 +72,12 @@ export default defineComponent({
 			}
 		};
 
-		const userIsWinner = (players: Player[]): boolean | null | undefined => {
+		const userIsWinner = (
+			players: Player[] | undefined,
+		): boolean | null | undefined => {
+			if (!players) return;
 			const player = players.find(
-				(player) => player.user.name === user.value.name,
+				(player) => player.user?.name === user.value.name,
 			);
 			return player?.winner;
 		};

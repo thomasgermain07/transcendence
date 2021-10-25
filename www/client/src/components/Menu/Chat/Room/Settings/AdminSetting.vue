@@ -5,9 +5,10 @@
 			<input
 				type="password"
 				class="field-input"
-				v-model="roomParams.password"
+				v-model="password"
 				placeholder="New password"
 			/>
+			<p v-if="error" class="error">{{ error }}</p>
 			<p>or</p>
 			<button @click="deletePassword">Delete password</button>
 		</div>
@@ -16,24 +17,25 @@
 			<input
 				type="password"
 				class="field-input"
-				v-model="roomParams.password"
+				v-model="password"
 				placeholder="Create password"
 			/>
+			<p v-if="error" class="error">{{ error }}</p>
 		</div>
 		<div>
 			<p>Change Visibility section</p>
 			<div class="switch-ctn">
 				<div
 					class="switch"
-					:class="{ 'switch--selected-yes': roomParams.visibility }"
-					@click="roomParams.visibility = true"
+					:class="{ 'switch--selected-yes': roomParams.visible }"
+					@click="roomParams.visible = true"
 				>
 					Yes
 				</div>
 				<div
 					class="switch"
-					:class="{ 'switch--selected-no': !roomParams.visibility }"
-					@click="roomParams.visibility = false"
+					:class="{ 'switch--selected-no': !roomParams.visible }"
+					@click="roomParams.visible = false"
 				>
 					No
 				</div>
@@ -50,7 +52,7 @@
 </template>
 
 <script lang="ts">
-import { reactive, defineComponent } from 'vue';
+import { reactive, defineComponent, ref } from 'vue';
 
 import getChangeRoom from '@/composables/Chat/Room/modifyRoom';
 
@@ -66,10 +68,14 @@ export default defineComponent({
 	setup(props, { emit }) {
 		let { roomData } = useRoom();
 
+		const error = ref<string>('');
+		const password = ref<string>('');
+
 		let has_password = roomData.room!.password ? true : false;
 
 		let roomParams = reactive<RoomParamsType>({
-			visibility: roomData.room!.visible,
+			password: password.value,
+			visible: roomData.room!.visible,
 		});
 
 		const { changeRoom } = getChangeRoom();
@@ -81,13 +87,15 @@ export default defineComponent({
 
 		const onValidateChanges = async () => {
 			try {
-				if (roomParams.password != null && roomParams.password?.length == 0) {
-					delete roomParams.password;
-				}
+				if (roomParams.password != null)
+					roomParams.password = password.value || undefined;
+
 				await changeRoom(roomData.room!.id, roomParams);
 				await useRoom().reloadRoom();
 				emit('close');
-			} catch (e) {}
+			} catch (e: any) {
+				error.value = e?.[0];
+			}
 		};
 
 		const onDeleteRoom = async () => {
@@ -97,6 +105,8 @@ export default defineComponent({
 		};
 
 		return {
+			password,
+			error,
 			has_password,
 			roomParams,
 			deletePassword,
@@ -153,5 +163,9 @@ export default defineComponent({
 
 .switch--selected-no {
 	background-color: red;
+}
+
+.error {
+	color: rgb(216, 14, 14);
 }
 </style>

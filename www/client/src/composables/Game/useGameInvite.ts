@@ -14,7 +14,6 @@ import Invite from '@/components/game/duel/invite/Invite.vue';
 
 import { UserType } from '@/types/user/user';
 import { useAuth } from '../auth';
-import { useFriends } from '../Friends/useFriends';
 
 const { isInGameOrQueue, refuseInvitation, deleteInvitation } =
 	getInvitationInteraction();

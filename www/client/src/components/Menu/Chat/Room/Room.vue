@@ -4,7 +4,7 @@
 			<RoomCM
 				:User="cm_user"
 				:IsModerator="isModerator(me.id)"
-				:IsOwner="me.id == roomData.room.owner.id"
+				:IsOwner="me.id == roomData.room?.owner.id"
 				:Room="roomData.room"
 			/>
 		</v-contextmenu>
@@ -19,7 +19,7 @@
 			<div class="messages-ctn" v-if="!roomData.open_setting">
 				<div
 					v-for="message in messages"
-					:key="message"
+					:key="message.id"
 					class="msg"
 					:class="{ 'msg--from-me': message.author.id == me.id }"
 				>
@@ -32,7 +32,7 @@
 						{{ message.author.name }}
 						<i v-if="isModerator(message.author.id)" class="fas fa-crown"></i>
 						<i
-							v-if="message.author.id == roomData.room.owner.id"
+							v-if="message.author.id == roomData.room?.owner.id"
 							class="fas fa-house-user"
 						></i>
 					</p>
@@ -40,7 +40,7 @@
 						{{ message.author.name }}
 						<i v-if="isModerator(message.author.id)" class="fas fa-crown"></i>
 						<i
-							v-if="message.author.id == roomData.room.owner.id"
+							v-if="message.author.id == roomData.room?.owner.id"
 							class="fas fa-house-user"
 						></i>
 					</p>
@@ -76,14 +76,21 @@
 				<div class="input__btn" @click="onSendMsg">Send</div>
 			</div>
 			<div v-else class="input--muted">
-				you are muted until {{ showDate(isMuted(me.id).expired_at) }}
+				You are muted until {{ showDate(isMuted(me.id).expired_at) }}
 			</div>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch, defineComponent } from 'vue';
+import {
+	computed,
+	onMounted,
+	onUnmounted,
+	ref,
+	watch,
+	defineComponent,
+} from 'vue';
 
 import { useAuth } from '@/composables/auth';
 import { useSocket } from '@/composables/socket';
@@ -261,7 +268,8 @@ export default defineComponent({
 			}
 		};
 
-		const showDate = (date: Date) => {
+		const showDate = (date: Date | null) => {
+			if (!date) return '';
 			let t = new Date(date);
 			return t.toLocaleString();
 		};

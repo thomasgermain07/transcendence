@@ -1,10 +1,10 @@
 import { UserType } from '../user/user';
 
 export type RoomType = {
-	id: Number;
-	name: String;
+	id: number;
+	name: string;
 	owner: UserType;
-	visible: Boolean;
-	password: Boolean;
-	notification: Boolean;
+	visible: boolean;
+	password: boolean;
+	notification: boolean;
 };

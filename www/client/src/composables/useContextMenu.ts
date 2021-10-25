@@ -19,7 +19,7 @@ import { useGameInvite } from './Game/useGameInvite';
 const { removeFriend, blockUser, unblockUser } = getUserInteraction();
 
 export function useContextMenu() {
-	const onProfile = (user: UserType) => {
+	const onProfile = (user: UserType | undefined) => {
 		if (user != undefined) {
 			router.push({
 				name: 'user-profile',
@@ -59,12 +59,14 @@ export function useContextMenu() {
 		useFriends().reloadFriends();
 	};
 
-	const onBlockUser = async (user: UserType) => {
+	const onBlockUser = async (user: UserType | undefined) => {
+		if (!user) return;
 		await blockUser(user);
 		useFriends().reloadIgnored();
 	};
 
-	const onUnblockUser = async (user: UserType) => {
+	const onUnblockUser = async (user: UserType | undefined) => {
+		if (!user) return;
 		await unblockUser(user);
 		useFriends().reloadIgnored();
 	};

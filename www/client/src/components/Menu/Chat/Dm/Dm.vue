@@ -4,7 +4,7 @@
 			<div class="messages-ctn">
 				<div
 					v-for="message in messages"
-					:key="message"
+					:key="message.id"
 					class="msg"
 					:class="{ 'msg--from-me': message.author.id == me.id }"
 				>
@@ -98,9 +98,9 @@ export default defineComponent({
 			if (message_field.value.length) {
 				try {
 					await createMessage(props.UserId!, message_field.value);
-				} catch (e) {
-					if (e.response.status == 422) {
-						createToast(e.response.data.message, {
+				} catch (e: any) {
+					if (e?.response?.status == 422) {
+						createToast(e?.response?.data?.message, {
 							type: 'warning',
 						});
 					}

@@ -25,14 +25,13 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import Leaderboard from '../../components/game/Leaderboard.vue';
-import ErrorPage from '@/components/ErrorPage.vue';
 import EditProfileWindow from '@/components/edit/EditProfileWindow.vue';
 
 import { useAuth } from '../../composables/auth';
 
 export default defineComponent({
 	name: 'app-home',
-	components: { Leaderboard, ErrorPage, EditProfileWindow },
+	components: { Leaderboard, EditProfileWindow },
 
 	setup() {
 		const { user, is_authenticated, edit } = useAuth();

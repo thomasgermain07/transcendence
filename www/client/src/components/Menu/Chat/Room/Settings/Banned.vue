@@ -3,7 +3,7 @@
 		<p>List of banned users</p>
 		<div v-if="bannedUsers.length == 0">No banned user for this room</div>
 
-		<div v-for="user in bannedUsers" :key="user">
+		<div v-for="user in bannedUsers" :key="user.id">
 			{{ user.name }}
 			<button @click="onClickUnban(user.id)">unban</button>
 		</div>

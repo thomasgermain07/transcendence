@@ -2,12 +2,12 @@
 	<div class="players-box">
 		<div class="player-details" v-if="playerLeft">
 			<section class="player-logo">
-				<img :src="playerLeft?.user.avatar" alt="logo1" />
+				<img :src="playerLeft.user?.avatar" alt="logo1" />
 			</section>
 			<section class="player-info">
 				<span class="winner">{{ playerLeft?.winner ? '👑' : '' }}</span>
-				<div class="player-name">{{ playerLeft?.user.name.slice(0, 5) }}</div>
-				<div class="player-rank">RANK {{ playerLeft?.user.ladderLevel }}</div>
+				<div class="player-name">{{ playerLeft.user?.name.slice(0, 5) }}</div>
+				<div class="player-rank">RANK {{ playerLeft.user?.ladderLevel }}</div>
 			</section>
 		</div>
 		<div v-else>Waiting for Player to join</div>
@@ -36,12 +36,12 @@
 		</div>
 		<div class="player-details inverse" v-if="playerRight">
 			<section class="player-logo">
-				<img :src="playerRight?.user.avatar" alt="logo2" />
+				<img :src="playerRight.user?.avatar" alt="logo2" />
 			</section>
 			<section class="player-info">
-				<span class="winner">{{ playerRight?.winner ? '👑' : '' }}</span>
-				<div class="player-name">{{ playerRight?.user.name.slice(0, 5) }}</div>
-				<div class="player-rank">RANK {{ playerRight?.user.ladderLevel }}</div>
+				<span class="winner">{{ playerRight.winner ? '👑' : '' }}</span>
+				<div class="player-name">{{ playerRight.user?.name.slice(0, 5) }}</div>
+				<div class="player-rank">RANK {{ playerRight.user?.ladderLevel }}</div>
 			</section>
 		</div>
 		<div v-else>Waiting for Player to join</div>

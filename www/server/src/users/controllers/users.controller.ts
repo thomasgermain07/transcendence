@@ -159,13 +159,13 @@ export class UsersController {
 
 		if (!target) throw new NotFoundException('User not found.');
 
-		if (!(await this.canModify(user, target)))
+		if (!this.canModify(user, target))
 			throw new ForbiddenException('You can not delete this user.');
 
 		this.users_svc.remove(target);
 	}
 
-	private async canModify(user: User, target: User): Promise<boolean> {
+	private canModify(user: User, target: User): boolean {
 		return user.id === target.id;
 	}
 }

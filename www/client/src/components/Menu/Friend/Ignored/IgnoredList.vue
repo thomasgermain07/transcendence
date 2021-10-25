@@ -12,7 +12,7 @@
 		<div
 			class="user-item"
 			v-for="user in Ignored"
-			:key="user"
+			:key="user.id"
 			@click.right="cm_user = user"
 			v-contextmenu:user-interaction
 		>

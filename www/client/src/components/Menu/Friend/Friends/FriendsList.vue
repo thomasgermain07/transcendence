@@ -7,7 +7,7 @@
 		<div
 			class="friend-item"
 			v-for="friend in Friends"
-			:key="friend"
+			:key="friend.id"
 			@click.left="openDm(friend)"
 			@click.right="onRightClick(friend)"
 			v-contextmenu:contextmenu

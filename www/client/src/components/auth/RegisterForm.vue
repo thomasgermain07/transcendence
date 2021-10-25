@@ -41,7 +41,7 @@ export default defineComponent({
 	name: 'auth-register-form',
 
 	setup() {
-		const messages = ref([]);
+		const messages = ref<string[]>([]);
 		const user = reactive<RegisterType>({
 			name: '',
 			email: '',
@@ -51,9 +51,12 @@ export default defineComponent({
 		const { register } = useAuth();
 
 		const submit = (): void => {
-			register(user).catch((err: AxiosErrType) => {
-				messages.value = err.response?.data.message;
-			});
+			messages.value = [];
+			register(user)
+				.then(() => messages.value.push('Registration complete.'))
+				.catch((err: AxiosErrType) => {
+					messages.value = err.response?.data.message;
+				});
 		};
 
 		return {

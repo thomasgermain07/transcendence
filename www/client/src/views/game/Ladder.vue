@@ -4,7 +4,7 @@
 		<div v-else>
 			<GameLobby
 				v-if="lobby.visible"
-				:gameMode="lobby?.player?.room.mode"
+				:gameMode="lobby.player?.room?.mode"
 				:matchFound="lobby.matched"
 				@close="leaveLobby"
 				@renewSearchLadder="expandRange"
@@ -12,13 +12,13 @@
 			>
 				<template v-slot:header> Hi {{ currentUser.name }} </template>
 				<template v-slot:map>
-					<p>{{ lobby?.player?.room.option.map }}</p>
+					<p>{{ lobby.player?.room?.option.map }}</p>
 				</template>
 				<template v-slot:difficulty>
-					<p>{{ lobby?.player?.room.option.difficulty }}</p>
+					<p>{{ lobby.player?.room?.option.difficulty }}</p>
 				</template>
 				<template v-slot:power-ups>
-					<p v-if="lobby?.player?.room.option.powerUps">yes</p>
+					<p v-if="lobby.player?.room?.option.powerUps">yes</p>
 					<p v-else>no</p>
 				</template>
 			</GameLobby>

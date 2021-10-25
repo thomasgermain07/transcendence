@@ -2,7 +2,7 @@
 	<div class="setting-ctn">
 		<header class="window-header">
 			<i class="fas fa-arrow-left" @click="$emit('close')"></i>
-			<p class="window-title">{{ room.name }} settings</p>
+			<p class="window-title">{{ room?.name }} settings</p>
 			<i class="fas fa-arrow-left window-bar__separator"></i>
 		</header>
 		<div class="content">

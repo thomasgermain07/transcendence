@@ -12,7 +12,7 @@
 				/>
 			</div>
 			<div v-if="search">
-				<div class="users-item" v-for="user in users" :key="user">
+				<div class="users-item" v-for="user in users" :key="user.id">
 					<router-link
 						:to="{ name: 'user-profile', params: { id: user.id } }"
 						class="users-link"
@@ -23,7 +23,7 @@
 				</div>
 			</div>
 			<div v-else>
-				<div class="users-item" v-for="user in users" :key="user">
+				<div class="users-item" v-for="user in users" :key="user.id">
 					<router-link
 						:to="{ name: 'user-profile', params: { id: user.id } }"
 						class="users-link"

@@ -22,7 +22,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeUnmount, onMounted, PropType, ref } from 'vue';
+import {
+	defineComponent,
+	onBeforeUnmount,
+	onMounted,
+	PropType,
+	ref,
+} from 'vue';
 import { InvitationType } from '@/types/game/invitation';
 import { UserType } from '@/types/user/user';
 import { useGameInvite } from '@/composables/Game/useGameInvite';

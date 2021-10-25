@@ -91,20 +91,15 @@ export class GameRoomsGateway
 		private userService: UsersService,
 	) {}
 
-	afterInit(server: Server): void {
-		console.log(`GameRoom:Gateway: Initialized.`);
-	}
+	afterInit(server: Server): void {}
 
 	handleConnection(client: Socket, ...args: any[]): void {
-		console.log(`GameRoom:Gateway: Connection.`);
 		if (!client.handshake?.headers?.cookie) {
 			client.disconnect();
 		}
 	}
 
-	handleDisconnect(client: Socket): void {
-		console.log(`GameRoom:Gateway: Disconnect.`);
-	}
+	handleDisconnect(client: Socket): void {}
 
 	@SubscribeMessage('joinRoom')
 	async handleRoomJoin(

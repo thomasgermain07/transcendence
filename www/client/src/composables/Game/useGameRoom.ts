@@ -50,7 +50,7 @@ const useGameRoom = () => {
 			await get();
 			room.value = response.data;
 			state.currentPlayer = response.data.players.find(
-				(player: Player) => player.user.id === currentUser.value.id,
+				(player: Player) => player.user?.id === currentUser.value.id,
 			);
 			if (
 				(!state.currentPlayer && response.data.state === GameState.WAITING) ||
