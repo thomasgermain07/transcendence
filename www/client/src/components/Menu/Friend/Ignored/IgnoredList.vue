@@ -30,7 +30,7 @@ export default defineComponent({
 	props: {
 		Ignored: Array as PropType<Array<UserType>>,
 	},
-	setup(props, { emit }) {
+	setup() {
 		let cm_user = ref<UserType>();
 
 		const { onProfile, onUnblockUser } = useContextMenu();

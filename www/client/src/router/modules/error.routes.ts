@@ -4,7 +4,7 @@ import NotFound from '@/views/error/NotFound.vue';
 
 export const routes: Array<RouteRecordRaw> = [
 	{
-		path: '/:catchAll(.*)',
+		path: '/:catchAll(.*)*',
 		name: 'error-not-found',
 		component: NotFound,
 	},

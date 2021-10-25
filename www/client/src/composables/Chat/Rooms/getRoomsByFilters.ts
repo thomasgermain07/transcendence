@@ -1,4 +1,4 @@
-import { ref, Ref, computed } from 'vue';
+import { ref, Ref } from 'vue';
 
 export function getRoomsByName(rooms: Ref) {
 	let searchQuery = ref('');

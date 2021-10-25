@@ -15,7 +15,6 @@
 				@close="roomData.open_setting = false"
 				@leave="$emit('leave')"
 			/>
-			<!-- TODO (CSS) : Check why long messages with no space overflow on x axis -->
 			<div class="messages-ctn" v-if="!roomData.open_setting">
 				<div
 					v-for="message in messages"
@@ -76,7 +75,7 @@
 				<div class="input__btn" @click="onSendMsg">Send</div>
 			</div>
 			<div v-else class="input--muted">
-				You are muted until {{ showDate(isMuted(me.id).expired_at) }}
+				You are muted until {{ showDate(getMuted(me.id).expired_at) }}
 			</div>
 		</div>
 	</div>
@@ -125,6 +124,7 @@ export default defineComponent({
 			sendMessage,
 			isModerator,
 			isMuted,
+			getMuted,
 			resetData,
 		} = useRoom();
 
@@ -261,10 +261,8 @@ export default defineComponent({
 		};
 
 		const checkIfMuted = () => {
-			let perm = isMuted(me.id);
-
-			if (perm != undefined) {
-				startCountDown(perm.expired_at!);
+			if (isMuted(me.id)) {
+				startCountDown(getMuted(me.id).expired_at!);
 			}
 		};
 
@@ -291,6 +289,7 @@ export default defineComponent({
 			cm_user,
 			isModerator,
 			isMuted,
+			getMuted,
 			onSendMsg,
 			onMoreMsg,
 			showDate,

@@ -102,7 +102,12 @@ export function useRoom() {
 	};
 
 	const isMuted = (userID: number) => {
-		return roomData.muted.find((perm) => perm.user.id == userID);
+		return roomData.muted.findIndex((perm) => perm.user.id == userID) != -1;
+	};
+
+	const getMuted = (userId: number) => {
+		let index = roomData.muted.findIndex((perm) => perm.user.id == userId);
+		return roomData.muted[index];
 	};
 
 	const isBanned = (userId: number) => {
@@ -160,6 +165,7 @@ export function useRoom() {
 		revokePermission,
 		isModerator,
 		isMuted,
+		getMuted,
 		isBanned,
 		leave,
 		resetData,
