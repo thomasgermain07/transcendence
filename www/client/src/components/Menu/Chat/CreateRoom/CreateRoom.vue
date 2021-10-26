@@ -96,7 +96,14 @@ export default defineComponent({
 				emit('close');
 			} catch (messages: any) {
 				status.value = requestStatus.error;
-				errors.name.value = messages?.[0];
+
+				if (Array.isArray(messages)) {
+					messages.forEach((error: string) =>
+						errors.name.value += error + " "
+					);
+				} else {
+					errors.name.value = messages;
+				}
 			}
 		};
 

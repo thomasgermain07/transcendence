@@ -55,7 +55,15 @@ export default defineComponent({
 					emit('joinned');
 				})
 				.catch((e) => {
-					error.value = e.response.data.message;
+					e = e?.response?.data?.message;
+
+					if (Array.isArray(e)) {
+						e.forEach((err: string) =>
+							error.value += err + " "
+						);
+					} else {
+						error.value = e;
+					}
 				});
 		};
 
