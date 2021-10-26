@@ -82,6 +82,7 @@ export default defineComponent({
 }
 
 .modal-container {
-  z-index: 1000
+	z-index: 1000;
+	overflow: scroll;
 }
 </style>

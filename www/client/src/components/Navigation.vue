@@ -118,7 +118,6 @@ export default defineComponent({
 .user {
 	display: flex;
 	align-items: center;
-	text-transform: capitalize;
 	font-weight: 500;
 }
 </style>

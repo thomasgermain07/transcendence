@@ -172,7 +172,6 @@ export default defineComponent({
 
 <style scoped>
 .duel-window {
-	height: 50vh;
 	width: 50vw;
 	background-color: lightgray;
 	outline: 2px solid var(--tertiary-color);

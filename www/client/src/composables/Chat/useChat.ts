@@ -13,6 +13,7 @@ import { useAuth } from '../auth';
 import { useWindowInteraction } from './WindowInteraction/useWindowInteraction';
 import { DirectMessageType } from '@/types/chat/direct_message';
 import { useFriends } from '../Friends/useFriends';
+import { useRoom } from './Room/useRoom';
 
 const { fetchRooms } = getFetchRooms();
 const { fetchUsers } = getFetchUsers();
@@ -124,6 +125,8 @@ export function useChat() {
 		if (index != -1) {
 			rooms.value.splice(index, 1);
 		}
+		useWindowInteraction().closeChatView()
+		useRoom().resetData()
 	};
 
 	return {

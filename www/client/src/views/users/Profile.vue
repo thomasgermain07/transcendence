@@ -237,7 +237,6 @@ export default defineComponent({
 .info__name {
 	font-weight: 800;
 	font-size: 64px;
-	text-transform: capitalize;
 	letter-spacing: -1px;
 	margin: 20px 0 0;
 	color: var(--tertiary-color);

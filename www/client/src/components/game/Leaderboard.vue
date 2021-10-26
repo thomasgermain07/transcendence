@@ -120,7 +120,6 @@ table thead {
 table tr {
 	background: white;
 	border-bottom: 1px solid;
-	text-transform: capitalize;
 }
 
 table tbody tr:nth-of-type(odd) {
