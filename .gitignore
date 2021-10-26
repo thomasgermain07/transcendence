@@ -5,4 +5,4 @@
 /.vscode
 
 # Env (contains API secret)
-/.env
+# /.env

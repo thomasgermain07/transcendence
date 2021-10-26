@@ -22,21 +22,21 @@ export function useFriends() {
 	let me = useAuth().user;
 
 	const loadData = async () => {
-		friendsList.value = await fetchFriends();
-		ignoredList.value = await fetchIgnored();
-		requestsList.value = await fetchRequests();
+		friendsList.value = await fetchFriends() ?? [];
+		ignoredList.value = await fetchIgnored() ?? [];
+		requestsList.value = await fetchRequests() ?? [];
 	};
 
 	const reloadFriends = async () => {
-		friendsList.value = await fetchFriends();
+		friendsList.value = await fetchFriends() ?? [];
 	};
 
 	const reloadIgnored = async () => {
-		ignoredList.value = await fetchIgnored();
+		ignoredList.value = await fetchIgnored() ?? [];
 	};
 
 	const reloadRequests = async () => {
-		requestsList.value = await fetchRequests();
+		requestsList.value = await fetchRequests() || [];
 	};
 
 	const friends = computed(() => {

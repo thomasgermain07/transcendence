@@ -25,8 +25,8 @@ const notifications = ref<NotificationType[]>([]);
 export function useChat() {
 	const loadData = async () => {
 		try {
-			rooms.value = await fetchRooms(true);
-			relatedUsers.value = await fetchUsers();
+			rooms.value = await fetchRooms(true) ?? [];
+			relatedUsers.value = await fetchUsers() ?? [];
 		} catch (e) {
 			console.error('Something went wrong with chat data');
 		}
@@ -82,11 +82,11 @@ export function useChat() {
 	};
 
 	const reloadRooms = async () => {
-		rooms.value = await fetchRooms(true);
+		rooms.value = await fetchRooms(true) ?? [];
 	};
 
 	const reloadRelatedUsers = async () => {
-		relatedUsers.value = await fetchUsers();
+		relatedUsers.value = await fetchUsers() ?? [];
 	};
 
 	const readNotif = (room_id: Number) => {
