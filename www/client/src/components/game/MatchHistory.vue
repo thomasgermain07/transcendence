@@ -152,7 +152,6 @@ export default defineComponent({
 .team1 h3,
 .team2 h3 {
 	width: 130px;
-	text-transform: uppercase;
 	text-align: left;
 	padding-left: 20px;
 }

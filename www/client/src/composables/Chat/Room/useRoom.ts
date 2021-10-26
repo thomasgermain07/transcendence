@@ -126,6 +126,7 @@ export function useRoom() {
 				createToast('Successfully left the room', {
 					type: 'success',
 				});
+				resetData()
 			})
 			.catch(() => {
 				useSocket('chat').socket.emit('leave', { room_id: roomId });
@@ -145,6 +146,7 @@ export function useRoom() {
 	};
 
 	const resetData = () => {
+		roomData.room = undefined;
 		roomData.max_msg = false;
 		roomData.page = 1;
 		roomData.messages.length = 0;

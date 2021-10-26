@@ -179,6 +179,11 @@ export default defineComponent({
 	justify-content: space-between;
 	border-bottom: 2px solid black;
 	padding: 3px;
+	cursor: pointer;
+}
+
+.open-chat-btn:hover {
+	font-weight: 600;
 }
 
 .roll-menu {
