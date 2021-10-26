@@ -94,6 +94,8 @@ export default defineComponent({
 				await useRoom().reloadRoom();
 				emit('close');
 			} catch (e: any) {
+				error.value = '';
+
 				if (Array.isArray(e)) {
 					e.forEach((err: string) =>
 						error.value += err + " "

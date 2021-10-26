@@ -56,6 +56,7 @@ export default defineComponent({
 				})
 				.catch((e) => {
 					e = e?.response?.data?.message;
+					error.value = '';
 
 					if (Array.isArray(e)) {
 						e.forEach((err: string) =>

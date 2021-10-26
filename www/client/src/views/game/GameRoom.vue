@@ -220,7 +220,6 @@ export default defineComponent({
 			gameRoomsSocket.emit(
 				'joinRoom',
 				parseInt(roomIdFromRoute),
-				(message: string) => console.log(message),
 			);
 		};
 
