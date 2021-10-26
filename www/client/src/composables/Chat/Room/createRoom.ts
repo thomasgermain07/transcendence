@@ -40,7 +40,7 @@ export function getRoomInputs() {
 	};
 }
 
-export async function createRoom(fields: any, status: Ref) {
+export async function createRoom(fields: any, status: Ref<requestStatus>) {
 	status.value = requestStatus.sending;
 	const { axios } = useAxios();
 
